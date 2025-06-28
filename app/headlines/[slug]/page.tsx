@@ -109,8 +109,6 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         <RelatedArticles 
           currentSlug={trimmedSlug} 
           articles={otherHeadlines}
-          youtubeVideoId={headline.youtubeVideoId}
-          videoTitle={headline.videoTitle}
         />
       </div>
     </main>

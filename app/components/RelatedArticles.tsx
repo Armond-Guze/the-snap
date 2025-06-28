@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { urlFor } from "@sanity/lib/image";
 import { Calendar, TrendingUp, Eye } from "lucide-react";
 import type { HeadlineListItem } from "@/types";
 import NewsletterSignup from "./NewsletterSignup";
