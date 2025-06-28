@@ -102,7 +102,7 @@ export default function FilteredHeadlines({
           <div>
             <h3 className="text-lg font-semibold mb-3 text-white">Filter by Category</h3>
             <CategoryFilter
-              selectedCategory={selectedCategory}
+              selectedCategory={selectedCategory || undefined}
               onCategoryChange={handleCategoryChange}
             />
           </div>
