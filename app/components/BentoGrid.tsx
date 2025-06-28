@@ -90,12 +90,7 @@ export default async function BentoGrid() {
           ) : (
             <Link href="/headlines" className="md:col-span-2 md:row-span-2 group">
               <div className="relative h-full min-h-[350px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
-                <Image
-                  src="/images/jalen-hurts.png"
-                  alt="Featured News"
-                  fill
-                  className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 to-gray-900/60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 
                 <div className="relative h-full flex flex-col justify-between p-6">
@@ -125,13 +120,7 @@ export default async function BentoGrid() {
           {/* Power Rankings Card - Right Side */}
           <Link href="/power-rankings" className="md:col-span-2 md:row-span-2 group">
             <div className="relative h-full min-h-[350px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-2xl hover:shadow-3xl">
-            <Image
-              src="/images/lombardi-trophy.png"
-              alt="Power Rankings"
-              fill
-              className="object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700"
-              priority
-            />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/60 to-gray-900/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             
             <div className="relative h-full flex flex-col justify-between p-8">
@@ -224,12 +213,7 @@ export default async function BentoGrid() {
           <>
             <Link href="/headlines" className="col-span-1 group">
               <div className="relative h-full min-h-[160px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-lg hover:shadow-xl">
-                <Image
-                  src="/images/patrick-mahomes.png"
-                  alt="Player Analysis"
-                  fill
-                  className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 to-gray-900/60" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
                 
                 <div className="relative h-full flex items-end p-4">
@@ -247,12 +231,7 @@ export default async function BentoGrid() {
 
             <Link href="/about" className="col-span-1 group">
               <div className="relative h-full min-h-[160px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-lg hover:shadow-xl">
-                <Image
-                  src="/images/josh-allen.png"
-                  alt="Draft Analysis"
-                  fill
-                  className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 to-gray-900/60" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
                 
                 <div className="relative h-full flex items-end p-4">
@@ -270,12 +249,7 @@ export default async function BentoGrid() {
 
             <Link href="/headlines" className="col-span-1 group">
               <div className="relative h-full min-h-[160px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-lg hover:shadow-xl">
-                <Image
-                  src="/images/lamar-jackson.png"
-                  alt="Game Recaps"
-                  fill
-                  className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 to-gray-900/60" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
                 
                 <div className="relative h-full flex items-end p-4">
