@@ -177,7 +177,7 @@ export default async function BentoGrid() {
 
         {/* Small Cards Row */}
         {latestHeadlines.length > 0 ? (
-          latestHeadlines.slice(0, 4).map((headline, index) => (
+          latestHeadlines.slice(0, 4).map((headline: any, index: number) => (
             <Link 
               key={headline._id} 
               href={headline.slug?.current ? `/headlines/${headline.slug.current}` : '/headlines'} 
