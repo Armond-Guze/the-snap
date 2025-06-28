@@ -4,20 +4,15 @@ import { urlFor } from "@sanity/lib/image";
 import { Calendar, TrendingUp, Eye } from "lucide-react";
 import type { HeadlineListItem } from "@/types";
 import NewsletterSignup from "./NewsletterSignup";
-import YouTubeEmbed from "./YouTubeEmbed";
 
 interface RelatedArticlesProps {
   currentSlug: string;
   articles: HeadlineListItem[];
-  youtubeVideoId?: string;
-  videoTitle?: string;
 }
 
 export default function RelatedArticles({ 
   currentSlug, 
-  articles, 
-  youtubeVideoId,
-  videoTitle 
+  articles
 }: RelatedArticlesProps) {
   // Filter out current article and get smart recommendations
   const relatedArticles = articles
@@ -154,18 +149,8 @@ export default function RelatedArticles({
         </div>
       </div>
 
-      {/* YouTube Video Embed */}
-      {youtubeVideoId && (
-        <YouTubeEmbed 
-          videoId={youtubeVideoId}
-          title={videoTitle}
-        />
-      )}
-
-      {/* Fallback Newsletter if no video */}
-      {!youtubeVideoId && (
-        <NewsletterSignup variant="sidebar" />
-      )}
+      {/* Newsletter Signup */}
+      <NewsletterSignup variant="sidebar" />
     </aside>
   );
 }
