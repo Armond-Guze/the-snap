@@ -147,7 +147,7 @@ export default async function BentoGrid() {
                   <div className="flex items-center space-x-3">
                     <span className="text-sm text-gray-400">Top 3:</span>
                     <div className="flex -space-x-2">
-                      {topTeams.map((team, index) => (
+                      {topTeams.map((team: any, index: number) => (
                         <div key={team._id} className="relative">
                           {team.teamLogo?.asset ? (
                             <Image
