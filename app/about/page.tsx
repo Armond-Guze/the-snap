@@ -5,7 +5,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-black text-white">
       {/* Hero Section */}
       <div className="relative px-6 py-24 sm:py-32 lg:px-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-black"></div>
+        <div className="absolute inset-0 bg-black"></div>
         
         <div className="relative mx-auto max-w-5xl">
           {/* Header */}

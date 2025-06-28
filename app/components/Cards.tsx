@@ -37,7 +37,7 @@ const qbs = [
 
 export default function CardsBento() {
   return (
-    <section className="relative min-h-screen py-24 sm:py-32 text-white overflow-hidden z-0 bg-transparent">
+    <section className="relative min-h-screen py-24 sm:py-32 text-white overflow-hidden z-0 bg-black">
       {/* Background Image */}
       <div className="absolute inset-0 -z-20">
         <Image
@@ -46,7 +46,7 @@ export default function CardsBento() {
           fill
           priority
           quality={100}
-          className="object-cover opacity-30"
+          className="object-cover opacity-5"
           sizes="100vw"
         />
       </div>
@@ -56,20 +56,20 @@ export default function CardsBento() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-indigo-400 text-base font-semibold mb-4 tracking-wider uppercase">
+          <h2 className="text-gray-400 text-base font-semibold mb-4 tracking-wider uppercase">
             Elite QB Watch
           </h2>
           <p className="text-4xl sm:text-5xl font-bold text-white mb-6">
             Top 5 Quarterbacks to Watch in 2025
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-white mx-auto rounded-full"></div>
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {qbs.map((qb, i) => (
             <div
               key={i}
-              className="bg-black/70 backdrop-blur-md text-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 flex flex-col transition-all duration-500 hover:scale-[1.02] border border-white/10 group"
+              className="bg-black/70 backdrop-blur-md text-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-white/20 flex flex-col transition-all duration-500 hover:scale-[1.02] border border-white/10 group"
             >
               <a
                 href={`https://www.youtube.com/watch?v=${qb.videoId}`}
@@ -95,13 +95,13 @@ export default function CardsBento() {
                     </div>
                   </div>
                   {/* Rank badge */}
-                  <div className="absolute top-4 left-4 w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20">
+                  <div className="absolute top-4 left-4 w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20">
                     <span className="text-white font-bold text-lg">#{i + 1}</span>
                   </div>
                 </div>
               </a>
               <div className="p-6 flex-1">
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors duration-300">
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gray-300 transition-colors duration-300">
                   {qb.name}
                 </h3>
                 <p className="text-sm text-gray-300 leading-relaxed">{qb.description}</p>

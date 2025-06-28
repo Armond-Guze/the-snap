@@ -4,8 +4,8 @@ import Image from "next/image";
 
 export default function FeaturesSection() {
   return (
-    <section className="relative py-24 sm:py-32 bg-transparent">
-      <div className="absolute inset-0 bg-gradient-to-r from-gray-900/20 via-transparent to-gray-900/20"></div>
+    <section className="relative py-24 sm:py-32 bg-black">
+      <div className="absolute inset-0 bg-black/90"></div>
 
       <div className="relative mx-auto max-w-6xl px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-12 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center">

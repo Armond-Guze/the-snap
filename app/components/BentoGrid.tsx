@@ -120,7 +120,7 @@ export default async function BentoGrid() {
           {/* Power Rankings Card - Right Side */}
           <Link href="/power-rankings" className="md:col-span-2 md:row-span-2 group">
             <div className="relative h-full min-h-[350px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-2xl hover:shadow-3xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/60 to-gray-900/60" />
+            <div className="absolute inset-0 bg-gray-900/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             
             <div className="relative h-full flex flex-col justify-between p-8">
