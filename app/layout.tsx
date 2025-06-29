@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "The Snap - NFL News, Power Rankings & Analysis",
-  description: "Your premier destination for NFL insights, power rankings, and breaking news. Stay ahead of the game with expert analysis and comprehensive coverage.",
+  description:
+    "Your premier destination for NFL insights, power rankings, and breaking news. Stay ahead of the game with expert analysis and comprehensive coverage.",
 };
 
 export default function RootLayout({
@@ -30,9 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Navbar />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>

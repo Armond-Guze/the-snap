@@ -15,11 +15,9 @@ export default function Navbar() {
   // Add Home link when not on homepage
   const navItems = [
     ...(pathname !== "/" ? [{ label: "Home", href: "/" }] : []),
-    { label: "About", href: "/about" },
     { label: "Headlines", href: "/headlines" },
     { label: "Power Rankings", href: "/power-rankings" },
     { label: "NFL Standings", href: "/standings" },
-    { label: "Newsletter", href: "/newsletter" },
     { label: "Contact", href: "/contact" },
   ];
 

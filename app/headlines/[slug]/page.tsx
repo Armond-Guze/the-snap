@@ -22,8 +22,6 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         summary,
         date,
         body,
-        youtubeVideoId,
-        videoTitle,
         author->{
           name,
           image {
@@ -52,31 +50,14 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      {/* 📦 Content Container */}
       <div className="px-4 md:px-8 py-10 max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* ✅ Main Article Section */}
+        {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
-          {/* ✅ Cover Image FIRST */}
-          {headline.coverImage?.asset?.url && (
-            <div className="w-full flex justify-center mb-6">
-              <div className="relative w-full max-w-2xl h-[400px] md:h-[500px] overflow-hidden rounded-md border border-slate-700 shadow-sm">
-                <Image
-                  src={headline.coverImage.asset.url}
-                  alt={headline.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Title + Meta AFTER image */}
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4">
+          {/* Title + Meta */}
+          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
             {headline.title}
           </h1>
-
-          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3">
+          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
             {headline.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
                 <Image
@@ -96,16 +77,28 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               })}
             </span>
           </div>
-
-          {/* ✅ Body Text */}
-          <section className="w-full flex justify-center">
-            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-2xl">
+          {/* Cover Image */}
+          {headline.coverImage?.asset?.url && (
+            <div className="w-full mb-6">
+              <div className="relative w-full h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-md border border-slate-700 shadow-sm">
+                <Image
+                  src={headline.coverImage.asset.url}
+                  alt={headline.title}
+                  fill
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </div>
+            </div>
+          )}
+          {/* Body Text */}
+          <section className="w-full">
+            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-2xl text-left">
               {headline.body && <PortableText value={headline.body} />}
             </div>
           </section>
         </article>
-
-        {/* ✅ Enhanced Related Articles Sidebar */}
+        {/* Related Articles Sidebar */}
         <RelatedArticles 
           currentSlug={trimmedSlug} 
           articles={otherHeadlines}
