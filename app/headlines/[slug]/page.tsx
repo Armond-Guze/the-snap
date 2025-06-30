@@ -80,15 +80,15 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           {/* Cover Image */}
           {headline.coverImage?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-full h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-md border border-slate-700 shadow-sm">
-                <Image
-                  src={headline.coverImage.asset.url}
-                  alt={headline.title}
-                  fill
-                  className="object-cover w-full h-full"
-                  priority
-                />
-              </div>
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md border border-slate-700 shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+  <Image
+    src={headline.coverImage.asset.url}
+    alt={headline.title}
+    fill
+    className="object-cover w-full h-full"
+    priority
+  />
+</div>
             </div>
           )}
           {/* Body Text */}
@@ -99,10 +99,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           </section>
         </article>
         {/* Related Articles Sidebar */}
-        <RelatedArticles 
-          currentSlug={trimmedSlug} 
-          articles={otherHeadlines}
-        />
+        <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
       </div>
     </main>
   );

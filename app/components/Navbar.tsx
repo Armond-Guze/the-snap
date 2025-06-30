@@ -22,7 +22,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-black border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+    <nav className="bg-black  sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-16 py-3">
         {/* Logo - Now serves as Home link */}
         <Link href="/" className="inline-flex items-center space-x-2 group">

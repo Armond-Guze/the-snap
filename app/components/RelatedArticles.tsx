@@ -28,7 +28,7 @@ export default function RelatedArticles({
       <div className="bg-black rounded-2xl p-6">
         <div className="flex items-center mb-6">
           <TrendingUp className="w-5 h-5 text-white mr-3" />
-          <h2 className="text-xl font-bold text-white">Headlines</h2>
+          <h2 className="text-xl font-bold  text-white">Headlines</h2>
         </div>
         <div className="space-y-6">
           {featuredArticles.map((article, index) => (
