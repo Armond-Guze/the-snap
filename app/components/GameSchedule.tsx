@@ -96,8 +96,6 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     return (
       <section className="py-4 px-6 lg:px-8 bg-black border-b bg-near-black border-gray-800">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-lg font-bold text-white mb-2">This Week&apos;s Games</h2>
-          <p className="text-gray-400">No featured games scheduled</p>
         </div>
       </section>
     );
@@ -108,8 +106,6 @@ export default function GameSchedule({ games }: GameScheduleProps) {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <h2 className="text-lg font-bold text-white">This Week&apos;s Featured Games</h2>
           </div>
           <span className="text-sm text-gray-400">Week {featuredGames[0]?.week}</span>
         </div>
@@ -188,15 +184,14 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const gameDate = new Date(game.gameDate);
     const isToday = gameDate.toDateString() === new Date().toDateString();
     const dateString = gameDate.toLocaleDateString('en-US', { 
-      month: 'numeric', 
-      day: 'numeric', 
-      year: 'numeric' 
+      month: 'short', 
+      day: 'numeric'
     });
     const time = gameDate.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
       hour12: true 
-    }).toLowerCase();
+    }).toUpperCase();
     const importanceLabel = getImportanceLabel(game.gameImportance || '');
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
@@ -228,7 +223,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-xs font-medium truncate">
+            <span className="text-white text-sm font-semibold truncate">
               {game.awayTeam.split(' ').pop()}
             </span>
           </div>
@@ -240,7 +235,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
           {/* Home Team */}
           <div className="flex items-center space-x-1 flex-1 justify-end min-w-0">
-            <span className="text-white text-xs font-medium truncate text-right">
+            <span className="text-white text-sm font-semibold truncate text-right">
               {game.homeTeam.split(' ').pop()}
             </span>
             {game.homeTeamLogo?.asset ? (
@@ -262,23 +257,15 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         </div>
 
         {/* Game Info */}
-        <div className="border-t border-gray-700 pt-1 space-y-1">
+        <div className="border-t border-gray-700 pt-2">
           <div className="text-center">
-            <span className={`text-xs font-medium block ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
+            <span className={`text-sm font-medium block ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
               {dateString}
             </span>
-            <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
+            <span className={`text-sm font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
               {time}
             </span>
           </div>
-          
-          {game.tvNetwork && (
-            <div className="text-center">
-              <span className="text-xs text-gray-400 bg-gray-800 px-2 py-1 rounded">
-                {game.tvNetwork}
-              </span>
-            </div>
-          )}
         </div>
       </div>
     );

@@ -30,15 +30,6 @@ export default async function Headlines() {
     <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
       <div className="relative mx-auto max-w-6xl">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Breaking News
-          </h2>
-          <div className="w-24 h-1 bg-white mx-auto mb-6"></div>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Stay up to date with the latest NFL headlines and breaking stories
-          </p>
-        </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Main Feature Story */}
           <div className="lg:col-span-3 bg-deep-black backdrop-blur-sm rounded-2xl overflow-hidden hover:bg-black transition-all duration-300 group">
@@ -77,7 +68,7 @@ export default async function Headlines() {
           <div className="lg:col-span-2 bg-deep-black rounded-2xl p-8 self-start">
             <div className="flex items-center mb-6">
               <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
-              <h3 className="text-xl font-bold text-white">Latest Headlines</h3>
+              <h3 className="text-xl font-bold text-white">Top Headlines</h3>
             </div>
             <ul className="space-y-6 text-sm">
               {sidebar.map((headline) => (
