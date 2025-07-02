@@ -61,26 +61,34 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const minSwipeDistance = 50;
 
   const nextGame = () => {
-    setCurrentGameIndex((prev) => (prev + 1) % featuredGames.length);
+    // For mobile: move by 2 games, for desktop: individual navigation (not used in desktop)
+    setCurrentGameIndex((prev) => {
+      const increment = 2; // Show 2 games on mobile
+      return (prev + increment) % featuredGames.length;
+    });
   };
 
   const prevGame = () => {
-    setCurrentGameIndex((prev) => (prev - 1 + featuredGames.length) % featuredGames.length);
+    // For mobile: move by 2 games, for desktop: individual navigation (not used in desktop)
+    setCurrentGameIndex((prev) => {
+      const decrement = 2; // Show 2 games on mobile
+      return (prev - decrement + featuredGames.length) % featuredGames.length;
+    });
   };
 
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 280; // Approximate card width + gap
-      container.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' });
+      const cardWidth = 180; // Reduced for shorter team abbreviations
+      container.scrollBy({ left: -cardWidth * 3, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 280; // Approximate card width + gap
-      container.scrollBy({ left: cardWidth * 2, behavior: 'smooth' });
+      const cardWidth = 180; // Reduced for shorter team abbreviations
+      container.scrollBy({ left: cardWidth * 3, behavior: 'smooth' });
     }
   };
 
@@ -100,10 +108,10 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
-    if (isLeftSwipe && featuredGames.length > 1) {
+    if (isLeftSwipe && featuredGames.length > 2) {
       nextGame();
     }
-    if (isRightSwipe && featuredGames.length > 1) {
+    if (isRightSwipe && featuredGames.length > 2) {
       prevGame();
     }
   };
@@ -124,16 +132,16 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
     return (
-      <div key={game._id} className="bg-deep-black rounded-lg p-2 hover:bg-gray-900 transition-colors duration-300">
+      <div key={game._id} className="bg-deep-black rounded-lg p-3 hover:bg-gray-900 transition-colors duration-300">
         {/* Game Importance Badge */}
         {importanceLabel && (
-          <div className={`inline-flex items-center px-2 py-1 rounded-full mb-1 ${importanceColor}`}>
+          <div className={`inline-flex items-center px-2 py-1 rounded-full mb-2 ${importanceColor}`}>
             <span className="text-white text-xs font-semibold">{importanceLabel}</span>
           </div>
         )}
 
         {/* Teams - Side by Side */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           {/* Away Team */}
           <div className="flex items-center space-x-1 flex-1 min-w-0">
             {game.awayTeamLogo?.asset ? (
@@ -185,7 +193,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         </div>
 
         {/* Game Info */}
-        <div className="border-t border-gray-700 pt-2">
+        <div className="border-t border-gray-700 pt-3">
           <div className="text-center">
             <span className={`text-sm font-medium block ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
               {dateString}
@@ -215,29 +223,27 @@ export default function GameSchedule({ games }: GameScheduleProps) {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <h2 className="text-lg font-bold text-white">This Week&apos;s Featured Games</h2>
           </div>
           <span className="text-sm text-gray-400">Week {featuredGames[0]?.week}</span>
         </div>
 
-        {/* Mobile Carousel - One at a time */}
+        {/* Mobile Carousel - Two at a time */}
         <div className="block md:hidden">
           <div className="relative">
             {/* Game Counter */}
             <div className="text-center mb-2">
               <span className="text-sm text-gray-400">
-                {currentGameIndex + 1} of {featuredGames.length}
+                {Math.floor(currentGameIndex / 2) + 1} of {Math.ceil(featuredGames.length / 2)}
               </span>
             </div>
 
             {/* Navigation Buttons */}
             <button
               onClick={prevGame}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={featuredGames.length <= 1}
-              title="Previous game"
-              aria-label="View previous game"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              disabled={featuredGames.length <= 2}
+              title="Previous games"
+              aria-label="View previous games"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -246,37 +252,40 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
             <button
               onClick={nextGame}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={featuredGames.length <= 1}
-              title="Next game"
-              aria-label="View next game"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              disabled={featuredGames.length <= 2}
+              title="Next games"
+              aria-label="View next games"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
 
-            {/* Current Game Card */}
+            {/* Current Games - Show 2 at a time */}
             <div 
               className="mx-8 transition-transform duration-300 ease-in-out"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
             >
-              {renderGameCard(featuredGames[currentGameIndex])}
+              <div className="grid grid-cols-2 gap-3">
+                {renderGameCard(featuredGames[currentGameIndex])}
+                {featuredGames[currentGameIndex + 1] && renderGameCard(featuredGames[currentGameIndex + 1])}
+              </div>
             </div>
 
             {/* Dots Indicator */}
             <div className="flex justify-center space-x-2 mt-4">
-              {featuredGames.map((game, index) => (
+              {Array.from({ length: Math.ceil(featuredGames.length / 2) }).map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentGameIndex(index)}
+                  onClick={() => setCurrentGameIndex(index * 2)}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    index === currentGameIndex ? 'bg-white' : 'bg-gray-600'
+                    Math.floor(currentGameIndex / 2) === index ? 'bg-white' : 'bg-gray-600'
                   }`}
-                  aria-label={`View game ${index + 1}: ${game.awayTeam} at ${game.homeTeam}`}
-                  title={`${game.awayTeam} @ ${game.homeTeam}`}
+                  aria-label={`View games ${index * 2 + 1}-${Math.min(index * 2 + 2, featuredGames.length)}`}
+                  title={`Games ${index * 2 + 1}-${Math.min(index * 2 + 2, featuredGames.length)}`}
                 />
               ))}
             </div>
@@ -288,7 +297,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Navigation Buttons */}
           <button
             onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 rounded-full p-3 text-white transition-colors shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-3 text-white transition-colors shadow-lg"
             title="Scroll left"
             aria-label="Scroll to previous games"
           >
@@ -299,7 +308,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
           <button
             onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 rounded-full p-3 text-white transition-colors shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-3 text-white transition-colors shadow-lg"
             title="Scroll right"
             aria-label="Scroll to next games"
           >
@@ -311,11 +320,11 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Scrollable Games Container */}
           <div 
             id="games-container"
-            className="overflow-x-auto scrollbar-hide mx-8"
+            className="overflow-x-auto scrollbar-hide mx-12 px-2"
           >
-            <div className="flex space-x-3 pb-2">
+            <div className="flex space-x-4 pb-2">
               {featuredGames.map((game) => (
-                <div key={game._id} className="flex-shrink-0 w-64">
+                <div key={game._id} className="flex-shrink-0 w-40 min-w-40">
                   {renderGameCard(game)}
                 </div>
               ))}

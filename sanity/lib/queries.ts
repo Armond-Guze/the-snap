@@ -191,7 +191,7 @@ export const standingsQuery = `
 `;
 
 export const featuredGamesQuery = `
-  *[_type == "game" && published == true && featured == true] | order(gameDate asc)[0...4] {
+  *[_type == "game" && published == true && featured == true] | order(gameDate asc) {
     _id,
     homeTeam,
     awayTeam,
