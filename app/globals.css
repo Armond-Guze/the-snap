@@ -57,3 +57,13 @@ body {
 .bg-deep-black {
   background: linear-gradient(135deg, #000000 0%, #050505 50%, #000000 100%);
 }
+
+/* Hide scrollbar for horizontal scrolling */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
