@@ -175,17 +175,48 @@ export const powerRankingsQuery = `*[_type == "powerRanking"] | order(rank asc) 
 }`;
 
 export const standingsQuery = `
-  *[_type == "standings"] | order(division asc, winPercentage desc, wins desc) {
+  *[_type == "standings"] | order(division asc, wins desc, losses asc) {
     _id,
     teamName,
     teamLogo,
     wins,
     losses,
     ties,
-    winPercentage,
+    "winPercentage": (wins + ties * 0.5) / (wins + losses + ties),
     conference,
     division,
     season,
     lastUpdated
+  }
+`;
+
+export const featuredGamesQuery = `
+  *[_type == "game" && published == true && featured == true] | order(gameDate asc)[0...4] {
+    _id,
+    homeTeam,
+    awayTeam,
+    homeTeamLogo,
+    awayTeamLogo,
+    gameDate,
+    tvNetwork,
+    gameImportance,
+    preview,
+    week
+  }
+`;
+
+export const upcomingGamesQuery = `
+  *[_type == "game" && published == true && gameDate > now()] | order(gameDate asc)[0...6] {
+    _id,
+    homeTeam,
+    awayTeam,
+    homeTeamLogo,
+    awayTeamLogo,
+    gameDate,
+    tvNetwork,
+    gameImportance,
+    preview,
+    week,
+    featured
   }
 `;

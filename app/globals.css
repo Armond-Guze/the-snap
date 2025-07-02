@@ -24,3 +24,36 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom NFL-themed gradients */
+.bg-stadium-night {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%);
+}
+
+.bg-field-green {
+  background: linear-gradient(135deg, #0d4f3c 0%, #1a5f4a 50%, #0a3d2e 100%);
+}
+
+.bg-championship-gold {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d1b00 25%, #4a3100 50%, #2d1b00 75%, #1a1a1a 100%);
+}
+
+.bg-sports-blue {
+  background: linear-gradient(135deg, #0c1421 0%, #1e3a5f 50%, #0c1421 100%);
+}
+
+.bg-redzone-energy {
+  background: linear-gradient(135deg, #1a0000 0%, #4a0000 25%, #660000 50%, #4a0000 75%, #1a0000 100%);
+}
+
+.bg-dark-gradient {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 25%, #2d2d2d 50%, #1a1a1a 75%, #000000 100%);
+}
+
+.bg-near-black {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #111111 50%, #0a0a0a 75%, #000000 100%);
+}
+
+.bg-deep-black {
+  background: linear-gradient(135deg, #000000 0%, #050505 50%, #000000 100%);
+}

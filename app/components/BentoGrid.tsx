@@ -32,7 +32,7 @@ export default async function BentoGrid() {
   const topTeams = powerRankings?.slice(0, 3) || [];
 
   return (
-    <section className="relative py-24 px-6 lg:px-8 bg-black">
+    <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
       <div className="relative mx-auto max-w-7xl">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
