@@ -1,9 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Snap 🏈
 
-## Getting Started
+A modern NFL news and analysis platform built with Next.js, featuring real-time game schedules, power rankings, standings, and comprehensive NFL coverage.
 
-First, run the development server:
+## ✨ Features
 
+- **Game Schedule Carousel** - Interactive, mobile-friendly game schedule with Bleacher Report-style design
+- **Power Rankings** - Dynamic NFL team power rankings with automated calculations
+- **Live Standings** - Real-time NFL division standings and playoff implications
+- **News & Headlines** - Latest NFL news with rich content management
+- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **Modern UI** - Dark theme with custom gradients and smooth animations
+
+## 🚀 Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
+- **Content Management**: [Sanity CMS](https://www.sanity.io/)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Forms**: [Formspree](https://formspree.io/)
+- **Deployment**: [Vercel](https://vercel.com/)
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone <repository-url>
+cd the-snap
+```
+
+2. Install dependencies
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Set up environment variables
+```bash
+cp .env.example .env.local
+```
+Add your Sanity project configuration and other required environment variables.
+
+4. Run the development server
 ```bash
 npm run dev
 # or
@@ -14,23 +62,73 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+the-snap/
+├── app/                    # Next.js app directory
+│   ├── components/         # Reusable React components
+│   ├── globals.css         # Global styles and custom CSS
+│   └── page.tsx           # Homepage and route pages
+├── sanity/                # Sanity CMS configuration
+│   ├── schemaTypes/       # Content schemas
+│   └── lib/              # Sanity client and utilities
+├── types/                 # TypeScript type definitions
+└── public/               # Static assets
+```
 
-## Learn More
+## 🎨 Key Components
 
-To learn more about Next.js, take a look at the following resources:
+- **GameSchedule** - Horizontal scrolling carousel for NFL games
+- **Headlines** - Featured news articles with rich media
+- **BentoGrid** - Modern grid layout for content sections
+- **PowerRankings** - Interactive team rankings display
+- **Standings** - Division standings with playoff implications
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📱 Responsive Design
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The application is fully responsive with:
+- Desktop: Horizontal scrolling carousel
+- Tablet: Optimized layout with touch support
+- Mobile: Compact 2-game carousel with swipe gestures
 
-## Deploy on Vercel
+## 🔧 Available Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Connect your repository to [Vercel](https://vercel.com/)
+2. Configure environment variables
+3. Deploy automatically on every push
+
+### Other Platforms
+
+The app can be deployed to any platform that supports Next.js:
+- Netlify
+- AWS Amplify
+- Railway
+- DigitalOcean App Platform
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+Built with ❤️ for NFL fans everywhere
