@@ -2,7 +2,7 @@ import { defineType, defineField } from "sanity";
 
 export default defineType({
   name: "powerRanking",
-  title: "Power Ranking",
+  title: "Power Rankings",
   type: "document",
   fields: [
     defineField({

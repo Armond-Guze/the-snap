@@ -80,7 +80,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const container = document.getElementById('games-container');
     if (container) {
       const cardWidth = 180; // Reduced for shorter team abbreviations
-      container.scrollBy({ left: -cardWidth * 3, behavior: 'smooth' });
+      container.scrollBy({ left: -cardWidth * 1.5, behavior: 'smooth' });
     }
   };
 
@@ -88,7 +88,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const container = document.getElementById('games-container');
     if (container) {
       const cardWidth = 180; // Reduced for shorter team abbreviations
-      container.scrollBy({ left: cardWidth * 3, behavior: 'smooth' });
+      container.scrollBy({ left: cardWidth * 1.5, behavior: 'smooth' });
     }
   };
 
@@ -132,18 +132,28 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
     return (
-      <div key={game._id} className="bg-deep-black rounded-lg p-3 hover:bg-gray-900 transition-colors duration-300">
+      <div key={game._id} className="bg-shadcn-zinc rounded-lg p-3 hover:bg-gray-800 transition-colors duration-300">
+        {/* Date and Time Header} */}
+        <div className="flex items-center justify-between mb-3">
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
+            {dateString}
+          </span>
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
+            {time}
+          </span>
+        </div>
+
         {/* Game Importance Badge */}
         {importanceLabel && (
-          <div className={`inline-flex items-center px-2 py-1 rounded-full mb-2 ${importanceColor}`}>
+          <div className={`inline-flex items-center px-2 py-1 rounded-full mb-3 ${importanceColor}`}>
             <span className="text-white text-xs font-semibold">{importanceLabel}</span>
           </div>
         )}
 
-        {/* Teams - Side by Side */}
-        <div className="flex items-center justify-between mb-3">
+        {/* Teams - Stacked Vertically */}
+        <div className="space-y-2">
           {/* Away Team */}
-          <div className="flex items-center space-x-1 flex-1 min-w-0">
+          <div className="flex items-center space-x-2">
             {game.awayTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.awayTeamLogo).width(20).height(20).url()}
@@ -164,16 +174,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             </span>
           </div>
 
-          {/* VS */}
-          <div className="px-2">
-            <span className="text-gray-400 text-xs font-bold">@</span>
-          </div>
-
           {/* Home Team */}
-          <div className="flex items-center space-x-1 flex-1 justify-end min-w-0">
-            <span className="text-white text-sm font-semibold truncate text-right">
-              {game.homeTeam.split(' ').pop()}
-            </span>
+          <div className="flex items-center space-x-2">
             {game.homeTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.homeTeamLogo).width(20).height(20).url()}
@@ -189,17 +191,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Game Info */}
-        <div className="border-t border-gray-700 pt-3">
-          <div className="text-center">
-            <span className={`text-sm font-medium block ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
-              {dateString}
-            </span>
-            <span className={`text-sm font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
-              {time}
+            <span className="text-white text-sm font-semibold truncate">
+              {game.homeTeam.split(' ').pop()}
             </span>
           </div>
         </div>
@@ -240,7 +233,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             {/* Navigation Buttons */}
             <button
               onClick={prevGame}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-2 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               disabled={featuredGames.length <= 2}
               title="Previous games"
               aria-label="View previous games"
@@ -252,7 +245,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
             <button
               onClick={nextGame}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-2 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-2 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               disabled={featuredGames.length <= 2}
               title="Next games"
               aria-label="View next games"
@@ -297,7 +290,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Navigation Buttons */}
           <button
             onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-3 text-white transition-colors shadow-lg"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
             title="Scroll left"
             aria-label="Scroll to previous games"
           >
@@ -308,7 +301,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
           <button
             onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black hover:bg-gray-800 rounded-full p-3 text-white transition-colors shadow-lg"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
             title="Scroll right"
             aria-label="Scroll to next games"
           >

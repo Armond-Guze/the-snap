@@ -3,7 +3,7 @@ import {defineField, defineType} from 'sanity'
 
 export const tagType = defineType({
   name: 'tag',
-  title: 'Tag',
+  title: 'Tags',
   type: 'document',
   icon: TagsIcon,
   fields: [

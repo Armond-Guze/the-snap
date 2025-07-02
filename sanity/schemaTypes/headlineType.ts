@@ -2,7 +2,7 @@ import { defineType, defineField } from "sanity";
 
 const headlineType = defineType({
   name: "headline",
-  title: "Headline",
+  title: "Headlines",
   type: "document",
   fields: [
     defineField({

@@ -58,6 +58,10 @@ body {
   background: linear-gradient(135deg, #000000 0%, #050505 50%, #000000 100%);
 }
 
+.bg-shadcn-zinc {
+  background-color: #27272a;
+}
+
 /* Hide scrollbar for horizontal scrolling */
 .scrollbar-hide {
   scrollbar-width: none; /* Firefox */
