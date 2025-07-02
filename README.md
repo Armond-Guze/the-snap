@@ -2,6 +2,8 @@
 
 A modern NFL news and analysis platform built with Next.js, featuring real-time game schedules, power rankings, standings, and comprehensive NFL coverage.
 
+> **⚠️ PRIVATE PROJECT**: This is a proprietary codebase. All code, designs, concepts, and implementations are confidential and protected by intellectual property rights. Unauthorized copying, distribution, or replication of this project or its features is strictly prohibited.
+
 ## ✨ Features
 
 - **Game Schedule Carousel** - Interactive, mobile-friendly game schedule with Bleacher Report-style design
@@ -119,16 +121,35 @@ The app can be deployed to any platform that supports Next.js:
 
 ## 🤝 Contributing
 
-1. Fork the repository
+**Access is restricted to authorized collaborators only.**
+
+For authorized contributors:
+1. Contact the project owner for access permissions
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+5. Open a Pull Request for review
 
-## 📄 License
+**Code Confidentiality**: All contributors must respect the proprietary nature of this codebase and maintain strict confidentiality.
 
-This project is private and proprietary.
+## 📄 License & Legal
+
+**This project is private and proprietary.**
+
+- All rights reserved
+- No part of this code may be reproduced, distributed, or transmitted without explicit written permission
+- The design patterns, user interface concepts, and business logic are proprietary intellectual property
+- Unauthorized use, copying, or distribution may result in legal action
+
+## 🔒 Confidentiality Notice
+
+This repository contains confidential and proprietary information. By accessing this code, you agree to:
+- Keep all code, concepts, and implementations confidential
+- Not reproduce, copy, or distribute any part of this project
+- Not use any concepts, designs, or implementations in other projects
+- Immediately report any unauthorized access or security concerns
 
 ---
 
+**© 2025 The Snap. All rights reserved.**
 Built with ❤️ for NFL fans everywhere
