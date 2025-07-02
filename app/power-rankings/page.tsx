@@ -83,7 +83,7 @@ export default async function PowerRankingsPage() {
 
                   <div className="flex items-center gap-4">
                     {/* Rank Display */}
-                    <div className="flex flex-col items-center min-w-[60px] bg-gray-900 rounded-lg p-2">
+                    <div className="flex flex-col items-center min-w-[60px] bg-black rounded-lg p-2">
                       <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
                         Rank
                       </span>
