@@ -1,4 +1,4 @@
-import Cards from "./components/Cards";
+import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
 import BentoGrid from "./components/BentoGrid";
 import TrendingTopics from "./components/TrendingTopics";
@@ -15,7 +15,7 @@ export default async function Home() {
       <GameSchedule games={featuredGames || []} />
       <Headlines />
       <BentoGrid />
-      <Cards />
+      <VideoOfTheWeek />
       <TrendingTopics />
       <NewsletterSignup />
     </main>

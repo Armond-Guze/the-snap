@@ -50,7 +50,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      <div className="px-4 md:px-8 py-10 max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
           {/* Title + Meta */}
@@ -93,7 +93,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           )}
           {/* Body Text */}
           <section className="w-full">
-            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-2xl text-left">
+            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
               {headline.body && <PortableText value={headline.body} />}
             </div>
           </section>
