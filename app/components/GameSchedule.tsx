@@ -217,7 +217,6 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
           </div>
-          <span className="text-sm text-gray-400">Week {featuredGames[0]?.week}</span>
         </div>
 
         {/* Mobile Carousel - Two at a time */}
@@ -225,9 +224,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           <div className="relative">
             {/* Game Counter */}
             <div className="text-center mb-2">
-              <span className="text-sm text-gray-400">
-                {Math.floor(currentGameIndex / 2) + 1} of {Math.ceil(featuredGames.length / 2)}
-              </span>
+              
             </div>
 
             {/* Navigation Buttons */}
