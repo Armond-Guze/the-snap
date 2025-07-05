@@ -34,17 +34,11 @@ export default function VideoOfTheWeek() {
       <div className="absolute inset-0 bg-black/80 -z-10" />
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-gray-400 text-base font-semibold mb-4 tracking-wider uppercase">
-            Featured Content
+        {/* Section Header - Top Left */}
+        <div className="mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-300">
+            Video of the Week
           </h2>
-          <p className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            {videoOfTheWeek.title}
-          </p>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            {videoOfTheWeek.playDescription}
-          </p>
-          <div className="w-24 h-1 bg-white mx-auto rounded-full mt-6"></div>
         </div>
 
         {/* Video Thumbnail Section */}

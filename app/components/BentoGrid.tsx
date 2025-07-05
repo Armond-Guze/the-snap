@@ -33,10 +33,19 @@ export default async function BentoGrid() {
   return (
     <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
       <div className="relative mx-auto max-w-7xl">
-        <div className="text-center mb-16">
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Power rankings, breaking news, and expert analysis all in one place
-          </p>
+        {/* Section Headers - Top Left */}
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-8 mb-4">
+            <h2 className="text-xl sm:text-xl font-bold text-gray-300">
+              Fantasy
+            </h2>
+            <h2 className="text-xl sm:text-xl font-bold text-gray-300">
+              Standings
+            </h2>
+            <h2 className="text-xl sm:text-xl font-bold text-gray-300">
+              Rankings
+            </h2>
+          </div>
         </div>
 
         {/* Bento Grid Layout */}

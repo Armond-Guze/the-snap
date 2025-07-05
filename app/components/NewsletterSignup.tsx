@@ -188,7 +188,7 @@ export default function NewsletterSignup({
     return (
       <div className={className}>
         <h3 className="text-lg font-semibold text-white mb-4">
-          Subscribe to The Game Snap
+          Never miss a Snap
         </h3>
         <p className="text-gray-400 mb-6">
           Get weekly NFL insights and breaking news delivered to your inbox.
