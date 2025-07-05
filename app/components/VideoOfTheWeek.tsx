@@ -49,7 +49,7 @@ export default function VideoOfTheWeek() {
 
         {/* Video Thumbnail Section */}
         <div className="mb-8">
-          <div className="bg-shadcn-zinc border border-gray-800 rounded-2xl overflow-hidden group hover:shadow-white/10 transition-all duration-500">
+          <div className="rounded-2xl overflow-hidden group hover:shadow-white/10 transition-all duration-500">
             <a
               href={watchUrl}
               target="_blank"

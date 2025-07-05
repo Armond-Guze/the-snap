@@ -28,11 +28,11 @@ export default async function Headlines() {
 
   return (
     <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
-      <div className="relative mx-auto max-w-6xl">
+      <div className="relative mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Feature Story */}
-          <div className="lg:col-span-3 bg-deep-black backdrop-blur-sm overflow-hidden hover:bg-black transition-all duration-300 group">
+          <div className="lg:col-span-2 rounded-3xl backdrop-blur-sm overflow-hidden hover:bg-black transition-all duration-300 group">
             {main?.coverImage && main?.slug?.current && (
               <Link href={`/headlines/${main.slug.current.trim()}`}>
                 <div className="relative aspect-video overflow-hidden">
@@ -59,10 +59,10 @@ export default async function Headlines() {
           </div>
 
           {/* Sidebar Headlines */}
-          <div className="lg:col-span-2 bg-deep-black rounded-2xl p-8 self-start">
+          <div className="lg:col-span-1  rounded-2xl p-8 self-start">
             <div className="flex items-center mb-6">
               <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
-              <h3 className="text-xl font-bold text-white">Top Headlines</h3>
+              <h3 className="text-xl font-bold text-white">Around The NFL</h3>
             </div>
             <ul className="space-y-6 text-sm">
               {sidebar.map((headline) => (
