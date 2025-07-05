@@ -127,7 +127,7 @@ export default function StandingsPage() {
       {/* Hero Section */}
       <section className="relative py-24 px-6 lg:px-8">
         <div className="relative mx-auto max-w-7xl">
-          <div className="text-center mb-16">
+          <div className="text-center ">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
               NFL Standings
             </h1>

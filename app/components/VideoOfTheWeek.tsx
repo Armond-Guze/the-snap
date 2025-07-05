@@ -42,7 +42,7 @@ export default function VideoOfTheWeek() {
             {videoOfTheWeek.title}
           </p>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            {videoOfTheWeek.description}
+            {videoOfTheWeek.playDescription}
           </p>
           <div className="w-24 h-1 bg-white mx-auto rounded-full mt-6"></div>
         </div>

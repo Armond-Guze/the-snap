@@ -6,6 +6,8 @@ import NewsletterSignup from "./components/NewsletterSignup";
 import GameSchedule from "./components/GameSchedule";
 import { client } from "@/sanity/lib/client";
 import { featuredGamesQuery } from "@/sanity/lib/queries";
+import { Analytics } from "@vercel/analytics/next"
+
 
 export default async function Home() {
   const featuredGames = await client.fetch(featuredGamesQuery);
@@ -18,6 +20,7 @@ export default async function Home() {
       <VideoOfTheWeek />
       <TrendingTopics />
       <NewsletterSignup />
+      <Analytics />
     </main>
   );
 }
