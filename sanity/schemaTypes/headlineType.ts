@@ -20,12 +20,83 @@ const headlineType = defineType({
         slugify: (input) =>
           input
             .toLowerCase()
-            .replace(/’|‘|“|”/g, "'") // replace curly quotes
+            .replace(/'|'|"|"/g, "'") // replace curly quotes
             .replace(/[^\w\s-]/g, "") // remove punctuation
             .replace(/\s+/g, "-") // replace spaces with dashes
             .slice(0, 96),
       },
       validation: (Rule) => Rule.required(),
+    }),
+
+    // SEO Fields Group
+    defineField({
+      name: "seo",
+      title: "SEO Settings",
+      type: "object",
+      group: "seo",
+      fields: [
+        defineField({
+          name: "metaTitle",
+          title: "Meta Title",
+          type: "string",
+          description: "SEO title for search engines (50-60 characters recommended)",
+          validation: (Rule) => Rule.max(60).warning("Keep under 60 characters for best SEO"),
+        }),
+        defineField({
+          name: "metaDescription",
+          title: "Meta Description",
+          type: "text",
+          rows: 3,
+          description: "SEO description for search engines (150-160 characters recommended)",
+          validation: (Rule) => Rule.max(160).warning("Keep under 160 characters for best SEO"),
+        }),
+        defineField({
+          name: "focusKeyword",
+          title: "Focus Keyword",
+          type: "string",
+          description: "Primary keyword you want to rank for",
+        }),
+        defineField({
+          name: "additionalKeywords",
+          title: "Additional Keywords",
+          type: "array",
+          of: [{ type: "string" }],
+          description: "Secondary keywords to target",
+        }),
+        defineField({
+          name: "ogTitle",
+          title: "Open Graph Title",
+          type: "string",
+          description: "Title for social media sharing (leave blank to use meta title)",
+        }),
+        defineField({
+          name: "ogDescription",
+          title: "Open Graph Description",
+          type: "text",
+          rows: 2,
+          description: "Description for social media sharing (leave blank to use meta description)",
+        }),
+        defineField({
+          name: "ogImage",
+          title: "Open Graph Image",
+          type: "image",
+          description: "Image for social media sharing (1200x630px recommended)",
+          options: { hotspot: true },
+        }),
+        defineField({
+          name: "noIndex",
+          title: "No Index",
+          type: "boolean",
+          description: "Prevent search engines from indexing this page",
+          initialValue: false,
+        }),
+        defineField({
+          name: "canonicalUrl",
+          title: "Canonical URL",
+          type: "url",
+          description: "Override the canonical URL (leave blank for auto-generated)",
+        }),
+      ],
     }),
 
     defineField({
@@ -108,6 +179,12 @@ const headlineType = defineType({
       description: "Lower numbers show first (e.g., 1 is the top story)",
       validation: (Rule) => Rule.required().min(1).max(100),
     }),
+  ],
+  groups: [
+    {
+      name: "seo",
+      title: "SEO",
+    },
   ],
   preview: {
     select: {

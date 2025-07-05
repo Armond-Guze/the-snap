@@ -1,12 +1,30 @@
 import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { client } from "@/sanity/lib/client";
 import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
+import { generateSEOMetadata } from "@/lib/seo";
+import { headlineDetailQuery } from "@/sanity/lib/queries";
+import { Metadata } from 'next';
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
+  const params = await props.params;
+  if (!params?.slug) return {};
+
+  const trimmedSlug = decodeURIComponent(params.slug).trim();
+
+  const headline = await client.fetch<Headline>(
+    headlineDetailQuery,
+    { slug: trimmedSlug }
+  );
+
+  if (!headline) return {};
+
+  return generateSEOMetadata(headline, '/headlines');
+}
 
 export default async function HeadlinePage(props: HeadlinePageProps) {
   const params = await props.params;
@@ -16,22 +34,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   const [headline, otherHeadlines] = await Promise.all([
     client.fetch<Headline>(
-      `*[_type == "headline" && slug.current == $slug && published == true][0]{
-        title,
-        slug,
-        summary,
-        date,
-        body,
-        author->{
-          name,
-          image {
-            asset->{ url }
-          }
-        },
-        coverImage {
-          asset->{ url }
-        }
-      }`,
+      headlineDetailQuery,
       { slug: trimmedSlug }
     ),
     client.fetch<HeadlineListItem[]>(

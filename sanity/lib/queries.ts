@@ -44,11 +44,38 @@ export const headlineDetailQuery = `
       title,
       slug,
       color,
-      description
+      description,
+      seo {
+        metaTitle,
+        metaDescription,
+        focusKeyword,
+        additionalKeywords,
+        ogImage {
+          asset->{
+            url
+          }
+        },
+        noIndex
+      }
     },
     tags[]->{
       title,
       slug
+    },
+    seo {
+      metaTitle,
+      metaDescription,
+      focusKeyword,
+      additionalKeywords,
+      ogTitle,
+      ogDescription,
+      ogImage {
+        asset->{
+          url
+        }
+      },
+      noIndex,
+      canonicalUrl
     },
     date,
     body,
@@ -87,7 +114,19 @@ export const categoriesQuery = `
     slug,
     description,
     color,
-    priority
+    priority,
+    seo {
+      metaTitle,
+      metaDescription,
+      focusKeyword,
+      additionalKeywords,
+      ogImage {
+        asset->{
+          url
+        }
+      },
+      noIndex
+    }
   }
 `;
 

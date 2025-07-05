@@ -1,5 +1,18 @@
 // Shared TypeScript types for the Football News app
 
+// SEO types
+export interface SEOData {
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeyword?: string;
+  additionalKeywords?: string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: SanityImageWithUrl;
+  noIndex?: boolean;
+  canonicalUrl?: string;
+}
+
 // Sanity base types
 export interface SanityAsset {
   _ref: string;
@@ -62,6 +75,7 @@ export interface Headline {
   published?: boolean;
   youtubeVideoId?: string;
   videoTitle?: string;
+  seo?: SEOData;
   _createdAt: string;
   _updatedAt: string;
 }
@@ -86,6 +100,7 @@ export interface Category {
   description?: string;
   color?: string;
   priority?: number;
+  seo?: SEOData;
 }
 
 // Tag types
