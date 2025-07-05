@@ -1,5 +1,14 @@
 // Shared TypeScript types for the Football News app
 
+// PortableText types
+export interface TypedObject {
+  _type: string;
+  _key?: string;
+  [key: string]: unknown;
+}
+
+export type PortableTextContent = TypedObject[];
+
 // SEO types
 export interface SEOData {
   metaTitle?: string;
@@ -40,7 +49,7 @@ export interface Author {
   _id: string;
   name: string;
   image?: SanityImageWithUrl;
-  bio?: any[]; // PortableText
+  bio?: PortableTextContent;
 }
 
 // Power Rankings types
@@ -52,7 +61,7 @@ export interface PowerRankingTeam {
   teamName: string;
   teamLogo?: SanityImage;
   summary?: string;
-  body?: any[]; // PortableText
+  body?: PortableTextContent;
 }
 
 export interface MovementIndicator {
@@ -67,7 +76,7 @@ export interface Headline {
   slug: SanitySlug;
   summary?: string;
   date: string;
-  body?: any[]; // PortableText
+  body?: PortableTextContent;
   author?: Author;
   coverImage?: SanityImageWithUrl;
   category?: Category;

@@ -1,20 +1,5 @@
 import { Metadata } from 'next'
-
-export interface SEOData {
-  metaTitle?: string
-  metaDescription?: string
-  focusKeyword?: string
-  additionalKeywords?: string[]
-  ogTitle?: string
-  ogDescription?: string
-  ogImage?: {
-    asset: {
-      url: string
-    }
-  }
-  noIndex?: boolean
-  canonicalUrl?: string
-}
+import { SEOData, SanityImageWithUrl } from '@/types'
 
 export interface ContentData {
   title: string
@@ -23,11 +8,7 @@ export interface ContentData {
     current: string
   }
   seo?: SEOData
-  coverImage?: {
-    asset?: {
-      url: string
-    }
-  }
+  coverImage?: SanityImageWithUrl
   author?: {
     name: string
   }
