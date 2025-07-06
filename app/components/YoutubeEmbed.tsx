@@ -1,23 +1,26 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Play, ExternalLink } from 'lucide-react';
+import { Play, ExternalLink, Maximize2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface YouTubeEmbedProps {
   videoId: string;
   title?: string;
   className?: string;
+  variant?: 'default' | 'article'; // Add variant prop
 }
 
 export default function YouTubeEmbed({ 
   videoId, 
   title = "Related Video",
-  className = "" 
+  className = "",
+  variant = 'default'
 }: YouTubeEmbedProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
@@ -49,6 +52,30 @@ export default function YouTubeEmbed({
     setIsLoading(true);
   };
 
+  const handleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isFullscreen]);
+
   if (hasError) {
     return (
       <div className={`bg-gray-900 border border-gray-800 rounded-2xl p-6 ${className}`}>
@@ -75,61 +102,119 @@ export default function YouTubeEmbed({
   }
 
   return (
-    <div className={`bg-shadcn-zinc border border-gray-800 rounded-2xl overflow-hidden ${className}`}>
-      <div className="p-4 border-b border-gray-800">
-        <div className="flex items-center mb-2">
-          <Play className="w-5 h-5 text-red-500 mr-3" />
-          <h2 className="text-lg font-bold text-white">Video of the Week</h2>
+    <>
+      {/* Fullscreen overlay */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          <div className="relative w-full h-full max-w-7xl max-h-screen">
+            <div className="relative w-full h-full bg-black">
+              {showEmbed ? (
+                <iframe
+                  src={embedUrl}
+                  title={title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                  onLoad={handleLoad}
+                  onError={handleError}
+                />
+              ) : (
+                <div 
+                  className="relative w-full h-full cursor-pointer group"
+                  onClick={handlePlayClick}
+                >
+                  <Image
+                    src={thumbnailUrl}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                    <div className="w-24 h-24 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <svg className="w-12 h-12 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Close fullscreen button */}
+            <button
+              onClick={handleFullscreen}
+              className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
+              title="Close fullscreen"
+              aria-label="Close fullscreen"
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
-        {title && (
-          <h3 className="text-sm text-gray-300 font-medium">{title}</h3>
-        )}
-      </div>
+      )}
       
-      <div className="relative aspect-video bg-black">
-        {!showEmbed ? (
-          // Thumbnail with play button
-          <div 
-            className="relative w-full h-full cursor-pointer group"
-            onClick={handlePlayClick}
-          >
-            <Image
-              src={thumbnailUrl}
-              alt={title}
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-              <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <svg className="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
+      {/* Regular video container */}
+      <div className={`rounded-2xl overflow-hidden ${className}`}>
+        <div className="relative aspect-video bg-black">
+          {!showEmbed ? (
+            // Thumbnail with play button
+            <div 
+              className="relative w-full h-full cursor-pointer group"
+              onClick={handlePlayClick}
+            >
+              <Image
+                src={thumbnailUrl}
+                alt={title}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                <div className="w-15 h-15 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          // Embed iframe
-          <>
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-              </div>
-            )}
-            
-            <iframe
-              src={embedUrl}
-              title={title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
-              onLoad={handleLoad}
-              onError={handleError}
-            />
-          </>
-        )}
-      </div>
+          ) : (
+            // Embed iframe
+            <>
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+              )}
+              
+              <iframe
+                src={embedUrl}
+                title={title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+                onLoad={handleLoad}
+                onError={handleError}
+              />
+            </>
+          )}
+          
+          {/* Fullscreen button - bottom right */}
+          <button
+            onClick={handleFullscreen}
+            className="absolute bottom-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-colors group"
+            title="Toggle fullscreen"
+            aria-label="Toggle fullscreen"
+          >
+            <Maximize2 className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
+          </button>
+        </div>
       
+      {/* Title and Link Below Video */}
       <div className="p-4">
+        {title && (
+          <h3 className="text-sm text-gray-300 font-medium mb-2">{title}</h3>
+        )}
         <a
           href={watchUrl}
           target="_blank"
@@ -141,5 +226,6 @@ export default function YouTubeEmbed({
         </a>
       </div>
     </div>
+    </>
   );
 }

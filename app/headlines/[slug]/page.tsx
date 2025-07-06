@@ -4,6 +4,7 @@ import Image from "next/image";
 import { client } from "@/sanity/lib/client";
 import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
+import YouTubeEmbed from "@/app/components/YoutubeEmbed";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { Metadata } from 'next';
@@ -101,8 +102,23 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             </div>
           </section>
         </article>
-        {/* Related Articles Sidebar */}
-        <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
+        
+        {/* Sidebar */}
+        <aside className="lg:col-span-1 space-y-8">
+          {/* YouTube Video Section - Only show if video exists */}
+          {headline.youtubeVideoId && (
+            <div className="mb-8">
+              <YouTubeEmbed 
+                videoId={headline.youtubeVideoId}
+                title={headline.videoTitle || `Video: ${headline.title}`}
+                variant="article"
+              />
+            </div>
+          )}
+          
+          {/* Related Articles */}
+          <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
+        </aside>
       </div>
     </main>
   );

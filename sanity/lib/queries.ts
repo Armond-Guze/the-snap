@@ -79,6 +79,8 @@ export const headlineDetailQuery = `
     },
     date,
     body,
+    youtubeVideoId,
+    videoTitle,
     _createdAt,
     _updatedAt
   }
