@@ -211,7 +211,7 @@ export default function YouTubeEmbed({
         </div>
       
       {/* Title and Link Below Video */}
-      <div className="p-4">
+      <div className="p-4 pb-2">
         {title && (
           <h3 className="text-sm text-gray-300 font-medium mb-2">{title}</h3>
         )}

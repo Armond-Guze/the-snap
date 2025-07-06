@@ -64,26 +64,26 @@ export default async function Headlines() {
               <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
               <h3 className="text-xl font-bold text-white">Around The NFL</h3>
             </div>
-            <ul className="space-y-6 text-sm">
+            <ul className="space-y-3 text-sm">
               {sidebar.map((headline) => (
                 <li
                   key={headline._id}
-                  className="border-b border-gray-700/50 pb-4 last:border-b-0 last:pb-0"
+                  className="border-b border-gray-700/50 pb-3 last:border-b-0 last:pb-0"
                 >
                   {headline.slug?.current ? (
                     <Link href={`/headlines/${headline.slug.current.trim()}`}>
-                      <div className="flex items-start gap-4 group cursor-pointer">
+                      <div className="flex items-start gap-3 group cursor-pointer">
                         {headline.coverImage && (
                           <div className="relative overflow-hidden rounded-lg flex-shrink-0">
                             <Image
                               src={urlFor(headline.coverImage)
-                                .width(80)
-                                .height(50)
+                                .width(64)
+                                .height(40)
                                 .url()}
                               alt={headline.title}
-                              width={80}
-                              height={50}
-                              className="w-20 h-[50px] object-cover group-hover:scale-110 transition-transform duration-300"
+                              width={64}
+                              height={40}
+                              className="w-16 h-10 object-cover group-hover:scale-110 transition-transform duration-300"
                             />
                           </div>
                         )}
