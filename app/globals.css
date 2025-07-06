@@ -71,3 +71,39 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+/* Twitter embed styling */
+.twitter-tweet {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.twitter-tweet iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 300px !important;
+  border-radius: 12px !important;
+}
+
+/* Ensure Twitter embeds show images and media */
+twitter-widget {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+twitter-widget iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 300px !important;
+}
+
+/* Twitter embed container styles */
+.twitter-embed-container {
+  min-height: 200px;
+  width: 100%;
+}
+
+.twitter-embed-container.fullscreen {
+  min-height: 200px;
+  width: 100%;
+}

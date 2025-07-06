@@ -5,6 +5,7 @@ import { client } from "@/sanity/lib/client";
 import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
 import YouTubeEmbed from "@/app/components/YoutubeEmbed";
+import TwitterEmbed from "@/app/components/TwitterEmbed";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { Metadata } from 'next';
@@ -105,13 +106,23 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-16">
-          {/* YouTube Video Section - Only show if video exists */}
+          {/* Video/Social Section - YouTube or Twitter */}
           {headline.youtubeVideoId && (
             <div className="m-6">
               <YouTubeEmbed 
                 videoId={headline.youtubeVideoId}
                 title={headline.videoTitle || `Video: ${headline.title}`}
                 variant="article"
+              />
+            </div>
+          )}
+          
+          {/* Twitter Embed - Only show if Twitter URL exists and no YouTube video */}
+          {!headline.youtubeVideoId && headline.twitterUrl && (
+            <div className="m-6">
+              <TwitterEmbed 
+                twitterUrl={headline.twitterUrl}
+                title={headline.twitterTitle || `Related Tweet: ${headline.title}`}
               />
             </div>
           )}

@@ -172,6 +172,29 @@ const headlineType = defineType({
       description: "Optional: Custom title for the video embed",
       hidden: ({ document }) => !document?.youtubeVideoId,
     }),
+    
+    // Twitter/X Embed Fields
+    defineField({
+      name: "twitterUrl",
+      title: "Twitter/X Post URL",
+      type: "url",
+      description: "Enter the full Twitter/X post URL (e.g., https://twitter.com/user/status/1234567890)",
+      validation: (Rule) => Rule.uri({
+        scheme: ['https'],
+        allowRelative: false
+      }).custom((url) => {
+        if (!url) return true; // Allow empty
+        const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
+        return isValidTwitterUrl || 'Must be a valid Twitter/X post URL';
+      })
+    }),
+    defineField({
+      name: "twitterTitle",
+      title: "Twitter Embed Title",
+      type: "string",
+      description: "Optional: Custom title for the Twitter embed",
+      hidden: ({ document }) => !document?.twitterUrl,
+    }),
     defineField({
       name: "priority",
       title: "Priority",

@@ -84,6 +84,8 @@ export interface Headline {
   published?: boolean;
   youtubeVideoId?: string;
   videoTitle?: string;
+  twitterUrl?: string;
+  twitterTitle?: string;
   seo?: SEOData;
   _createdAt: string;
   _updatedAt: string;

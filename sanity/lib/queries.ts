@@ -81,6 +81,8 @@ export const headlineDetailQuery = `
     body,
     youtubeVideoId,
     videoTitle,
+    twitterUrl,
+    twitterTitle,
     _createdAt,
     _updatedAt
   }
