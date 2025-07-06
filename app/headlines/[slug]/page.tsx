@@ -104,10 +104,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         </article>
         
         {/* Sidebar */}
-        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit">
+        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-16">
           {/* YouTube Video Section - Only show if video exists */}
           {headline.youtubeVideoId && (
-            <div className="mb-6">
+            <div className="m-6">
               <YouTubeEmbed 
                 videoId={headline.youtubeVideoId}
                 title={headline.videoTitle || `Video: ${headline.title}`}

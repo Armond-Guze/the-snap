@@ -24,7 +24,7 @@ export default function RelatedArticles({
   return (
     <div className="space-y-6">
       {/* Trending/Featured Articles */}
-      <div className="bg-black rounded-2xl p-6">
+      <div className="bg-black rounded-2xl pb-6">
         <div className="flex items-center mb-6">
           <TrendingUp className="w-5 h-5 text-white mr-3" />
           <h2 className="text-xl font-bold  text-white">Headlines</h2>
@@ -51,7 +51,6 @@ export default function RelatedArticles({
                       <Eye className="w-4 h-4 text-gray-400" />
                     </div>
                   )}
-                  {/* Removed red numbering badge */}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-gray-300 transition-colors mb-2">
