@@ -1,22 +1,20 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ExternalLink, MessageCircle, Maximize2 } from 'lucide-react';
+import { ExternalLink, MessageCircle } from 'lucide-react';
+import styles from './TwitterEmbed.module.css';
 
 interface TwitterEmbedProps {
   twitterUrl: string;
-  title?: string;
   className?: string;
 }
 
 export default function TwitterEmbed({ 
   twitterUrl, 
-  title = "Related Tweet",
   className = ""
 }: TwitterEmbedProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [embedHtml, setEmbedHtml] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +78,7 @@ export default function TwitterEmbed({
         
         // First, try to create the blockquote manually and let Twitter widgets handle it
         const blockquoteHtml = `
-          <blockquote class="twitter-tweet" data-theme="dark" data-lang="en" data-dnt="true">
+          <blockquote class="twitter-tweet" data-theme="dark" data-lang="en" data-dnt="true" data-conversation="none">
             <p lang="en" dir="ltr">Loading tweet...</p>
             <a href="${cleanedUrl}">View Tweet</a>
           </blockquote>
@@ -154,11 +152,24 @@ export default function TwitterEmbed({
               console.log('SUCCESS: Tweet embed loaded with full content!');
               console.log('Iframe src:', iframe.getAttribute('src'));
               
-              // Ensure proper styling for images/media
+              // Apply styling to iframe and its container
               const iframeElement = iframe as HTMLIFrameElement;
-              iframeElement.style.width = '100%';
-              iframeElement.style.maxWidth = '100%';
-              iframeElement.style.minHeight = '200px';
+              iframeElement.style.setProperty('width', '100%', 'important');
+              iframeElement.style.setProperty('max-width', '100%', 'important');
+              iframeElement.style.setProperty('min-height', '300px', 'important');
+              iframeElement.style.setProperty('border', 'none', 'important');
+              iframeElement.style.setProperty('border-radius', '8px', 'important');
+              iframeElement.style.setProperty('background-color', 'transparent', 'important');
+              
+              // Apply additional styling to the iframe container
+              const iframeContainer = iframeElement.parentElement;
+              if (iframeContainer) {
+                iframeContainer.style.setProperty('background-color', 'transparent', 'important');
+                iframeContainer.style.setProperty('border', 'none', 'important');
+                iframeContainer.style.setProperty('box-shadow', 'none', 'important');
+                iframeContainer.style.setProperty('padding', '0', 'important');
+                iframeContainer.style.setProperty('margin', '0', 'important');
+              }
               
               // Log iframe dimensions
               console.log('Iframe dimensions:', {
@@ -182,30 +193,6 @@ export default function TwitterEmbed({
       });
     }
   }, [embedHtml]);
-
-  const handleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
-  useEffect(() => {
-    const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-      }
-    };
-
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isFullscreen]);
 
   if (hasError || !tweetId) {
     return (
@@ -234,34 +221,8 @@ export default function TwitterEmbed({
 
   return (
     <>
-      {/* Fullscreen overlay */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center p-4">
-          <div className="relative w-full max-w-2xl max-h-screen overflow-auto">
-            <div className="bg-white rounded-lg p-4">
-              <div 
-                ref={containerRef}
-                className="twitter-embed-container fullscreen"
-              />
-            </div>
-            
-            {/* Close fullscreen button */}
-            <button
-              onClick={handleFullscreen}
-              className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
-              title="Close fullscreen"
-              aria-label="Close fullscreen"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-      
       {/* Regular tweet container */}
-      <div className={`rounded-2xl overflow-hidden bg-gray-900 border border-gray-800 ${className}`}>
+      <div className={`rounded-lg overflow-hidden bg-transparent border-0 ${className}`}>
         <div className="relative">
           {isLoading && (
             <div className="flex items-center justify-center p-8">
@@ -271,41 +232,13 @@ export default function TwitterEmbed({
           )}
           
           {!isLoading && !hasError && (
-            <div className="p-4">
+            <div className={styles.twitterEmbedWrapper}>
               <div 
                 ref={containerRef}
-                className="twitter-embed-container"
+                className={styles.twitterEmbedContainer}
               />
             </div>
           )}
-          
-          {/* Fullscreen button - bottom right */}
-          {!isLoading && !hasError && (
-            <button
-              onClick={handleFullscreen}
-              className="absolute bottom-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-colors group"
-              title="Toggle fullscreen"
-              aria-label="Toggle fullscreen"
-            >
-              <Maximize2 className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-            </button>
-          )}
-        </div>
-      
-        {/* Title and Link Below Tweet */}
-        <div className="p-4 pt-2">
-          {title && (
-            <h3 className="text-sm text-gray-300 font-medium mb-2">{title}</h3>
-          )}
-          <a
-            href={twitterUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View on Twitter/X
-          </a>
         </div>
       </div>
     </>

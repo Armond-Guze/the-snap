@@ -54,14 +54,14 @@ const headlineType = defineType({
           name: "focusKeyword",
           title: "Focus Keyword",
           type: "string",
-          description: "Primary keyword you want to rank for",
+          description: "Primary keyword you want to rank for (auto-generated from tags/category, or customize)",
         }),
         defineField({
           name: "additionalKeywords",
           title: "Additional Keywords",
           type: "array",
           of: [{ type: "string" }],
-          description: "Secondary keywords to target",
+          description: "Secondary keywords to target (auto-generated from tags/category, or customize)",
         }),
         defineField({
           name: "ogTitle",

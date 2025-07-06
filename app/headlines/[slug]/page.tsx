@@ -105,10 +105,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         </article>
         
         {/* Sidebar */}
-        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-16">
+        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
           {/* Video/Social Section - YouTube or Twitter */}
           {headline.youtubeVideoId && (
-            <div className="m-6">
+            <div className="mb-4">
               <YouTubeEmbed 
                 videoId={headline.youtubeVideoId}
                 title={headline.videoTitle || `Video: ${headline.title}`}
@@ -119,10 +119,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           
           {/* Twitter Embed - Only show if Twitter URL exists and no YouTube video */}
           {!headline.youtubeVideoId && headline.twitterUrl && (
-            <div className="m-6">
+            <div className="mb-4 w-full">
               <TwitterEmbed 
                 twitterUrl={headline.twitterUrl}
-                title={headline.twitterTitle || `Related Tweet: ${headline.title}`}
+                className="w-full"
               />
             </div>
           )}
