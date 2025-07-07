@@ -38,7 +38,6 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -137,43 +136,9 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
     return () => clearTimeout(debounceTimer);
   }, [query]);
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isOpen) return;
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setSelectedIndex(prev => 
-          prev < results.length - 1 ? prev + 1 : prev
-        );
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : -1
-        );
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-        if (selectedIndex >= 0 && results[selectedIndex]) {
-          handleResultClick(results[selectedIndex]);
-        } else if (query.trim()) {
-          handleSubmitSearch();
-        }
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, results, selectedIndex, query]);
-
+  // Mobile-first design - keyboard navigation removed
   const handleSearch = (searchTerm: string) => {
     setQuery(searchTerm);
-    setSelectedIndex(-1);
     if (searchTerm && !recentSearches.includes(searchTerm)) {
       const newRecent = [searchTerm, ...recentSearches.slice(0, 4)];
       setRecentSearches(newRecent);
@@ -185,7 +150,6 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
     setIsOpen(false);
     setQuery('');
     setResults([]);
-    setSelectedIndex(-1);
   }, []);
 
   const handleSubmitSearch = useCallback(() => {
@@ -236,12 +200,6 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                     placeholder="Search articles..."
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSubmitSearch();
-                      }
-                    }}
                     className="w-full px-4 py-3 pl-12 pr-12 bg-gray-900 text-white placeholder-gray-400 rounded-lg border border-gray-600 focus:border-white focus:outline-none focus:ring-2 focus:ring-white transition-colors text-lg"
                   />
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -315,16 +273,13 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                       <>
                         <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-600 flex items-center justify-between">
                           <span>{results.length} result{results.length !== 1 ? 's' : ''} found</span>
-                          <span className="text-gray-500">Press Enter to search all</span>
                         </div>
                         <div className="py-2">
                           {results.map((result, index) => (
                             <button
                               key={result._id}
                               onClick={() => handleResultClick(result)}
-                              className={`w-full flex items-start gap-3 p-3 hover:bg-gray-800 rounded-lg transition-colors text-left ${
-                                selectedIndex === index ? 'bg-gray-800' : ''
-                              }`}
+                              className="w-full flex items-start gap-3 p-3 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors text-left"
                             >
                               {/* Thumbnail */}
                               <div className="flex-shrink-0 w-12 h-12 bg-gray-700 rounded overflow-hidden">
@@ -383,19 +338,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                 )}
               </div>
 
-              {/* Search Footer */}
-              <div className="px-4 py-3 bg-gray-900 border-t border-gray-600">
-                <div className="flex items-center justify-between text-xs text-gray-400">
-                  <div className="flex items-center space-x-4">
-                    <span>↑↓ Navigate</span>
-                    <span>↵ Select</span>
-                    <span>ESC Close</span>
-                  </div>
-                  <div className="text-gray-500">
-                    Press Enter to search all articles
-                  </div>
-                </div>
-              </div>
+              {/* Search Footer - Removed for mobile-first design */}
             </div>
           </div>
         )}
