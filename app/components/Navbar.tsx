@@ -35,18 +35,6 @@ export default function Navbar() {
     setMenuOpen(false);
   }, [pathname]);
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && menuOpen) {
-        setMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [menuOpen]);
-
   // Add Home link when not on homepage
   const navItems = [
     ...(pathname !== "/" ? [{ label: "Home", href: "/" }] : []),
@@ -109,7 +97,7 @@ export default function Navbar() {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
-            className="relative p-3 rounded-xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 group shadow-lg hover:shadow-xl"
+            className="relative p-3 rounded-xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 active:scale-95 active:bg-white/15 group shadow-lg hover:shadow-xl"
           >
             <div className="relative w-5 h-5">
               <span
@@ -155,7 +143,7 @@ export default function Navbar() {
                   isActive
                     ? 'text-white bg-white/10 border-l-4 border-white shadow-lg backdrop-blur-sm'
                     : 'text-gray-200 hover:text-white hover:bg-white/5 hover:backdrop-blur-sm'
-                } focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black`}
+                } active:scale-95 active:bg-white/10`}
                 style={{
                   animationDelay: `${index * 50}ms`,
                 }}
