@@ -34,7 +34,7 @@ export default function TrendingTopics() {
   const getCategoryColorClasses = (color?: string) => {
     switch (color) {
       case 'red': return 'from-red-600 to-red-700 hover:from-red-500 hover:to-red-600';
-      case 'blue': return 'from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600';
+      case 'blue': return 'from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-black';
       case 'green': return 'from-green-600 to-green-700 hover:from-green-500 hover:to-green-600';
       case 'yellow': return 'from-yellow-600 to-yellow-700 hover:from-yellow-500 hover:to-yellow-600';
       case 'purple': return 'from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600';
@@ -93,7 +93,7 @@ export default function TrendingTopics() {
               
               <Link
                 href="/headlines"
-                className="group block p-4 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="group block p-4 bg-gradient-to-br from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-lg text-black font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-gray-300"
               >
                 <div className="text-sm mb-1">#Playoffs</div>
                 <div className="text-xs opacity-90">Trending</div>

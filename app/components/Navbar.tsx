@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import SmartSearch from "./SmartSearch";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -18,7 +18,6 @@ export default function Navbar() {
     { label: "Headlines", href: "/headlines" },
     { label: "Power Rankings", href: "/power-rankings" },
     { label: "NFL Standings", href: "/standings" },
-    { label: "Contact", href: "/contact" },
   ];
 
   return (
@@ -36,26 +35,32 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
-          {navItems.map(({ label, href }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={label}
-                href={href}
-                className={`relative text-sm font-semibold pb-1 transition-all duration-300 ${
-                  isActive 
-                    ? 'text-white after:w-full' 
-                    : 'text-gray-200 hover:text-white'
+        {/* Desktop Menu + Search */}
+        <div className="hidden md:flex items-center space-x-6">
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-8">
+            {navItems.map(({ label, href }) => {
+              const isActive = pathname === href;
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  className={`relative text-sm font-semibold pb-1 transition-all duration-300 ${
+                    isActive 
+                      ? 'text-white after:w-full' 
+                      : 'text-gray-200 hover:text-white'
                 } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-white after:transition-all after:duration-300 hover:after:w-full ${
                   isActive ? 'after:w-full' : 'after:w-0'
                 }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+          
+          {/* Search Component */}
+          <SmartSearch />
         </div>
 
         {/* Enhanced Mobile Menu Toggle */}

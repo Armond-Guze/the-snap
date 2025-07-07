@@ -39,7 +39,7 @@ export default function CategoryFilter({
       case 'red':
         return 'bg-red-600 hover:bg-red-700 border-red-600';
       case 'blue':
-        return 'bg-blue-600 hover:bg-blue-700 border-blue-600';
+        return 'bg-white hover:bg-gray-100 border-gray-300 text-black';
       case 'green':
         return 'bg-green-600 hover:bg-green-700 border-green-600';
       case 'yellow':

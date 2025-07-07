@@ -198,8 +198,8 @@ export default function TwitterEmbed({
     return (
       <div className={`bg-gray-900 border border-gray-800 rounded-2xl p-6 ${className}`}>
         <div className="text-center">
-          <div className="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-8 h-8 text-blue-400" />
+          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageCircle className="w-8 h-8 text-gray-600" />
           </div>
           <h3 className="text-lg font-bold text-white mb-2">Tweet Unavailable</h3>
           <p className="text-gray-400 text-sm mb-4">
@@ -209,7 +209,7 @@ export default function TwitterEmbed({
             href={twitterUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-white hover:bg-gray-100 text-black border border-gray-300 rounded-lg transition-colors"
           >
             <ExternalLink className="w-4 h-4 mr-2" />
             View on Twitter/X
@@ -226,7 +226,7 @@ export default function TwitterEmbed({
         <div className="relative">
           {isLoading && (
             <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
               <span className="ml-2 text-gray-400">Loading tweet...</span>
             </div>
           )}

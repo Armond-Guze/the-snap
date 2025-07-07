@@ -6,8 +6,12 @@ import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
 import YouTubeEmbed from "@/app/components/YoutubeEmbed";
 import TwitterEmbed from "@/app/components/TwitterEmbed";
+import ReadingTime from "@/app/components/ReadingTime";
+import SocialShare from "@/app/components/SocialShare";
+import Breadcrumb from "@/app/components/Breadcrumb";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
+import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
 import { Metadata } from 'next';
 
 export const dynamic = "force-dynamic";
@@ -53,11 +57,25 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   if (!headline) notFound();
 
+  // Calculate reading time
+  const textContent = extractTextFromBlocks(headline.body || []);
+  const readingTime = calculateReadingTime(textContent);
+
+  // Build breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Headlines', href: '/headlines' },
+    ...(headline.category?.title ? [{ label: headline.category.title, href: `/categories/${headline.category.slug?.current}` }] : []),
+    { label: headline.title }
+  ];
+
   return (
     <main className="bg-black text-white min-h-screen">
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
+          {/* Breadcrumb */}
+          <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          
           {/* Title + Meta */}
           <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
             {headline.title}
@@ -81,6 +99,8 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                 year: "numeric",
               })}
             </span>
+            <span className="text-gray-500">•</span>
+            <ReadingTime minutes={readingTime} />
           </div>
           {/* Cover Image */}
           {headline.coverImage?.asset?.url && (
@@ -97,11 +117,20 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             </div>
           )}
           {/* Body Text */}
-          <section className="w-full">
+          <section className="w-full mb-8">
             <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
               {headline.body && <PortableText value={headline.body} />}
             </div>
           </section>
+
+          {/* Social Share */}
+          <SocialShare 
+            url={`https://thegamesnap.com/headlines/${trimmedSlug}`}
+            title={headline.title}
+            description={headline.summary || ''}
+            variant="compact"
+            className="mb-8"
+          />
         </article>
         
         {/* Sidebar */}

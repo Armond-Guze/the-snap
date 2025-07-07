@@ -44,7 +44,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
   const getCategoryColorClasses = (color?: string) => {
     switch (color) {
       case 'red': return 'bg-red-600 border-red-600';
-      case 'blue': return 'bg-blue-600 border-blue-600';
+      case 'blue': return 'bg-white text-black border border-gray-300';
       case 'green': return 'bg-green-600 border-green-600';
       case 'yellow': return 'bg-yellow-600 border-yellow-600';
       case 'purple': return 'bg-purple-600 border-purple-600';

@@ -11,17 +11,44 @@ function HeadlinesContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category');
   const tag = searchParams.get('tag');
+  const search = searchParams.get('search');
+
+  const getHeadlineTitle = () => {
+    if (search) {
+      return `Search Results for "${search}"`;
+    }
+    if (category) {
+      return `${category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')} Headlines`;
+    }
+    if (tag) {
+      return `${tag.charAt(0).toUpperCase() + tag.slice(1)} Headlines`;
+    }
+    return 'NFL Headlines';
+  };
+
+  const getHeadlineDescription = () => {
+    if (search) {
+      return `Showing articles matching "${search}" from around the NFL.`;
+    }
+    if (category) {
+      return `Latest news and analysis in ${category.replace('-', ' ')}.`;
+    }
+    if (tag) {
+      return `Articles tagged with ${tag}.`;
+    }
+    return 'Discover the latest NFL news, analysis, and breaking stories from around the league.';
+  };
 
   return (
     <div className="min-h-screen bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            NFL Headlines
+            {getHeadlineTitle()}
           </h1>
           <div className="w-24 h-1 bg-white mb-6"></div>
           <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
-            Discover the latest NFL news, analysis, and breaking stories from around the league.
+            {getHeadlineDescription()}
           </p>
         </div>
 
@@ -31,6 +58,7 @@ function HeadlinesContent() {
             <FilteredHeadlines
               initialCategory={category || undefined}
               initialTag={tag || undefined}
+              initialSearch={search || undefined}
               showFilters={true}
               maxArticles={24}
             />

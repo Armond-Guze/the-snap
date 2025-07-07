@@ -45,7 +45,7 @@ function getImportanceColor(importance: string) {
   switch (importance) {
     case 'gotw': return 'bg-yellow-600';
     case 'division': return 'bg-red-600';
-    case 'playoff': return 'bg-blue-600';
+    case 'playoff': return 'bg-white text-black border border-gray-300';
     case 'primetime': return 'bg-purple-600';
     default: return 'bg-gray-600';
   }

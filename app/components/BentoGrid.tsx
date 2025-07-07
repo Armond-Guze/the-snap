@@ -111,7 +111,7 @@ export default async function BentoGrid() {
               className="lg:col-span-2 lg:row-span-2 group"
             >
               <div className="relative h-full min-h-[500px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/60 to-gray-900/60" />
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
                 <div className="relative h-full flex flex-col justify-between p-8">

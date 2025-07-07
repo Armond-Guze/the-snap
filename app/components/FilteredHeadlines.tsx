@@ -12,6 +12,7 @@ import TagCloud from './TagCloud';
 interface FilteredHeadlinesProps {
   initialCategory?: string;
   initialTag?: string;
+  initialSearch?: string;
   showFilters?: boolean;
   maxArticles?: number;
   className?: string;
@@ -20,6 +21,7 @@ interface FilteredHeadlinesProps {
 export default function FilteredHeadlines({
   initialCategory,
   initialTag,
+  initialSearch,
   showFilters = true,
   maxArticles = 12,
   className = ''
@@ -28,6 +30,7 @@ export default function FilteredHeadlines({
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory || null);
   const [selectedTag, setSelectedTag] = useState<string | null>(initialTag || null);
+  const [searchQuery, setSearchQuery] = useState<string | null>(initialSearch || null);
 
   useEffect(() => {
     async function fetchHeadlines() {
@@ -35,7 +38,37 @@ export default function FilteredHeadlines({
       try {
         let data: HeadlineListItem[];
         
-        if (selectedCategory) {
+        if (searchQuery) {
+          // Search query
+          const searchQueryGroq = `
+            *[_type == "headline" && published == true && (
+              title match "*${searchQuery}*" ||
+              summary match "*${searchQuery}*" ||
+              category->title match "*${searchQuery}*" ||
+              author->name match "*${searchQuery}*"
+            )] | order(_createdAt desc) {
+              _id,
+              title,
+              slug,
+              summary,
+              coverImage {
+                asset->{ url }
+              },
+              category-> {
+                title,
+                slug,
+                color
+              },
+              author-> {
+                name,
+                slug
+              },
+              date,
+              _createdAt
+            }
+          `;
+          data = await client.fetch(searchQueryGroq);
+        } else if (selectedCategory) {
           data = await client.fetch(headlinesByCategoryQuery, { 
             categorySlug: selectedCategory 
           });
@@ -57,21 +90,24 @@ export default function FilteredHeadlines({
     }
 
     fetchHeadlines();
-  }, [selectedCategory, selectedTag, maxArticles]);
+  }, [selectedCategory, selectedTag, searchQuery, maxArticles]);
 
   const handleCategoryChange = (categorySlug: string | null) => {
     setSelectedCategory(categorySlug);
     setSelectedTag(null); // Clear tag when category is selected
+    setSearchQuery(null); // Clear search when category is selected
   };
 
   const handleTagClick = (tag: string) => {
     setSelectedTag(tag);
     setSelectedCategory(null); // Clear category when tag is selected
+    setSearchQuery(null); // Clear search when tag is selected
   };
 
   const clearFilters = () => {
     setSelectedCategory(null);
     setSelectedTag(null);
+    setSearchQuery(null);
   };
 
   const formatDate = (date: string) => {
@@ -85,7 +121,7 @@ export default function FilteredHeadlines({
   const getCategoryColorClasses = (color?: string) => {
     switch (color) {
       case 'red': return 'bg-red-600';
-      case 'blue': return 'bg-blue-600';
+      case 'blue': return 'bg-white text-black border border-gray-300';
       case 'green': return 'bg-green-600';
       case 'yellow': return 'bg-yellow-600';
       case 'purple': return 'bg-purple-600';
@@ -111,37 +147,34 @@ export default function FilteredHeadlines({
           <TagCloud showTrendingOnly={true} maxTags={10} />
 
           {/* Active Filters */}
-          {(selectedCategory || selectedTag) && (
-            <div className="flex items-center gap-3">
-              <span className="text-gray-400">Active filters:</span>
-              {selectedCategory && (
-                <span className="px-3 py-1 bg-gray-700 text-white rounded-full text-sm flex items-center gap-2">
-                  Category: {selectedCategory}
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {selectedTag && (
-                <span className="px-3 py-1 bg-gray-700 text-white rounded-full text-sm flex items-center gap-2">
-                  Tag: #{selectedTag}
-                  <button
-                    onClick={() => setSelectedTag(null)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              <button
-                onClick={clearFilters}
-                className="text-sm text-gray-400 hover:text-white"
-              >
-                Clear all
-              </button>
+          {(selectedCategory || selectedTag || searchQuery) && (
+            <div className="bg-gray-800 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-white">Active Filters</h4>
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-white hover:text-gray-300 transition-colors"
+                >
+                  Clear All
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {searchQuery && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-white text-black">
+                    Search: &ldquo;{searchQuery}&rdquo;
+                  </span>
+                )}
+                {selectedCategory && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-600 text-white">
+                    Category: {selectedCategory}
+                  </span>
+                )}
+                {selectedTag && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-600 text-white">
+                    Tag: {selectedTag}
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
