@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar, TrendingUp, Eye } from "lucide-react";
 import type { HeadlineListItem } from "@/types";
+import { formatCompactDate } from "@/lib/date-utils";
 
 interface RelatedArticlesProps {
   currentSlug: string;
@@ -56,18 +57,10 @@ export default function RelatedArticles({
                   <h3 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-gray-300 transition-colors mb-2">
                     {article.title}
                   </h3>
-                  {article.summary && (
-                    <p className="text-gray-400 text-xs line-clamp-2 mb-2">
-                      {article.summary}
-                    </p>
-                  )}
                   <div className="flex items-center text-xs text-gray-500 space-x-3">
                     <div className="flex items-center">
                       <Calendar className="w-3 h-3 mr-1" />
-                      {new Date(article.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
+                      {formatCompactDate(article.date)}
                     </div>
                     {article.author?.name && (
                       <span>by {article.author.name}</span>

@@ -3,6 +3,7 @@ import { powerRankingsQuery } from "@/sanity/lib/queries";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/sanity/lib/image";
+import { portableTextComponents } from "@/lib/portabletext-components";
 import type { PowerRankingTeam, MovementIndicator } from "@/types";
 
 export const revalidate = 60;
@@ -144,7 +145,7 @@ export default async function PowerRankingsPage() {
                   )}
                   {Array.isArray(body) && body.length > 0 && (
                     <div className="text-2xl text-gray-200 leading-relaxed">
-                      <PortableText value={body} />
+                      <PortableText value={body} components={portableTextComponents} />
                     </div>
                   )}
                 </div>

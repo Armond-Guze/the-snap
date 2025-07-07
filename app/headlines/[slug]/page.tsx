@@ -12,6 +12,8 @@ import Breadcrumb from "@/app/components/Breadcrumb";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
+import { formatArticleDate } from "@/lib/date-utils";
+import { portableTextComponents } from "@/lib/portabletext-components";
 import { Metadata } from 'next';
 
 export const dynamic = "force-dynamic";
@@ -48,6 +50,11 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         _id,
         title,
         slug,
+        date,
+        summary,
+        author-> {
+          name
+        },
         coverImage {
           asset->{ url }
         }
@@ -93,11 +100,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             )}
             <span>
               By {headline.author?.name || "Unknown"} •{" "}
-              {new Date(headline.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {formatArticleDate(headline.date)}
             </span>
             <span className="text-gray-500">•</span>
             <ReadingTime minutes={readingTime} />
@@ -119,7 +122,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           {/* Body Text */}
           <section className="w-full mb-8">
             <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-              {headline.body && <PortableText value={headline.body} />}
+              {headline.body && <PortableText value={headline.body} components={portableTextComponents} />}
             </div>
           </section>
 

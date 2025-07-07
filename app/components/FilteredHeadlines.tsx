@@ -111,6 +111,9 @@ export default function FilteredHeadlines({
   };
 
   const formatDate = (date: string) => {
+    if (!date || isNaN(new Date(date).getTime())) {
+      return 'No date';
+    }
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',

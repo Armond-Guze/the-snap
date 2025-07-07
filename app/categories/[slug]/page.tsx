@@ -54,6 +54,9 @@ export default async function CategoryPage(props: CategoryPageProps) {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString || isNaN(new Date(dateString).getTime())) {
+      return 'No date';
+    }
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'long',
