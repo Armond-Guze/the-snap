@@ -153,3 +153,34 @@ export interface ContactForm {
   email: string;
   message: string;
 }
+
+// Rankings types
+export interface RankingTeam {
+  _id?: string;
+  rank: number;
+  previousRank?: number;
+  teamName: string;
+  teamLogo?: SanityImageWithUrl;
+  teamColor?: string;
+  summary?: string;
+  analysis?: PortableTextContent;
+  stats?: Array<{
+    label: string;
+    value: string;
+  }>;
+}
+
+export interface Rankings {
+  _id: string;
+  title: string;
+  slug: SanitySlug;
+  rankingType: 'offense' | 'defense' | 'rookie' | 'fantasy-qb' | 'fantasy-rb' | 'fantasy-wr' | 'fantasy-te' | 'draft' | 'position' | 'team';
+  summary?: string;
+  coverImage?: SanityImageWithUrl;
+  author?: Author;
+  publishedAt: string;
+  teams: RankingTeam[];
+  methodology?: PortableTextContent;
+  seo?: SEOData;
+  published: boolean;
+}

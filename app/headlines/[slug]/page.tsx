@@ -9,6 +9,7 @@ import TwitterEmbed from "@/app/components/TwitterEmbed";
 import ReadingTime from "@/app/components/ReadingTime";
 import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
+import ArticleViewTracker from "@/app/components/ArticleViewTracker";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
@@ -163,6 +164,17 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
         </aside>
       </div>
+      
+      {/* Article View Tracker */}
+      <ArticleViewTracker 
+        slug={trimmedSlug}
+        headlineId={headline._id}
+        title={headline.title}
+        category={headline.category?.title}
+        author={headline.author?.name}
+        readingTime={readingTime}
+        className="hidden"
+      />
     </main>
   );
 }
