@@ -1,6 +1,7 @@
 export const headlineQuery = `
-  *[_type == "headline" && published == true] | order(priority asc, _createdAt desc) {
+  *[(_type == "headline" || _type == "rankings") && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
     _id,
+    _type,
     title,
     slug,
     summary,
@@ -11,6 +12,8 @@ export const headlineQuery = `
     },
     priority,
     date,
+    publishedAt,
+    rankingType,
     author->{
       name
     },
@@ -261,5 +264,33 @@ export const upcomingGamesQuery = `
     preview,
     week,
     featured
+  }
+`;
+
+export const rankingsQuery = `
+  *[_type == "rankings" && published == true] | order(publishedAt desc) [0..2] {
+    _id,
+    title,
+    slug,
+    rankingType,
+    summary,
+    coverImage {
+      asset->{
+        url
+      }
+    },
+    author->{
+      name
+    },
+    publishedAt,
+    teams[0..2] {
+      rank,
+      teamName,
+      teamLogo {
+        asset->{
+          url
+        }
+      }
+    }
   }
 `;

@@ -93,11 +93,14 @@ export interface Headline {
 
 export interface HeadlineListItem {
   _id: string;
+  _type: 'headline' | 'rankings';
   title: string;
   slug: SanitySlug;
   coverImage?: SanityImageWithUrl;
   summary?: string;
-  date: string;
+  date?: string;
+  publishedAt?: string;
+  rankingType?: string;
   author?: Pick<Author, 'name'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
   tags?: Pick<Tag, 'title'>[];

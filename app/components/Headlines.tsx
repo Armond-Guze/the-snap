@@ -3,28 +3,23 @@ import { headlineQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
-
-interface Headline {
-  _id: string;
-  title: string;
-  slug?: {
-    current: string;
-  };
-  summary?: string;
-  coverImage?: {
-    asset?: {
-      _ref: string;
-      _type: string;
-    };
-  };
-}
+import { FaAlignLeft } from 'react-icons/fa';
+import type { HeadlineListItem } from "@/types";
 
 export default async function Headlines() {
-  const headlines: Headline[] = await client.fetch(headlineQuery);
+  const headlines: HeadlineListItem[] = await client.fetch(headlineQuery);
   if (!headlines?.length) return null;
 
   const main = headlines[0];
   const sidebar = headlines.slice(1);
+
+  // Helper function to get the correct URL based on content type
+  const getArticleUrl = (item: HeadlineListItem) => {
+    if (item._type === 'rankings') {
+      return `/rankings/${item.slug.current.trim()}`;
+    }
+    return `/headlines/${item.slug.current.trim()}`;
+  };
 
   return (
     <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
@@ -34,7 +29,7 @@ export default async function Headlines() {
           {/* Main Feature Story */}
           <div className="lg:col-span-2 rounded-3xl backdrop-blur-sm overflow-hidden hover:bg-black transition-all duration-300 group">
             {main?.coverImage && main?.slug?.current && (
-              <Link href={`/headlines/${main.slug.current.trim()}`}>
+              <Link href={getArticleUrl(main)}>
                 <div className="relative aspect-video overflow-hidden">
                   <Image
                     src={urlFor(main.coverImage).width(800).url()}
@@ -59,7 +54,7 @@ export default async function Headlines() {
           </div>
 
           {/* Sidebar Headlines */}
-          <div className="lg:col-span-1  rounded-2xl p-8 self-start">
+          <div className="lg:col-span-1 bg-black rounded-2xl p-8 self-start">
             <div className="flex items-center mb-6">
               <div className="w-3 h-3 bg-white rounded-full mr-3"></div>
               <h3 className="text-xl font-bold text-white">Around The NFL</h3>
@@ -71,25 +66,21 @@ export default async function Headlines() {
                   className="border-b border-gray-700/50 pb-3 last:border-b-0 last:pb-0"
                 >
                   {headline.slug?.current ? (
-                    <Link href={`/headlines/${headline.slug.current.trim()}`}>
+                    <Link href={getArticleUrl(headline)}>
                       <div className="flex items-start gap-3 group cursor-pointer">
-                        {headline.coverImage && (
-                          <div className="relative overflow-hidden rounded-lg flex-shrink-0">
-                            <Image
-                              src={urlFor(headline.coverImage)
-                                .width(64)
-                                .height(40)
-                                .url()}
-                              alt={headline.title}
-                              width={64}
-                              height={40}
-                              className="w-16 h-10 object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          </div>
-                        )}
-                        <span className="hover:text-gray-400 transition-colors duration-300 font-medium leading-tight text-white">
-                          {headline.title}
-                        </span>
+                        <div className="flex-shrink-0 flex items-center justify-center w-8 h-8">
+                          <FaAlignLeft className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="hover:text-gray-400 transition-colors duration-300 font-medium leading-tight text-white block">
+                            {headline.title}
+                          </span>
+                          {headline._type === 'rankings' && headline.rankingType && (
+                            <span className="text-xs text-purple-400 mt-1 block font-semibold">
+                              {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </Link>
                   ) : (

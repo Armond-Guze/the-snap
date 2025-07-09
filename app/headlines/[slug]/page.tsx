@@ -10,6 +10,7 @@ import ReadingTime from "@/app/components/ReadingTime";
 import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import ArticleViewTracker from "@/app/components/ArticleViewTracker";
+import ArticleViewWrapper from "@/app/components/ArticleViewWrapper";
 import { generateSEOMetadata } from "@/lib/seo";
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
@@ -78,34 +79,40 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   return (
     <main className="bg-black text-white min-h-screen">
-      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main Article Section */}
-        <article className="lg:col-span-2 flex flex-col">
-          {/* Breadcrumb */}
-          <Breadcrumb items={breadcrumbItems} className="mb-4" />
-          
-          {/* Title + Meta */}
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
-            {headline.title}
-          </h1>
-          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
-            {headline.author?.image?.asset?.url && (
-              <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image
-                  src={headline.author.image.asset.url}
-                  alt={headline.author.name || "Author"}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <span>
-              By {headline.author?.name || "Unknown"} •{" "}
-              {formatArticleDate(headline.date)}
-            </span>
-            <span className="text-gray-500">•</span>
-            <ReadingTime minutes={readingTime} />
-          </div>
+      <ArticleViewWrapper
+        articleId={headline._id}
+        articleSlug={trimmedSlug}
+        articleType="headline"
+        articleTitle={headline.title}
+      >
+        <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Main Article Section */}
+          <article className="lg:col-span-2 flex flex-col">
+            {/* Breadcrumb */}
+            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            
+            {/* Title + Meta */}
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
+              {headline.title}
+            </h1>
+            <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
+              {headline.author?.image?.asset?.url && (
+                <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                  <Image
+                    src={headline.author.image.asset.url}
+                    alt={headline.author.name || "Author"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <span>
+                By {headline.author?.name || "Unknown"} •{" "}
+                {formatArticleDate(headline.date)}
+              </span>
+              <span className="text-gray-500">•</span>
+              <ReadingTime minutes={readingTime} />
+            </div>
           {/* Cover Image */}
           {headline.coverImage?.asset?.url && (
             <div className="w-full mb-6">
@@ -164,6 +171,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
         </aside>
       </div>
+      </ArticleViewWrapper>
       
       {/* Article View Tracker */}
       <ArticleViewTracker 

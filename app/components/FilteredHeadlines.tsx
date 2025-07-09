@@ -32,6 +32,14 @@ export default function FilteredHeadlines({
   const [selectedTag, setSelectedTag] = useState<string | null>(initialTag || null);
   const [searchQuery, setSearchQuery] = useState<string | null>(initialSearch || null);
 
+  // Helper function to get the correct URL based on content type
+  const getArticleUrl = (item: HeadlineListItem) => {
+    if (item._type === 'rankings') {
+      return `/rankings/${item.slug.current.trim()}`;
+    }
+    return `/headlines/${item.slug.current.trim()}`;
+  };
+
   useEffect(() => {
     async function fetchHeadlines() {
       setLoading(true);
@@ -39,35 +47,31 @@ export default function FilteredHeadlines({
         let data: HeadlineListItem[];
         
         if (searchQuery) {
-          // Search query
-          const searchQueryGroq = `
-            *[_type == "headline" && published == true && (
+          // Search query - fetch data using client.fetch
+          data = await client.fetch(`
+            *[(_type == "headline" || _type == "rankings") && published == true && (
               title match "*${searchQuery}*" ||
               summary match "*${searchQuery}*" ||
               category->title match "*${searchQuery}*" ||
-              author->name match "*${searchQuery}*"
-            )] | order(_createdAt desc) {
+              author->name match "*${searchQuery}*" ||
+              rankingType match "*${searchQuery}*"
+            )] | order(_createdAt desc, publishedAt desc) {
               _id,
+              _type,
               title,
               slug,
               summary,
               coverImage {
                 asset->{ url }
               },
-              category-> {
-                title,
-                slug,
-                color
-              },
-              author-> {
-                name,
-                slug
-              },
               date,
-              _createdAt
+              publishedAt,
+              rankingType,
+              author->{ name },
+              category->{ title, slug, color },
+              tags[]->{ title }
             }
-          `;
-          data = await client.fetch(searchQueryGroq);
+          `);
         } else if (selectedCategory) {
           data = await client.fetch(headlinesByCategoryQuery, { 
             categorySlug: selectedCategory 
@@ -119,18 +123,6 @@ export default function FilteredHeadlines({
       day: 'numeric',
       year: 'numeric',
     });
-  };
-
-  const getCategoryColorClasses = (color?: string) => {
-    switch (color) {
-      case 'red': return 'bg-red-600';
-      case 'blue': return 'bg-white text-black border border-gray-300';
-      case 'green': return 'bg-green-600';
-      case 'yellow': return 'bg-yellow-600';
-      case 'purple': return 'bg-purple-600';
-      case 'orange': return 'bg-orange-600';
-      default: return 'bg-gray-600';
-    }
   };
 
   return (
@@ -219,7 +211,7 @@ export default function FilteredHeadlines({
               key={headline._id}
               className="group bg-gray-900 rounded-lg overflow-hidden hover:bg-gray-800 transition-colors"
             >
-              <Link href={`/headlines/${headline.slug.current}`}>
+              <Link href={getArticleUrl(headline)}>
                 {headline.coverImage?.asset?.url && (
                   <div className="aspect-video relative overflow-hidden">
                     <Image
@@ -233,12 +225,13 @@ export default function FilteredHeadlines({
                 
                 <div className="p-4">
                   {headline.category && (
-                    <span
-                      className={`inline-block px-2 py-1 text-xs font-medium text-white rounded-full mb-2 ${getCategoryColorClasses(
-                        headline.category.color
-                      )}`}
-                    >
+                    <span className="inline-block px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-full mb-2">
                       {headline.category.title}
+                    </span>
+                  )}
+                  {headline._type === 'rankings' && headline.rankingType && (
+                    <span className="inline-block px-2 py-1 text-xs font-semibold text-white bg-purple-600 rounded-full mb-2 ml-2">
+                      {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
                     </span>
                   )}
                   

@@ -1,5 +1,5 @@
 import { client } from "@/sanity/lib/client";
-import { headlineQuery, powerRankingsQuery } from "@/sanity/lib/queries";
+import { headlineQuery, powerRankingsQuery, rankingsQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,14 +21,16 @@ interface Headline {
 
 export default async function BentoGrid() {
   // Fetch data from Sanity
-  const [headlines, powerRankings] = await Promise.all([
+  const [headlines, powerRankings, rankings] = await Promise.all([
     client.fetch(headlineQuery),
     client.fetch(powerRankingsQuery),
+    client.fetch(rankingsQuery),
   ]);
 
   const featuredHeadline = headlines?.[0];
   const latestHeadlines = headlines?.slice(1, 4) || [];
   const topTeams = powerRankings?.slice(0, 3) || [];
+  const latestRankings = rankings?.[0]; // Get the most recent ranking
 
   return (
     <section className="relative py-24 px-6 lg:px-8 bg-deep-black">

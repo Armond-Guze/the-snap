@@ -180,6 +180,14 @@ export default defineType({
       type: 'boolean',
       initialValue: false,
     }),
+    defineField({
+      name: 'viewCount',
+      title: 'View Count',
+      type: 'number',
+      description: 'Number of times this ranking has been viewed (automatically tracked)',
+      initialValue: 0,
+      readOnly: true,
+    }),
   ],
   preview: {
     select: {

@@ -20,6 +20,14 @@ export default function RelatedArticles({
 
   const featuredArticles = relatedArticles.slice(0, 2);
 
+  // Helper function to get the correct URL based on content type
+  const getArticleUrl = (item: HeadlineListItem) => {
+    if (item._type === 'rankings') {
+      return `/rankings/${item.slug.current}`;
+    }
+    return `/headlines/${item.slug.current}`;
+  };
+
   if (relatedArticles.length === 0) return null;
 
   return (
@@ -34,7 +42,7 @@ export default function RelatedArticles({
           {featuredArticles.map((article) => (
             <Link
               key={article._id}
-              href={`/headlines/${article.slug.current}`}
+              href={getArticleUrl(article)}
               className="group block"
             >
               <div className="flex gap-3 p-3 rounded-xl hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300">
@@ -60,8 +68,13 @@ export default function RelatedArticles({
                   <div className="flex items-center text-xs text-gray-500 space-x-3">
                     <div className="flex items-center">
                       <Calendar className="w-3 h-3 mr-1" />
-                      {formatCompactDate(article.date)}
+                      {formatCompactDate(article.date || article.publishedAt)}
                     </div>
+                    {article._type === 'rankings' && article.rankingType && (
+                      <span className="text-purple-400 font-semibold text-xs">
+                        {article.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
+                      </span>
+                    )}
                     {article.author?.name && (
                       <span>by {article.author.name}</span>
                     )}
