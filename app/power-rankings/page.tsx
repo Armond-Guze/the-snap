@@ -115,7 +115,7 @@ export default async function PowerRankingsPage() {
                         </h2>
 
                         {/* Movement Indicator */}
-                        <div className="flex flex-col items-center min-w-[50px] bg-gray-900 rounded-lg p-2">
+                        <div className="flex flex-col items-center min-w-[50px] rounded-lg p-2">
                           <span
                             className={`text-lg font-bold ${movement.color}`}
                           >

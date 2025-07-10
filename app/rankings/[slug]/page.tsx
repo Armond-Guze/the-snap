@@ -362,7 +362,7 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
               </h2>
 
               {/* Movement Indicator */}
-              <div className="flex flex-col items-center min-w-[50px] bg-gray-900 rounded-lg p-2">
+              <div className="flex flex-col items-center min-w-[50px] rounded-lg p-2">
                 <span className={`text-lg font-bold ${movement.color}`}>
                   {movement.symbol}
                 </span>
@@ -399,9 +399,9 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
 // Helper function for movement indicators
 function getMovementIndicator(change: number): MovementIndicator {
   if (change > 0) {
-    return { symbol: `↑${change}`, color: 'text-green-400' };
+    return { symbol: `▲`, color: 'text-green-400' };
   } else if (change < 0) {
-    return { symbol: `↓${Math.abs(change)}`, color: 'text-red-400' };
+    return { symbol: `▼`, color: 'text-red-400' };
   }
   return { symbol: '—', color: 'text-gray-400' };
 }
@@ -456,7 +456,7 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
               </h2>
 
               {/* Movement Indicator */}
-              <div className="flex flex-col items-center min-w-[50px] bg-gray-900 rounded-lg p-2">
+              <div className="flex flex-col items-center min-w-[50px] rounded-lg p-2">
                 <span className={`text-lg font-bold ${movement.color}`}>
                   {movement.symbol}
                 </span>
