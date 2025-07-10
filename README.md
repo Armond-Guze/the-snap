@@ -1,155 +1,271 @@
 # The Snap 🏈
 
-A modern NFL news and analysis platform built with Next.js, featuring real-time game schedules, power rankings, standings, and comprehensive NFL coverage.
+**A premium NFL news, analysis, and rankings platform built for the modern sports fan**
 
-> **⚠️ PRIVATE PROJECT**: This is a proprietary codebase. All code, designs, concepts, and implementations are confidential and protected by intellectual property rights. Unauthorized copying, distribution, or replication of this project or its features is strictly prohibited.
+## 🎯 Project Vision & Mission
 
-## ✨ Features
+The Snap is an elite NFL content platform designed to compete with major sports media outlets like ESPN, Bleacher Report, and The Athletic. Our mission is to provide the most engaging, accurate, and visually stunning NFL content experience on the web.
 
-- **Game Schedule Carousel** - Interactive, mobile-friendly game schedule with Bleacher Report-style design
-- **Power Rankings** - Dynamic NFL team power rankings with automated calculations
-- **Live Standings** - Real-time NFL division standings and playoff implications
-- **News & Headlines** - Latest NFL news with rich content management
-- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- **Modern UI** - Dark theme with custom gradients and smooth animations
+**Core Values:**
+- **Premium User Experience** - Every interaction should feel smooth, professional, and engaging
+- **Content Flexibility** - Unified design system that works for news, rankings, analysis, and multimedia
+- **Mobile-First** - Optimized for the way modern sports fans consume content
+- **Professional Design** - Clean, modern aesthetic that builds trust and authority
 
-## 🚀 Tech Stack
+## 🏗️ Current Architecture & Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
-- **Content Management**: [Sanity CMS](https://www.sanity.io/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Forms**: [Formspree](https://formspree.io/)
-- **Deployment**: [Vercel](https://vercel.com/)
+### **Frontend Framework**
+- **Next.js 15** with App Router (latest stable)
+- **TypeScript** for type safety and developer experience
+- **Tailwind CSS 4** for styling and responsive design
+- **React 18** with modern hooks and patterns
 
-## 🛠️ Getting Started
+### **Content Management System**
+- **Sanity CMS** - Headless CMS for flexible content management
+- **Portable Text** - Rich text editing with custom components
+- **Image Optimization** - Automatic image processing and CDN delivery
+- **Real-time Preview** - Live content updates for editors
 
-### Prerequisites
+### **Key Integrations**
+- **ESPN API** - Live NFL game data, scores, and standings
+- **YouTube Embeds** - Video content integration
+- **Twitter/X Embeds** - Social media content embedding
+- **Google Analytics** - User tracking and engagement metrics
+- **Formspree** - Contact form handling
 
-- Node.js 18+ 
-- npm, yarn, pnpm, or bun
+## 📋 Current Feature Set (Implemented)
 
-### Installation
+### **🏠 Homepage**
+- **Hero Section** - Featured content with dynamic backgrounds
+- **Game Schedule Carousel** - Horizontal scrolling NFL games widget
+- **Featured Headlines** - 2-column layout with main story + sidebar
+- **BentoGrid Layout** - Modern card-based content sections
+- **Newsletter Signup** - Email capture with professional styling
 
-1. Clone the repository
-```bash
-git clone <repository-url>
-cd the-snap
-```
+### **📰 News & Articles System**
+- **Unified Article Layout** - Professional black theme with sidebar
+- **Rich Text Content** - PortableText with custom components
+- **Media Embeds** - YouTube videos and Twitter posts in sidebar
+- **Related Articles** - Cross-promotion between content types
+- **Reading Time Calculator** - Automatic estimation based on word count
+- **Author Profiles** - Bylines with avatar and bio integration
+- **SEO Optimization** - Meta tags, structured data, and social sharing
 
-2. Install dependencies
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-```
+### **📊 Rankings System (MAJOR RECENT UPDATE)**
+- **Dual Layout Modes:**
+  - **Article Mode** - Professional article layout matching news articles
+  - **Power Rankings Mode** - Traditional sports rankings display
+- **Dynamic Team Cards** - Custom styling with team colors and logos
+- **Movement Tracking** - Up/down indicators with previous rankings
+- **Rich Analysis** - PortableText content for detailed team breakdowns
+- **Team Statistics** - Custom stats display for each ranking entry
+- **Methodology Sections** - Transparent ranking criteria explanation
 
-3. Set up environment variables
-```bash
-cp .env.example .env.local
-```
-Add your Sanity project configuration and other required environment variables.
+### **🏆 Standings & Schedules**
+- **Live NFL Standings** - Real-time division standings
+- **Game Schedule Display** - Upcoming and completed games
+- **Playoff Implications** - Contextual information about standings impact
 
-4. Run the development server
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### **📱 Mobile Experience**
+- **Responsive Design** - Optimized for all screen sizes
+- **Touch Interactions** - Swipe gestures and mobile-friendly controls
+- **Fast Loading** - Optimized images and lazy loading
+- **Progressive Web App** features ready for implementation
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+## 🎨 Design System & Brand Identity
 
-## 📁 Project Structure
+### **Visual Language**
+- **Color Scheme** - Deep black backgrounds with white text for premium feel
+- **Typography** - Modern, readable fonts with clear hierarchy
+- **Spacing** - Generous whitespace for clean, uncluttered layouts
+- **Animations** - Subtle transitions and hover effects
+- **NFL Team Integration** - Dynamic team colors and branding
+
+### **Component Library**
+- **Headlines Component** - Reusable article display with thumbnail grid
+- **Game Schedule** - Interactive carousel with team logos and scores
+- **Ranking Cards** - Flexible team ranking display with analysis
+- **Navigation** - Responsive header with mobile menu
+- **Footer** - Comprehensive site links and social media
+
+## 🔧 Recent Major Development (December 2024)
+
+### **Rankings System Unification**
+**Problem Solved:** Previously, ranking articles looked different from news articles, creating inconsistent user experience.
+
+**Solution Implemented:**
+- **Unified Article Layout** - Rankings now use the same professional layout as news articles
+- **Schema Enhancement** - Added `showAsArticle`, `youtubeVideoId`, `twitterUrl` fields to rankings
+- **Component Integration** - Full integration of YouTube embeds, Twitter embeds, related articles
+- **Dynamic Team Colors** - Fixed hardcoded purple colors to use actual team hex codes
+- **Type Safety** - Updated TypeScript interfaces for all new features
+
+**Technical Details:**
+- Modified `/app/rankings/[slug]/page.tsx` to support dual layout modes
+- Enhanced Sanity schema in `/sanity/schemaTypes/rankings.ts`
+- Updated TypeScript types in `/types/index.ts`
+- Integrated all headline article components (Breadcrumb, SocialShare, ArticleViewTracker, etc.)
+
+## � Future Development Roadmap
+
+### **Phase 1: Content Expansion (Q1 2025)**
+- **Player Profiles** - Individual player pages with stats and analysis
+- **Team Pages** - Dedicated team sections with roster, schedule, news
+- **Fantasy Football** - Rankings and analysis for fantasy players
+- **Draft Coverage** - Mock drafts, prospect analysis, draft tracker
+
+### **Phase 2: Community Features (Q2 2025)**
+- **User Comments** - Moderated discussion system
+- **User Accounts** - Personalized content and preferences
+- **Social Sharing** - Enhanced sharing with custom graphics
+- **Newsletter System** - Segmented email campaigns
+
+### **Phase 3: Advanced Analytics (Q3 2025)**
+- **Real-time Data** - Live game tracking and updates
+- **Advanced Statistics** - Deep-dive analytics and visualizations
+- **Prediction Engine** - Game predictions and analysis
+- **API Development** - Public API for data access
+
+### **Phase 4: Monetization (Q4 2025)**
+- **Premium Subscriptions** - Exclusive content and features
+- **Advertising Integration** - Strategic ad placements
+- **Affiliate Marketing** - Product recommendations and reviews
+- **Merchandise** - Branded content and products
+
+## 🛠️ Development Guidelines & Best Practices
+
+### **Code Standards**
+- **TypeScript First** - All new code must be properly typed
+- **Component Composition** - Reusable, single-purpose components
+- **Mobile-First** - Design for mobile, enhance for desktop
+- **Performance** - Optimize images, lazy load content, minimize bundle size
+- **SEO** - Every page must have proper meta tags and structured data
+
+### **Content Management**
+- **Sanity CMS** - All content goes through Sanity for consistency
+- **Image Optimization** - Use Sanity's image pipeline for automatic optimization
+- **Content Types** - Maintain clear separation between headlines, rankings, pages
+- **Rich Text** - Use PortableText for all long-form content with custom components
+
+### **Key Technical Decisions**
+- **App Router** - Next.js 15 App Router for modern routing and layouts
+- **Server Components** - Use RSC for data fetching and SEO
+- **Client Components** - Minimal client-side JavaScript for interactivity
+- **Tailwind CSS** - Utility-first CSS for rapid development and consistency
+
+## 📁 Critical File Structure
 
 ```
 the-snap/
-├── app/                    # Next.js app directory
-│   ├── components/         # Reusable React components
-│   ├── globals.css         # Global styles and custom CSS
-│   └── page.tsx           # Homepage and route pages
-├── sanity/                # Sanity CMS configuration
-│   ├── schemaTypes/       # Content schemas
-│   └── lib/              # Sanity client and utilities
-├── types/                 # TypeScript type definitions
-└── public/               # Static assets
+├── app/
+│   ├── components/          # Reusable UI components
+│   │   ├── Headlines.tsx    # Article grid display with sidebar
+│   │   ├── GameSchedule.tsx # NFL games carousel
+│   │   ├── RelatedArticles.tsx # Cross-content promotion
+│   │   ├── YouTubeEmbed.tsx # Video integration
+│   │   └── TwitterEmbed.tsx # Social media integration
+│   ├── headlines/[slug]/    # News article pages
+│   ├── rankings/[slug]/     # Rankings pages (UNIFIED LAYOUT)
+│   ├── api/analytics/       # Custom analytics endpoints
+│   └── globals.css         # Global styles and theme
+├── sanity/
+│   ├── schemaTypes/
+│   │   ├── headline.ts     # News article schema
+│   │   ├── rankings.ts     # Rankings schema (ENHANCED)
+│   │   └── author.ts       # Author profiles
+│   └── lib/
+│       ├── queries.ts      # Sanity GROQ queries
+│       └── client.ts       # Sanity client configuration
+├── types/
+│   └── index.ts           # TypeScript definitions (UPDATED)
+└── lib/
+    ├── seo.ts             # SEO metadata generation
+    ├── reading-time.ts    # Content analysis utilities
+    └── date-utils.ts      # Date formatting helpers
 ```
 
-## 🎨 Key Components
+## 🔍 Key Integration Points
 
-- **GameSchedule** - Horizontal scrolling carousel for NFL games
-- **Headlines** - Featured news articles with rich media
-- **BentoGrid** - Modern grid layout for content sections
-- **PowerRankings** - Interactive team rankings display
-- **Standings** - Division standings with playoff implications
+### **Sanity CMS Setup**
+- **Project ID:** [Your Sanity project ID]
+- **Dataset:** production
+- **API Version:** 2023-12-12
+- **Schema Types:** headlines, rankings, authors, categories
 
-## 📱 Responsive Design
+### **External APIs**
+- **ESPN API** - Game schedules and standings
+- **Sanity CDN** - Image optimization and delivery
+- **Formspree** - Contact form processing
 
-The application is fully responsive with:
-- Desktop: Horizontal scrolling carousel
-- Tablet: Optimized layout with touch support
-- Mobile: Compact 2-game carousel with swipe gestures
+### **Environment Variables Required**
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=your_token
+NEXT_PUBLIC_FORMSPREE_ID=your_formspree_id
+```
 
-## 🔧 Available Scripts
+## 🚨 Important Notes for Future Development
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+### **Rankings System Special Considerations**
+- **Dual Layout Support** - Always check `showAsArticle` boolean for layout mode
+- **Team Colors** - Use `style={{ backgroundColor: team.teamColor }}` not Tailwind classes
+- **Media Embeds** - YouTube takes priority over Twitter in sidebar
+- **Related Content** - Mix rankings and headlines in sidebar for cross-promotion
 
-## 🚀 Deployment
+### **Content Strategy**
+- **Professional Tone** - All content should match ESPN/Athletic quality standards
+- **SEO Focus** - Every piece of content needs proper meta tags and structured data
+- **Mobile Experience** - Touch interactions and responsive design are critical
+- **Loading Performance** - Image optimization and lazy loading are mandatory
 
-### Vercel (Recommended)
+### **Technical Debt & Known Issues**
+- Analytics system is currently console logging (needs database integration)
+- Some legacy components may need TypeScript updates
+- Image optimization could be further enhanced
+- Consider implementing Edge Runtime for better performance
 
-1. Connect your repository to [Vercel](https://vercel.com/)
-2. Configure environment variables
-3. Deploy automatically on every push
+## 🔒 Confidentiality & IP Protection
 
-### Other Platforms
+**⚠️ CRITICAL: This is proprietary technology**
 
-The app can be deployed to any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- DigitalOcean App Platform
+This codebase represents significant intellectual property including:
+- **Unique Design Patterns** - Custom component architecture and styling
+- **Business Logic** - Ranking algorithms and content management workflows  
+- **User Experience Innovations** - Unified article layout system and mobile optimizations
+- **Integration Strategies** - Sanity CMS customizations and API implementations
 
-## 🤝 Contributing
-
-**Access is restricted to authorized collaborators only.**
-
-For authorized contributors:
-1. Contact the project owner for access permissions
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request for review
-
-**Code Confidentiality**: All contributors must respect the proprietary nature of this codebase and maintain strict confidentiality.
-
-## 📄 License & Legal
-
-**This project is private and proprietary.**
-
-- All rights reserved
-- No part of this code may be reproduced, distributed, or transmitted without explicit written permission
-- The design patterns, user interface concepts, and business logic are proprietary intellectual property
-- Unauthorized use, copying, or distribution may result in legal action
-
-## 🔒 Confidentiality Notice
-
-This repository contains confidential and proprietary information. By accessing this code, you agree to:
-- Keep all code, concepts, and implementations confidential
-- Not reproduce, copy, or distribute any part of this project
-- Not use any concepts, designs, or implementations in other projects
-- Immediately report any unauthorized access or security concerns
+**All code, designs, concepts, and implementations are confidential and protected.**
 
 ---
 
-**© 2025 The Snap. All rights reserved.**
-Built with ❤️ for NFL fans everywhere
+## 🚀 Getting Started for New Developers
+
+1. **Environment Setup**
+   ```bash
+   git clone [repository]
+   cd the-snap
+   npm install
+   cp .env.example .env.local
+   npm run dev
+   ```
+
+2. **Sanity Studio Access**
+   ```bash
+   cd sanity
+   npm run dev
+   ```
+
+3. **Key Understanding Points**
+   - Rankings can display as articles or traditional power rankings
+   - All content flows through Sanity CMS
+   - Mobile-first responsive design is non-negotiable
+   - TypeScript is required for all new code
+
+4. **First Tasks for New Developers**
+   - Review the unified rankings system implementation
+   - Understand the Headlines component architecture  
+   - Familiarize yourself with Sanity schema structure
+   - Test mobile experience on actual devices
+
+**Built with ❤️ for NFL fans who demand the best**
