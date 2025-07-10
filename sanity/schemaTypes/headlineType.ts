@@ -202,14 +202,6 @@ const headlineType = defineType({
       description: "Lower numbers show first (e.g., 1 is the top story)",
       validation: (Rule) => Rule.required().min(1).max(100),
     }),
-    defineField({
-      name: "viewCount",
-      title: "View Count",
-      type: "number",
-      description: "Number of times this article has been viewed (automatically tracked)",
-      initialValue: 0,
-      readOnly: true,
-    }),
   ],
   groups: [
     {

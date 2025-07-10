@@ -182,6 +182,12 @@ export interface Rankings {
   coverImage?: SanityImageWithUrl;
   author?: Author;
   publishedAt: string;
+  showAsArticle?: boolean;
+  articleContent?: PortableTextContent;
+  viewCount?: number;
+  youtubeVideoId?: string;
+  videoTitle?: string;
+  twitterUrl?: string;
   teams: RankingTeam[];
   methodology?: PortableTextContent;
   seo?: SEOData;

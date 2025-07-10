@@ -41,14 +41,6 @@ export default async function CategoryPage(props: CategoryPageProps) {
     notFound();
   }
 
-  // Helper function to get the correct URL based on content type
-  const getArticleUrl = (item: HeadlineListItem) => {
-    if (item._type === 'rankings') {
-      return `/rankings/${item.slug.current.trim()}`;
-    }
-    return `/headlines/${item.slug.current.trim()}`;
-  };
-
   const getCategoryColorClasses = (color?: string) => {
     switch (color) {
       case 'red': return 'bg-red-600 border-red-600';
@@ -129,7 +121,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {headlines.map((headline) => (
               <article key={headline._id} className="group">
-                <Link href={getArticleUrl(headline)}>
+                <Link href={`/headlines/${headline.slug.current}`}>
                   <div className="space-y-4">
                     {/* Image */}
                     <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
@@ -155,11 +147,6 @@ export default async function CategoryPage(props: CategoryPageProps) {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getCategoryColorClasses(headline.category?.color)}`}>
                           {headline.category?.title || 'NFL'}
                         </span>
-                        {headline._type === 'rankings' && headline.rankingType && (
-                          <span className="px-2 py-1 rounded-full text-xs font-semibold text-white bg-purple-600">
-                            {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
-                          </span>
-                        )}
                         {headline.date && (
                           <span className="text-xs text-gray-500">
                             {formatDate(headline.date)}

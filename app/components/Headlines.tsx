@@ -3,7 +3,6 @@ import { headlineQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
-import { FaAlignLeft } from 'react-icons/fa';
 import type { HeadlineListItem } from "@/types";
 
 export default async function Headlines() {
@@ -39,6 +38,13 @@ export default async function Headlines() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  {main._type === 'rankings' && main.rankingType && (
+                    <div className="absolute top-4 left-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-600 text-white">
+                        {main.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
+                      </span>
+                    </div>
+                  )}
                 </div>
               </Link>
             )}
@@ -68,9 +74,20 @@ export default async function Headlines() {
                   {headline.slug?.current ? (
                     <Link href={getArticleUrl(headline)}>
                       <div className="flex items-start gap-3 group cursor-pointer">
-                        <div className="flex-shrink-0 flex items-center justify-center w-8 h-8">
-                          <FaAlignLeft className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
-                        </div>
+                        {headline.coverImage && (
+                          <div className="relative overflow-hidden rounded-lg flex-shrink-0">
+                            <Image
+                              src={urlFor(headline.coverImage)
+                                .width(64)
+                                .height(40)
+                                .url()}
+                              alt={headline.title}
+                              width={64}
+                              height={40}
+                              className="w-16 h-10 object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          </div>
+                        )}
                         <div className="flex-1">
                           <span className="hover:text-gray-400 transition-colors duration-300 font-medium leading-tight text-white block">
                             {headline.title}

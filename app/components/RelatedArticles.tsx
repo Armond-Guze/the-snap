@@ -71,8 +71,8 @@ export default function RelatedArticles({
                       {formatCompactDate(article.date || article.publishedAt)}
                     </div>
                     {article._type === 'rankings' && article.rankingType && (
-                      <span className="text-purple-400 font-semibold text-xs">
-                        {article.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
+                      <span className="text-purple-400 font-medium">
+                        {article.rankingType.replace('-', ' ').toUpperCase()}
                       </span>
                     )}
                     {article.author?.name && (

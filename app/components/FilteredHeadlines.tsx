@@ -230,7 +230,7 @@ export default function FilteredHeadlines({
                     </span>
                   )}
                   {headline._type === 'rankings' && headline.rankingType && (
-                    <span className="inline-block px-2 py-1 text-xs font-semibold text-white bg-purple-600 rounded-full mb-2 ml-2">
+                    <span className="inline-block px-2 py-1 text-xs font-medium text-white bg-purple-600 rounded-full mb-2 ml-2">
                       {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
                     </span>
                   )}
