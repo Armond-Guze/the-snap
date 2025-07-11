@@ -28,75 +28,13 @@ const headlineType = defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    // SEO Fields Group
+    // SEO Settings - Simplified
     defineField({
       name: "seo",
       title: "SEO Settings",
-      type: "object",
+      type: "simplifiedSeo",
       group: "seo",
-      fields: [
-        defineField({
-          name: "metaTitle",
-          title: "Meta Title",
-          type: "string",
-          description: "SEO title for search engines (50-60 characters recommended)",
-          validation: (Rule) => Rule.max(60).warning("Keep under 60 characters for best SEO"),
-        }),
-        defineField({
-          name: "metaDescription",
-          title: "Meta Description",
-          type: "text",
-          rows: 3,
-          description: "SEO description for search engines (150-160 characters recommended)",
-          validation: (Rule) => Rule.max(160).warning("Keep under 160 characters for best SEO"),
-        }),
-        defineField({
-          name: "focusKeyword",
-          title: "Focus Keyword",
-          type: "string",
-          description: "Primary keyword you want to rank for (auto-generated from tags/category, or customize)",
-        }),
-        defineField({
-          name: "additionalKeywords",
-          title: "Additional Keywords",
-          type: "array",
-          of: [{ type: "string" }],
-          description: "Secondary keywords to target (auto-generated from tags/category, or customize)",
-        }),
-        defineField({
-          name: "ogTitle",
-          title: "Open Graph Title",
-          type: "string",
-          description: "Title for social media sharing (leave blank to use meta title)",
-        }),
-        defineField({
-          name: "ogDescription",
-          title: "Open Graph Description",
-          type: "text",
-          rows: 2,
-          description: "Description for social media sharing (leave blank to use meta description)",
-        }),
-        defineField({
-          name: "ogImage",
-          title: "Open Graph Image",
-          type: "image",
-          description: "Image for social media sharing (1200x630px recommended)",
-          options: { hotspot: true },
-        }),
-        defineField({
-          name: "noIndex",
-          title: "No Index",
-          type: "boolean",
-          description: "Prevent search engines from indexing this page",
-          initialValue: false,
-        }),
-        defineField({
-          name: "canonicalUrl",
-          title: "Canonical URL",
-          type: "url",
-          description: "Override the canonical URL (leave blank for auto-generated)",
-        }),
-      ],
+      description: "SEO fields auto-generate from title and content. Only fill if you want custom values.",
     }),
 
     defineField({
