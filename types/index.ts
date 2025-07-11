@@ -9,7 +9,7 @@ export interface TypedObject {
 
 export type PortableTextContent = TypedObject[];
 
-// SEO types
+// SEO types - Backward compatible with existing data
 export interface SEOData {
   metaTitle?: string;
   metaDescription?: string;

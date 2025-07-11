@@ -11,6 +11,7 @@ import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import ArticleViewTracker from "@/app/components/ArticleViewTracker";
 import { generateSEOMetadata } from "@/lib/seo";
+import { generateHeadlineMetadata } from "@/lib/seo-metadata"; // New auto SEO system
 import { headlineDetailQuery } from "@/sanity/lib/queries";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
 import { formatArticleDate } from "@/lib/date-utils";
@@ -32,7 +33,9 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   if (!headline) return {};
 
-  return generateSEOMetadata(headline, '/headlines');
+  // Use new automated SEO system with manual overrides
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thesnap.com';
+  return generateHeadlineMetadata(headline as any, baseUrl);
 }
 
 export default async function HeadlinePage(props: HeadlinePageProps) {
