@@ -11,8 +11,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/images/the-snap-logo.png',
-        width: 1200,
-        height: 630,
+        width: 600, // Reduced width
+        height: 315, // Reduced height
         alt: 'The Snap - NFL Standings',
       },
     ],
@@ -33,5 +33,9 @@ export default function StandingsLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <nav className="text-lg"> {/* Tailwind class for font size */}
+      {children}
+    </nav>
+  )
 }

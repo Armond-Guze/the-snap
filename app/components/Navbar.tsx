@@ -51,9 +51,9 @@ export default function Navbar() {
           <Image
             src="/images/the-snap-logo.png"
             alt="FootballNews Logo"
-            width={72}
-            height={72}
-            className="h-10 md:h-12 w-auto transition-transform group-hover:scale-105"
+            width={60} // Reduced width
+            height={60} // Reduced height
+            className="h-8 md:h-10 w-auto transition-transform group-hover:scale-105"
             priority
           />
         </Link>
@@ -68,7 +68,7 @@ export default function Navbar() {
                 <Link
                   key={label}
                   href={href}
-                  className={`relative text-sm font-semibold pb-1 transition-all duration-300 group ${
+                  className={`relative text-lg font-semibold pb-1 transition-all duration-300 group ${
                     isActive 
                       ? 'text-white after:w-full' 
                       : 'text-gray-200 hover:text-white'
@@ -139,7 +139,7 @@ export default function Navbar() {
                 key={label}
                 href={href}
                 onClick={handleLinkClick}
-                className={`block text-base font-medium py-4 px-5 rounded-xl transition-all duration-300 transform hover:translate-x-1 ${
+                className={`block text-lg font-medium py-4 px-5 rounded-xl transition-all duration-300 transform hover:translate-x-1 ${
                   isActive
                     ? 'text-white bg-white/10 border-l-4 border-white shadow-lg backdrop-blur-sm'
                     : 'text-gray-200 hover:text-white hover:bg-white/5 hover:backdrop-blur-sm'
