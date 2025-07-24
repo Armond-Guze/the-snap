@@ -41,6 +41,7 @@ export default function Navbar() {
     { label: "Headlines", href: "/headlines" },
     { label: "Power Rankings", href: "/power-rankings" },
     { label: "NFL Standings", href: "/standings" },
+    { label: "Fantasy", href: "/fantasy" },
   ];
 
   return (
