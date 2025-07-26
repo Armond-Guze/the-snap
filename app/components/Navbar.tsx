@@ -69,10 +69,10 @@ export default function Navbar() {
                 <Link
                   key={label}
                   href={href}
-                  className={`relative text-base font-medium pb-1 transition-all duration-300 group ${
+                  className={`relative text-base font-semibold pb-1 transition-all duration-300 group ${
                     isActive 
                       ? 'text-white after:w-full' 
-                      : 'text-gray-400 hover:text-gray-200'
+                      : 'text-gray-300 hover:text-gray-100'
                   } after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-gradient-to-r after:from-white after:to-gray-300 after:transition-all after:duration-300 hover:after:w-full ${
                     isActive ? 'after:w-full' : 'after:w-0'
                   }`}
