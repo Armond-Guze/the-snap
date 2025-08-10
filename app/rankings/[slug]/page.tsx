@@ -72,7 +72,22 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
   }
 
   const normalizedRanking = normalizeContent(ranking);
-  return generateSEOMetadata(normalizedRanking, '/rankings');
+  
+  // Transform normalized content to match ContentData interface
+  const contentData = {
+    title: normalizedRanking.title,
+    summary: normalizedRanking.excerpt,
+    slug: { 
+      current: typeof normalizedRanking.slug === 'string' 
+        ? normalizedRanking.slug 
+        : normalizedRanking.slug?.current || '' 
+    },
+    seo: normalizedRanking.seo,
+    coverImage: normalizedRanking.featuredImage,
+    author: normalizedRanking.author
+  };
+  
+  return generateSEOMetadata(contentData, '/rankings');
 }
 
 export default async function RankingDetailPage({ params }: RankingsPageProps) {

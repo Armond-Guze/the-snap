@@ -14,10 +14,10 @@ import {
 /**
  * Normalizes any content type into a consistent format
  */
-export function normalizeContent(content: UnifiedContent | LegacyHeadline | LegacyRanking): NormalizedContent {
+export function normalizeContent(content: UnifiedContent | LegacyHeadline | LegacyRanking | any): NormalizedContent {
   // Handle unified content (new system)
   if ('contentType' in content) {
-    return {
+    const base = {
       _id: content._id,
       _type: content._type,
       title: content.title,
@@ -27,25 +27,32 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
       featuredImage: content.featuredImage,
       author: content.author,
       contentType: content.contentType,
-      
-      // Article-specific fields
-      ...(content.contentType === 'article' && {
-        content: content.content,
-        category: content.category,
-        tags: content.tags,
-        readingTime: content.readingTime,
-        viewCount: content.viewCount,
-      }),
-      
-      // Rankings-specific fields
-      ...(content.contentType === 'ranking' && {
-        week: content.week,
-        season: content.season,
-        teams: content.teams,
-      }),
-      
       seo: content.seo,
     };
+
+    // Article-specific fields
+    if (content.contentType === 'article') {
+      return {
+        ...base,
+        content: (content as any).content,
+        category: (content as any).category,
+        tags: (content as any).tags,
+        readingTime: (content as any).readingTime,
+        viewCount: (content as any).viewCount,
+      };
+    }
+    
+    // Rankings-specific fields
+    if (content.contentType === 'ranking') {
+      return {
+        ...base,
+        week: (content as any).week,
+        season: (content as any).season,
+        teams: (content as any).teams,
+      };
+    }
+
+    return base;
   }
   
   // Handle legacy headlines
@@ -55,9 +62,9 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
       _type: content._type,
       title: content.title,
       slug: content.slug,
-      excerpt: content.excerpt || (content as any).summary || '',
-      publishedAt: content.publishedAt || (content as any).date,
-      featuredImage: content.featuredImage || (content as any).coverImage,
+      excerpt: content.excerpt || content.summary || '',
+      publishedAt: content.publishedAt || content.date,
+      featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'article' as ContentType,
       content: content.content,
@@ -76,14 +83,14 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
       _type: content._type,
       title: content.title,
       slug: content.slug,
-      excerpt: content.excerpt || (content as any).summary || '',
-      publishedAt: content.publishedAt || (content as any).date,
-      featuredImage: content.featuredImage || (content as any).coverImage,
+      excerpt: content.excerpt || content.summary || '',
+      publishedAt: content.publishedAt || content.date,
+      featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'ranking' as ContentType,
-      week: content.week || (content as any).week,
-      season: content.season || (content as any).season,
-      teams: content.teams || (content as any).teams,
+      week: content.week,
+      season: content.season,
+      teams: content.teams,
       seo: content.seo,
     };
   }
@@ -95,10 +102,11 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
  * Gets the appropriate URL for any content type
  */
 export function getContentUrl(content: NormalizedContent): string {
+  const slugValue = typeof content.slug === 'string' ? content.slug : content.slug?.current;
   if (content.contentType === 'ranking') {
-    return `/rankings/${content.slug?.current || content.slug}`;
+    return `/rankings/${slugValue}`;
   }
-  return `/headlines/${content.slug?.current || content.slug}`;
+  return `/headlines/${slugValue}`;
 }
 
 /**
