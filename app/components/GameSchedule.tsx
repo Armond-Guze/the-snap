@@ -181,7 +181,7 @@ export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-xs font-semibold truncate">
+            <span className="text-white text-xs font-bold truncate">
               {game.awayTeam.split(' ').pop()}
             </span>
           </div>
@@ -203,7 +203,7 @@ export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-xs font-semibold truncate">
+            <span className="text-white text-xs font-bold truncate">
               {game.homeTeam.split(' ').pop()}
             </span>
           </div>

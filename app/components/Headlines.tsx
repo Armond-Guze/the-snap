@@ -68,7 +68,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
   }
 
   const main = headlines[0];
-  const sidebar = headlines.slice(1);
+  const sidebar = headlines.slice(1, 8); // Limit to 7 sidebar headlines (positions 1-7)
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
