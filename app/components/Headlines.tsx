@@ -99,7 +99,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
           fill
           priority
           quality={100}
-          className="object-cover opacity-45"
+          className="object-cover opacity-25 md:opacity-45"
           sizes="100vw"
         />
       </div>

@@ -60,7 +60,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 fill
                 priority
                 quality={100}
-                className="object-cover opacity-25"
+                className="object-cover opacity-15 md:opacity-25"
                 sizes="100vw"
               />
             </div>
@@ -201,7 +201,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
               fill
               priority
               quality={100}
-              className="object-cover opacity-25"
+              className="object-cover opacity-15 md:opacity-25"
               sizes="100vw"
             />
           </div>
