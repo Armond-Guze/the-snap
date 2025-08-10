@@ -189,7 +189,7 @@ function LegacyRankingsRenderer({
                 <div className="relative w-8 h-8 rounded-full overflow-hidden">
                   <Image
                     src={ranking.author.image.asset.url}
-                    alt={ranking.author.name || "Author"}
+                    alt={ranking.author?.name || "Author"}
                     fill
                     className="object-cover"
                   />
@@ -387,7 +387,7 @@ function UnifiedRankingRenderer({
               </h2>
               <div className="space-y-4">
                 {ranking.teams.map((team, index) => (
-                  <UnifiedRankingCard key={`${team.rank}-${team.team.name}-${index}`} teamData={team} />
+                  <UnifiedRankingCard key={`${team.rank}-${team.team?.name || 'unknown'}-${index}`} teamData={team} />
                 ))}
               </div>
             </section>

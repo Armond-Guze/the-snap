@@ -35,7 +35,7 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
-        {teamData.team.primaryColor && (
+        {teamData.team?.primaryColor && (
           <div 
             className="absolute left-0 top-0 bottom-0 w-1"
             style={{ backgroundColor: teamData.team.primaryColor }}
@@ -54,11 +54,11 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
           </div>
 
           {/* Team Logo */}
-          {teamData.team.logo?.asset && (
+          {teamData.team?.logo?.asset && (
             <div className="flex-shrink-0">
               <Image
                 src={urlFor(teamData.team.logo).width(60).height(60).url()}
-                alt={`${teamData.team.name} logo`}
+                alt={`${teamData.team?.name || 'Team'} logo`}
                 width={60}
                 height={60}
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-contain"
@@ -71,7 +71,7 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
-                {teamData.team.name}
+                {teamData.team?.name || 'Unknown Team'}
               </h2>
 
               {/* Movement Indicator */}

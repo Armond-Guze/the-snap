@@ -218,15 +218,12 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                           </div>
                         )}
                         <div className="flex-1">
-                          <h4 className="text-white font-semibold text-sm leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
+                          <h4 className="text-white font-bold text-sm leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
                             {headline.title}
                           </h4>
-                          <div className="flex items-center justify-between text-gray-400 text-xs">
+                          <div className="flex items-center text-gray-400 text-xs">
                             <span className="font-medium">
                               {headline.author?.name || "Staff Writer"}
-                            </span>
-                            <span>
-                              3 min read
                             </span>
                           </div>
                         </div>
@@ -235,12 +232,11 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                   ) : (
                     <div className="flex items-start gap-2.5">
                       <div className="flex-1">
-                        <h4 className="text-gray-500 font-semibold text-sm leading-tight mb-1.5">
+                        <h4 className="text-gray-500 font-bold text-sm leading-tight mb-1.5">
                           {headline.title || "Untitled"}
                         </h4>
-                        <div className="flex items-center justify-between text-gray-500 text-xs">
+                        <div className="flex items-center text-gray-500 text-xs">
                           <span>No author</span>
-                          <span>No read time</span>
                         </div>
                       </div>
                     </div>
