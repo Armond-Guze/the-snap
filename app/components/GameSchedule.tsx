@@ -224,8 +224,8 @@ export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
   }
 
   return (
-    <section className="relative py-4 px-4 lg:px-10 xl:px-12 bg-black">
-      <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1500px] mx-auto relative z-10">
+    <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-black">
+      <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px] 3xl:max-w-[1800px] mx-auto relative z-10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
           </div>

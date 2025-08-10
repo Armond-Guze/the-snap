@@ -31,7 +31,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
   const rightHeadlines = headlines?.slice(2, 4) || []; // Two for right side
 
   return (
-    <section className="relative py-16 px-6 lg:px-8">
+    <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       {textureSrc && (
         <>
           <div className="absolute inset-0 -z-20">
@@ -48,23 +48,23 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
         </>
       )}
-      <div className="relative mx-auto max-w-7xl z-10">
+      <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
         {/* Section Headers - Top Left */}
-        <div className="mb-4">
+        <div className="mb-4 2xl:mb-6 3xl:mb-8">
           <div className="flex flex-wrap items-center gap-8 mb-3">
-            <h2 className="text-xl sm:text-xl font-bold text-gray-300">
+            <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">
               More Headlines
             </h2>
           </div>
         </div>
 
         {/* Bento Grid Layout - 3 Headlines */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 2xl:gap-6 3xl:gap-8">
           {/* Center - Large Featured Card */}
           <div className="lg:col-span-3">
             {centerHeadline && centerHeadline.slug?.current ? (
               <Link href={`/headlines/${centerHeadline.slug.current}`} className="group">
-                <div className="relative h-full min-h-[500px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-full min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                   {centerHeadline.coverImage?.asset ? (
                     <Image
                       src={urlFor(centerHeadline.coverImage).width(800).url()}
@@ -89,11 +89,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                     </div>
 
                     <div>
-                      <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
+                      <h3 className="text-2xl lg:text-3xl 2xl:text-4xl 3xl:text-5xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
                         {centerHeadline.title}
                       </h3>
                       {centerHeadline.summary && (
-                        <p className="text-gray-300 text-base line-clamp-3 leading-relaxed">
+                        <p className="text-gray-300 text-base 2xl:text-lg 3xl:text-xl line-clamp-3 leading-relaxed">
                           {centerHeadline.summary}
                         </p>
                       )}
@@ -122,11 +122,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
           </div>
 
           {/* Right Side - Two Small Cards */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="lg:col-span-2 flex flex-col gap-4 2xl:gap-6 3xl:gap-8">
             {/* Top Right Card */}
             {rightHeadlines[0] && rightHeadlines[0].slug?.current ? (
               <Link href={`/headlines/${rightHeadlines[0].slug.current}`} className="group">
-                <div className="relative h-[240px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                   {rightHeadlines[0].coverImage?.asset ? (
                     <Image
                       src={urlFor(rightHeadlines[0].coverImage).width(400).url()}
@@ -151,11 +151,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                      <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
                         {rightHeadlines[0].title}
                       </h3>
                       {rightHeadlines[0].summary && (
-                        <p className="text-gray-300 text-sm line-clamp-2 mt-2">
+                        <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
                           {rightHeadlines[0].summary}
                         </p>
                       )}
@@ -172,7 +172,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
             {/* Bottom Right Card */}
             {rightHeadlines[1] && rightHeadlines[1].slug?.current ? (
               <Link href={`/headlines/${rightHeadlines[1].slug.current}`} className="group">
-                <div className="relative h-[240px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                   {rightHeadlines[1].coverImage?.asset ? (
                     <Image
                       src={urlFor(rightHeadlines[1].coverImage).width(400).url()}
@@ -197,11 +197,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                      <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
                         {rightHeadlines[1].title}
                       </h3>
                       {rightHeadlines[1].summary && (
-                        <p className="text-gray-300 text-sm line-clamp-2 mt-2">
+                        <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
                           {rightHeadlines[1].summary}
                         </p>
                       )}

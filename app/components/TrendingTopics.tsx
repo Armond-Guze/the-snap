@@ -191,7 +191,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
   }
 
   return (
-    <section className="relative py-16 px-6 lg:px-8">
+    <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       {textureSrc && (
         <>
           <div className="absolute inset-0 -z-20">
@@ -208,35 +208,35 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-black/95 -z-10" />
         </>
       )}
-      <div className="mx-auto max-w-6xl relative z-10">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 flex items-center justify-center gap-3">
-            <span className="text-2xl">🔥</span>
+        <div className="text-center mb-8 2xl:mb-12 3xl:mb-16">
+          <h2 className="text-3xl md:text-4xl 2xl:text-5xl 3xl:text-6xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+            <span className="text-2xl 2xl:text-3xl 3xl:text-4xl">🔥</span>
             Trending Topics
           </h2>
           <div className="w-20 h-1 bg-white mx-auto mb-4"></div>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg 2xl:text-xl 3xl:text-2xl text-gray-300 max-w-2xl 2xl:max-w-3xl 3xl:max-w-4xl mx-auto">
             Discover what&apos;s hot in the NFL right now
           </p>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-12 2xl:space-y-16 3xl:space-y-20">
           {/* Trending Tags */}
           {trendingTags.length > 0 && (
             <div>
-              <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <h3 className="text-xl 2xl:text-2xl 3xl:text-3xl font-semibold text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
                 🏷️ Hot Tags
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 2xl:gap-6 3xl:gap-8">
                 {trendingTags.map((tag) => (
                   <Link
                     key={tag._id}
                     href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className="group block p-4 bg-gradient-to-br from-yellow-600 to-red-600 hover:from-yellow-500 hover:to-red-500 rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                    className="group block p-4 2xl:p-6 3xl:p-8 bg-gradient-to-br from-yellow-600 to-red-600 hover:from-yellow-500 hover:to-red-500 rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
-                    <div className="text-sm mb-1">#{tag.title}</div>
-                    <div className="text-xs opacity-90">
+                    <div className="text-sm 2xl:text-base 3xl:text-lg mb-1">#{tag.title}</div>
+                    <div className="text-xs 2xl:text-sm 3xl:text-base opacity-90">
                       {tag.articleCount} article{tag.articleCount !== 1 ? 's' : ''}
                     </div>
                   </Link>
@@ -248,20 +248,20 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
           {/* Popular Categories */}
           {categories.length > 0 && (
             <div>
-              <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <h3 className="text-xl 2xl:text-2xl 3xl:text-3xl font-semibold text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
                 📂 Popular Categories
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 2xl:gap-6 3xl:gap-8">
                 {categories.map((category) => (
                   <Link
                     key={category._id}
                     href={`/headlines?category=${category.slug.current}`}
-                    className={`group block p-4 bg-gradient-to-br ${getCategoryColorClasses(
+                    className={`group block p-4 2xl:p-6 3xl:p-8 bg-gradient-to-br ${getCategoryColorClasses(
                       category.color
                     )} rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}
                   >
-                    <div className="text-sm mb-1">{category.title}</div>
-                    <div className="text-xs opacity-90">
+                    <div className="text-sm 2xl:text-base 3xl:text-lg mb-1">{category.title}</div>
+                    <div className="text-xs 2xl:text-sm 3xl:text-base opacity-90">
                       {(category as any).articleCount} article{(category as any).articleCount !== 1 ? 's' : ''}
                     </div>
                   </Link>

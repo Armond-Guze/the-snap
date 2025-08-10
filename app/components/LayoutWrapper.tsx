@@ -10,11 +10,12 @@ import PageTransition from './PageTransition';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStudioRoute = pathname.startsWith('/studio');
+  const isArticlePage = pathname.includes('/headlines/') && pathname.split('/').length > 2;
 
   return (
     <>
       {!isStudioRoute && <Navbar />}
-      {!isStudioRoute && <NavbarAd />}
+      {!isStudioRoute && !isArticlePage && <NavbarAd />}
       <PageTransition>
         <main>{children}</main>
       </PageTransition>

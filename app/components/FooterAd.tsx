@@ -29,7 +29,7 @@ export default function FooterAd() {
       <div className="w-full max-w-4xl">
         <div className="text-xs text-gray-500 mb-1 text-center">Advertisement</div>
         <ins
-          className="adsbygoogle block w-full h-[90px] border border-gray-200 bg-gray-50"
+          className="adsbygoogle block w-full h-[90px]"
           data-ad-client="ca-pub-7706858365277925"
           data-ad-slot="6943307518"
           data-ad-format="auto"
