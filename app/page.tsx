@@ -1,4 +1,4 @@
-import VideoOfTheWeek from "./components/VideoOfTheWeek";
+// import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
 import BentoGrid from "./components/BentoGrid";
 import TrendingTopics from "./components/TrendingTopics";
@@ -41,7 +41,7 @@ export default async function Home() {
   <GameSchedule games={featuredGames || []} />
   <Headlines textureSrc="/images/texture-image.jpg" />
       <BentoGrid textureSrc="/images/texture-image.jpg" />
-      <VideoOfTheWeek textureSrc="/images/texture-image.jpg" />
+      {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       <TrendingTopics textureSrc="/images/texture-image.jpg" />
       <Analytics />
     </main>

@@ -60,11 +60,11 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 fill
                 priority
                 quality={100}
-                className="object-cover opacity-35"
+                className="object-cover opacity-25"
                 sizes="100vw"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-black/95 -z-10" />
           </>
         )}
         <div className="mx-auto max-w-6xl relative z-10">
@@ -94,11 +94,11 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 fill
                 priority
                 quality={100}
-                className="object-cover opacity-60"
+                className="object-cover opacity-30"
                 sizes="100vw"
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/70 -z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/55 to-black/80 -z-10" />
           </>
         )}
         <div className="mx-auto max-w-6xl relative z-10">
@@ -201,11 +201,11 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
               fill
               priority
               quality={100}
-              className="object-cover opacity-35"
+              className="object-cover opacity-25"
               sizes="100vw"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-black/95 -z-10" />
         </>
       )}
       <div className="mx-auto max-w-6xl relative z-10">
