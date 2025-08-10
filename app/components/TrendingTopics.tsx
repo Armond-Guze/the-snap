@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { client } from '@/sanity/lib/client';
 import { trendingTagsQuery, categoriesQuery } from '@/sanity/lib/queries';
 import { Tag, Category } from '@/types';
 
-export default function TrendingTopics() {
+interface TrendingTopicsProps {
+  textureSrc?: string;
+}
+
+export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
   const [trendingTags, setTrendingTags] = useState<(Tag & { articleCount: number })[]>([]);
   const [categories, setCategories] = useState<(Category & { articleCount: number })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,8 +50,24 @@ export default function TrendingTopics() {
 
   if (loading) {
     return (
-      <section className="py-16 px-6 lg:px-8 bg-black">
-        <div className="mx-auto max-w-6xl">
+      <section className="relative py-16 px-6 lg:px-8">
+        {textureSrc && (
+          <>
+            <div className="absolute inset-0 -z-20">
+              <Image
+                src={textureSrc}
+                alt="NFL background"
+                fill
+                priority
+                quality={100}
+                className="object-cover opacity-35"
+                sizes="100vw"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
+          </>
+        )}
+        <div className="mx-auto max-w-6xl relative z-10">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-800 rounded w-1/3 mb-6"></div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -63,8 +84,24 @@ export default function TrendingTopics() {
   if (trendingTags.length === 0 && categories.length === 0) {
     // Show static content when no data is available
     return (
-      <section className="py-16 px-6 lg:px-8 bg-black">
-        <div className="mx-auto max-w-6xl">
+      <section className="relative py-16 px-6 lg:px-8">
+        {textureSrc && (
+          <>
+            <div className="absolute inset-0 -z-20">
+              <Image
+                src={textureSrc}
+                alt="NFL background"
+                fill
+                priority
+                quality={100}
+                className="object-cover opacity-60"
+                sizes="100vw"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/70 -z-10" />
+          </>
+        )}
+        <div className="mx-auto max-w-6xl relative z-10">
           {/* Section Header */}
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
@@ -154,11 +191,27 @@ export default function TrendingTopics() {
   }
 
   return (
-    <section className="py-16 px-6 lg:px-8 bg-black">
-      <div className="mx-auto max-w-6xl">
+    <section className="relative py-16 px-6 lg:px-8">
+      {textureSrc && (
+        <>
+          <div className="absolute inset-0 -z-20">
+            <Image
+              src={textureSrc}
+              alt="NFL background"
+              fill
+              priority
+              quality={100}
+              className="object-cover opacity-35"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
+        </>
+      )}
+      <div className="mx-auto max-w-6xl relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 flex items-center justify-center gap-3">
             <span className="text-2xl">🔥</span>
             Trending Topics
           </h2>

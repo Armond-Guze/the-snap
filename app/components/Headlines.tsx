@@ -1,42 +1,127 @@
-import { client } from "@/sanity/lib/client";
-import { headlineQuery } from "@/sanity/lib/queries";
+import { sanityFetch } from "@/sanity/lib/fetch";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
-import type { HeadlineListItem } from "@/types";
 
-export default async function Headlines() {
-  const headlines: HeadlineListItem[] = await client.fetch(headlineQuery);
-  if (!headlines?.length) return null;
+interface HeadlineItem {
+  _id: string;
+  _type: string;
+  title: string;
+  slug: { current: string };
+  summary?: string;
+  coverImage?: {
+    asset: {
+      url: string;
+    };
+  };
+  author?: { name: string };
+  rankingType?: string;
+  priority?: number;
+  date?: string;
+  publishedAt?: string;
+  tags?: string[];
+}
+
+interface HeadlinesProps {
+  /** Optional texture image path under /public (e.g., "/images/texture-image.jpg"). Applied as a decorative overlay. */
+  textureSrc?: string;
+}
+
+export default async function Headlines({ textureSrc }: HeadlinesProps) {
+  // Use the original query that we know works with your data
+  const originalQuery = `
+    *[(_type == "headline" || _type == "rankings") && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
+      _id,
+      _type,
+      title,
+      slug,
+      summary,
+      coverImage {
+        asset->{
+          url
+        }
+      },
+      priority,
+      date,
+      publishedAt,
+      rankingType,
+      author->{
+        name
+      },
+      tags
+    }
+  `;
+
+  const headlines: HeadlineItem[] = await sanityFetch(
+    originalQuery,
+    {},
+    { next: { revalidate: 300 } },
+    []
+  );
+
+  // Debug: Log the headlines data
+  console.log('Headlines data:', JSON.stringify(headlines, null, 2));
+
+  if (!headlines?.length) {
+    console.log('No headlines found');
+    return null;
+  }
 
   const main = headlines[0];
   const sidebar = headlines.slice(1);
 
   // Helper function to get the correct URL based on content type
-  const getArticleUrl = (item: HeadlineListItem) => {
+  const getArticleUrl = (item: HeadlineItem) => {
     if (item._type === 'rankings') {
       return `/rankings/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
   };
 
+  // Safe urlFor wrapper
+  const safeUrlFor = (image: HeadlineItem['coverImage']) => {
+    try {
+      if (!image?.asset?.url) return null;
+      return urlFor(image);
+    } catch (error) {
+      console.warn('urlFor error:', error);
+      return null;
+    }
+  };
+
   return (
-    <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
-      <div className="relative mx-auto max-w-7xl">
+    <section className="relative py-16 px-6 lg:px-8">
+      {/* Background Image - use texture if provided, otherwise helmet background */}
+      <div className="absolute inset-0 -z-20">
+        <Image
+          src={textureSrc || "/images/helmet-background.png"}
+          alt="NFL background"
+          fill
+          priority
+          quality={100}
+          className="object-cover opacity-45"
+          sizes="100vw"
+        />
+      </div>
+
+      {/* Gradient overlay - darker at bottom, lighter at top */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/55 to-black/85 -z-10" />
+
+      <div className="relative z-10 mx-auto max-w-7xl">
         {/* Section Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Feature Story */}
           <div className="lg:col-span-2">
-            {main?.coverImage && main?.slug?.current ? (
+            {main?.coverImage?.asset?.url && main?.slug?.current ? (
               <Link href={getArticleUrl(main)} className="group">
-                <div className="relative h-full min-h-[500px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-full min-h-[350px] sm:min-h-[400px] lg:min-h-[500px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                   <Image
-                    src={urlFor(main.coverImage).width(800).url()}
+                    src={main.coverImage.asset.url}
                     alt={main.title}
                     fill
-                    className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
+                    className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-105 transition-all duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                   <div className="relative h-full flex flex-col justify-between p-8">
                     <div className="flex items-start justify-between">
@@ -84,7 +169,7 @@ export default async function Headlines() {
                 </div>
               </Link>
             ) : (
-              <div className="relative h-full min-h-[500px] rounded-3xl overflow-hidden bg-gray-900">
+              <div className="relative h-full min-h-[350px] sm:min-h-[400px] lg:min-h-[500px] rounded-3xl overflow-hidden bg-gray-900">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 
@@ -121,13 +206,10 @@ export default async function Headlines() {
                   {headline.slug?.current ? (
                     <Link href={getArticleUrl(headline)}>
                       <div className="flex items-start gap-2.5 group cursor-pointer">
-                        {headline.coverImage && (
+                        {headline.coverImage?.asset?.url && (
                           <div className="relative overflow-hidden rounded-md flex-shrink-0">
                             <Image
-                              src={urlFor(headline.coverImage)
-                                .width(70)
-                                .height(50)
-                                .url()}
+                              src={safeUrlFor(headline.coverImage)?.width(70).height(50).url() || '/images/fallback-image.jpg'}
                               alt={headline.title}
                               width={70}
                               height={50}

@@ -19,7 +19,11 @@ interface Headline {
   };
 }
 
-export default async function BentoGrid() {
+interface BentoGridProps {
+  textureSrc?: string;
+}
+
+export default async function BentoGrid({ textureSrc }: BentoGridProps) {
   // Fetch data from Sanity
   const headlines = await client.fetch(headlineQuery);
 
@@ -27,11 +31,27 @@ export default async function BentoGrid() {
   const rightHeadlines = headlines?.slice(2, 4) || []; // Two for right side
 
   return (
-    <section className="relative py-24 px-6 lg:px-8 bg-deep-black">
-      <div className="relative mx-auto max-w-7xl">
+    <section className="relative py-16 px-6 lg:px-8">
+      {textureSrc && (
+        <>
+          <div className="absolute inset-0 -z-20">
+            <Image
+              src={textureSrc}
+              alt="NFL background"
+              fill
+              priority
+              quality={100}
+              className="object-cover opacity-35"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" />
+        </>
+      )}
+      <div className="relative mx-auto max-w-7xl z-10">
         {/* Section Headers - Top Left */}
-        <div className="mb-6">
-          <div className="flex flex-wrap items-center gap-8 mb-4">
+        <div className="mb-4">
+          <div className="flex flex-wrap items-center gap-8 mb-3">
             <h2 className="text-xl sm:text-xl font-bold text-gray-300">
               More Headlines
             </h2>
@@ -39,7 +59,7 @@ export default async function BentoGrid() {
         </div>
 
         {/* Bento Grid Layout - 3 Headlines */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Center - Large Featured Card */}
           <div className="lg:col-span-3">
             {centerHeadline && centerHeadline.slug?.current ? (
@@ -102,7 +122,7 @@ export default async function BentoGrid() {
           </div>
 
           {/* Right Side - Two Small Cards */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-4">
             {/* Top Right Card */}
             {rightHeadlines[0] && rightHeadlines[0].slug?.current ? (
               <Link href={`/headlines/${rightHeadlines[0].slug.current}`} className="group">

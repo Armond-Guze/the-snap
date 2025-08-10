@@ -29,6 +29,7 @@ interface Game {
 
 interface GameScheduleProps {
   games: Game[];
+  textureSrc?: string;
 }
 
 function getImportanceLabel(importance: string) {
@@ -51,35 +52,46 @@ function getImportanceColor(importance: string) {
   }
 }
 
-export default function GameSchedule({ games }: GameScheduleProps) {
+export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
   const [currentGameIndex, setCurrentGameIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const featuredGames = games;
 
   // The required distance between touchStart and touchEnd to trigger a swipe
   const minSwipeDistance = 50;
 
   const nextGame = () => {
-    // For mobile: move by 2 games, for desktop: individual navigation (not used in desktop)
+    if (isAnimating) return; // Prevent rapid clicking
+    
+    setIsAnimating(true);
     setCurrentGameIndex((prev) => {
       const increment = 2; // Show 2 games on mobile
       return (prev + increment) % featuredGames.length;
     });
+    
+    // Reset animation state after transition completes
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const prevGame = () => {
-    // For mobile: move by 2 games, for desktop: individual navigation (not used in desktop)
+    if (isAnimating) return; // Prevent rapid clicking
+    
+    setIsAnimating(true);
     setCurrentGameIndex((prev) => {
       const decrement = 2; // Show 2 games on mobile
       return (prev - decrement + featuredGames.length) % featuredGames.length;
     });
+    
+    // Reset animation state after transition completes
+    setTimeout(() => setIsAnimating(false), 500);
   };
 
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 180; // Reduced for shorter team abbreviations
+      const cardWidth = 156; // Updated to match new w-36 (144px + spacing)
       container.scrollBy({ left: -cardWidth * 1.5, behavior: 'smooth' });
     }
   };
@@ -87,7 +99,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const scrollRight = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 180; // Reduced for shorter team abbreviations
+      const cardWidth = 156; // Updated to match new w-36 (144px + spacing)
       container.scrollBy({ left: cardWidth * 1.5, behavior: 'smooth' });
     }
   };
@@ -132,9 +144,9 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
     return (
-      <div key={game._id} className="bg-shadcn-zinc rounded-lg p-3 hover:bg-gray-800 transition-colors duration-300">
+      <div key={game._id} className="bg-shadcn-zinc rounded-lg p-2 hover:bg-gray-800 transition-colors duration-300">
         {/* Date and Time Header} */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
             {dateString}
           </span>
@@ -145,15 +157,15 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
         {/* Game Importance Badge */}
         {importanceLabel && (
-          <div className={`inline-flex items-center px-2 py-1 rounded-full mb-3 ${importanceColor}`}>
+          <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full mb-2 ${importanceColor}`}>
             <span className="text-white text-xs font-semibold">{importanceLabel}</span>
           </div>
         )}
 
         {/* Teams - Stacked Vertically */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {/* Away Team */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
             {game.awayTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.awayTeamLogo).width(20).height(20).url()}
@@ -169,13 +181,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-sm font-semibold truncate">
+            <span className="text-white text-xs font-semibold truncate">
               {game.awayTeam.split(' ').pop()}
             </span>
           </div>
 
           {/* Home Team */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
             {game.homeTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.homeTeamLogo).width(20).height(20).url()}
@@ -191,7 +203,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-sm font-semibold truncate">
+            <span className="text-white text-xs font-semibold truncate">
               {game.homeTeam.split(' ').pop()}
             </span>
           </div>
@@ -202,8 +214,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
   if (!featuredGames?.length) {
     return (
-      <section className="py-4 px-6 lg:px-8 bg-black border-b bg-near-black border-gray-800">
-        <div className="max-w-7xl mx-auto text-center">
+      <section className="relative py-4 px-6 lg:px-8 border-b border-gray-800 bg-black">
+        <div className="max-w-7xl mx-auto text-center relative z-10">
           <h2 className="text-lg font-bold text-white mb-2">This Week&apos;s Games</h2>
           <p className="text-gray-400">No featured games scheduled</p>
         </div>
@@ -212,9 +224,9 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   }
 
   return (
-    <section className="py-4 px-6 lg:px-8 bg-black">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+    <section className="relative py-4 px-4 lg:px-10 xl:px-12 bg-black">
+      <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1500px] mx-auto relative z-10">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
           </div>
         </div>
@@ -254,7 +266,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
             {/* Current Games - Show 2 at a time */}
             <div 
-              className="mx-8 transition-transform duration-300 ease-in-out"
+              className="mx-8 transition-all duration-500 ease-in-out transform"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
@@ -287,7 +299,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Navigation Buttons */}
           <button
             onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
+            className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
             title="Scroll left"
             aria-label="Scroll to previous games"
           >
@@ -298,7 +310,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
           <button
             onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
+            className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
             title="Scroll right"
             aria-label="Scroll to next games"
           >
@@ -310,11 +322,11 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Scrollable Games Container */}
           <div 
             id="games-container"
-            className="overflow-x-auto scrollbar-hide mx-12 px-2"
+            className="overflow-x-auto scrollbar-hide mx-12 lg:mx-16 xl:mx-20 px-2"
           >
-            <div className="flex space-x-4 pb-2">
+            <div className="flex space-x-3 pb-2">
               {featuredGames.map((game) => (
-                <div key={game._id} className="flex-shrink-0 w-40 min-w-40">
+                <div key={game._id} className="flex-shrink-0 w-36 min-w-36">
                   {renderGameCard(game)}
                 </div>
               ))}

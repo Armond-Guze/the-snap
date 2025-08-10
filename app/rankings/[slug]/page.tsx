@@ -1,7 +1,10 @@
 import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/fetch";
+import { unifiedContentFields, rankingFields } from "@/sanity/lib/fragments";
+import { normalizeContent, isRankingContent } from "@/lib/content/normalize";
+import type { UnifiedContent, LegacyRanking, NormalizedContent } from "@/types/content";
 import type { Rankings, MovementIndicator, RankingTeam } from "@/types";
 import { portableTextComponents } from "@/lib/portabletext-components";
 import { urlFor } from "@/sanity/lib/image";
@@ -13,9 +16,10 @@ import ReadingTime from "@/app/components/ReadingTime";
 import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import ArticleViewTracker from "@/app/components/ArticleViewTracker";
+import UnifiedRankingCard from "@/app/components/UnifiedRankingCard";
 import { generateSEOMetadata } from "@/lib/seo";
-import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time";
-import { formatArticleDate } from "@/lib/date-utils";
+import { calculateReadingTime, extractTextFromBlocks } from "@/lib/formatting";
+import { formatArticleDate } from "@/lib/formatting";
 
 interface RankingsPageProps {
   params: Promise<{ slug: string }>;
@@ -23,93 +27,111 @@ interface RankingsPageProps {
 
 export const revalidate = 60;
 
+// Updated query using fragments - supports both unified and legacy content
 const rankingsDetailQuery = `
+  *[(_type == "unifiedContent" && contentType == "ranking") || _type == "powerRanking" && slug.current == $slug][0]{
+    ${unifiedContentFields}
+  }
+`;
+
+// Legacy rankings query for backward compatibility
+const legacyRankingsDetailQuery = `
   *[_type == "rankings" && slug.current == $slug && published == true][0]{
-    _id,
-    title,
-    slug,
-    rankingType,
-    summary,
-    coverImage {
-      asset->{ url }
-    },
-    author-> {
-      name,
-      image {
-        asset->{ url }
-      }
-    },
-    publishedAt,
-    showAsArticle,
-    articleContent,
-    viewCount,
-    youtubeVideoId,
-    videoTitle,
-    twitterUrl,
-    teams[] {
-      rank,
-      previousRank,
-      teamName,
-      teamLogo {
-        asset
-      },
-      teamColor,
-      summary,
-      analysis,
-      stats[] {
-        label,
-        value
-      }
-    },
-    methodology,
-    seo
+    ${rankingFields}
   }
 `;
 
 export async function generateMetadata({ params }: RankingsPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const ranking: Rankings = await client.fetch(rankingsDetailQuery, { slug });
+  
+  // Try unified content first, then legacy
+  const ranking = await sanityFetch<UnifiedContent | LegacyRanking | null>(
+    rankingsDetailQuery,
+    { slug },
+    { next: { revalidate: 300 } },
+    null
+  );
 
   if (!ranking) {
-    return {
-      title: 'Rankings Not Found | The Snap',
-      description: 'The requested rankings could not be found.',
-    };
+    // Try legacy rankings
+    const legacyRanking = await sanityFetch<Rankings | null>(
+      legacyRankingsDetailQuery,
+      { slug },
+      { next: { revalidate: 300 } },
+      null
+    );
+    
+    if (!legacyRanking) {
+      return {
+        title: 'Rankings Not Found | The Snap',
+        description: 'The requested rankings could not be found.',
+      };
+    }
+    
+    return generateSEOMetadata(legacyRanking, '/rankings');
   }
 
-  return generateSEOMetadata(ranking, '/rankings');
+  const normalizedRanking = normalizeContent(ranking);
+  return generateSEOMetadata(normalizedRanking, '/rankings');
 }
 
 export default async function RankingDetailPage({ params }: RankingsPageProps) {
   const { slug } = await params;
-  const [ranking, otherContent] = await Promise.all([
-    client.fetch(rankingsDetailQuery, { slug }),
-    client.fetch(`
-      *[(_type == "headline" || _type == "rankings") && published == true] | order(_createdAt desc)[0...6]{
+  
+  // Fetch ranking content and related content in parallel
+  const [ranking, legacyRanking, otherContent] = await Promise.all([
+    sanityFetch<UnifiedContent | LegacyRanking | null>(
+      rankingsDetailQuery,
+      { slug },
+      { next: { revalidate: 300 } },
+      null
+    ),
+    sanityFetch<Rankings | null>(
+      legacyRankingsDetailQuery,
+      { slug },
+      { next: { revalidate: 300 } },
+      null
+    ),
+    sanityFetch(
+      `*[(_type in ["unifiedContent", "headline", "powerRanking"]) && published == true] | order(_createdAt desc)[0...6]{
         _id,
         _type,
         title,
         slug,
-        summary,
+        excerpt,
         date,
         publishedAt,
-        rankingType,
+        contentType,
+        week,
         author-> {
           name
         },
-        coverImage {
+        featuredImage {
           asset->{ url }
         }
-      }
-    `)
+      }`,
+      {},
+      { next: { revalidate: 300 } },
+      []
+    )
   ]);
 
-  if (!ranking) {
+  // Use unified content if available, otherwise fall back to legacy
+  const finalRanking = ranking || legacyRanking;
+  
+  if (!finalRanking) {
     notFound();
   }
 
-  // Handle empty state
-  if (!ranking.teams || ranking.teams.length === 0) {
+  // If it's a legacy Rankings type, handle it directly
+  if ('rankingType' in finalRanking && 'teams' in finalRanking) {
+    return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;
+  }
+
+  // Normalize the content for consistent handling
+  const normalizedRanking = normalizeContent(finalRanking as UnifiedContent | LegacyRanking);
+  
+  if (!isRankingContent(normalizedRanking) || !normalizedRanking.teams?.length) {
     return (
       <div className="px-4 py-16 sm:px-6 lg:px-12 bg-black text-white min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -124,6 +146,19 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     );
   }
 
+  return <UnifiedRankingRenderer ranking={normalizedRanking} slug={slug} otherContent={otherContent} />;
+}
+
+// Legacy rankings renderer (preserves original layout)
+function LegacyRankingsRenderer({ 
+  ranking, 
+  slug, 
+  otherContent 
+}: { 
+  ranking: Rankings; 
+  slug: string; 
+  otherContent: any[]; 
+}) {
   // If showAsArticle is true, use article layout
   if (ranking.showAsArticle) {
     // Calculate reading time for article content
@@ -266,6 +301,127 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
 
   // Otherwise, use traditional power rankings layout
   return <PowerRankingsStyleRanking ranking={ranking} />;
+}
+
+// Unified ranking renderer (handles normalized content)
+function UnifiedRankingRenderer({ 
+  ranking, 
+  slug, 
+  otherContent 
+}: { 
+  ranking: NormalizedContent; 
+  slug: string; 
+  otherContent: any[]; 
+}) {
+  // Calculate reading time if content is available
+  const textContent = ranking.content ? 
+    extractTextFromBlocks(ranking.content) : '';
+  const readingTime = calculateReadingTime(textContent);
+
+  // Build breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Rankings', href: '/rankings' },
+    { label: ranking.title }
+  ];
+
+  return (
+    <main className="bg-black text-white min-h-screen">
+      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+        {/* Main Article Section */}
+        <article className="lg:col-span-2 flex flex-col">
+          {/* Breadcrumb */}
+          <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          
+          {/* Title + Meta */}
+          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
+            {ranking.title}
+          </h1>
+          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
+            {ranking.author?.image?.asset?.url && (
+              <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                <Image
+                  src={ranking.author.image.asset.url}
+                  alt={ranking.author?.name || "Author"}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <span>
+              By {ranking.author?.name || "Unknown"} •{" "}
+              {formatArticleDate(ranking.publishedAt)}
+            </span>
+            <span className="text-gray-500">•</span>
+            <ReadingTime minutes={readingTime} />
+          </div>
+
+          {/* Cover Image */}
+          {ranking.featuredImage?.asset?.url && (
+            <div className="w-full mb-6">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md border border-slate-700 shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                <Image
+                  src={ranking.featuredImage.asset.url}
+                  alt={ranking.title}
+                  fill
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Article Content */}
+          {ranking.content && ranking.content.length > 0 && (
+            <section className="w-full mb-8">
+              <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+                <PortableText value={ranking.content} components={portableTextComponents} />
+              </div>
+            </section>
+          )}
+
+          {/* Rankings Display */}
+          {ranking.teams && ranking.teams.length > 0 && (
+            <section className="w-full mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+                Week {ranking.week} Rankings
+              </h2>
+              <div className="space-y-4">
+                {ranking.teams.map((team, index) => (
+                  <UnifiedRankingCard key={`${team.rank}-${team.team.name}-${index}`} teamData={team} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Social Share */}
+          <SocialShare 
+            url={`https://thegamesnap.com/rankings/${slug}`}
+            title={ranking.title}
+            description={ranking.excerpt || ''}
+            variant="compact"
+            className="mb-8"
+          />
+        </article>
+        
+        {/* Sidebar */}
+        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
+          {/* Related Articles */}
+          <RelatedArticles currentSlug={slug} articles={otherContent} />
+        </aside>
+      </div>
+      
+      {/* Article View Tracker */}
+      <ArticleViewTracker 
+        slug={slug}
+        headlineId={ranking._id}
+        title={ranking.title}
+        category={`week-${ranking.week}-rankings`}
+        author={ranking.author?.name}
+        readingTime={readingTime}
+        className="hidden"
+      />
+    </main>
+  );
 }
 
 // Traditional power rankings style component

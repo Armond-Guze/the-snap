@@ -214,10 +214,8 @@ export default defineType({
     }),
     defineField({
       name: 'seo',
-      title: 'SEO Settings',
-      type: 'simplifiedSeo',
-      group: 'seo',
-      description: 'SEO fields auto-generate from title and content. Only fill if you want custom values.',
+      title: 'SEO',
+      type: 'seo',
     }),
     defineField({
       name: 'published',
@@ -225,12 +223,6 @@ export default defineType({
       type: 'boolean',
       initialValue: false,
     }),
-  ],
-  groups: [
-    {
-      name: 'seo',
-      title: 'SEO',
-    },
   ],
   preview: {
     select: {

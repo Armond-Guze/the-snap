@@ -8,7 +8,7 @@ import powerRanking from './powerRanking'
 import rankings from './rankings'
 import { standingsType } from './standingsType'
 import { gameType } from './gameType'
-import { seoType, noteType } from './simplifiedSEOType' // Updated to use simplified SEO
+import { seoType } from './seoType'
 
 
 export const schemaTypes = [
@@ -23,5 +23,4 @@ export const schemaTypes = [
   standingsType,
   gameType,
   seoType,
-  noteType,
 ]
