@@ -66,7 +66,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
             <div key={article._id || index}>
               {article && article.slug?.current ? (
                 <Link href={`/headlines/${article.slug.current}`} className="group">
-                  <div className="relative h-[220px] 2xl:h-[260px] 3xl:h-[300px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                  <div className="relative h-[280px] 2xl:h-[320px] 3xl:h-[360px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                     {article.coverImage?.asset ? (
                       <Image
                         src={urlFor(article.coverImage).width(400).url()}
@@ -100,7 +100,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
                   </div>
                 </Link>
               ) : (
-                <div className="h-[220px] 2xl:h-[260px] 3xl:h-[300px] rounded-2xl bg-gray-900 flex items-center justify-center">
+                <div className="h-[280px] 2xl:h-[320px] 3xl:h-[360px] rounded-2xl bg-gray-900 flex items-center justify-center">
                   <p className="text-gray-400">No content available</p>
                 </div>
               )}
@@ -109,7 +109,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
           
           {/* Fill remaining slots if less than 4 articles */}
           {fantasyArticles && fantasyArticles.length < 4 && Array.from({ length: 4 - fantasyArticles.length }).map((_, index) => (
-            <div key={`placeholder-${index}`} className="h-[220px] 2xl:h-[260px] 3xl:h-[300px] rounded-2xl bg-gray-900 flex items-center justify-center">
+            <div key={`placeholder-${index}`} className="h-[280px] 2xl:h-[320px] 3xl:h-[360px] rounded-2xl bg-gray-900 flex items-center justify-center">
               <p className="text-gray-400">No content available</p>
             </div>
           ))}
