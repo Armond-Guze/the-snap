@@ -23,10 +23,11 @@ interface FantasyArticle {
 }
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
   const article: FantasyArticle = await sanityFetch(
     `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       title,
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props) {
         }
       }
     }`,
-    { slug: params.slug },
+    { slug },
     { next: { revalidate: 300 } }
   );
 
@@ -57,6 +58,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function FantasyArticlePage({ params }: Props) {
+  const { slug } = await params;
   const article: FantasyArticle = await sanityFetch(
     `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       _id,
@@ -75,7 +77,7 @@ export default async function FantasyArticlePage({ params }: Props) {
       },
       publishedAt
     }`,
-    { slug: params.slug },
+    { slug },
     { next: { revalidate: 300 } }
   );
 
