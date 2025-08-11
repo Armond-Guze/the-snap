@@ -41,7 +41,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
               fill
               priority
               quality={100}
-              className="object-cover opacity-20 md:opacity-35"
+              className="object-cover opacity-30 md:opacity-35"
               sizes="100vw"
             />
           </div>
