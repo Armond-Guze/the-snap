@@ -3,7 +3,7 @@ import Headlines from "./components/Headlines";
 import BentoGrid from "./components/BentoGrid";
 import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
-import GoogleAds from "./components/GoogleAds";
+// import GoogleAds from "./components/GoogleAds";
 import { client } from "@/sanity/lib/client";
 import { featuredGamesQuery } from "@/sanity/lib/queries";
 import { Analytics } from "@vercel/analytics/next"
@@ -40,7 +40,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen">
   <GameSchedule games={featuredGames || []} />
-  <GoogleAds />
+  {/* <GoogleAds /> */}
   <Headlines textureSrc="/images/texture-image.jpg" />
       <BentoGrid textureSrc="/images/texture-image.jpg" />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
