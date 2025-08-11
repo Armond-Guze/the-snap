@@ -9,6 +9,7 @@ import rankings from './rankings'
 import { standingsType } from './standingsType'
 import { gameType } from './gameType'
 import { seoType } from './seoType'
+import fantasyFootball from './fantasyFootball'
 
 
 export const schemaTypes = [
@@ -23,4 +24,5 @@ export const schemaTypes = [
   standingsType,
   gameType,
   seoType,
+  fantasyFootball,
 ]

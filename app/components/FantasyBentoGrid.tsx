@@ -15,19 +15,24 @@ interface FantasyArticle {
   coverImage?: {
     asset?: { url: string };
   };
+  fantasyType?: string;
+  author?: { name: string };
 }
 
 export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridProps) {
-  // For now, we'll use the same query as headlines but filter for fantasy content
-  // You can modify this query later to fetch from a fantasy-specific content type
-  const fantasyQuery = `*[_type == "headline" && published == true] | order(_createdAt desc)[0...4]{
+  // Updated query to use the new fantasyFootball content type
+  const fantasyQuery = `*[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc)[0...4]{
     _id,
     title,
     slug,
     summary,
     coverImage {
       asset->{ url }
-    }
+    },
+    author->{
+      name
+    },
+    fantasyType
   }`;
 
   const fantasyArticles: FantasyArticle[] = await client.fetch(fantasyQuery);
@@ -65,7 +70,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
           {fantasyArticles?.slice(0, 4).map((article: FantasyArticle, index: number) => (
             <div key={article._id || index}>
               {article && article.slug?.current ? (
-                <Link href={`/headlines/${article.slug.current}`} className="group">
+                <Link href={`/fantasy/${article.slug.current}`} className="group">
                   <div className="relative h-[220px] 2xl:h-[260px] 3xl:h-[300px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                     {article.coverImage?.asset ? (
                       <Image
@@ -75,7 +80,18 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
                         className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-800/60 to-gray-900/60" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-3 bg-gray-600 rounded-full flex items-center justify-center">
+                              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-400 text-xs font-medium">Fantasy Football</p>
+                          </div>
+                        </div>
+                      </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -87,11 +103,11 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
                       </div>
 
                       <div>
-                        <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
+                        <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
                           {article.title}
                         </h3>
                         {article.summary && (
-                          <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
+                          <p className="text-xs 2xl:text-sm 3xl:text-base line-clamp-2 mt-2 text-gray-300">
                             {article.summary}
                           </p>
                         )}
@@ -110,7 +126,14 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
           {/* Fill remaining slots if less than 4 articles */}
           {fantasyArticles && fantasyArticles.length < 4 && Array.from({ length: 4 - fantasyArticles.length }).map((_, index) => (
             <div key={`placeholder-${index}`} className="h-[220px] 2xl:h-[260px] 3xl:h-[300px] rounded-2xl bg-gray-900 flex items-center justify-center">
-              <p className="text-gray-400">No content available</p>
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-3 bg-gray-700 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 text-sm">Fantasy content coming soon</p>
+              </div>
             </div>
           ))}
         </div>

@@ -124,22 +124,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                   <div className="relative h-full flex flex-col justify-between p-8">
-                    <div className="flex items-start justify-between">
-                      {main._type === 'rankings' && main.rankingType ? (
-                        <div className="inline-flex items-center px-4 py-2 bg-purple-600 rounded-full backdrop-blur-sm">
-                          <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
-                          <span className="text-white text-sm font-semibold uppercase tracking-wider">
-                            {main.rankingType.replace('-', ' ')} Rankings
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="inline-flex items-center px-4 py-2 bg-gray-800 rounded-full backdrop-blur-sm">
-                          <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
-                          <span className="text-white text-sm font-semibold uppercase tracking-wider">
-                            Featured
-                          </span>
-                        </div>
-                      )}
+                    <div className="flex items-start justify-end">
                       <svg
                         className="w-6 h-6 text-white/60 group-hover:text-white transition-colors duration-300"
                         fill="none"
@@ -174,11 +159,10 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 
                 <div className="relative h-full flex flex-col justify-between p-8">
-                  <div className="inline-flex items-center px-4 py-2 bg-gray-800 rounded-full backdrop-blur-sm">
-                    <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">
-                      No Content
-                    </span>
+                  <div className="flex items-start justify-end">
+                    <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                   
                   <div>
@@ -218,10 +202,10 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                           </div>
                         )}
                         <div className="flex-1">
-                          <h4 className="text-white font-bold text-base 2xl:text-lg 3xl:text-xl leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
+                          <h4 className="text-white font-bold text-base 2xl:text-base 3xl:text-lg leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
                             {headline.title}
                           </h4>
-                          <div className="flex items-center text-gray-400 text-xs 2xl:text-sm">
+                          <div className="flex items-center text-gray-400 text-xs 2xl:text-xs">
                             <span className="font-medium">
                               {headline.author?.name || "Staff Writer"}
                             </span>

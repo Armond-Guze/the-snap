@@ -2,6 +2,7 @@
 
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import styles from './GameSchedule.module.css';
 
 interface Game {
@@ -54,6 +55,31 @@ function getImportanceColor(importance: string) {
 
 export default function GameSchedule({ games }: GameScheduleProps) {
   const featuredGames = games;
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollButtons = () => {
+    const container = document.getElementById('games-container');
+    if (container) {
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    const container = document.getElementById('games-container');
+    if (container) {
+      // Initial check
+      checkScrollButtons();
+      
+      // Add scroll event listener
+      container.addEventListener('scroll', checkScrollButtons);
+      
+      // Cleanup
+      return () => container.removeEventListener('scroll', checkScrollButtons);
+    }
+  }, [featuredGames]);
 
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
@@ -211,27 +237,31 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         {/* Desktop/Tablet Horizontal Carousel */}
         <div className="hidden md:block relative">
           {/* Navigation Buttons */}
-          <button
-            onClick={scrollLeft}
-            className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
-            title="Scroll left"
-            aria-label="Scroll to previous games"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
+          {canScrollLeft && (
+            <button
+              onClick={scrollLeft}
+              className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg hover:bg-gray-800 transition-colors duration-300"
+              title="Scroll left"
+              aria-label="Scroll to previous games"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
 
-          <button
-            onClick={scrollRight}
-            className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg"
-            title="Scroll right"
-            aria-label="Scroll to next games"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+          {canScrollRight && (
+            <button
+              onClick={scrollRight}
+              className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg hover:bg-gray-800 transition-colors duration-300"
+              title="Scroll right"
+              aria-label="Scroll to next games"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
 
           {/* Scrollable Games Container */}
           <div 

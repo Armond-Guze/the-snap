@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  transpilePackages: ['framer-motion'],
   images: {
     remotePatterns: [
       {

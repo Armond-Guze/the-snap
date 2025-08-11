@@ -294,3 +294,25 @@ export const rankingsQuery = `
     }
   }
 `;
+
+// Fantasy Football Query
+export const fantasyFootballQuery = `
+  *[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc) {
+    _id,
+    title,
+    slug,
+    summary,
+    coverImage {
+      asset->{
+        url
+      }
+    },
+    author->{
+      name
+    },
+    publishedAt,
+    fantasyType,
+    priority,
+    tags
+  }
+`;
