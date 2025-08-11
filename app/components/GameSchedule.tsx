@@ -2,7 +2,7 @@
 
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
-import { useState } from "react";
+import styles from './GameSchedule.module.css';
 
 interface Game {
   _id: string;
@@ -52,41 +52,8 @@ function getImportanceColor(importance: string) {
   }
 }
 
-export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
-  const [currentGameIndex, setCurrentGameIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
+export default function GameSchedule({ games }: GameScheduleProps) {
   const featuredGames = games;
-
-  // The required distance between touchStart and touchEnd to trigger a swipe
-  const minSwipeDistance = 50;
-
-  const nextGame = () => {
-    if (isAnimating) return; // Prevent rapid clicking
-    
-    setIsAnimating(true);
-    setCurrentGameIndex((prev) => {
-      const increment = 2; // Show 2 games on mobile
-      return (prev + increment) % featuredGames.length;
-    });
-    
-    // Reset animation state after transition completes
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
-  const prevGame = () => {
-    if (isAnimating) return; // Prevent rapid clicking
-    
-    setIsAnimating(true);
-    setCurrentGameIndex((prev) => {
-      const decrement = 2; // Show 2 games on mobile
-      return (prev - decrement + featuredGames.length) % featuredGames.length;
-    });
-    
-    // Reset animation state after transition completes
-    setTimeout(() => setIsAnimating(false), 500);
-  };
 
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
@@ -101,30 +68,6 @@ export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
     if (container) {
       const cardWidth = 156; // Updated to match new w-36 (144px + spacing)
       container.scrollBy({ left: cardWidth * 1.5, behavior: 'smooth' });
-    }
-  };
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && featuredGames.length > 2) {
-      nextGame();
-    }
-    if (isRightSwipe && featuredGames.length > 2) {
-      prevGame();
     }
   };
 
@@ -231,65 +174,36 @@ export default function GameSchedule({ games, textureSrc }: GameScheduleProps) {
           </div>
         </div>
 
-        {/* Mobile Carousel - Two at a time */}
+        {/* Mobile Horizontal Scrolling - Show 2.5 games */}
         <div className="block md:hidden">
           <div className="relative">
-            {/* Game Counter */}
-            <div className="text-center mb-2">
-              
-            </div>
-
-            {/* Navigation Buttons */}
-            <button
-              onClick={prevGame}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-2 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-              disabled={featuredGames.length <= 2}
-              title="Previous games"
-              aria-label="View previous games"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={nextGame}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-2 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-              disabled={featuredGames.length <= 2}
-              title="Next games"
-              aria-label="View next games"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Current Games - Show 2 at a time */}
+            {/* Scrollable Games Container */}
             <div 
-              className="mx-8 transition-all duration-500 ease-in-out transform"
-              onTouchStart={onTouchStart}
-              onTouchMove={onTouchMove}
-              onTouchEnd={onTouchEnd}
+              id="mobile-games-container"
+              className={`overflow-x-auto scrollbar-hide px-4 ${styles.mobileScrollContainer}`}
             >
-              <div className="grid grid-cols-2 gap-3">
-                {renderGameCard(featuredGames[currentGameIndex])}
-                {featuredGames[currentGameIndex + 1] && renderGameCard(featuredGames[currentGameIndex + 1])}
+              <div className="flex space-x-4 pb-2">
+                {featuredGames.map((game) => (
+                  <div 
+                    key={game._id} 
+                    className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard}`}
+                  >
+                    {renderGameCard(game)}
+                  </div>
+                ))}
+                {/* Add padding to ensure last card shows properly */}
+                <div className="w-4 flex-shrink-0"></div>
               </div>
             </div>
 
-            {/* Dots Indicator */}
-            <div className="flex justify-center space-x-2 mt-4">
-              {Array.from({ length: Math.ceil(featuredGames.length / 2) }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentGameIndex(index * 2)}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    Math.floor(currentGameIndex / 2) === index ? 'bg-white' : 'bg-gray-600'
-                  }`}
-                  aria-label={`View games ${index * 2 + 1}-${Math.min(index * 2 + 2, featuredGames.length)}`}
-                  title={`Games ${index * 2 + 1}-${Math.min(index * 2 + 2, featuredGames.length)}`}
-                />
-              ))}
+            {/* Auto-scroll animation */}
+            <div className="mt-2 text-center">
+              <div className="inline-flex items-center space-x-1 text-xs text-gray-400">
+                <span>Swipe to see more</span>
+                <svg className="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>

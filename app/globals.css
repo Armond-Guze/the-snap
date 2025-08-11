@@ -2,8 +2,8 @@
 @import "./professional-styles.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -13,17 +13,29 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Force dark theme on all devices */
+html, body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure mobile devices respect dark theme */
+@media screen and (max-width: 768px) {
+  html, body {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Force dark backgrounds for common elements */
+  * {
+    color-scheme: dark !important;
+  }
 }
 
 /* Custom NFL-themed gradients */

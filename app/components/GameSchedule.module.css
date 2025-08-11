@@ -1,0 +1,8 @@
+.mobileScrollContainer {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+}
+
+.gameCard {
+  scroll-snap-align: start;
+}
