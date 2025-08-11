@@ -1,7 +1,8 @@
 // import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
 import BentoGrid from "./components/BentoGrid";
-import TrendingTopics from "./components/TrendingTopics";
+import FantasyBentoGrid from "./components/FantasyBentoGrid";
+// import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
 // import GoogleAds from "./components/GoogleAds";
 import { client } from "@/sanity/lib/client";
@@ -43,8 +44,9 @@ export default async function Home() {
   {/* <GoogleAds /> */}
   <Headlines textureSrc="/images/texture-image.jpg" />
       <BentoGrid textureSrc="/images/texture-image.jpg" />
+      <FantasyBentoGrid textureSrc="/images/texture-image.jpg" />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
-      <TrendingTopics textureSrc="/images/texture-image.jpg" />
+      {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
       <Analytics />
     </main>
   );

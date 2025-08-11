@@ -90,7 +90,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
   };
 
   return (
-    <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
+    <section className="relative py-8 md:py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       {/* Background Image - use texture if provided, otherwise helmet background */}
       <div className="absolute inset-0 -z-20">
         <Image
