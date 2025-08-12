@@ -24,11 +24,11 @@ interface BentoGridProps {
 }
 
 export default async function BentoGrid({ textureSrc }: BentoGridProps) {
-  // Fetch data from Sanity
+  // Fetch data from Sanity - showing headlines 9, 10, 11 from the same query as main headlines
   const headlines = await client.fetch(headlineQuery);
 
-  const centerHeadline = headlines?.[1]; // One for center
-  const rightHeadlines = headlines?.slice(2, 4) || []; // Two for right side
+  const centerHeadline = headlines?.[8]; // 9th headline (index 8) 
+  const rightHeadlines = headlines?.slice(9, 11) || []; // 10th and 11th headlines (indices 9-10)
 
   return (
     <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
