@@ -52,7 +52,7 @@ export default function BackToTop({
         p-3 
         shadow-lg hover:shadow-xl
         transition-all duration-300 ease-in-out
-        hover:scale-110
+        hover:scale-105
         focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2
         border border-gray-200
         ${className}

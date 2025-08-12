@@ -64,13 +64,13 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
           <div className="lg:col-span-3">
             {centerHeadline && centerHeadline.slug?.current ? (
               <Link href={`/headlines/${centerHeadline.slug.current}`} className="group">
-                <div className="relative h-full min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-3xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-full min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                   {centerHeadline.coverImage?.asset ? (
                     <Image
                       src={urlFor(centerHeadline.coverImage).width(800).url()}
                       alt={centerHeadline.title}
                       fill
-                      className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"
+                      className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-102 transition-all duration-700"
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-800/60 to-gray-900/60" />
@@ -98,7 +98,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                 </div>
               </Link>
             ) : (
-              <div className="relative h-full min-h-[500px] rounded-3xl overflow-hidden bg-gray-900">
+              <div className="relative h-full min-h-[500px] rounded-xl overflow-hidden bg-gray-900">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 
@@ -123,7 +123,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
             {/* Top Right Card */}
             {rightHeadlines[0] && rightHeadlines[0].slug?.current ? (
               <Link href={`/headlines/${rightHeadlines[0].slug.current}`} className="group">
-                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                   {rightHeadlines[0].coverImage?.asset ? (
                     <Image
                       src={urlFor(rightHeadlines[0].coverImage).width(400).url()}
@@ -157,7 +157,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                 </div>
               </Link>
             ) : (
-              <div className="h-[240px] rounded-2xl bg-gray-900 flex items-center justify-center">
+              <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
                 <p className="text-gray-400">No content available</p>
               </div>
             )}
@@ -165,7 +165,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
             {/* Bottom Right Card */}
             {rightHeadlines[1] && rightHeadlines[1].slug?.current ? (
               <Link href={`/headlines/${rightHeadlines[1].slug.current}`} className="group">
-                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
+                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                   {rightHeadlines[1].coverImage?.asset ? (
                     <Image
                       src={urlFor(rightHeadlines[1].coverImage).width(400).url()}
@@ -199,7 +199,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                 </div>
               </Link>
             ) : (
-              <div className="h-[240px] rounded-2xl bg-gray-900 flex items-center justify-center">
+              <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
                 <p className="text-gray-400">No content available</p>
               </div>
             )}

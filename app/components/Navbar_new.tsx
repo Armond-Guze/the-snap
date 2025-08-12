@@ -61,7 +61,7 @@ export default function Navbar() {
               alt="FootballNews Logo"
               width={60}
               height={60}
-              className="h-8 w-auto transition-transform group-hover:scale-102"
+              className="h-8 w-auto transition-transform group-hover:scale-105"
               priority
             />
           </Link>
@@ -101,7 +101,7 @@ export default function Navbar() {
               alt="FootballNews Logo"
               width={60}
               height={60}
-              className="h-8 md:h-10 w-auto transition-transform group-hover:scale-102"
+              className="h-8 md:h-10 w-auto transition-transform group-hover:scale-105"
               priority
             />
           </Link>

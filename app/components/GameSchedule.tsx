@@ -208,7 +208,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               id="mobile-games-container"
               className={`overflow-x-auto scrollbar-hide px-4 ${styles.mobileScrollContainer}`}
             >
-              <div className="flex space-x-4 pb-2">
+              <div className="flex space-x-2 pb-2">
                 {featuredGames.map((game) => (
                   <div 
                     key={game._id} 
@@ -218,19 +218,11 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                   </div>
                 ))}
                 {/* Add padding to ensure last card shows properly */}
-                <div className="w-4 flex-shrink-0"></div>
+                <div className="w-2 flex-shrink-0"></div>
               </div>
             </div>
 
-            {/* Auto-scroll animation */}
-            <div className="mt-2 text-center">
-              <div className="inline-flex items-center space-x-1 text-xs text-gray-400">
-                <span>Swipe to see more</span>
-                <svg className="w-3 h-3 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -268,7 +260,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             id="games-container"
             className="overflow-x-auto scrollbar-hide mx-12 lg:mx-16 xl:mx-20 px-2"
           >
-            <div className="flex space-x-3 pb-2">
+            <div className="flex space-x-2 pb-2">
               {featuredGames.map((game) => (
                 <div key={game._id} className="flex-shrink-0 w-36 min-w-36">
                   {renderGameCard(game)}

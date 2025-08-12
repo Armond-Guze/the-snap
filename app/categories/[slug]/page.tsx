@@ -131,7 +131,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
                           alt={headline.title}
                           width={400}
                           height={225}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-800 flex items-center justify-center">
