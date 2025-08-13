@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com/headlines',
     images: [
       {
-        url: '/images/the-snap-logo.png',
+        url: '/images/the-snaplogo1.png',
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL Headlines',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "NFL Headlines & Breaking News - The Snap",
     description: "Stay updated with the latest NFL headlines, breaking news, trade rumors, and injury reports.",
-    images: ['/images/the-snap-logo.png'],
+    images: ['/images/the-snaplogo1.png'],
   },
   alternates: {
     canonical: '/headlines',

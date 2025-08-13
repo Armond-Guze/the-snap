@@ -22,7 +22,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <Image
-                src="/images/the-snap-logo.png"
+                src="/images/the-snaplogo1.png"
                 alt="The Game Snap Logo"
                 width={40}
                 height={40}

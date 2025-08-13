@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com/standings',
     images: [
       {
-        url: '/images/the-snap-logo.png',
+        url: '/images/the-snaplogo1.png',
         width: 600, // Reduced width
         height: 315, // Reduced height
         alt: 'The Snap - NFL Standings',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "NFL Standings 2025 - Division Standings & Playoff Picture",
     description: "Current NFL standings for all divisions. Track team records and playoff implications.",
-    images: ['/images/the-snap-logo.png'],
+    images: ['/images/the-snaplogo1.png'],
   },
   alternates: {
     canonical: '/standings',

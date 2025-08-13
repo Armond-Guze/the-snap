@@ -5,10 +5,10 @@
 
 import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
-import type { TeamData } from "@/types/content";
+import type { RankingTeam } from "@/types";
 
 interface UnifiedRankingCardProps {
-  teamData: TeamData;
+  teamData: RankingTeam;
 }
 
 type MovementIndicator = {
@@ -35,10 +35,10 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
-        {teamData.team?.primaryColor && (
+        {teamData.teamColor && (
           <div 
             className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ backgroundColor: teamData.team.primaryColor }}
+            style={{ backgroundColor: teamData.teamColor }}
           />
         )}
         
@@ -54,11 +54,11 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
           </div>
 
           {/* Team Logo */}
-          {teamData.team?.logo?.asset && (
+          {teamData.teamLogo?.asset && (
             <div className="flex-shrink-0">
               <Image
-                src={urlFor(teamData.team.logo).width(60).height(60).url()}
-                alt={`${teamData.team?.name || 'Team'} logo`}
+                src={urlFor(teamData.teamLogo).width(60).height(60).url()}
+                alt={`${teamData.teamName || 'Team'} logo`}
                 width={60}
                 height={60}
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-contain"
@@ -71,7 +71,7 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
-                {teamData.team?.name || 'Unknown Team'}
+                {teamData.teamName || 'Unknown Team'}
               </h2>
 
               {/* Movement Indicator */}
@@ -88,46 +88,27 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
                 )}
               </div>
             </div>
-
-            {/* Team Record */}
-            {teamData.record && (
-              <div className="text-sm text-gray-400 mt-1">
-                Record: {teamData.record.wins}-{teamData.record.losses}
-                {teamData.record.ties ? `-${teamData.record.ties}` : ''}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
       {/* Content Section */}
       <div className="mt-3 bg-black p-6">
-        {teamData.reasoning && (
+        {teamData.summary && (
           <p className="text-2xl text-gray-200 leading-relaxed mb-8">
-            {teamData.reasoning}
+            {teamData.summary}
           </p>
         )}
         
-        {/* Points display if available */}
-        {teamData.points && (
-          <div className="text-sm text-gray-400 mb-4">
-            <span className="font-semibold">Points:</span> {teamData.points}
-          </div>
-        )}
-
-        {/* Trend indicator */}
-        {teamData.trend && (
-          <div className="text-sm mb-4">
-            <span className="text-gray-400 font-semibold">Trend:</span>{' '}
-            <span className={`font-semibold ${
-              teamData.trend === 'up' ? 'text-green-400' : 
-              teamData.trend === 'down' ? 'text-red-400' : 
-              'text-gray-400'
-            }`}>
-              {teamData.trend === 'up' ? '↗ Rising' : 
-               teamData.trend === 'down' ? '↘ Falling' : 
-               '→ Steady'}
-            </span>
+        {/* Stats display if available */}
+        {teamData.stats && teamData.stats.length > 0 && (
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {teamData.stats.map((stat, index) => (
+              <div key={index} className="text-sm">
+                <span className="text-gray-400 font-semibold">{stat.label}:</span>{' '}
+                <span className="text-white">{stat.value}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>

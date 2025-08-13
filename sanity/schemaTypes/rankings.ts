@@ -55,6 +55,17 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      description: 'Main image used for cards and previews',
+    }),
+    defineField({
+      name: 'articleImage',
+      title: 'Article Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      description: 'Optional image to display within the article content',
+      hidden: ({ document }) => !document?.showAsArticle,
     }),
     defineField({
       name: 'author',

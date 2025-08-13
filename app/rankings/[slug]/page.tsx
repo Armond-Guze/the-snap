@@ -242,6 +242,20 @@ function LegacyRankingsRenderer({
               </section>
             )}
 
+            {/* Article Image */}
+            {ranking.articleImage?.asset?.url && (
+              <div className="w-full mb-8">
+                <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                  <Image
+                    src={ranking.articleImage.asset.url}
+                    alt={`${ranking.title} - Article Image`}
+                    fill
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Rankings Display */}
             <section className="w-full mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">The Rankings</h2>
@@ -394,6 +408,20 @@ function UnifiedRankingRenderer({
             </section>
           )}
 
+          {/* Article Image */}
+          {ranking.articleImage?.asset?.url && (
+            <div className="w-full mb-8">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                <Image
+                  src={ranking.articleImage.asset.url}
+                  alt={`${ranking.title} - Article Image`}
+                  fill
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Rankings Display */}
           {ranking.teams && ranking.teams.length > 0 && (
             <section className="w-full mb-8">
@@ -402,7 +430,7 @@ function UnifiedRankingRenderer({
               </h2>
               <div className="space-y-4">
                 {ranking.teams.map((team, index) => (
-                  <UnifiedRankingCard key={`${team.rank}-${team.team?.name || 'unknown'}-${index}`} teamData={team} />
+                  <UnifiedRankingCard key={`${team.rank}-${team.teamName || 'unknown'}-${index}`} teamData={team} />
                 ))}
               </div>
             </section>

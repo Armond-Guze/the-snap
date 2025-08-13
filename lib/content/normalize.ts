@@ -91,6 +91,7 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
       week: content.week,
       season: content.season,
       teams: content.teams,
+      articleImage: content.articleImage,
       seo: content.seo,
     };
   }

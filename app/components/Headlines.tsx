@@ -15,7 +15,6 @@ interface HeadlineItem {
     };
   };
   author?: { name: string };
-  rankingType?: string;
   priority?: number;
   date?: string;
   publishedAt?: string;
@@ -28,9 +27,9 @@ interface HeadlinesProps {
 }
 
 export default async function Headlines({ textureSrc }: HeadlinesProps) {
-  // Use the original query that we know works with your data
-  const originalQuery = `
-    *[(_type == "headline" || _type == "rankings") && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
+  // Query only for headline content (excluding rankings)
+  const headlinesQuery = `
+    *[_type == "headline" && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
       _id,
       _type,
       title,
@@ -44,7 +43,6 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
       priority,
       date,
       publishedAt,
-      rankingType,
       author->{
         name
       },
@@ -53,7 +51,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
   `;
 
   const headlines: HeadlineItem[] = await sanityFetch(
-    originalQuery,
+    headlinesQuery,
     {},
     { next: { revalidate: 300 } },
     []
@@ -68,7 +66,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
   }
 
   const main = headlines[0];
-  const sidebar = headlines.slice(1, 8); // Limit to 7 sidebar headlines (positions 1-7)
+  const sidebar = headlines.slice(1, 10); // Increased from 8 to 10 to show 9 sidebar headlines (positions 1-9)
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
@@ -76,17 +74,6 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
       return `/rankings/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
-  };
-
-  // Safe urlFor wrapper
-  const safeUrlFor = (image: HeadlineItem['coverImage']) => {
-    try {
-      if (!image?.asset?.url) return null;
-      return urlFor(image);
-    } catch (error) {
-      console.warn('urlFor error:', error);
-      return null;
-    }
   };
 
   return (
@@ -245,15 +232,72 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
         </div>
       </div>
 
-      {/* Desktop: Original layout */}
-      <div className="hidden lg:block py-8 md:py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
-        <div className="relative z-10 mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem]">
-          <div className="grid grid-cols-3 gap-6 2xl:gap-8 3xl:gap-12">
-            {/* Desktop Main Feature Story */}
-            <div className="col-span-2">
+      {/* Desktop: New layout with left sidebar */}
+      <div className="hidden lg:block py-6 md:py-12 px-6 lg:px-8 2xl:px-12 3xl:px-16">
+        <div className="relative z-10 mx-auto max-w-7xl 2xl:max-w-[85rem] 3xl:max-w-[95rem]">
+          <div className="grid grid-cols-24 gap-3 2xl:gap-4 3xl:gap-6">
+            {/* Left Sidebar - Two vertical images */}
+            <div className="col-span-5 flex flex-col justify-center space-y-3">
+              {sidebar.slice(0, 2).map((headline) => (
+                <div key={headline._id} className="group">
+                  {headline.slug?.current ? (
+                    <Link href={getArticleUrl(headline)}>
+                      <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+                        {headline.coverImage?.asset?.url ? (
+                          <Image
+                            src={headline.coverImage.asset.url}
+                            alt={headline.title}
+                            fill
+                            className="object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                          <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            {headline.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900">
+                      {headline.coverImage?.asset?.url ? (
+                        <Image
+                          src={headline.coverImage.asset.url}
+                          alt={headline.title || "Untitled"}
+                          fill
+                          className="object-cover opacity-85"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                          <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
+                          {headline.title || "Untitled"}
+                        </h4>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Main Feature Story - Slightly reduced width */}
+            <div className="col-span-13">
               {main?.coverImage?.asset?.url && main?.slug?.current ? (
                 <Link href={getArticleUrl(main)} className="group">
-                  <div className="relative h-full min-h-[350px] sm:min-h-[400px] lg:min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
+                  <div className="relative h-full min-h-[320px] sm:min-h-[370px] lg:min-h-[400px] 2xl:min-h-[440px] 3xl:min-h-[500px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                     <Image
                       src={main.coverImage.asset.url}
                       alt={main.title}
@@ -262,10 +306,10 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                    <div className="relative h-full flex flex-col justify-between p-8">
+                    <div className="relative h-full flex flex-col justify-between p-6">
                       <div className="flex items-start justify-end">
                         <svg
-                          className="w-6 h-6 text-white/60 group-hover:text-white transition-colors duration-300"
+                          className="w-5 h-5 text-white/60 group-hover:text-white transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -280,11 +324,11 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                       </div>
 
                       <div>
-                        <h2 className="text-2xl lg:text-3xl 2xl:text-4xl 3xl:text-5xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
+                        <h2 className="text-xl lg:text-2xl 2xl:text-3xl 3xl:text-4xl font-bold text-white mb-3 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
                           {main.title || "Untitled"}
                         </h2>
                         {main.summary && (
-                          <p className="text-gray-300 text-base 2xl:text-lg 3xl:text-xl line-clamp-3 leading-relaxed">
+                          <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-3 leading-relaxed">
                             {main.summary}
                           </p>
                         )}
@@ -317,74 +361,74 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
               )}
             </div>
 
-            {/* Desktop Sidebar Headlines */}
-            <div className="col-span-1 self-start">
-              <div className="flex items-center mb-4">
-                <div className="w-2.5 h-2.5 bg-white rounded-full mr-2"></div>
-                <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white">Around The NFL</h3>
-              </div>
-              <ul className="space-y-4 2xl:space-y-5 3xl:space-y-6 text-sm">
-                {sidebar.map((headline) => (
-                  <li key={headline._id}>
-                    {headline.slug?.current ? (
-                      <Link href={getArticleUrl(headline)}>
-                        <div className="flex items-start gap-2.5 2xl:gap-3 3xl:gap-4 group cursor-pointer">
-                          <div className="w-12 h-12 2xl:w-14 2xl:h-14 3xl:w-16 3xl:h-16 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+            {/* Desktop Sidebar Headlines - Right side */}
+            <div className="col-span-6 self-start space-y-4">
+              {/* Around The NFL Section */}
+              <div>
+                <div className="flex items-center mb-3">
+                  <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+                  <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white">Around The NFL</h3>
+                </div>
+                <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
+                  {sidebar.slice(2).map((headline) => (
+                    <li key={headline._id}>
+                      {headline.slug?.current ? (
+                        <Link href={getArticleUrl(headline)}>
+                          <div className="flex items-center gap-2.5 group cursor-pointer">
+                            <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                              {headline.coverImage?.asset?.url ? (
+                                <Image
+                                  src={headline.coverImage.asset.url}
+                                  alt={headline.title}
+                                  width={48}
+                                  height={48}
+                                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                                  <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-white font-bold text-sm 2xl:text-base leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
+                                {headline.title}
+                              </h4>
+                            </div>
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
                             {headline.coverImage?.asset?.url ? (
                               <Image
                                 src={headline.coverImage.asset.url}
-                                alt={headline.title}
+                                alt={headline.title || "Untitled"}
                                 width={48}
                                 height={48}
-                                className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                                className="w-full h-full object-cover"
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                                <svg className="w-7 h-7 2xl:w-8 2xl:h-8 3xl:w-9 3xl:h-9 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                                   <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
                                 </svg>
                               </div>
                             )}
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-white font-bold text-lg 2xl:text-xl 3xl:text-2xl leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
-                              {headline.title}
+                            <h4 className="text-gray-500 font-bold text-xs leading-tight mb-1.5">
+                              {headline.title || "Untitled"}
                             </h4>
                           </div>
                         </div>
-                      </Link>
-                    ) : (
-                      <div className="flex items-start gap-2.5">
-                        <div className="w-12 h-12 2xl:w-14 2xl:h-14 3xl:w-16 3xl:h-16 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                          {headline.coverImage?.asset?.url ? (
-                            <Image
-                              src={headline.coverImage.asset.url}
-                              alt={headline.title || "Untitled"}
-                              width={48}
-                              height={48}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                              <svg className="w-7 h-7 2xl:w-8 2xl:h-8 3xl:w-9 3xl:h-9 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-gray-500 font-bold text-base leading-tight mb-1.5">
-                            {headline.title || "Untitled"}
-                          </h4>
-                          <div className="flex items-center text-gray-500 text-xs">
-                            <span>No author</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>

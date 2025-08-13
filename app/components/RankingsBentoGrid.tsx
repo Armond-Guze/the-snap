@@ -1,19 +1,118 @@
-import { client } from "@/sanity/lib/client";
-import { headlineQuery } from "@/sanity/lib/queries";
-import { urlFor } from "@/sanity/lib/image";
+import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
 
-interface BentoGridProps {
+interface RankingItem {
+  _id: string;
+  _type: string;
+  title: string;
+  slug: { current: string };
+  summary?: string;
+  excerpt?: string;
+  coverImage?: {
+    asset?: {
+      _ref: string;
+      _type: string;
+      url?: string;
+    };
+  };
+  articleImage?: {
+    asset?: {
+      _ref: string;
+      _type: string;
+      url?: string;
+    };
+  };
+  author?: { name: string };
+  rankingType?: string;
+  priority?: number;
+  publishedAt?: string;
+  week?: number;
+  showAsArticle?: boolean;
+}
+
+interface RankingsBentoGridProps {
   textureSrc?: string;
 }
 
-export default async function BentoGrid({ textureSrc }: BentoGridProps) {
-  // Fetch data from Sanity - showing more headlines for the expanded layout
-  const headlines = await client.fetch(headlineQuery);
+export default async function RankingsBentoGrid({ textureSrc }: RankingsBentoGridProps) {
+  // Query for rankings content ordered by priority (1 = biggest featured, 2, 3, etc.)
+  const rankingsQuery = `
+    *[_type == "rankings" && published == true] 
+    | order(priority asc, publishedAt desc, _createdAt desc) [0...6] {
+      _id,
+      _type,
+      title,
+      slug,
+      summary,
+      excerpt,
+      coverImage {
+        asset-> {
+          _ref,
+          _type,
+          url
+        }
+      },
+      articleImage {
+        asset-> {
+          _ref,
+          _type,
+          url
+        }
+      },
+      author-> {
+        name
+      },
+      rankingType,
+      priority,
+      publishedAt,
+      week,
+      showAsArticle
+    }
+  `;
 
-  const centerHeadline = headlines?.[8]; // 9th headline (main featured)
-  const rightHeadlines = headlines?.slice(9, 11) || []; // 10th and 11th headlines for right side
+  const rankings: RankingItem[] = await sanityFetch(
+    rankingsQuery,
+    {},
+    { next: { revalidate: 300 } },
+    []
+  );
+
+  // If no rankings, don't render the section
+  if (!rankings?.length) {
+    return null;
+  }
+
+  const mainRanking = rankings[0]; // First ranking (main featured)
+  const sideRankings = rankings.slice(1, 6) || []; // Next 5 rankings for side cards
+
+  // Helper function to get the correct URL
+  const getRankingUrl = (item: RankingItem) => {
+    return `/rankings/${item.slug.current.trim()}`;
+  };
+
+  // Helper to get ranking badge text
+  const getRankingBadge = (item: RankingItem) => {
+    if (item.week) {
+      return `Week ${item.week} Rankings`;
+    }
+    if (item.rankingType) {
+      const typeMap: Record<string, string> = {
+        'offense': 'Offensive Rankings',
+        'defense': 'Defensive Rankings',
+        'rookie': 'Rookie Rankings',
+        'fantasy-qb': 'Fantasy QB Rankings',
+        'fantasy-rb': 'Fantasy RB Rankings',
+        'fantasy-wr': 'Fantasy WR Rankings',
+        'fantasy-te': 'Fantasy TE Rankings',
+        'draft': 'Draft Rankings',
+        'position': 'Position Rankings',
+        'team': 'Team Rankings',
+      };
+      return typeMap[item.rankingType] || 'Rankings';
+    }
+    return 'Rankings';
+  };
 
   return (
     <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
@@ -38,22 +137,22 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
         <div className="mb-4 2xl:mb-6 3xl:mb-8">
           <div className="flex flex-wrap items-center gap-8 mb-3">
             <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">
-              More Headlines
+              Latest Rankings
             </h2>
           </div>
         </div>
 
-        {/* Bento Grid Layout - Only Center and Right */}
+        {/* Bento Grid Layout - Only Center and Right (like More Headlines) */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 2xl:gap-6 3xl:gap-8">
           {/* Center - Large Featured Card */}
           <div className="lg:col-span-3">
-            {centerHeadline && centerHeadline.slug?.current ? (
-              <Link href={`/headlines/${centerHeadline.slug.current}`} className="group">
+            {mainRanking && mainRanking.slug?.current ? (
+              <Link href={getRankingUrl(mainRanking)} className="group">
                 <div className="relative h-full min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {centerHeadline.coverImage?.asset ? (
+                  {mainRanking.coverImage?.asset?.url ? (
                     <Image
-                      src={urlFor(centerHeadline.coverImage).width(800).url()}
-                      alt={centerHeadline.title}
+                      src={mainRanking.coverImage.asset.url}
+                      alt={mainRanking.title}
                       fill
                       className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-102 transition-all duration-700"
                     />
@@ -71,11 +170,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
 
                     <div>
                       <h3 className="text-2xl lg:text-3xl 2xl:text-4xl 3xl:text-5xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                        {centerHeadline.title}
+                        {mainRanking.title}
                       </h3>
-                      {centerHeadline.summary && (
+                      {(mainRanking.summary || mainRanking.excerpt) && (
                         <p className="text-gray-300 text-base 2xl:text-lg 3xl:text-xl line-clamp-3 leading-relaxed">
-                          {centerHeadline.summary}
+                          {mainRanking.summary || mainRanking.excerpt}
                         </p>
                       )}
                     </div>
@@ -95,8 +194,8 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                   </div>
                   
                   <div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">No Headlines Available</h3>
-                    <p className="text-gray-300 text-base leading-relaxed">Check back soon for the latest NFL news and updates.</p>
+                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">No Rankings Available</h3>
+                    <p className="text-gray-300 text-base leading-relaxed">Check back soon for the latest NFL rankings and analysis.</p>
                   </div>
                 </div>
               </div>
@@ -106,13 +205,13 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
           {/* Right Side - Two Small Cards */}
           <div className="lg:col-span-2 flex flex-col gap-4 2xl:gap-6 3xl:gap-8">
             {/* Top Right Card */}
-            {rightHeadlines[0] && rightHeadlines[0].slug?.current ? (
-              <Link href={`/headlines/${rightHeadlines[0].slug.current}`} className="group">
+            {sideRankings[0] && sideRankings[0].slug?.current ? (
+              <Link href={getRankingUrl(sideRankings[0])} className="group">
                 <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {rightHeadlines[0].coverImage?.asset ? (
+                  {sideRankings[0].coverImage?.asset?.url ? (
                     <Image
-                      src={urlFor(rightHeadlines[0].coverImage).width(400).url()}
-                      alt={rightHeadlines[0].title}
+                      src={sideRankings[0].coverImage.asset.url}
+                      alt={sideRankings[0].title}
                       fill
                       className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
                     />
@@ -130,11 +229,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
 
                     <div>
                       <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                        {rightHeadlines[0].title}
+                        {sideRankings[0].title}
                       </h3>
-                      {rightHeadlines[0].summary && (
+                      {(sideRankings[0].summary || sideRankings[0].excerpt) && (
                         <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
-                          {rightHeadlines[0].summary}
+                          {sideRankings[0].summary || sideRankings[0].excerpt}
                         </p>
                       )}
                     </div>
@@ -143,18 +242,18 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
               </Link>
             ) : (
               <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
-                <p className="text-gray-400">No content available</p>
+                <p className="text-gray-400">No rankings available</p>
               </div>
             )}
 
             {/* Bottom Right Card */}
-            {rightHeadlines[1] && rightHeadlines[1].slug?.current ? (
-              <Link href={`/headlines/${rightHeadlines[1].slug.current}`} className="group">
+            {sideRankings[1] && sideRankings[1].slug?.current ? (
+              <Link href={getRankingUrl(sideRankings[1])} className="group">
                 <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {rightHeadlines[1].coverImage?.asset ? (
+                  {sideRankings[1].coverImage?.asset?.url ? (
                     <Image
-                      src={urlFor(rightHeadlines[1].coverImage).width(400).url()}
-                      alt={rightHeadlines[1].title}
+                      src={sideRankings[1].coverImage.asset.url}
+                      alt={sideRankings[1].title}
                       fill
                       className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
                     />
@@ -172,11 +271,11 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
 
                     <div>
                       <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                        {rightHeadlines[1].title}
+                        {sideRankings[1].title}
                       </h3>
-                      {rightHeadlines[1].summary && (
+                      {(sideRankings[1].summary || sideRankings[1].excerpt) && (
                         <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
-                          {rightHeadlines[1].summary}
+                          {sideRankings[1].summary || sideRankings[1].excerpt}
                         </p>
                       )}
                     </div>
@@ -185,7 +284,7 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
               </Link>
             ) : (
               <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
-                <p className="text-gray-400">No content available</p>
+                <p className="text-gray-400">No rankings available</p>
               </div>
             )}
           </div>

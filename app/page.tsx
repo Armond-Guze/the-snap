@@ -1,6 +1,7 @@
 // import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
 import BentoGrid from "./components/BentoGrid";
+import RankingsBentoGrid from "./components/RankingsBentoGrid";
 import FantasyBentoGrid from "./components/FantasyBentoGrid";
 // import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com',
     images: [
       {
-        url: '/images/the-snap-logo.png',
+        url: '/images/the-snaplogo1.png',
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL News and Analysis Homepage',
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "The Snap - NFL News, Power Rankings & Analysis",
     description: "Get the latest NFL news, power rankings, standings, and game schedules.",
-    images: ['/images/the-snap-logo.png'],
+    images: ['/images/the-snaplogo1.png'],
   },
 }
 
@@ -43,6 +44,7 @@ export default async function Home() {
   <GameSchedule games={featuredGames || []} />
   {/* <GoogleAds /> */}
   <Headlines textureSrc="/images/texture-image.jpg" />
+      <RankingsBentoGrid textureSrc="/images/texture-image.jpg" />
       <FantasyBentoGrid textureSrc="/images/texture-image.jpg" />
       <BentoGrid textureSrc="/images/texture-image.jpg" />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}

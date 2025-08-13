@@ -90,31 +90,37 @@ export const rankingFields = `
   ${baseContentFields},
   week,
   season,
-  teams[] {
-    team-> {
+  articleImage {
+    asset-> {
       _id,
-      name,
-      abbreviation,
-      logo {
-        asset-> {
-          _id,
-          url
-        }
-      },
-      primaryColor,
-      secondaryColor
-    },
+      url
+    }
+  },
+  teams[] {
     rank,
     previousRank,
-    record {
-      wins,
-      losses,
-      ties
+    teamName,
+    teamLogo {
+      asset-> {
+        _id,
+        url
+      }
     },
-    points,
-    reasoning,
-    trend
+    teamColor,
+    summary,
+    analysis,
+    stats[] {
+      label,
+      value
+    }
   },
+  methodology,
+  rankingType,
+  showAsArticle,
+  articleContent,
+  youtubeVideoId,
+  videoTitle,
+  twitterUrl,
   ${seoFields}
 `;
 
@@ -142,30 +148,30 @@ export const unifiedContentFields = `
   week,
   season,
   teams[] {
-    team-> {
-      _id,
-      name,
-      abbreviation,
-      logo {
-        asset-> {
-          _id,
-          url
-        }
-      },
-      primaryColor,
-      secondaryColor
-    },
     rank,
     previousRank,
-    record {
-      wins,
-      losses,
-      ties
+    teamName,
+    teamLogo {
+      asset-> {
+        _id,
+        url
+      }
     },
-    points,
-    reasoning,
-    trend
+    teamColor,
+    summary,
+    analysis,
+    stats[] {
+      label,
+      value
+    }
   },
+  methodology,
+  rankingType,
+  showAsArticle,
+  articleContent,
+  youtubeVideoId,
+  videoTitle,
+  twitterUrl,
   
   ${seoFields}
 `;

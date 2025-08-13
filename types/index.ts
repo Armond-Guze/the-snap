@@ -180,6 +180,7 @@ export interface Rankings {
   rankingType: 'offense' | 'defense' | 'rookie' | 'fantasy-qb' | 'fantasy-rb' | 'fantasy-wr' | 'fantasy-te' | 'draft' | 'position' | 'team';
   summary?: string;
   coverImage?: SanityImageWithUrl;
+  articleImage?: SanityImageWithUrl;
   author?: Author;
   publishedAt: string;
   showAsArticle?: boolean;

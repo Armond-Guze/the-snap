@@ -73,7 +73,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
                 <Link href={`/fantasy/${article.slug.current}`} className="group">
                   <div className="space-y-3">
                     {/* Thumbnail Image */}
-                    <div className="relative h-[250px] 2xl:h-[290px] 3xl:h-[330px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
+                    <div className="relative h-[200px] 2xl:h-[220px] 3xl:h-[250px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                       {article.coverImage?.asset ? (
                         <Image
                           src={urlFor(article.coverImage).width(400).url()}
@@ -127,7 +127,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
                 </Link>
               ) : (
                 <div className="space-y-3">
-                  <div className="h-[250px] 2xl:h-[290px] 3xl:h-[330px] rounded-xl bg-gray-900 flex items-center justify-center">
+                  <div className="h-[200px] 2xl:h-[220px] 3xl:h-[250px] rounded-xl bg-gray-900 flex items-center justify-center">
                     <p className="text-gray-400">No content available</p>
                   </div>
                   <div className="px-1">
@@ -141,7 +141,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
           {/* Fill remaining slots if less than 4 articles */}
           {fantasyArticles && fantasyArticles.length < 4 && Array.from({ length: 4 - fantasyArticles.length }).map((_, index) => (
             <div key={`placeholder-${index}`} className="space-y-3">
-              <div className="h-[250px] 2xl:h-[290px] 3xl:h-[330px] rounded-xl bg-gray-900 flex items-center justify-center">
+              <div className="h-[200px] 2xl:h-[220px] 3xl:h-[250px] rounded-xl bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-3 bg-gray-700 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

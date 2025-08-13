@@ -103,31 +103,24 @@ export interface TagReference {
   };
 }
 
-// Team data for rankings
+// Team data for rankings - matches Sanity rankings schema
 export interface TeamData {
-  team: {
-    _id: string;
-    name: string;
-    abbreviation: string;
-    logo?: {
-      asset: {
-        _id: string;
-        url: string;
-      };
-    };
-    primaryColor?: string;
-    secondaryColor?: string;
-  };
   rank: number;
   previousRank?: number;
-  record?: {
-    wins: number;
-    losses: number;
-    ties?: number;
+  teamName: string;
+  teamLogo?: {
+    asset: {
+      _id: string;
+      url: string;
+    };
   };
-  points?: number;
-  reasoning?: string;
-  trend?: 'up' | 'down' | 'same';
+  teamColor?: string;
+  summary?: string;
+  analysis?: PortableTextContent[];
+  stats?: Array<{
+    label: string;
+    value: string;
+  }>;
 }
 
 // Unified content type (new system)
@@ -183,6 +176,13 @@ export type NormalizedContent = BaseContent & {
   week?: number;
   season?: number;
   teams?: TeamData[];
+  // Optional article image
+  articleImage?: {
+    asset: {
+      _id: string;
+      url: string;
+    };
+  };
 };
 
 // Type guards
