@@ -40,7 +40,7 @@ export function generateSEOMetadata(
   const metaDescription = seo?.metaDescription || summary || `Read the latest NFL news and updates about ${title} on The Snap.`
   const ogTitle = seo?.ogTitle || seo?.metaTitle || title
   const ogDescription = seo?.ogDescription || seo?.metaDescription || summary || metaDescription
-  const ogImageUrl = seo?.ogImage?.asset?.url || coverImage?.asset?.url || '/images/the-snaplogo1.png'
+  const ogImageUrl = seo?.ogImage?.asset?.url || coverImage?.asset?.url || '/images/logo--design copy.png'
   const canonicalUrl = seo?.canonicalUrl || `${baseUrl}${basePath}/${slug.current}`
 
   // Build keywords array
@@ -119,7 +119,7 @@ export function generateCategorySEOMetadata(
 
   const metaTitle = seo?.metaTitle || `${title} - NFL News & Updates | The Snap`
   const metaDescription = seo?.metaDescription || description || `Get the latest NFL ${title.toLowerCase()} news, updates, and analysis on The Snap.`
-  const ogImageUrl = seo?.ogImage?.asset?.url || '/images/the-snaplogo1.png'
+  const ogImageUrl = seo?.ogImage?.asset?.url || '/images/logo--design copy.png'
   const canonicalUrl = `${baseUrl}/categories/${slug.current}`
 
   const keywords = [

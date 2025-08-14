@@ -65,7 +65,7 @@ export const createArticleStructuredData = (
     name: 'The Snap',
     logo: {
       '@type': 'ImageObject',
-      url: `${url}/images/the-snaplogo1.png`,
+  url: `${url}/images/logo--design copy.png`,
     },
   },
 })

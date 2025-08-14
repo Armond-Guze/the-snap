@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com',
     images: [
       {
-        url: '/images/the-snaplogo1.png',
+  url: '/images/logo--design copy.png',
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL News and Analysis Homepage',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "The Snap - NFL News, Power Rankings & Analysis",
     description: "Get the latest NFL news, power rankings, standings, and game schedules.",
-    images: ['/images/the-snaplogo1.png'],
+  images: ['/images/logo--design copy.png'],
   },
 }
 

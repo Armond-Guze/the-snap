@@ -22,11 +22,11 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <Image
-                src="/images/the-snaplogo1.png"
+                src="/images/logo--design copy.png"
                 alt="The Game Snap Logo"
-                width={40}
-                height={40}
-                className="h-10 w-auto"
+                width={56}
+                height={56}
+                className="h-12 w-auto"
               />
               <h3 className="text-xl font-bold text-white">
                 The Game Snap
