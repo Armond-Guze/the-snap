@@ -47,7 +47,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
       { slug: trimmedSlug }
     ),
     client.fetch<HeadlineListItem[]>(
-      `*[_type == "headline" && published == true] | order(_createdAt desc)[0...6]{
+      `*[_type == "headline" && published == true] | order(_createdAt desc)[0...24]{
         _id,
         title,
         slug,
@@ -82,7 +82,9 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
           {/* Breadcrumb */}
-          <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          <div className="hidden sm:block">
+            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          </div>
           
           {/* Title + Meta */}
           <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
@@ -109,7 +111,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           {/* Cover Image */}
           {headline.coverImage?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md border border-slate-700 shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
   <Image
     src={headline.coverImage.asset.url}
     alt={headline.title}

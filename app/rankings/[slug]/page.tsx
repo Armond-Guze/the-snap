@@ -5,7 +5,7 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import { unifiedContentFields, rankingFields } from "@/sanity/lib/fragments";
 import { normalizeContent, isRankingContent } from "@/lib/content/normalize";
 import type { UnifiedContent, LegacyRanking, NormalizedContent } from "@/types/content";
-import type { Rankings, MovementIndicator, RankingTeam } from "@/types";
+import type { Rankings, MovementIndicator, RankingTeam, HeadlineListItem } from "@/types";
 import { portableTextComponents } from "@/lib/portabletext-components";
 import { urlFor } from "@/sanity/lib/image";
 import { Metadata } from 'next';
@@ -165,6 +165,18 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
 }
 
 // Legacy rankings renderer (preserves original layout)
+interface SidebarContentItem {
+  _id: string;
+  _type: 'headline' | 'rankings' | string;
+  title: string;
+  slug: { current: string };
+  date?: string;
+  publishedAt?: string;
+  rankingType?: string;
+  author?: { name?: string };
+  featuredImage?: { asset?: { url?: string } };
+}
+
 function LegacyRankingsRenderer({ 
   ranking, 
   slug, 
@@ -172,7 +184,7 @@ function LegacyRankingsRenderer({
 }: { 
   ranking: Rankings; 
   slug: string; 
-  otherContent: any[]; 
+  otherContent: SidebarContentItem[]; 
 }) {
   // If showAsArticle is true, use article layout
   if (ranking.showAsArticle) {
@@ -193,7 +205,9 @@ function LegacyRankingsRenderer({
           {/* Main Article Section */}
           <article className="lg:col-span-2 flex flex-col">
             {/* Breadcrumb */}
-            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            <div className="hidden sm:block">
+              <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            </div>
             
             {/* Title + Meta */}
             <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
@@ -221,7 +235,7 @@ function LegacyRankingsRenderer({
             {/* Cover Image */}
             {ranking.coverImage?.asset?.url && (
               <div className="w-full mb-6">
-                <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md border border-slate-700 shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                   <Image
                     src={ranking.coverImage.asset.url}
                     alt={ranking.title}
@@ -310,7 +324,7 @@ function LegacyRankingsRenderer({
             )}
             
             {/* Related Articles */}
-            <RelatedArticles currentSlug={slug} articles={otherContent} />
+            <RelatedArticles currentSlug={slug} articles={otherContent as unknown as HeadlineListItem[]} />
           </aside>
         </div>
         
@@ -340,7 +354,7 @@ function UnifiedRankingRenderer({
 }: { 
   ranking: NormalizedContent; 
   slug: string; 
-  otherContent: any[]; 
+  otherContent: SidebarContentItem[]; 
 }) {
   // Calculate reading time if content is available
   const textContent = ranking.content ? 
@@ -359,7 +373,9 @@ function UnifiedRankingRenderer({
         {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
           {/* Breadcrumb */}
-          <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          <div className="hidden sm:block">
+            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          </div>
           
           {/* Title + Meta */}
           <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
@@ -387,7 +403,7 @@ function UnifiedRankingRenderer({
           {/* Cover Image */}
           {ranking.featuredImage?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md border border-slate-700 shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
                   src={ranking.featuredImage.asset.url}
                   alt={ranking.title}
@@ -449,7 +465,7 @@ function UnifiedRankingRenderer({
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
           {/* Related Articles */}
-          <RelatedArticles currentSlug={slug} articles={otherContent} />
+          <RelatedArticles currentSlug={slug} articles={otherContent as unknown as HeadlineListItem[]} />
         </aside>
       </div>
       
@@ -522,9 +538,10 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
         {team.teamColor && (
-          <div 
+          <div
             className="absolute left-0 top-0 bottom-0 w-1"
             style={{ backgroundColor: team.teamColor }}
+            aria-hidden="true"
           />
         )}
         
@@ -616,9 +633,10 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
         {team.teamColor && (
-          <div 
+          <div
             className="absolute left-0 top-0 bottom-0 w-1"
             style={{ backgroundColor: team.teamColor }}
+            aria-hidden="true"
           />
         )}
         

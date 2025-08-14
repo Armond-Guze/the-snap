@@ -8,15 +8,24 @@ interface BentoGridProps {
   textureSrc?: string;
 }
 
+interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string }; [key: string]: unknown }
+interface HeadlineItem {
+  _id: string;
+  title: string;
+  summary?: string;
+  slug?: { current?: string };
+  coverImage?: HeadlineImageAssetRef;
+}
+
 export default async function BentoGrid({ textureSrc }: BentoGridProps) {
   // Fetch data from Sanity - showing more headlines for the expanded layout
-  const headlines = await client.fetch(headlineQuery);
+  const headlines: HeadlineItem[] = await client.fetch(headlineQuery);
 
-  const centerHeadline = headlines?.[8]; // 9th headline (main featured)
-  const rightHeadlines = headlines?.slice(9, 11) || []; // 10th and 11th headlines for right side
+  // Avoid duplicating headlines already shown in the main hero + side lists (indexes 0-9)
+  const moreHeadlines = (headlines || []).slice(10, 22); // grab up to 12 additional items
 
   return (
-    <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
+  <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       {textureSrc && (
         <>
           <div className="absolute inset-0 -z-20">
@@ -34,161 +43,62 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
         </>
       )}
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
-        {/* Section Headers - Top Left */}
-        <div className="mb-4 2xl:mb-6 3xl:mb-8">
-          <div className="flex flex-wrap items-center gap-8 mb-3">
-            <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">
-              More Headlines
+        {/* Section Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight text-white relative">
+              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">More Headlines</span>
+              <span className="block h-[2px] mt-2 w-24 bg-gradient-to-r from-indigo-400 via-cyan-400 to-transparent rounded-full" />
             </h2>
           </div>
+          <p className="mt-3 text-sm text-gray-400 max-w-xl">Curated updates you might have missed — a quick scan friendly grid.</p>
         </div>
 
-        {/* Bento Grid Layout - Only Center and Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 2xl:gap-6 3xl:gap-8">
-          {/* Center - Large Featured Card */}
-          <div className="lg:col-span-3">
-            {centerHeadline && centerHeadline.slug?.current ? (
-              <Link href={`/headlines/${centerHeadline.slug.current}`} className="group">
-                <div className="relative h-full min-h-[500px] 2xl:min-h-[600px] 3xl:min-h-[700px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {centerHeadline.coverImage?.asset ? (
-                    <Image
-                      src={urlFor(centerHeadline.coverImage).width(800).url()}
-                      alt={centerHeadline.title}
-                      fill
-                      className="object-cover opacity-60 group-hover:opacity-70 group-hover:scale-102 transition-all duration-700"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800/60 to-gray-900/60" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-                  <div className="relative h-full flex flex-col justify-between p-8">
-                    <div className="flex items-start justify-end">
-                      <svg className="w-6 h-6 text-white/60 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-
-                    <div>
-                      <h3 className="text-2xl lg:text-3xl 2xl:text-4xl 3xl:text-5xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                        {centerHeadline.title}
-                      </h3>
-                      {centerHeadline.summary && (
-                        <p className="text-gray-300 text-base 2xl:text-lg 3xl:text-xl line-clamp-3 leading-relaxed">
-                          {centerHeadline.summary}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div className="relative h-full min-h-[500px] rounded-xl overflow-hidden bg-gray-900">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                
-                <div className="relative h-full flex flex-col justify-between p-8">
-                  <div className="flex items-start justify-end">
-                    <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-2xl lg:text-3xl font-bold text-white mb-4">No Headlines Available</h3>
-                    <p className="text-gray-300 text-base leading-relaxed">Check back soon for the latest NFL news and updates.</p>
-                  </div>
-                </div>
+        {/* Distinct Mosaic Grid */}
+        <div className="grid gap-5 2xl:gap-7 grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+          {moreHeadlines.map((item: HeadlineItem, idx: number) => (
+            <Link
+              key={item._id}
+              href={item.slug?.current ? `/headlines/${item.slug.current}` : '#'}
+              className="group relative rounded-xl overflow-hidden bg-gradient-to-br from-white/[0.04] to-white/[0.02] border border-white/10 hover:border-white/25 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            >
+              {/* Number badge */}
+              <div className="absolute top-2 left-2 z-10 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-black/60 border border-white/15 text-gray-200 tracking-wide">
+                {idx + 1}
               </div>
-            )}
-          </div>
-
-          {/* Right Side - Two Small Cards */}
-          <div className="lg:col-span-2 flex flex-col gap-4 2xl:gap-6 3xl:gap-8">
-            {/* Top Right Card */}
-            {rightHeadlines[0] && rightHeadlines[0].slug?.current ? (
-              <Link href={`/headlines/${rightHeadlines[0].slug.current}`} className="group">
-                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {rightHeadlines[0].coverImage?.asset ? (
-                    <Image
-                      src={urlFor(rightHeadlines[0].coverImage).width(400).url()}
-                      alt={rightHeadlines[0].title}
-                      fill
-                      className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800/60 to-gray-900/60" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                  <div className="relative h-full flex flex-col justify-between p-6">
-                    <div className="flex items-start justify-end">
-                      <svg className="w-5 h-5 text-white/60 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                        {rightHeadlines[0].title}
-                      </h3>
-                      {rightHeadlines[0].summary && (
-                        <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
-                          {rightHeadlines[0].summary}
-                        </p>
-                      )}
-                    </div>
+              {/* Image */}
+              <div className="relative w-full h-28 2xl:h-32 bg-gray-800/40">
+                {item.coverImage?.asset ? (
+                  <Image
+                    src={urlFor(item.coverImage).width(400).height(220).fit('crop').url()}
+                    alt={item.title}
+                    fill
+                    className="object-cover object-center transition-all duration-500 group-hover:scale-[1.06] group-hover:opacity-90"
+                    sizes="(max-width:768px) 50vw, (max-width:1280px) 25vw, 200px"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-600">
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8z"/></svg>
                   </div>
-                </div>
-              </Link>
-            ) : (
-              <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
-                <p className="text-gray-400">No content available</p>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
               </div>
-            )}
-
-            {/* Bottom Right Card */}
-            {rightHeadlines[1] && rightHeadlines[1].slug?.current ? (
-              <Link href={`/headlines/${rightHeadlines[1].slug.current}`} className="group">
-                <div className="relative h-[240px] 2xl:h-[280px] 3xl:h-[320px] rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
-                  {rightHeadlines[1].coverImage?.asset ? (
-                    <Image
-                      src={urlFor(rightHeadlines[1].coverImage).width(400).url()}
-                      alt={rightHeadlines[1].title}
-                      fill
-                      className="object-cover opacity-50 group-hover:opacity-60 transition-all duration-500"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800/60 to-gray-900/60" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                  <div className="relative h-full flex flex-col justify-between p-6">
-                    <div className="flex items-start justify-end">
-                      <svg className="w-5 h-5 text-white/60 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg 2xl:text-xl 3xl:text-2xl font-bold text-white line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                        {rightHeadlines[1].title}
-                      </h3>
-                      {rightHeadlines[1].summary && (
-                        <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-2 mt-2">
-                          {rightHeadlines[1].summary}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ) : (
-              <div className="h-[240px] rounded-lg bg-gray-900 flex items-center justify-center">
-                <p className="text-gray-400">No content available</p>
+              {/* Content */}
+              <div className="p-3 2xl:p-4 flex flex-col h-[calc(100%-theme(space.28))]">
+                <h3 className="text-[13px] 2xl:text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white transition-colors">
+                  {item.title}
+                </h3>
+                {item.summary && (
+                  <p className="mt-2 text-[11px] 2xl:text-xs text-gray-400 line-clamp-3 hidden md:block">
+                    {item.summary}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
+            </Link>
+          ))}
+          {moreHeadlines.length === 0 && (
+            <div className="col-span-full text-gray-400 text-sm">No additional headlines available.</div>
+          )}
         </div>
       </div>
     </section>

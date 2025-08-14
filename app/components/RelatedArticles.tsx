@@ -14,11 +14,10 @@ export default function RelatedArticles({
   articles
 }: RelatedArticlesProps) {
   // Filter out current article and get smart recommendations
+  // Unified list: filter out current article, cap to 24 for sidebar performance
   const relatedArticles = articles
     .filter((article) => article.slug.current !== currentSlug)
-    .slice(0, 6);
-
-  const featuredArticles = relatedArticles.slice(0, 2);
+    .slice(0, 24);
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
@@ -33,21 +32,20 @@ export default function RelatedArticles({
   return (
     <div className="space-y-6">
       {/* Trending/Featured Articles */}
-      <div className="bg-black rounded-2xl pb-6">
-        <div className="flex items-center mb-6">
-          <TrendingUp className="w-5 h-5 text-white mr-3" />
-          <h2 className="text-xl font-bold  text-white">Headlines</h2>
+      <div className="bg-black rounded-2xl pb-4">
+        <div className="flex items-center mb-4 px-2">
+          <TrendingUp className="w-5 h-5 text-white mr-2" />
+          <h2 className="text-lg font-semibold text-white">Headlines</h2>
         </div>
-        <div className="space-y-3">
-          {featuredArticles.map((article) => (
+        <div className="space-y-1 max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar">
+          {relatedArticles.map(article => (
             <Link
               key={article._id}
               href={getArticleUrl(article)}
               className="group block"
             >
-              <div className="flex gap-3 p-3 rounded-xl hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300">
-                {/* Smaller thumbnail */}
-                <div className="relative w-16 h-12 flex-shrink-0 rounded-lg overflow-hidden">
+              <div className="flex gap-3 p-2 lg:p-3 rounded-md hover:bg-gray-800/50 transition-colors">
+                <div className="relative w-14 h-11 lg:w-20 lg:h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-700/40">
                   {article.coverImage?.asset?.url ? (
                     <Image
                       src={article.coverImage.asset.url}
@@ -56,16 +54,16 @@ export default function RelatedArticles({
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center">
                       <Eye className="w-4 h-4 text-gray-400" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-white text-sm line-clamp-2 group-hover:text-gray-300 transition-colors mb-2">
+                  <h3 className="font-medium text-white text-xs lg:text-sm leading-snug line-clamp-2 group-hover:text-gray-300 transition-colors">
                     {article.title}
                   </h3>
-                  <div className="flex items-center text-xs text-gray-500 space-x-3">
+                  <div className="mt-1 flex items-center text-[10px] lg:text-[11px] text-gray-500 gap-2">
                     <div className="flex items-center">
                       <Calendar className="w-3 h-3 mr-1" />
                       {formatCompactDate(article.date || article.publishedAt)}
@@ -74,9 +72,6 @@ export default function RelatedArticles({
                       <span className="text-purple-400 font-medium">
                         {article.rankingType.replace('-', ' ').toUpperCase()}
                       </span>
-                    )}
-                    {article.author?.name && (
-                      <span>by {article.author.name}</span>
                     )}
                   </div>
                 </div>
