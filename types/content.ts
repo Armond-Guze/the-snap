@@ -83,6 +83,8 @@ export interface SEOData {
   canonicalUrl?: string;
   noIndex?: boolean;
   structuredData?: Record<string, unknown>;
+  autoGenerate?: boolean;
+  lastGenerated?: string;
 }
 
 // Category reference

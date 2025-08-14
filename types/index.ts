@@ -20,6 +20,9 @@ export interface SEOData {
   ogImage?: SanityImageWithUrl;
   noIndex?: boolean;
   canonicalUrl?: string;
+  // Automation extensions
+  autoGenerate?: boolean;
+  lastGenerated?: string; // ISO timestamp
 }
 
 // Sanity base types

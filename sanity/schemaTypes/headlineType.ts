@@ -28,75 +28,14 @@ const headlineType = defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    // SEO Fields Group
+    // Consolidated SEO object (auto generation supported via seoType)
     defineField({
-      name: "seo",
-      title: "SEO Settings",
-      type: "object",
-      group: "seo",
-      fields: [
-        defineField({
-          name: "metaTitle",
-          title: "Meta Title",
-          type: "string",
-          description: "SEO title for search engines (50-60 characters recommended)",
-          validation: (Rule) => Rule.max(60).warning("Keep under 60 characters for best SEO"),
-        }),
-        defineField({
-          name: "metaDescription",
-          title: "Meta Description",
-          type: "text",
-          rows: 3,
-          description: "SEO description for search engines (150-160 characters recommended)",
-          validation: (Rule) => Rule.max(160).warning("Keep under 160 characters for best SEO"),
-        }),
-        defineField({
-          name: "focusKeyword",
-          title: "Focus Keyword",
-          type: "string",
-          description: "Primary keyword you want to rank for (auto-generated from tags/category, or customize)",
-        }),
-        defineField({
-          name: "additionalKeywords",
-          title: "Additional Keywords",
-          type: "array",
-          of: [{ type: "string" }],
-          description: "Secondary keywords to target (auto-generated from tags/category, or customize)",
-        }),
-        defineField({
-          name: "ogTitle",
-          title: "Open Graph Title",
-          type: "string",
-          description: "Title for social media sharing (leave blank to use meta title)",
-        }),
-        defineField({
-          name: "ogDescription",
-          title: "Open Graph Description",
-          type: "text",
-          rows: 2,
-          description: "Description for social media sharing (leave blank to use meta description)",
-        }),
-        defineField({
-          name: "ogImage",
-          title: "Open Graph Image",
-          type: "image",
-          description: "Image for social media sharing (1200x630px recommended)",
-          options: { hotspot: true },
-        }),
-        defineField({
-          name: "noIndex",
-          title: "No Index",
-          type: "boolean",
-          description: "Prevent search engines from indexing this page",
-          initialValue: false,
-        }),
-        defineField({
-          name: "canonicalUrl",
-          title: "Canonical URL",
-          type: "url",
-          description: "Override the canonical URL (leave blank for auto-generated)",
-        }),
-      ],
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
+      initialValue: { autoGenerate: true },
+      options: { collapsible: true, collapsed: false }
     }),
 
     defineField({
@@ -134,14 +73,8 @@ const headlineType = defineType({
       name: "tags",
       title: "Tags",
       type: "array",
-      of: [
-        {
-          type: "string"
-        }
-      ],
-      options: {
-        layout: 'tags'
-      },
+      of: [ { type: "string" } ],
+      options: { layout: 'tags' },
       description: "Enter relevant tags for this article (one per line)"
     }),
     defineField({
@@ -160,10 +93,7 @@ const headlineType = defineType({
       title: "YouTube Video ID",
       type: "string",
       description: "Enter the YouTube video ID (e.g., 'dQw4w9WgXcQ' from https://www.youtube.com/watch?v=dQw4w9WgXcQ)",
-      validation: (Rule) => Rule.regex(/^[a-zA-Z0-9_-]{11}$/, {
-        name: "YouTube Video ID",
-        invert: false
-      }).error("Must be a valid 11-character YouTube video ID")
+      validation: (Rule) => Rule.regex(/^[a-zA-Z0-9_-]{11}$/, { name: "YouTube Video ID", invert: false }).error("Must be a valid 11-character YouTube video ID")
     }),
     defineField({
       name: "videoTitle",
@@ -172,7 +102,6 @@ const headlineType = defineType({
       description: "Optional: Custom title for the video embed",
       hidden: ({ document }) => !document?.youtubeVideoId,
     }),
-    
     // Twitter/X Embed Fields
     defineField({
       name: "twitterUrl",

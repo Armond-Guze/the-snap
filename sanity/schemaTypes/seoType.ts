@@ -6,11 +6,19 @@ export const seoType = defineType({
   type: 'object',
   fields: [
     defineField({
+      name: 'autoGenerate',
+      title: 'Auto Generate',
+      type: 'boolean',
+      description: 'When enabled, SEO fields are automatically generated from the title, summary, category and tags. Toggle off to manually override.',
+      initialValue: true,
+    }),
+    defineField({
       name: 'metaTitle',
       title: 'Meta Title',
       type: 'string',
       description: 'Title that appears in search engines (50-60 characters)',
       validation: (Rule) => Rule.max(60),
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'metaDescription',
@@ -19,12 +27,14 @@ export const seoType = defineType({
       rows: 3,
       description: 'Description that appears in search engines (150-160 characters)',
       validation: (Rule) => Rule.max(160),
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'focusKeyword',
       title: 'Focus Keyword',
       type: 'string',
       description: 'Primary keyword for this content',
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'additionalKeywords',
@@ -32,12 +42,14 @@ export const seoType = defineType({
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Additional keywords to target',
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'ogTitle',
       title: 'Open Graph Title',
       type: 'string',
       description: 'Title for social media sharing (different from meta title if needed)',
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'ogDescription',
@@ -45,6 +57,7 @@ export const seoType = defineType({
       type: 'text',
       rows: 2,
       description: 'Description for social media sharing',
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'ogImage',
@@ -54,6 +67,7 @@ export const seoType = defineType({
       options: {
         hotspot: true,
       },
+      readOnly: ({parent}) => parent?.autoGenerate,
     }),
     defineField({
       name: 'noIndex',
@@ -67,6 +81,15 @@ export const seoType = defineType({
       title: 'Canonical URL',
       type: 'url',
       description: 'Canonical URL if different from current URL',
+      readOnly: ({parent}) => parent?.autoGenerate,
+    }),
+    defineField({
+      name: 'lastGenerated',
+      title: 'Last Generated',
+      type: 'datetime',
+      description: 'Timestamp when SEO fields were last auto-generated',
+      readOnly: true,
+      hidden: ({parent}) => !parent?.autoGenerate,
     }),
   ],
   preview: {
