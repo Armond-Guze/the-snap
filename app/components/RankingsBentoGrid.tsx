@@ -121,8 +121,64 @@ export default async function RankingsBentoGrid({ textureSrc, hideSummaries = fa
           </div>
         </div>
 
-        {/* Bento Grid Layout - Only Center and Right (like More Headlines) */}
-  <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 2xl:gap-4 3xl:gap-5">
+        {/* Mobile Layout (updated) */}
+        <div className="lg:hidden space-y-6">
+          {/* Main Ranking (mobile) with overlay text inside image */}
+          {mainRanking && mainRanking.slug?.current && (
+            <Link href={getRankingUrl(mainRanking)} className="block group">
+              <div className="relative w-full h-72 sm:h-80 rounded-md overflow-hidden mr-2 ml-1">
+                {mainRanking.coverImage?.asset?.url ? (
+                  <Image
+                    src={mainRanking.coverImage.asset.url}
+                    alt={mainRanking.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    sizes="(max-width:640px) 100vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-sm">No Image</div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4 pb-4">
+                  <h3 className="text-lg font-bold text-white leading-snug line-clamp-3 group-hover:text-gray-300">{mainRanking.title}</h3>
+                  {(mainRanking.summary || mainRanking.excerpt) && !hideSummaries && (
+                    <p className="mt-2 text-sm text-gray-200/90 line-clamp-3 leading-snug">{mainRanking.summary || mainRanking.excerpt}</p>
+                  )}
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Two stacked side rankings (no carousel, text below image) */}
+          {sideRankings.length > 0 && (
+    <div className="space-y-6">
+              {sideRankings.slice(0,2).map((item) => (
+                <Link key={item._id} href={getRankingUrl(item)} className="block group">
+                  <div className="relative w-full h-72 sm:h-80 rounded-md overflow-hidden mr-2 ml-1">
+                      {item.coverImage?.asset?.url ? (
+                        <Image
+                          src={item.coverImage.asset.url}
+                          alt={item.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                          sizes="(max-width:640px) 100vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400 text-xs">No Image</div>
+                      )}
+                  </div>
+                  <h3 className="mt-3 mr-2 ml-1 text-base font-semibold text-white line-clamp-2 leading-snug group-hover:text-gray-300">{item.title}</h3>
+                  {(item.summary || item.excerpt) && !hideSummaries && (
+                    <p className="mt-1 mr-2 ml-1 text-xs text-gray-400 line-clamp-2 leading-snug">{item.summary || item.excerpt}</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop / Large Layout */}
+  <div className="hidden lg:grid grid-cols-1 lg:grid-cols-5 gap-3 2xl:gap-4 3xl:gap-5">
           {/* Center - Large Featured Card */}
           <div className="lg:col-span-3">
             {mainRanking && mainRanking.slug?.current ? (

@@ -67,50 +67,56 @@ export default async function FantasyBentoGrid({ textureSrc, hideSummaries = fal
         </div>
 
         {/* Mobile Horizontal Scroll (carousel style) */}
-    <div className="md:hidden -mx-6 pl-6 pr-4 overflow-x-auto snap-x snap-mandatory flex gap-4 scrollbar-hide">
-          {fantasyArticles?.slice(0,4).map((article: FantasyArticle, index: number) => (
-      <div key={article._id || index} className="snap-start shrink-0 w-[82%] first:w-[88%] first:ml-2">
-              {article.slug?.current ? (
-                <Link href={`/fantasy/${article.slug.current}`} className="group block">
-                  <div className="space-y-3">
-                    <div className="relative h-48 rounded-xl overflow-hidden bg-gray-900 shadow-lg">
-                      {article.coverImage?.asset ? (
-                        <Image
-                          src={urlFor(article.coverImage).width(800).height(600).fit('crop').url()}
-                          alt={article.title}
-                          fill
-                          className="object-cover object-left-top group-hover:scale-[1.03] transition-transform duration-500"
-                          sizes="(max-width:640px) 85vw"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                          <span className="text-gray-400 text-xs">No Image</span>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                      <div className="absolute top-3 right-3">
-                        <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+    <div className="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+      <div className="flex gap-4 pl-16 pr-10">
+        {/* Left spacer for extra whitespace */}
+        <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
+        {fantasyArticles?.slice(0,4).map((article: FantasyArticle, index: number) => (
+          <div key={article._id || index} className="snap-start shrink-0 w-[80%]">
+            {article.slug?.current ? (
+              <Link href={`/fantasy/${article.slug.current}`} className="group block">
+                <div className="space-y-3">
+                  <div className="relative h-48 rounded-xl overflow-hidden bg-gray-900 shadow-lg">
+                    {article.coverImage?.asset ? (
+                      <Image
+                        src={urlFor(article.coverImage).width(800).height(600).fit('crop').url()}
+                        alt={article.title}
+                        fill
+                        className="object-cover object-left-top group-hover:scale-[1.03] transition-transform duration-500"
+                        sizes="(max-width:640px) 85vw"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">No Image</span>
                       </div>
-                    </div>
-                    <div className="px-0">
-                      <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-1 group-hover:text-gray-300">{article.title}</h3>
-                      {article.summary && !hideSummaries && (
-                        <p className="text-[11px] text-gray-400 line-clamp-2 leading-snug">{article.summary}</p>
-                      )}
-                      {article.author?.name && (
-                        <p className="text-[10px] text-gray-500 mt-1 font-medium uppercase tracking-wide">By {article.author.name}</p>
-                      )}
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                    <div className="absolute top-3 right-3">
+                      <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
-                </Link>
-              ) : (
-                <div className="h-48 rounded-xl bg-gray-900 flex items-center justify-center text-gray-500 text-sm">No content</div>
-              )}
-            </div>
-          ))}
-        </div>
+                  <div className="px-0">
+                    <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-1 group-hover:text-gray-300">{article.title}</h3>
+                    {article.summary && !hideSummaries && (
+                      <p className="text-[11px] text-gray-400 line-clamp-2 leading-snug">{article.summary}</p>
+                    )}
+                    {article.author?.name && (
+                      <p className="text-[10px] text-gray-500 mt-1 font-medium uppercase tracking-wide">By {article.author.name}</p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className="h-48 rounded-xl bg-gray-900 flex items-center justify-center text-gray-500 text-sm">No content</div>
+            )}
+          </div>
+        ))}
+        {/* Right spacer to balance end padding (optional) */}
+        <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
+      </div>
+    </div>
 
         {/* Desktop / Tablet Grid (hidden on mobile) */}
         <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 2xl:gap-6 3xl:gap-8">

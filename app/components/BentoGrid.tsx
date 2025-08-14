@@ -47,14 +47,10 @@ export default async function BentoGrid({ textureSrc, hideSummaries = false }: B
       )}
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
         {/* Section Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight text-white relative">
-              <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">More Headlines</span>
-              <span className="block h-[2px] mt-2 w-24 bg-gradient-to-r from-indigo-400 via-cyan-400 to-transparent rounded-full" />
-            </h2>
-          </div>
-          <p className="mt-3 text-sm text-gray-400 max-w-xl">Curated updates you might have missed — a quick scan friendly grid.</p>
+        <div className="mb-6">
+          <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">
+            More Headlines
+          </h2>
         </div>
 
         {/* Vertical list layout */}
