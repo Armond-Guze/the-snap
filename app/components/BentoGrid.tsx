@@ -15,6 +15,8 @@ interface HeadlineItem {
   summary?: string;
   slug?: { current?: string };
   coverImage?: HeadlineImageAssetRef;
+  author?: { name?: string };
+  publishedAt?: string;
 }
 
 export default async function BentoGrid({ textureSrc }: BentoGridProps) {
@@ -54,50 +56,47 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
           <p className="mt-3 text-sm text-gray-400 max-w-xl">Curated updates you might have missed — a quick scan friendly grid.</p>
         </div>
 
-        {/* Distinct Mosaic Grid */}
-        <div className="grid gap-5 2xl:gap-7 grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
-          {moreHeadlines.map((item: HeadlineItem, idx: number) => (
-            <Link
-              key={item._id}
-              href={item.slug?.current ? `/headlines/${item.slug.current}` : '#'}
-              className="group relative rounded-xl overflow-hidden bg-gradient-to-br from-white/[0.04] to-white/[0.02] border border-white/10 hover:border-white/25 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-            >
-              {/* Number badge */}
-              <div className="absolute top-2 left-2 z-10 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-black/60 border border-white/15 text-gray-200 tracking-wide">
-                {idx + 1}
-              </div>
-              {/* Image */}
-              <div className="relative w-full h-28 2xl:h-32 bg-gray-800/40">
-                {item.coverImage?.asset ? (
-                  <Image
-                    src={urlFor(item.coverImage).width(400).height(220).fit('crop').url()}
-                    alt={item.title}
-                    fill
-                    className="object-cover object-center transition-all duration-500 group-hover:scale-[1.06] group-hover:opacity-90"
-                    sizes="(max-width:768px) 50vw, (max-width:1280px) 25vw, 200px"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-600">
-                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8z"/></svg>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
-              </div>
-              {/* Content */}
-              <div className="p-3 2xl:p-4 flex flex-col h-[calc(100%-theme(space.28))]">
-                <h3 className="text-[13px] 2xl:text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white transition-colors">
-                  {item.title}
-                </h3>
-                {item.summary && (
-                  <p className="mt-2 text-[11px] 2xl:text-xs text-gray-400 line-clamp-3 hidden md:block">
-                    {item.summary}
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
+        {/* Vertical list layout */}
+        <div className="space-y-4">
+          {moreHeadlines.map((item: HeadlineItem) => {
+            const author = item.author?.name;
+            return (
+              <Link
+                key={item._id}
+                href={item.slug?.current ? `/headlines/${item.slug.current}` : '#'}
+                className="group flex gap-4 p-3 sm:p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+              >
+                <div className="relative w-28 sm:w-32 h-20 sm:h-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
+                  {item.coverImage?.asset ? (
+                    <Image
+                      src={urlFor(item.coverImage).width(260).height(200).fit('crop').url()}
+                      alt={item.title}
+                      fill
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
+                      sizes="(max-width:640px) 112px, 128px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-600">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8z"/></svg>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <h3 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2">{item.title}</h3>
+                  {author && (
+                    <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-400 group-hover:text-gray-300">
+                      {author}
+                    </p>
+                  )}
+                  {item.summary && (
+                    <p className="mt-1 text-xs text-gray-400 line-clamp-2 hidden md:block">{item.summary}</p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
           {moreHeadlines.length === 0 && (
-            <div className="col-span-full text-gray-400 text-sm">No additional headlines available.</div>
+            <div className="text-gray-400 text-sm">No additional headlines available.</div>
           )}
         </div>
       </div>
