@@ -1,5 +1,4 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
-import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -172,18 +171,19 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
               <li key={headline._id}>
                 {headline.slug?.current ? (
                   <Link href={getArticleUrl(headline)}>
-                    <div className="flex items-start gap-2.5 group cursor-pointer">
-                      <div className="w-12 h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="flex items-start gap-3 group cursor-pointer">
+                      <div className="relative w-24 h-14 2xl:w-28 2xl:h-16 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
                         {headline.coverImage?.asset?.url ? (
                           <Image
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                            fill
+                            sizes="96px"
+                            className="object-cover object-center transition-all duration-300 group-hover:scale-[1.03]"
+                            priority={false}
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
                             <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
                             </svg>
@@ -191,25 +191,25 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                         )}
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-white font-bold text-lg leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
+                        <h4 className="text-white font-bold text-base leading-snug mb-1 group-hover:text-gray-300 transition-colors duration-300 line-clamp-2">
                           {headline.title}
                         </h4>
                       </div>
                     </div>
                   </Link>
                 ) : (
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-12 h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                      {headline.coverImage ? (
+                  <div className="flex items-start gap-3">
+                    <div className="relative w-24 h-14 2xl:w-28 2xl:h-16 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
+                      {headline.coverImage?.asset?.url ? (
                         <Image
-                          src={urlFor(headline.coverImage).url()}
+                          src={headline.coverImage.asset.url}
                           alt={headline.title || "Untitled"}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="96px"
+                          className="object-cover object-center"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
                           <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
                           </svg>
@@ -217,12 +217,9 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-gray-500 font-bold text-base leading-tight mb-1.5">
+                      <h4 className="text-gray-500 font-bold text-sm leading-snug mb-1 line-clamp-2">
                         {headline.title || "Untitled"}
                       </h4>
-                      <div className="flex items-center text-gray-500 text-xs">
-                        <span>No author</span>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -374,18 +371,18 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                     <li key={headline._id}>
                       {headline.slug?.current ? (
                         <Link href={getArticleUrl(headline)}>
-                          <div className="flex items-center gap-2.5 group cursor-pointer">
-                            <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                          <div className="flex items-center gap-3 group cursor-pointer">
+                            <div className="relative w-20 h-12 2xl:w-24 2xl:h-14 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
                               {headline.coverImage?.asset?.url ? (
                                 <Image
                                   src={headline.coverImage.asset.url}
                                   alt={headline.title}
-                                  width={48}
-                                  height={48}
-                                  className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                                  fill
+                                  sizes="128px"
+                                  className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
                                   <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
                                   </svg>
@@ -393,25 +390,25 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                               )}
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-white font-bold text-sm 2xl:text-base leading-tight mb-1.5 group-hover:text-gray-300 transition-colors duration-300">
+                              <h4 className="text-white font-bold text-sm 2xl:text-base leading-snug mb-1 group-hover:text-gray-300 transition-colors duration-300 line-clamp-2">
                                 {headline.title}
                               </h4>
                             </div>
                           </div>
                         </Link>
                       ) : (
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-10 h-10 2xl:w-12 2xl:h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-20 h-12 2xl:w-24 2xl:h-14 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
                             {headline.coverImage?.asset?.url ? (
                               <Image
                                 src={headline.coverImage.asset.url}
                                 alt={headline.title || "Untitled"}
-                                width={48}
-                                height={48}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="128px"
+                                className="object-cover object-center"
                               />
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
+                              <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
                                 <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
                                   <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
                                 </svg>
@@ -419,7 +416,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                             )}
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-gray-500 font-bold text-xs leading-tight mb-1.5">
+                            <h4 className="text-gray-500 font-bold text-xs leading-snug mb-1 line-clamp-2">
                               {headline.title || "Untitled"}
                             </h4>
                           </div>

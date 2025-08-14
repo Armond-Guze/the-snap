@@ -227,6 +227,8 @@ export default defineType({
       name: 'seo',
       title: 'SEO',
       type: 'seo',
+      initialValue: { autoGenerate: true },
+      options: { collapsible: true, collapsed: false },
     }),
     defineField({
       name: 'published',

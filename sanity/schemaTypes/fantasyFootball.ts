@@ -104,18 +104,17 @@ export default defineType({
       },
     }),
     defineField({
-      name: 'seoTitle',
-      title: 'SEO Title',
-      type: 'string',
-      validation: Rule => Rule.max(60),
+      name: 'seo',
+      title: 'SEO',
+      type: 'seo',
+      group: 'seo',
+      initialValue: { autoGenerate: true },
+      options: { collapsible: true, collapsed: false },
     }),
-    defineField({
-      name: 'seoDescription',
-      title: 'SEO Description',
-      type: 'text',
-      rows: 3,
-      validation: Rule => Rule.max(160),
-    }),
+  ],
+
+  groups: [
+    { name: 'seo', title: 'SEO' },
   ],
 
   preview: {
