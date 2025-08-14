@@ -126,7 +126,8 @@ export default async function RankingsBentoGrid({ textureSrc, hideSummaries = fa
           {/* Main Ranking (mobile) with overlay text inside image */}
           {mainRanking && mainRanking.slug?.current && (
             <Link href={getRankingUrl(mainRanking)} className="block group">
-              <div className="relative w-full h-72 sm:h-80 rounded-md overflow-hidden mr-2 ml-1">
+              {/* Full-bleed hero image on mobile */}
+              <div className="relative w-screen h-72 sm:h-80 left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] overflow-hidden">
                 {mainRanking.coverImage?.asset?.url ? (
                   <Image
                     src={mainRanking.coverImage.asset.url}

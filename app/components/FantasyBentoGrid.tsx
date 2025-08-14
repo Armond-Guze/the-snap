@@ -72,7 +72,7 @@ export default async function FantasyBentoGrid({ textureSrc, hideSummaries = fal
         {/* Left spacer for extra whitespace */}
         <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
         {fantasyArticles?.slice(0,4).map((article: FantasyArticle, index: number) => (
-          <div key={article._id || index} className="snap-start shrink-0 w-[80%]">
+          <div key={article._id || index} className="snap-start shrink-0 w-[88%]">
             {article.slug?.current ? (
               <Link href={`/fantasy/${article.slug.current}`} className="group block">
                 <div className="space-y-3">
@@ -83,7 +83,7 @@ export default async function FantasyBentoGrid({ textureSrc, hideSummaries = fal
                         alt={article.title}
                         fill
                         className="object-cover object-left-top group-hover:scale-[1.03] transition-transform duration-500"
-                        sizes="(max-width:640px) 85vw"
+                        sizes="(max-width:640px) 88vw"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
