@@ -6,6 +6,7 @@ import Image from "next/image";
 
 interface BentoGridProps {
   textureSrc?: string;
+  hideSummaries?: boolean;
 }
 
 interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string }; [key: string]: unknown }
@@ -19,7 +20,7 @@ interface HeadlineItem {
   publishedAt?: string;
 }
 
-export default async function BentoGrid({ textureSrc }: BentoGridProps) {
+export default async function BentoGrid({ textureSrc, hideSummaries = false }: BentoGridProps) {
   // Fetch data from Sanity - showing more headlines for the expanded layout
   const headlines: HeadlineItem[] = await client.fetch(headlineQuery);
 
@@ -64,16 +65,16 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
               <Link
                 key={item._id}
                 href={item.slug?.current ? `/headlines/${item.slug.current}` : '#'}
-                className="group flex gap-4 p-3 sm:p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] hover:bg-[#161616] hover:border-[#262626] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#444]"
               >
-                <div className="relative w-28 sm:w-32 h-20 sm:h-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
+        <div className="relative w-32 sm:w-40 lg:w-44 h-28 sm:h-32 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
                   {item.coverImage?.asset ? (
                     <Image
-                      src={urlFor(item.coverImage).width(260).height(200).fit('crop').url()}
+          src={urlFor(item.coverImage).width(400).height(300).fit('crop').url()}
                       alt={item.title}
                       fill
-                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.05]"
-                      sizes="(max-width:640px) 112px, 128px"
+                      className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.06]"
+          sizes="(max-width:640px) 150px, (max-width:1024px) 180px, 190px"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-600">
@@ -81,15 +82,15 @@ export default async function BentoGrid({ textureSrc }: BentoGridProps) {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <h3 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2">{item.title}</h3>
+                <div className="flex flex-col min-w-0 flex-1 pt-2 sm:pt-3">
+                  <h3 className="text-base sm:text-[17px] font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1.5">{item.title}</h3>
+                  {item.summary && !hideSummaries && (
+                    <p className="text-sm text-gray-400/90 line-clamp-2 hidden md:block mb-1.5 leading-snug">{item.summary}</p>
+                  )}
                   {author && (
                     <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-400 group-hover:text-gray-300">
                       {author}
                     </p>
-                  )}
-                  {item.summary && (
-                    <p className="mt-1 text-xs text-gray-400 line-clamp-2 hidden md:block">{item.summary}</p>
                   )}
                 </div>
               </Link>

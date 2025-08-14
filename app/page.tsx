@@ -43,10 +43,10 @@ export default async function Home() {
     <main className="min-h-screen">
   <GameSchedule games={featuredGames || []} />
   {/* <GoogleAds /> */}
-  <Headlines textureSrc="/images/texture-image.jpg" />
-      <RankingsBentoGrid textureSrc="/images/texture-image.jpg" />
-      <FantasyBentoGrid textureSrc="/images/texture-image.jpg" />
-      <BentoGrid textureSrc="/images/texture-image.jpg" />
+  <Headlines textureSrc="/images/texture-image.jpg" hideSummaries />
+  <RankingsBentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
+      <FantasyBentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
+      <BentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
       <Analytics />

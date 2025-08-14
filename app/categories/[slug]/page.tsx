@@ -159,12 +159,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
                         {headline.title}
                       </h2>
 
-                      {/* Summary */}
-                      {headline.summary && (
-                        <p className="text-gray-400 text-sm line-clamp-3">
-                          {headline.summary}
-                        </p>
-                      )}
+                      {/* Summary intentionally hidden site-wide per design request */}
 
                       {/* Author */}
                       {headline.author && (
