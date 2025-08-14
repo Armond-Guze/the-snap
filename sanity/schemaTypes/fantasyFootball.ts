@@ -26,7 +26,7 @@ export default defineType({
       title: 'Summary',
       type: 'text',
       rows: 3,
-      validation: Rule => Rule.max(200)
+      validation: Rule => Rule.max(300)
     }),
     defineField({
       name: 'coverImage',
@@ -44,7 +44,7 @@ export default defineType({
     }),
     defineField({
       name: 'publishedAt',
-      title: 'Published at',
+      title: 'Published Date',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
     }),
@@ -52,7 +52,7 @@ export default defineType({
       name: 'published',
       title: 'Published',
       type: 'boolean',
-      initialValue: true,
+      initialValue: false,
     }),
     defineField({
       name: 'priority',
@@ -80,28 +80,58 @@ export default defineType({
       },
       initialValue: 'general-tips',
     }),
+    // Main rich text body (mirrors headline body)
     defineField({
       name: 'content',
-      title: 'Content',
-      type: 'array',
-      of: [
-        {
-          type: 'block',
-        },
-        {
-          type: 'image',
-          options: { hotspot: true },
-        },
-      ],
+      title: 'Body Content',
+      type: 'blockContent',
+    }),
+    // Optional YouTube video embed fields
+    defineField({
+      name: 'youtubeVideoId',
+      title: 'YouTube Video ID',
+      type: 'string',
+      description: "11‑character video id from https://www.youtube.com/watch?v=XXXX (paste the part after v=)",
+      validation: Rule => Rule.regex(/^[a-zA-Z0-9_-]{11}$/, { name: 'YouTube Video ID' }).error('Must be a valid 11‑character YouTube ID'),
+    }),
+    defineField({
+      name: 'videoTitle',
+      title: 'Video Title',
+      type: 'string',
+      description: 'Optional custom title for the video embed',
+      hidden: ({ document }) => !document?.youtubeVideoId,
+    }),
+    // Twitter/X embed
+    defineField({
+      name: 'twitterUrl',
+      title: 'Twitter/X Post URL',
+      type: 'url',
+      description: 'Full tweet URL (https://twitter.com/<user>/status/<id>)',
+      validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/.test(url) || 'Must be a valid Twitter/X status URL';
+      })
+    }),
+    defineField({
+      name: 'twitterTitle',
+      title: 'Twitter Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.twitterUrl,
+    }),
+    // Category reference (optional to group fantasy articles similarly to headlines)
+    defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'reference',
+      to: [{ type: 'category' }],
     }),
     defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',
       of: [{ type: 'string' }],
-      options: {
-        layout: 'tags',
-      },
+      options: { layout: 'tags' },
+      description: 'Enter relevant tags (press enter after each)',
     }),
     defineField({
       name: 'seo',
@@ -120,22 +150,20 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      author: 'author.name',
-      publishedAt: 'publishedAt',
-      priority: 'priority',
-      fantasyType: 'fantasyType',
+      subtitle: 'author.name',
       media: 'coverImage',
+      fantasyType: 'fantasyType',
+      publishedAt: 'publishedAt',
     },
-    prepare(selection) {
-      const { author, publishedAt, priority, fantasyType } = selection
-      const date = publishedAt ? new Date(publishedAt).toLocaleDateString() : 'No date'
-      const typeLabel = fantasyType ? fantasyType.replace('-', ' ').toUpperCase() : ''
-      
+    prepare({ title, subtitle, media, fantasyType, publishedAt }) {
+      const date = publishedAt ? new Date(publishedAt).toLocaleDateString() : '';
+      const typeLabel = fantasyType ? fantasyType.replace('-', ' ').toUpperCase() : '';
       return {
-        ...selection,
-        subtitle: `${typeLabel} - ${author || 'No author'} - ${date} (Priority: ${priority})`,
-      }
-    },
+        title,
+        subtitle: [typeLabel, subtitle, date].filter(Boolean).join(' • '),
+        media,
+      };
+    }
   },
 
   orderings: [

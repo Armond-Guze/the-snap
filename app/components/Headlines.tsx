@@ -97,12 +97,12 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
       <div className="lg:hidden">
         {main?.coverImage?.asset?.url && main?.slug?.current ? (
           <Link href={getArticleUrl(main)} className="group block">
-            <div className="relative w-full h-[60vh] min-h-[400px] bg-gray-900 hover:bg-gray-800 transition-all duration-500">
+            <div className="relative w-full h-[60vh] min-h-[400px] bg-gray-900 sm:hover:bg-gray-800 transition-all duration-500">
               <Image
                 src={main.coverImage.asset.url}
                 alt={main.title}
                 fill
-                className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-102 transition-all duration-700"
+                className="object-cover opacity-85 sm:group-hover:opacity-95 sm:group-hover:scale-102 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -179,7 +179,7 @@ export default async function Headlines({ textureSrc }: HeadlinesProps) {
                             alt={headline.title}
                             fill
                             sizes="96px"
-                            className="object-cover object-center transition-all duration-300 group-hover:scale-[1.03]"
+                            className="object-cover object-center transition-all duration-300 sm:group-hover:scale-[1.03]"
                             priority={false}
                           />
                         ) : (
