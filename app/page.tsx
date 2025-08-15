@@ -8,7 +8,6 @@ import GameSchedule from "./components/GameSchedule";
 // import GoogleAds from "./components/GoogleAds";
 import { client } from "@/sanity/lib/client";
 import { featuredGamesQuery } from "@/sanity/lib/queries";
-import { Analytics } from "@vercel/analytics/next"
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -49,7 +48,7 @@ export default async function Home() {
       <BentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
-      <Analytics />
+  {/* Analytics now handled globally via AnalyticsGate in layout */}
     </main>
   );
 }

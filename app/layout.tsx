@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StructuredData, { createWebsiteStructuredData, createOrganizationStructuredData } from "./components/StructuredData";
 import LayoutWrapper from "./components/LayoutWrapper";
+import AnalyticsGate from "./components/AnalyticsGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,6 +98,7 @@ export default function RootLayout({
         <LayoutWrapper>
           {children}
         </LayoutWrapper>
+        <AnalyticsGate />
       </body>
     </html>
   );
