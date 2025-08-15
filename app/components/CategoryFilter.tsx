@@ -34,24 +34,7 @@ export default function CategoryFilter({
     fetchCategories();
   }, []);
 
-  const getColorClasses = (color?: string) => {
-    switch (color) {
-      case 'red':
-        return 'bg-red-600 hover:bg-red-700 border-red-600';
-      case 'blue':
-        return 'bg-white hover:bg-gray-100 border-gray-300 text-black';
-      case 'green':
-        return 'bg-green-600 hover:bg-green-700 border-green-600';
-      case 'yellow':
-        return 'bg-yellow-600 hover:bg-yellow-700 border-yellow-600';
-      case 'purple':
-        return 'bg-purple-600 hover:bg-purple-700 border-purple-600';
-      case 'orange':
-        return 'bg-orange-600 hover:bg-orange-700 border-orange-600';
-      default:
-        return 'bg-gray-600 hover:bg-gray-700 border-gray-600';
-    }
-  };
+  const getColorClasses = () => 'bg-gray-800 hover:bg-gray-700 border-gray-700';
 
   if (loading) {
     return (
@@ -70,33 +53,35 @@ export default function CategoryFilter({
     <div className={`flex flex-wrap gap-2 ${className}`}>
       <button
         onClick={() => onCategoryChange(null)}
-        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
+        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
           !selectedCategory
-            ? 'bg-white text-black border-white'
-            : 'bg-transparent text-white border-gray-600 hover:border-white hover:bg-white hover:text-black'
+            ? 'bg-gray-800 text-gray-200 border-gray-700'
+            : 'bg-transparent text-gray-400 border-gray-700 hover:text-gray-200 hover:bg-gray-800'
         }`}
       >
         All
       </button>
 
-      {categories.map((category) => (
+      {categories.map((category) => {
+        const articleCount = (category as Category & { articleCount?: number }).articleCount;
+        return (
         <button
           key={category._id}
           onClick={() => onCategoryChange(category.slug.current)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border flex items-center gap-2 ${
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border flex items-center gap-2 ${
             selectedCategory === category.slug.current
-              ? `text-white ${getColorClasses(category.color)}`
-              : 'bg-transparent text-white border-gray-600 hover:border-white hover:bg-white hover:text-black'
+              ? `text-gray-200 ${getColorClasses()}`
+              : 'bg-transparent text-gray-400 border-gray-700 hover:text-gray-200 hover:bg-gray-800'
           }`}
         >
           {category.title}
-          {(category as any).articleCount > 0 && (
+          {articleCount && articleCount > 0 && (
             <span className="text-xs bg-black bg-opacity-30 px-2 py-0.5 rounded-full">
-              {(category as any).articleCount}
+              {articleCount}
             </span>
           )}
         </button>
-      ))}
+      )})}
     </div>
   );
 }

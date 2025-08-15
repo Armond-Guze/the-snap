@@ -90,12 +90,14 @@ a {
   position: absolute;
   top: -40px;
   left: 6px;
-  background: #3b82f6;
-  color: white;
-  padding: 8px;
+  background: #1f1f1f; /* neutral dark instead of blue */
+  color: #e5e5e5;
+  padding: 8px 12px;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: 6px;
   z-index: 100;
+  border: 1px solid #333;
+  box-shadow: 0 2px 6px -1px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset;
 }
 
 .skip-link:focus {

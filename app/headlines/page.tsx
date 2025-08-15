@@ -66,13 +66,13 @@ function HeadlinesContent() {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-gray-900 rounded-lg p-6">
+            <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
               <TagCloud maxTags={15} />
             </div>
             
             <NewsletterSignup variant="sidebar" />
             
-            <div className="bg-gray-900 rounded-lg p-6">
+            <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4 text-white">Popular Categories</h3>
               <div className="space-y-2">
                 <Link href="/headlines?category=nfl-draft" className="block text-gray-300 hover:text-white transition-colors">

@@ -209,11 +209,11 @@ export default function FilteredHeadlines({
           {headlines.map((headline) => (
             <article
               key={headline._id}
-              className="group bg-gray-900 rounded-lg overflow-hidden hover:bg-gray-800 transition-colors"
+              className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors"
             >
               <Link href={getArticleUrl(headline)}>
                 {headline.coverImage?.asset?.url && (
-                  <div className="aspect-video relative overflow-hidden">
+                  <div className="aspect-video relative overflow-hidden bg-[#111]">
                     <Image
                       src={headline.coverImage.asset.url}
                       alt={headline.title}
@@ -224,16 +224,18 @@ export default function FilteredHeadlines({
                 )}
                 
                 <div className="p-4">
-                  {headline.category && (
-                    <span className="inline-block px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-full mb-2">
-                      {headline.category.title}
-                    </span>
-                  )}
-                  {headline._type === 'rankings' && headline.rankingType && (
-                    <span className="inline-block px-2 py-1 text-xs font-medium text-white bg-purple-600 rounded-full mb-2 ml-2">
-                      {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
-                    </span>
-                  )}
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {headline.category && (
+                      <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">
+                        {headline.category.title}
+                      </span>
+                    )}
+                    {headline._type === 'rankings' && headline.rankingType && (
+                      <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">
+                        {headline.rankingType.replace('-', ' ').toUpperCase()} RANKINGS
+                      </span>
+                    )}
+                  </div>
                   
                   <h3 className="font-semibold text-white group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">
                     {headline.title}

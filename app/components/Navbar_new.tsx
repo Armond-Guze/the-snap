@@ -45,8 +45,8 @@ export default function Navbar() {
   ];
 
   return (
-    <nav ref={navRef} className="bg-black/95 backdrop-blur-xl sticky top-0 z-50 shadow-2xl border-b border-white/5">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 h-16 py-3">
+  <nav ref={navRef} className="bg-black/95 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
+  <div className="max-w-7xl mx-auto px-6 md:px-12 h-16 lg:h-20 py-3 lg:py-4">
         {/* Mobile Layout */}
         <div className="md:hidden flex items-center justify-between h-full relative">
           {/* Left spacer for mobile */}
@@ -59,9 +59,9 @@ export default function Navbar() {
             <Image
               src="/images/logo--design copy.png"
               alt="FootballNews Logo"
-              width={80}
-              height={80}
-              className="h-10 w-auto md:h-11 transition-transform group-hover:scale-105"
+              width={100}
+              height={100}
+              className="h-10 w-auto md:h-11 lg:h-12 transition-transform group-hover:scale-105"
               priority
             />
           </Link>
@@ -99,9 +99,9 @@ export default function Navbar() {
             <Image
               src="/images/logo--design copy.png"
               alt="FootballNews Logo"
-              width={80}
-              height={80}
-              className="h-10 md:h-14 lg:h-16 w-auto transition-transform group-hover:scale-105"
+              width={110}
+              height={110}
+              className="h-10 md:h-12 lg:h-14 w-auto transition-transform group-hover:scale-105"
               priority
             />
           </Link>

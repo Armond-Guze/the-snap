@@ -66,8 +66,16 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
     return null;
   }
 
+  // Layout consumption plan:
+  // main: 1 item (index 0)
+  // left column (vertical images): 2 items (indexes 1-2)
+  // right sidebar ("Around The NFL"): up to 6 items (indexes 3-8)
+  // Remaining items start at index 9 and flow into the "More Headlines" section (BentoGrid)
+  const LEFT_IMAGE_COUNT = 2;
+  const RIGHT_SIDEBAR_LIMIT = 6;
   const main = headlines[0];
-  const sidebar = headlines.slice(1, 10); // Increased from 8 to 10 to show 9 sidebar headlines (positions 1-9)
+  const leftColumn = headlines.slice(1, 1 + LEFT_IMAGE_COUNT);
+  const rightSidebar = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT);
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
@@ -169,7 +177,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
             <h3 className="text-lg font-bold text-white tracking-tight">Around The NFL</h3>
           </div>
           <ul className="space-y-4">
-            {sidebar.slice(0, Math.max(0, sidebar.length - 2)).map((headline) => {
+            {(leftColumn.concat(rightSidebar)).map((headline) => {
               const author = headline.author?.name;
               return (
                 <li key={headline._id}>
@@ -225,7 +233,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
           <div className="grid grid-cols-24 gap-3 2xl:gap-4 3xl:gap-6">
             {/* Left Sidebar - Two vertical images */}
             <div className="col-span-5 flex flex-col justify-center space-y-3">
-              {sidebar.slice(0, 2).map((headline) => (
+              {leftColumn.map((headline) => (
                 <div key={headline._id} className="group">
                   {headline.slug?.current ? (
                     <Link href={getArticleUrl(headline)}>
@@ -357,7 +365,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                   <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white">Around The NFL</h3>
                 </div>
                 <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
-                  {sidebar.slice(2).map((headline) => (
+                  {rightSidebar.map((headline) => (
                     <li key={headline._id}>
                       {headline.slug?.current ? (
                         <Link href={getArticleUrl(headline)}>

@@ -10,21 +10,22 @@ interface BadgeProps {
   className?: string;
 }
 
+// Neutral (dark) palette variants – removes bright brand colors for a unified look
 const badgeVariants = {
-  default: 'bg-gray-500 text-white',
-  ranking: 'bg-yellow-500 text-black',
-  breaking: 'bg-red-500 text-white',
-  analysis: 'bg-blue-500 text-white',
-  rumors: 'bg-purple-500 text-white',
-  injury: 'bg-orange-500 text-white',
-  draft: 'bg-green-500 text-white',
+  default: 'bg-gray-800 text-gray-300 border border-gray-700/70',
+  ranking: 'bg-gray-800 text-gray-200 border border-gray-600/60',
+  breaking: 'bg-gray-800 text-gray-300 border border-gray-700/70',
+  analysis: 'bg-gray-800 text-gray-300 border border-gray-700/70',
+  rumors: 'bg-gray-800 text-gray-300 border border-gray-700/70',
+  injury: 'bg-gray-800 text-gray-300 border border-gray-700/70',
+  draft: 'bg-gray-800 text-gray-300 border border-gray-700/70',
 };
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+  'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide',
         badgeVariants[variant],
         className
       )}

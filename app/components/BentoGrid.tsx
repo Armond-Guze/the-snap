@@ -24,8 +24,10 @@ export default async function BentoGrid({ textureSrc, hideSummaries = false }: B
   // Fetch data from Sanity - showing more headlines for the expanded layout
   const headlines: HeadlineItem[] = await client.fetch(headlineQuery);
 
-  // Avoid duplicating headlines already shown in the main hero + side lists (indexes 0-9)
-  const moreHeadlines = (headlines || []).slice(10, 22); // grab up to 12 additional items
+  // Avoid duplicating headlines already shown in Headlines.tsx
+  // Consumed there: index 0 (main) + 2 (left) + 6 (right) = 9 items total (indexes 0-8)
+  const START_INDEX = 9; // first unused headline index
+  const moreHeadlines = (headlines || []).slice(START_INDEX, START_INDEX + 13); // grab up to 13 additional items (adjust as desired)
 
   return (
   <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
