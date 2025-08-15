@@ -70,7 +70,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
   // main: 1 item (index 0)
   // left column (vertical images): 2 items (indexes 1-2)
   // right sidebar ("Around The NFL"): up to 6 items (indexes 3-8)
-  // Remaining items start at index 9 and flow into the "More Headlines" section (BentoGrid)
+  // Remaining items start at index 9 and flow into the "More Headlines" section (MoreHeadlinesSection)
   const LEFT_IMAGE_COUNT = 2;
   const RIGHT_SIDEBAR_LIMIT = 6;
   const main = headlines[0];

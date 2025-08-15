@@ -39,15 +39,21 @@ export default function NewsletterSignup({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to subscribe');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to subscribe');
       }
 
+      const data = await response.json();
       setStatus('success');
-      setMessage('Thanks for subscribing! Check your email for confirmation.');
+      setMessage(data.message || 'Thanks for subscribing!');
       setEmail('');
-    } catch (error) {
+    } catch (error: unknown) {
       setStatus('error');
-      setMessage('Something went wrong. Please try again later.');
+      if (error instanceof Error) {
+        setMessage(error.message === 'Failed to subscribe' ? 'Subscription failed. Try again later.' : error.message);
+      } else {
+        setMessage('Something went wrong. Please try again later.');
+      }
     }
   };
 
@@ -127,7 +133,7 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-            <p className="text-green-400 mb-4">{message}</p>
+              <p className="text-green-400 mb-4">{message}</p>
             <button
               onClick={resetStatus}
               className="text-sm text-gray-400 hover:text-white transition-colors"
@@ -256,7 +262,7 @@ export default function NewsletterSignup({
           <div className="bg-green-900/30 border border-green-500/50 rounded-2xl p-8">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-white mb-2">Welcome to the Team!</h3>
-            <p className="text-green-300 mb-6">{message}</p>
+              <p className="text-green-300 mb-6">{message}</p>
             <button
               onClick={resetStatus}
               className="text-green-400 hover:text-white transition-colors"

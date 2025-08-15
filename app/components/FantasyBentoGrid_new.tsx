@@ -118,3 +118,6 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
     </section>
   );
 }
+
+// Deprecated experimental component: consolidated into FantasySection.
+export {};

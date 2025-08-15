@@ -39,7 +39,7 @@ The Snap is an elite NFL content platform designed to compete with major sports 
 - **Hero Section** - Featured content with dynamic backgrounds
 - **Game Schedule Carousel** - Horizontal scrolling NFL games widget
 - **Featured Headlines** - 2-column layout with main story + sidebar
-- **BentoGrid Layout** - Modern card-based content sections
+- **More Headlines Section** - Modern vertical list of additional headline cards
 - **Newsletter Signup** - Email capture with professional styling
 
 ### **📰 News & Articles System**

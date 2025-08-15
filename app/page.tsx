@@ -1,8 +1,8 @@
 // import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
-import BentoGrid from "./components/BentoGrid";
-import RankingsBentoGrid from "./components/RankingsBentoGrid";
-import FantasyBentoGrid from "./components/FantasyBentoGrid";
+import RankingsSection from "./components/RankingsSection";
+import FantasySection from "./components/FantasySection";
+import MoreHeadlinesSection from "./components/MoreHeadlinesSection";
 // import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
 // import GoogleAds from "./components/GoogleAds";
@@ -43,9 +43,9 @@ export default async function Home() {
   <GameSchedule games={featuredGames || []} />
   {/* <GoogleAds /> */}
   <Headlines textureSrc="/images/texture-image.jpg" hideSummaries />
-  <RankingsBentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
-      <FantasyBentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
-      <BentoGrid textureSrc="/images/texture-image.jpg" hideSummaries />
+  <RankingsSection textureSrc="/images/texture-image.jpg" hideSummaries />
+  <FantasySection textureSrc="/images/texture-image.jpg" hideSummaries />
+  <MoreHeadlinesSection textureSrc="/images/texture-image.jpg" hideSummaries />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
   {/* Analytics now handled globally via AnalyticsGate in layout */}

@@ -17,7 +17,7 @@ const Footer = () => {
   return (
     <footer className="bg-black border-t border-gray-800 py-12 text-gray-200">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
@@ -37,18 +37,13 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Site Sections */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">
-              Quick Links
-            </h4>
+            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Sections</h4>
             <ul className="space-y-2">
               {quickLinks.map(({ label, href }) => (
                 <li key={label}>
-                  <Link
-                    href={href}
-                    className="text-gray-400 hover:text-white transition-colors text-sm"
-                  >
+                  <Link href={href} className="text-gray-400 hover:text-white transition-colors text-sm">
                     {label}
                   </Link>
                 </li>
@@ -58,13 +53,12 @@ const Footer = () => {
 
           {/* Connect */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">
-              Connect
-            </h4>
+            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Connect</h4>
             <div className="space-y-3">
               <a
                 href="mailto:TheGameSnap@yahoo.com"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Email The Game Snap"
               >
                 <Mail size={16} />
                 <span>Contact Us</span>
@@ -74,11 +68,34 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on Instagram"
               >
                 <Instagram size={16} />
                 <span>Instagram</span>
               </a>
             </div>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Legal</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/privacypolicy" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Terms of Use
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Contact
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -88,14 +105,14 @@ const Footer = () => {
             <div className="text-xs text-gray-500">
               &copy; {currentYear} The Game Snap. All rights reserved.
             </div>
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
-              <Link href="/privacypolicy" className="hover:text-gray-400 transition-colors">
-                Privacy Policy
-              </Link>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+              <Link href="/privacypolicy" className="hover:text-gray-400 transition-colors">Privacy</Link>
               <span>•</span>
-              <Link href="/contact" className="hover:text-gray-400 transition-colors">
-                Contact
-              </Link>
+              <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
+              <span>•</span>
+              <Link href="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
+              <span className="hidden sm:inline">•</span>
+              <span className="text-gray-600">Not affiliated with the NFL.</span>
             </div>
           </div>
         </div>
