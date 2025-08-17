@@ -5,7 +5,7 @@ import FantasySection from "./components/FantasySection";
 import MoreHeadlinesSection from "./components/MoreHeadlinesSection";
 // import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
-// import GoogleAds from "./components/GoogleAds";
+import GoogleAds from "./components/GoogleAds";
 import { client } from "@/sanity/lib/client";
 import { featuredGamesQuery } from "@/sanity/lib/queries";
 import { Metadata } from 'next'
@@ -41,7 +41,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen">
   <GameSchedule games={featuredGames || []} />
-  {/* <GoogleAds /> */}
+  <GoogleAds />
   <Headlines textureSrc="/images/texture-image.jpg" hideSummaries />
   <RankingsSection textureSrc="/images/texture-image.jpg" hideSummaries />
   <FantasySection textureSrc="/images/texture-image.jpg" hideSummaries />
