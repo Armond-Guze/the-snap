@@ -51,8 +51,9 @@ export async function POST(req: NextRequest) {
     volatileCache.add(normalized)
     return NextResponse.json({
       success: true,
-      message: 'Subscribed (temporary). Add SANITY_WRITE_TOKEN to persist.',
-      note: 'Set SANITY_WRITE_TOKEN env var and redeploy to store subscribers.'
+      message: 'Subscribed!',
+      ephemeral: true,
+      note: 'Add SANITY_WRITE_TOKEN to persist subscribers.'
     })
   } catch (e) {
     console.error('Newsletter subscribe error', e)

@@ -17,7 +17,7 @@ export default function RelatedArticles({
   // Unified list: filter out current article, cap to 24 for sidebar performance
   const relatedArticles = articles
     .filter((article) => article.slug.current !== currentSlug)
-    .slice(0, 24);
+    .slice(0, 6); // limit to 6 recommended articles
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
@@ -35,7 +35,7 @@ export default function RelatedArticles({
       <div className="bg-black rounded-2xl pb-4">
         <div className="flex items-center mb-4 px-2">
           <TrendingUp className="w-5 h-5 text-white mr-2" />
-          <h2 className="text-lg font-semibold text-white">Headlines</h2>
+          <h2 className="text-lg font-semibold text-white">Recommended</h2>
         </div>
         <div className="space-y-1 max-h-[70vh] overflow-y-auto pr-1 custom-scrollbar">
           {relatedArticles.map(article => (

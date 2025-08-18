@@ -45,7 +45,12 @@ export default function NewsletterSignup({
 
       const data = await response.json();
       setStatus('success');
-      setMessage(data.message || 'Thanks for subscribing!');
+      const raw = (data && data.message) ? String(data.message) : '';
+      if (raw.toLowerCase().includes('already')) {
+        setMessage('Already subscribed!');
+      } else {
+        setMessage('Subscribed!');
+      }
       setEmail('');
     } catch (error: unknown) {
       setStatus('error');
@@ -74,7 +79,7 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-green-400 text-xs">{message}</p>
+            <p className="text-green-400 text-xs font-semibold">{message}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -133,7 +138,7 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <p className="text-green-400 mb-4">{message}</p>
+              <p className="text-green-400 mb-4 font-semibold">{message}</p>
             <button
               onClick={resetStatus}
               className="text-sm text-gray-400 hover:text-white transition-colors"
@@ -203,7 +208,7 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="flex items-center text-green-400">
             <CheckCircle className="w-5 h-5 mr-2" />
-            <span>{message}</span>
+            <span className="font-semibold">{message}</span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
@@ -261,8 +266,8 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="bg-green-900/30 border border-green-500/50 rounded-2xl p-8">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">Welcome to the Team!</h3>
-              <p className="text-green-300 mb-6">{message}</p>
+            <h3 className="text-2xl font-bold text-white mb-2">{message}</h3>
+              <p className="text-green-300 mb-6">You’re on the list. Check your inbox soon.</p>
             <button
               onClick={resetStatus}
               className="text-green-400 hover:text-white transition-colors"
