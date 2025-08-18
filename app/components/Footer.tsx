@@ -15,9 +15,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black border-t border-gray-800 py-12 text-gray-200">
-      <div className="max-w-7xl mx-auto px-6">
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-black border-t border-gray-800 py-8 md:py-12 text-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+  <div className="hidden md:grid md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
@@ -99,13 +99,57 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* Mobile Accordions */}
+        <div className="md:hidden divide-y divide-gray-800 border-t border-gray-800 mt-6">
+          <MobileSection title="Sections">
+            <ul className="space-y-2">
+              {quickLinks.map(({ label, href }) => (
+                <li key={label}>
+                  <Link href={href} className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </MobileSection>
+          <MobileSection title="Connect">
+            <div className="space-y-3 pt-2">
+              <a
+                href="mailto:TheGameSnap@yahoo.com"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Email The Game Snap"
+              >
+                <Mail size={16} />
+                <span>Contact Us</span>
+              </a>
+              <a
+                href="https://www.instagram.com/thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on Instagram"
+              >
+                <Instagram size={16} />
+                <span>Instagram</span>
+              </a>
+            </div>
+          </MobileSection>
+          <MobileSection title="Legal">
+            <ul className="space-y-2 pt-2">
+              <li><Link href="/privacypolicy" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</Link></li>
+              <li><Link href="/contact" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Contact</Link></li>
+            </ul>
+          </MobileSection>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-gray-800">
+        <div className="mt-8 md:mt-12 pt-6 border-t border-gray-800">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 text-center md:text-left">
               &copy; {currentYear} The Game Snap. All rights reserved.
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-1 text-xs text-gray-500">
               <Link href="/privacypolicy" className="hover:text-gray-400 transition-colors">Privacy</Link>
               <span>•</span>
               <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
@@ -120,5 +164,24 @@ const Footer = () => {
     </footer>
   );
 };
+
+interface MobileSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function MobileSection({ title, children }: MobileSectionProps) {
+  return (
+    <details className="group">
+      <summary className="flex items-center justify-between py-3 cursor-pointer select-none">
+        <span className="text-sm font-semibold text-white uppercase tracking-wide">{title}</span>
+        <span className="text-gray-500 group-open:rotate-180 transition-transform">▾</span>
+      </summary>
+      <div className="pb-4 pl-1">
+        {children}
+      </div>
+    </details>
+  );
+}
 
 export default Footer;
