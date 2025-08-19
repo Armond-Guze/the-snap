@@ -1,6 +1,7 @@
-'use client';
-import { useEffect, useRef } from 'react';
+"use client";
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import Script from 'next/script';
 
 declare global {
   interface Window {
@@ -36,14 +37,25 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialConfigSent = useRef(false);
+  const [ready, setReady] = useState(false);
 
+  // Mark GA ready once the inline init script has run and gtag function exists
   useEffect(() => {
     if (isExcludedEnvironment()) return;
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      setReady(true);
+    }
+  }, []);
+
+  // Track route changes once GA is ready
+  useEffect(() => {
+    if (isExcludedEnvironment()) return;
+    if (!ready || typeof window.gtag !== 'function') return;
+
     const query = searchParams.toString();
     const page_path = query ? `${pathname}?${query}` : pathname;
 
     if (!initialConfigSent.current) {
-      // First load: config (fires page_view implicitly)
       window.gtag('config', GA_MEASUREMENT_ID, {
         page_path,
         anonymize_ip: true,
@@ -52,38 +64,32 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_
       initialConfigSent.current = true;
       if (process.env.NODE_ENV !== 'production') console.log('[GA] initial config', page_path);
     } else {
-      // Subsequent route changes: explicit page_view event
-      window.gtag('event', 'page_view', {
-        page_path,
-      });
+      window.gtag('event', 'page_view', { page_path });
       if (process.env.NODE_ENV !== 'production') console.log('[GA] route change page_view', page_path);
     }
-  }, [pathname, searchParams, GA_MEASUREMENT_ID]);
+  }, [pathname, searchParams, GA_MEASUREMENT_ID, ready]);
 
-  // Don't load GA script in development
-  if (isExcludedEnvironment()) {
-    return null;
-  }
+  if (isExcludedEnvironment()) return null;
 
   return (
     <>
-      <script
-        async
+      <Script
+        id="ga-src"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-      />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
-              page_path: window.location.pathname,
-              anonymize_ip: true
-            });
-          `,
+        strategy="afterInteractive"
+        onLoad={() => {
+          if (process.env.NODE_ENV !== 'production') console.log('[GA] gtag.js loaded');
         }}
       />
+      <Script
+        id="ga-inline-init"
+        strategy="afterInteractive"
+      >{`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);} // define stub
+        gtag('js', new Date());
+        // Do not call config here with page_path; let effect handle it to avoid double page_view
+      `}</Script>
     </>
   );
 }
@@ -96,7 +102,7 @@ export const trackEvent = (eventName: string, parameters?: Record<string, string
     return;
   }
 
-  if (typeof window !== 'undefined' && window.gtag) {
+  if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
     window.gtag('event', eventName, parameters);
   }
 };
