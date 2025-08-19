@@ -4,6 +4,10 @@ import dynamic from "next/dynamic";
 
 // Dynamically import analytics so bundle excluded when user opted out
 const VercelAnalytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics), { ssr: false, loading: () => null });
+const GoogleAnalytics = dynamic(() => import("./GoogleAnalytics"), { ssr: false, loading: () => null });
+
+// GA4 Measurement ID (configure in env as NEXT_PUBLIC_GA_ID; fallback to provided ID)
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-0YLR2ZR8SX';
 
 /**
  * Conditionally load Vercel Analytics only if the visitor has NOT opted out.
@@ -61,7 +65,12 @@ export default function AnalyticsGate() {
 
   return (
     <>
-      {!excluded && <VercelAnalytics />}
+      {!excluded && (
+        <>
+          <VercelAnalytics />
+          {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}
+        </>
+      )}
       {process.env.NODE_ENV !== "production" && (
         <div className="fixed z-50 bottom-3 right-3 flex flex-col items-end space-y-2">
           <button
