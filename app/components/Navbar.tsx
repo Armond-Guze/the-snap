@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SmartSearch from "./SmartSearch";
+import { CgMenuGridR, CgClose } from 'react-icons/cg';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -69,26 +70,16 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-            className="relative p-3 rounded-xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 active:scale-95 active:bg-white/15 group shadow-lg hover:shadow-xl"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            className="relative p-3 rounded-xl backdrop-blur-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 active:scale-95 active:bg-white/15 group shadow-lg hover:shadow-xl text-white"
           >
-            <div className="relative w-5 h-5">
-              <span
-                className={`absolute top-0 left-0 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${
-                  menuOpen ? 'rotate-45 translate-y-2' : 'rotate-0'
-                }`}
-              />
-              <span
-                className={`absolute top-2 left-0 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${
-                  menuOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100'
-                }`}
-              />
-              <span
-                className={`absolute top-4 left-0 w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${
-                  menuOpen ? '-rotate-45 -translate-y-2' : 'rotate-0'
-                }`}
-              />
-            </div>
+            <span className="flex items-center justify-center w-5 h-5 transition-transform duration-300">
+              {menuOpen ? (
+                <CgClose className="w-5 h-5" />
+              ) : (
+                <CgMenuGridR className="w-5 h-5" />
+              )}
+            </span>
           </button>
         </div>
 
