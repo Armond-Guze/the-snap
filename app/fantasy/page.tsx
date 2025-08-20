@@ -127,7 +127,11 @@ export default async function FantasyFootballPage() {
               </h2>
               <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible snap-x pb-2 pr-2 -mr-6 lg:mr-0">
                 {quickPicks.map((qp) => (
-                  <Link key={qp._id} href={`/fantasy/${qp.slug.current}`} className="group shrink-0 w-64 lg:w-auto lg:min-w-0 snap-start">
+                  <Link
+                    key={qp._id}
+                    href={`/fantasy/${qp.slug.current}`}
+                    className="group shrink-0 basis-[85%] min-w-[85%] sm:basis-[70%] sm:min-w-[70%] md:w-64 md:min-w-0 lg:w-auto lg:min-w-0 snap-start"
+                  >
                     <div className="relative rounded-xl h-40 overflow-hidden border border-white/10 hover:border-purple-400/40 bg-white/[0.02] backdrop-blur-sm transition-all">
                       {qp.coverImage?.asset?.url && (
                         <Image
@@ -193,7 +197,7 @@ export default async function FantasyFootballPage() {
                               src={urlFor(a.coverImage).width(180).height(180).url()}
                               alt={a.title}
                               fill
-                              className="object-cover object-center group-hover:scale-[1.05] transition-transform opacity-70 group-hover:opacity-90"
+                              className="object-cover object-center md:group-hover:scale-[1.05] transition-transform opacity-70 md:group-hover:opacity-90"
                             />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/40" />

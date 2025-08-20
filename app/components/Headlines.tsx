@@ -58,8 +58,10 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
     []
   );
 
-  // Debug: Log the headlines data
-  console.log('Headlines data:', JSON.stringify(headlines, null, 2));
+  // Debug: Log the headlines data (dev only to avoid noisy production console / potential AdSense review clutter)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Headlines data:', JSON.stringify(headlines, null, 2));
+  }
 
   if (!headlines?.length) {
     console.log('No headlines found');
@@ -112,6 +114,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                 src={main.coverImage.asset.url}
                 alt={main.title}
                 fill
+                sizes="100vw"
                 className="object-cover opacity-85 sm:group-hover:opacity-95 sm:group-hover:scale-102 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -243,6 +246,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
                             fill
+                            sizes="(min-width:1024px) 21vw, 45vw"
                             className="object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-300"
                           />
                         ) : (
@@ -267,6 +271,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                           src={headline.coverImage.asset.url}
                           alt={headline.title || "Untitled"}
                           fill
+                          sizes="(min-width:1024px) 21vw, 45vw"
                           className="object-cover opacity-85"
                         />
                       ) : (
@@ -297,6 +302,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                       src={main.coverImage.asset.url}
                       alt={main.title}
                       fill
+                      sizes="(min-width:1536px) 50vw, (min-width:1280px) 55vw, (min-width:1024px) 60vw, 100vw"
                       className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-102 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
