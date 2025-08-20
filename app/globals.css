@@ -6,12 +6,6 @@
   --foreground: #ededed;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
 body {
   background: var(--background);
@@ -70,6 +64,40 @@ html, body {
 .bg-deep-black {
   background: linear-gradient(135deg, #000000 0%, #050505 50%, #000000 100%);
 }
+
+/* Team gradient fallbacks (explicit so Tailwind doesn't purge) */
+.player-gradient-DAL { background: linear-gradient(110deg, #041E42 0%, #869397 100%); }
+.player-gradient-BUF { background: linear-gradient(110deg, #00338D 0%, #C60C30 100%); }
+.player-gradient-KC { background: linear-gradient(110deg, #E31837 0%, #FFB81C 100%); }
+.player-gradient-PHI { background: linear-gradient(110deg, #004C54 0%, #A5ACAF 100%); }
+.player-gradient-SF { background: linear-gradient(110deg, #AA0000 0%, #B3995D 100%); }
+.player-gradient-GB { background: linear-gradient(110deg, #203731 0%, #FFB612 100%); }
+.player-gradient-MIA { background: linear-gradient(110deg, #008E97 0%, #F58220 100%); }
+.player-gradient-NYJ { background: linear-gradient(110deg, #125740 0%, #FFFFFF 100%); }
+.player-gradient-NE { background: linear-gradient(110deg, #002244 0%, #C60C30 100%); }
+.player-gradient-PIT { background: linear-gradient(110deg, #101820 0%, #FFB612 100%); }
+.player-gradient-BAL { background: linear-gradient(110deg, #241773 0%, #9E7C0C 100%); }
+.player-gradient-DEN { background: linear-gradient(110deg, #002244 0%, #FB4F14 100%); }
+.player-gradient-CHI { background: linear-gradient(110deg, #0B162A 0%, #C83803 100%); }
+.player-gradient-DET { background: linear-gradient(110deg, #0076B6 0%, #B0B7BC 100%); }
+.player-gradient-MIN { background: linear-gradient(110deg, #4F2683 0%, #FFC62F 100%); }
+.player-gradient-NO { background: linear-gradient(110deg, #101820 0%, #D3BC8D 100%); }
+.player-gradient-LV { background: linear-gradient(110deg, #000000 0%, #A5ACAF 100%); }
+.player-gradient-LAC { background: linear-gradient(110deg, #0080C6 0%, #FFC20E 100%); }
+.player-gradient-LAR { background: linear-gradient(110deg, #003594 0%, #FFA300 100%); }
+.player-gradient-ATL { background: linear-gradient(110deg, #A71930 0%, #000000 100%); }
+.player-gradient-CAR { background: linear-gradient(110deg, #0085CA 0%, #101820 100%); }
+.player-gradient-CLE { background: linear-gradient(110deg, #311D00 0%, #FF3C00 100%); }
+.player-gradient-HOU { background: linear-gradient(110deg, #03202F 0%, #A71930 100%); }
+.player-gradient-IND { background: linear-gradient(110deg, #002C5F 0%, #A2AAAD 100%); }
+.player-gradient-JAX { background: linear-gradient(110deg, #101820 0%, #D7A22A 100%); }
+.player-gradient-TEN { background: linear-gradient(110deg, #0C2340 0%, #4B92DB 100%); }
+.player-gradient-SEA { background: linear-gradient(110deg, #002244 0%, #69BE28 100%); }
+.player-gradient-TB { background: linear-gradient(110deg, #D50A0A 0%, #FF7900 100%); }
+.player-gradient-WAS { background: linear-gradient(110deg, #5A1414 0%, #FFB612 100%); }
+.player-gradient-ARI { background: linear-gradient(110deg, #97233F 0%, #FFB612 100%); }
+.player-gradient-CIN { background: linear-gradient(110deg, #FB4F14 0%, #000000 100%); }
+.player-gradient-NYG { background: linear-gradient(110deg, #0B2265 0%, #A71930 100%); }
 
 .bg-shadcn-zinc {
   background-color: #27272a;
