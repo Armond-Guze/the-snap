@@ -60,7 +60,29 @@ export default async function FantasyArticlePage(props: PageProps) {
 
   const [article, otherContent] = await Promise.all([
     client.fetch<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
-      _id, title, slug, summary, content, body, coverImage{asset->{url}}, author->{name, image{asset->{url}}}, publishedAt, date, category->{title, slug}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle
+      _id, title, slug, summary,
+      // Expand both body & content arrays (support legacy / new)
+      content[]{
+        ...,
+        _type == "playerHeading" => {
+          ...,
+          headshot{asset->{url}, alt}, // ensure manual headshot image has URL
+          player->{ name, team, position, headshot{asset->{url}, alt} }
+        }
+      },
+      body[]{
+        ...,
+        _type == "playerHeading" => {
+          ...,
+          headshot{asset->{url}, alt},
+          player->{ name, team, position, headshot{asset->{url}, alt} }
+        }
+      },
+      coverImage{asset->{url}},
+      author->{name, image{asset->{url}}},
+      publishedAt, date,
+      category->{title, slug},
+      youtubeVideoId, videoTitle, twitterUrl, twitterTitle
     }`, { slug }),
     client.fetch<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
       _id, _type, title, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
