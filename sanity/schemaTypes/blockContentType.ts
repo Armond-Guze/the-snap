@@ -205,5 +205,34 @@ export const blockContentType = defineType({
         }
       ]
     }),
+    // Player Heading (custom rich heading with headshot + meta)
+    defineArrayMember({
+      type: 'object',
+      name: 'playerHeading',
+      title: 'Player Heading',
+      fields: [
+        { name: 'player', title: 'Player (reference preferred)', type: 'reference', to: [{ type: 'player' }], description: 'Pick an existing player or fill manual override fields.' },
+        { name: 'playerName', title: 'Manual Player Name', type: 'string', hidden: ({ parent }) => !!parent?.player },
+        { name: 'team', title: 'Manual Team', type: 'string', hidden: ({ parent }) => !!parent?.player },
+        { name: 'position', title: 'Manual Position', type: 'string', description: 'e.g. QB, WR, RB', hidden: ({ parent }) => !!parent?.player },
+        { name: 'headshot', title: 'Manual Headshot', type: 'image', options: { hotspot: true }, hidden: ({ parent }) => !!parent?.player, fields: [ { name: 'alt', type: 'string', title: 'Alt Text' } ] },
+        { name: 'style', title: 'Style Variant', type: 'string', options: { list: [
+          { title: 'Large Banner', value: 'banner' },
+          { title: 'Inline Compact', value: 'inline' },
+          { title: 'Card', value: 'card' }
+        ] }, initialValue: 'banner' },
+        { name: 'subtitle', title: 'Subtitle / Tagline', type: 'string', description: 'Optional short context line' },
+        { name: 'useTeamColors', title: 'Auto Team Colors', type: 'boolean', initialValue: true, description: 'Apply NFL team color background (uses team code). Works with reference or manual team.' },
+      ],
+      preview: {
+        select: { title: 'player.name', refTeam: 'player.team', manualName: 'playerName', manualTeam: 'team', mediaRef: 'player.headshot', mediaManual: 'headshot' },
+        prepare(sel) {
+          const title = sel.title || sel.manualName || 'Player Heading'
+          const subtitle = sel.refTeam || sel.manualTeam || ''
+          const media = sel.mediaRef || sel.mediaManual
+          return { title, subtitle, media }
+        }
+      }
+    }),
   ],
 })

@@ -3,6 +3,46 @@
 import { PortableTextComponents } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
+// NOTE: We avoid runtime fetching in portable text render to keep it static.
+// Player reference data should be GROQ-populated when querying the document.
+type SanityImageRef = { asset?: { _ref?: string, url?: string }; alt?: string }
+const urlFor = (src: SanityImageRef | undefined) => src?.asset?.url || ''
+
+// Basic NFL team color map (primary, secondary)
+const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
+  BUF: { bg: '#00338D', accent: '#C60C30' },
+  DAL: { bg: '#041E42', accent: '#869397' },
+  KC: { bg: '#E31837', accent: '#FFB81C' },
+  PHI: { bg: '#004C54', accent: '#A5ACAF' },
+  SF: { bg: '#AA0000', accent: '#B3995D' },
+  GB: { bg: '#203731', accent: '#FFB612' },
+  MIA: { bg: '#008E97', accent: '#F58220' },
+  NYJ: { bg: '#125740', accent: '#FFFFFF' },
+  NE: { bg: '#002244', accent: '#C60C30' },
+  PIT: { bg: '#101820', accent: '#FFB612' },
+  BAL: { bg: '#241773', accent: '#9E7C0C' },
+  DEN: { bg: '#002244', accent: '#FB4F14' },
+  CHI: { bg: '#0B162A', accent: '#C83803' },
+  DET: { bg: '#0076B6', accent: '#B0B7BC' },
+  MIN: { bg: '#4F2683', accent: '#FFC62F' },
+  NO: { bg: '#101820', accent: '#D3BC8D' },
+  LV: { bg: '#000000', accent: '#A5ACAF' },
+  LAC: { bg: '#0080C6', accent: '#FFC20E' },
+  LAR: { bg: '#003594', accent: '#FFA300' },
+  ATL: { bg: '#A71930', accent: '#000000' },
+  CAR: { bg: '#0085CA', accent: '#101820' },
+  CLE: { bg: '#311D00', accent: '#FF3C00' },
+  HOU: { bg: '#03202F', accent: '#A71930' },
+  IND: { bg: '#002C5F', accent: '#A2AAAD' },
+  JAX: { bg: '#101820', accent: '#D7A22A' },
+  TEN: { bg: '#0C2340', accent: '#4B92DB' },
+  SEA: { bg: '#002244', accent: '#69BE28' },
+  TB: { bg: '#D50A0A', accent: '#FF7900' },
+  WAS: { bg: '#5A1414', accent: '#FFB612' },
+  ARI: { bg: '#97233F', accent: '#FFB612' },
+  CIN: { bg: '#FB4F14', accent: '#000000' },
+  NYG: { bg: '#0B2265', accent: '#A71930' },
+};
 
 export const portableTextComponents: PortableTextComponents = {
   // Block-level components
@@ -113,7 +153,7 @@ export const portableTextComponents: PortableTextComponents = {
         <blockquote className={getQuoteStyles()}>
           <div className="relative">
             {/* Quote mark */}
-            <span className="text-4xl text-gray-500 absolute -top-2 -left-2 font-serif">"</span>
+            <span className="text-4xl text-gray-500 absolute -top-2 -left-2 font-serif">&ldquo;</span>
             
             {/* Quote text */}
             <p className={`text-lg leading-relaxed ${style === 'pullquote' ? 'text-xl font-medium' : ''} ${style === 'highlighted' ? 'text-white font-medium' : 'text-gray-200'} italic mb-4 ml-4`}>
@@ -140,6 +180,61 @@ export const portableTextComponents: PortableTextComponents = {
             )}
           </div>
         </blockquote>
+      )
+    },
+
+    // Player Heading component
+    playerHeading: ({ value }) => {
+      if (!value) return null
+      const { player, playerName, team, position, headshot, style = 'banner', subtitle, useTeamColors } = value
+
+      // If GROQ query expanded player reference, prefer those fields
+      const finalName = player?.name || playerName
+      const finalTeam = (player?.team || team || '').toUpperCase()
+      const finalPos = player?.position || position
+      const finalHeadshot: SanityImageRef | undefined = player?.headshot || headshot
+
+      const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+        switch (style) {
+          case 'inline':
+            return <div className="flex items-center gap-4 my-6 py-2 border-b border-gray-700">{children}</div>
+          case 'card':
+            return <div className="my-8 p-6 bg-gray-900/60 border border-gray-700 rounded-xl shadow-lg flex flex-col sm:flex-row gap-6">{children}</div>
+          default: // banner
+            const colors = useTeamColors && TEAM_COLORS[finalTeam]
+            const gradientClass = colors
+              ? `player-gradient bg-[linear-gradient(110deg,_${colors.bg}_0%,_${colors.accent}_100%)]`
+              : 'bg-gradient-to-r from-white/10 to-white/5'
+            return <div className={`relative my-10 py-10 px-6 sm:px-10 rounded-2xl overflow-hidden border border-white/10 backdrop-blur ${gradientClass}`}>{children}</div>
+        }
+      }
+
+      return (
+        <Wrapper>
+          <div className={style === 'banner' ? 'flex items-center gap-6' : 'flex items-center gap-4'}>
+            {finalHeadshot?.asset && (
+              <div className={style === 'banner' ? 'w-28 h-28 relative rounded-xl overflow-hidden ring-2 ring-white/20 flex-shrink-0' : 'w-20 h-20 relative rounded-lg overflow-hidden flex-shrink-0'}>
+                <Image
+                  src={urlFor(finalHeadshot).toString()}
+                  alt={finalHeadshot.alt || finalName || 'Player headshot'}
+                  fill
+                  className="object-cover"
+                  sizes="128px"
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <h2 className={style === 'inline' ? 'text-2xl font-bold' : style === 'card' ? 'text-3xl font-extrabold' : 'text-4xl font-extrabold tracking-tight'}>
+                {finalName}
+              </h2>
+              <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-wide text-gray-300">
+                {finalTeam && <span className="px-2 py-0.5 bg-white/10 rounded-md text-white/90">{finalTeam}</span>}
+                {finalPos && <span className="px-2 py-0.5 bg-white/5 rounded-md text-gray-300">{finalPos}</span>}
+              </div>
+              {subtitle && <p className="text-gray-200 text-sm mt-2 max-w-xl">{subtitle}</p>}
+            </div>
+          </div>
+        </Wrapper>
       )
     },
 
