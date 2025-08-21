@@ -49,6 +49,20 @@ export default defineType({
       rows: 3,
     }),
     defineField({
+      name: 'players',
+      title: 'Related Players',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'player' }],
+          options: { disableNew: false }
+        }
+      ],
+      description: 'Players central to these rankings (drives cross-linking & potential future filtering).',
+      options: { layout: 'tags' }
+    }),
+    defineField({
       name: 'coverImage',
       title: 'Cover Image',
       type: 'image',

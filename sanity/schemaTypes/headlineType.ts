@@ -70,6 +70,20 @@ const headlineType = defineType({
       to: [{ type: "category" }],
     }),
     defineField({
+      name: 'players',
+      title: 'Related Players',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'player' }],
+          options: { disableNew: false }
+        }
+      ],
+      description: 'Associate one or more players mentioned in this headline for richer linking & filtering.',
+      options: { layout: 'tags' }
+    }),
+    defineField({
       name: "tags",
       title: "Tags",
       type: "array",

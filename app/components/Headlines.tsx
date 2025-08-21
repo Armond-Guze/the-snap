@@ -41,6 +41,12 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
           url
         }
       },
+      players[]->{
+        name,
+        team,
+        position,
+        headshot{asset->{url}}
+      },
       priority,
       date,
       publishedAt,
