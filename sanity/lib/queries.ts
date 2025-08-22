@@ -17,7 +17,7 @@ export const headlineQuery = `
     author->{
       name
     },
-    tags
+  tags,
   twitterUrl,
   instagramUrl,
   tiktokUrl
@@ -94,8 +94,8 @@ export const headlineDetailQuery = `
     },
     youtubeVideoId,
     videoTitle,
-    twitterUrl,
-    twitterTitle,
+  twitterUrl,
+  twitterTitle,
   instagramUrl,
   instagramTitle,
   tiktokUrl,
