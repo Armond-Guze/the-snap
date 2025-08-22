@@ -138,6 +138,42 @@ const headlineType = defineType({
       description: "Optional: Custom title for the Twitter embed",
       hidden: ({ document }) => !document?.twitterUrl,
     }),
+    // Instagram Embed Fields
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram Post URL',
+      type: 'url',
+      description: 'Public Instagram post / reel URL (e.g. https://www.instagram.com/p/XXXXXXXXXXX/ or /reel/)',
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
+        return ok || 'Must be a valid Instagram post, reel, or IGTV URL';
+      })
+    }),
+    defineField({
+      name: 'instagramTitle',
+      title: 'Instagram Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.instagramUrl,
+    }),
+    // TikTok Embed Fields
+    defineField({
+      name: 'tiktokUrl',
+      title: 'TikTok Video URL',
+      type: 'url',
+      description: 'TikTok video URL (e.g. https://www.tiktok.com/@user/video/1234567890123456789)',
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
+        return ok || 'Must be a valid TikTok video URL';
+      })
+    }),
+    defineField({
+      name: 'tiktokTitle',
+      title: 'TikTok Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.tiktokUrl,
+    }),
     defineField({
       name: "priority",
       title: "Priority",

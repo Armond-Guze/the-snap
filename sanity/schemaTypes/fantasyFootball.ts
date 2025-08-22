@@ -118,6 +118,40 @@ export default defineType({
       type: 'string',
       hidden: ({ document }) => !document?.twitterUrl,
     }),
+    // Instagram embed
+    defineField({
+      name: 'instagramUrl',
+      title: 'Instagram Post URL',
+      type: 'url',
+      description: 'Public Instagram post or reel URL',
+      validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post/reel URL';
+      })
+    }),
+    defineField({
+      name: 'instagramTitle',
+      title: 'Instagram Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.instagramUrl,
+    }),
+    // TikTok embed
+    defineField({
+      name: 'tiktokUrl',
+      title: 'TikTok Video URL',
+      type: 'url',
+      description: 'TikTok video URL (https://www.tiktok.com/@user/video/<id>)',
+      validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url) || 'Must be a valid TikTok video URL';
+      })
+    }),
+    defineField({
+      name: 'tiktokTitle',
+      title: 'TikTok Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.tiktokUrl,
+    }),
     // Category reference (optional to group fantasy articles similarly to headlines)
     defineField({
       name: 'category',

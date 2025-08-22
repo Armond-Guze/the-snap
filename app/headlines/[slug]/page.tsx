@@ -6,6 +6,8 @@ import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
 import YouTubeEmbed from "@/app/components/YoutubeEmbed";
 import TwitterEmbed from "@/app/components/TwitterEmbed";
+import InstagramEmbed from "@/app/components/InstagramEmbed";
+import TikTokEmbed from "@/app/components/TikTokEmbed";
 import ReadingTime from "@/app/components/ReadingTime";
 import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
@@ -141,7 +143,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
-          {/* Video/Social Section - YouTube or Twitter */}
+          {/* Video/Social Section - Priority: YouTube > Twitter > Instagram > TikTok */}
           {headline.youtubeVideoId && (
             <div className="mb-4">
               <YouTubeEmbed 
@@ -151,14 +153,19 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               />
             </div>
           )}
-          
-          {/* Twitter Embed - Only show if Twitter URL exists and no YouTube video */}
           {!headline.youtubeVideoId && headline.twitterUrl && (
             <div className="mb-4 w-full">
-              <TwitterEmbed 
-                twitterUrl={headline.twitterUrl}
-                className="w-full"
-              />
+              <TwitterEmbed twitterUrl={headline.twitterUrl} className="w-full" />
+            </div>
+          )}
+          {!headline.youtubeVideoId && !headline.twitterUrl && headline.instagramUrl && (
+            <div className="mb-4 w-full">
+              <InstagramEmbed url={headline.instagramUrl} title={headline.instagramTitle} className="w-full" />
+            </div>
+          )}
+            {!headline.youtubeVideoId && !headline.twitterUrl && !headline.instagramUrl && headline.tiktokUrl && (
+            <div className="mb-4 w-full">
+              <TikTokEmbed url={headline.tiktokUrl} title={headline.tiktokTitle} className="w-full" />
             </div>
           )}
           

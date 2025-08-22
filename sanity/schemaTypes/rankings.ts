@@ -137,6 +137,28 @@ export default defineType({
       hidden: ({ document }) => !document?.showAsArticle,
     }),
     defineField({
+      name: 'instagramUrl',
+      title: 'Instagram Post URL',
+      type: 'url',
+      description: 'Instagram post/reel URL (shown if no YouTube & no Twitter embed)',
+      hidden: ({ document }) => !document?.showAsArticle,
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post/reel URL';
+      })
+    }),
+    defineField({
+      name: 'tiktokUrl',
+      title: 'TikTok Video URL',
+      type: 'url',
+      description: 'TikTok video URL (shown if no YouTube, Twitter, Instagram)',
+      hidden: ({ document }) => !document?.showAsArticle,
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url) || 'Must be a valid TikTok video URL';
+      })
+    }),
+    defineField({
       name: 'teams',
       title: 'Team Rankings',
       type: 'array',

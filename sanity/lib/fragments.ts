@@ -121,6 +121,8 @@ export const rankingFields = `
   youtubeVideoId,
   videoTitle,
   twitterUrl,
+  instagramUrl,
+  tiktokUrl,
   ${seoFields}
 `;
 
@@ -172,6 +174,8 @@ export const unifiedContentFields = `
   youtubeVideoId,
   videoTitle,
   twitterUrl,
+  instagramUrl,
+  tiktokUrl,
   
   ${seoFields}
 `;

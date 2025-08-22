@@ -5,6 +5,8 @@ import { client } from '@/sanity/lib/client';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
+import InstagramEmbed from '@/app/components/InstagramEmbed';
+import TikTokEmbed from '@/app/components/TikTokEmbed';
 import ReadingTime from '@/app/components/ReadingTime';
 import SocialShare from '@/app/components/SocialShare';
 import Breadcrumb from '@/app/components/Breadcrumb';
@@ -30,6 +32,10 @@ interface FantasyDetail {
   videoTitle?: string;
   twitterUrl?: string;
   twitterTitle?: string;
+  instagramUrl?: string;
+  instagramTitle?: string;
+  tiktokUrl?: string;
+  tiktokTitle?: string;
 }
 
 interface PageProps { params: Promise<{ slug: string }> }
@@ -42,7 +48,7 @@ export async function generateMetadata(props: PageProps) {
   const slug = decodeURIComponent(params.slug).trim();
   const article = await client.fetch<FantasyDetail>(
     `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
-      _id, title, summary, coverImage{asset->{url}}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle
+      _id, title, summary, coverImage{asset->{url}}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`,
     { slug }
   );
@@ -59,7 +65,7 @@ export default async function FantasyArticlePage(props: PageProps) {
   const slug = decodeURIComponent(params.slug).trim();
 
   const [article, otherContent] = await Promise.all([
-    client.fetch<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
+  client.fetch<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       _id, title, slug, summary,
       // Expand both body & content arrays (support legacy / new)
       content[]{
@@ -82,7 +88,7 @@ export default async function FantasyArticlePage(props: PageProps) {
       author->{name, image{asset->{url}}},
       publishedAt, date,
       category->{title, slug},
-      youtubeVideoId, videoTitle, twitterUrl, twitterTitle
+  youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`, { slug }),
     client.fetch<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
       _id, _type, title, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
@@ -142,6 +148,12 @@ export default async function FantasyArticlePage(props: PageProps) {
           )}
           {!article.youtubeVideoId && article.twitterUrl && (
             <div className="mb-4 w-full"><TwitterEmbed twitterUrl={article.twitterUrl} className="w-full" /></div>
+          )}
+          {!article.youtubeVideoId && !article.twitterUrl && article.instagramUrl && (
+            <div className="mb-4 w-full"><InstagramEmbed url={article.instagramUrl} title={article.instagramTitle} className="w-full" /></div>
+          )}
+          {!article.youtubeVideoId && !article.twitterUrl && !article.instagramUrl && article.tiktokUrl && (
+            <div className="mb-4 w-full"><TikTokEmbed url={article.tiktokUrl} title={article.tiktokTitle} className="w-full" /></div>
           )}
           <RelatedArticles currentSlug={slug} articles={otherContent} />
         </aside>

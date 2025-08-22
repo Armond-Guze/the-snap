@@ -18,6 +18,9 @@ export const headlineQuery = `
       name
     },
     tags
+  twitterUrl,
+  instagramUrl,
+  tiktokUrl
   }
 `;
 
@@ -93,6 +96,10 @@ export const headlineDetailQuery = `
     videoTitle,
     twitterUrl,
     twitterTitle,
+  instagramUrl,
+  instagramTitle,
+  tiktokUrl,
+  tiktokTitle,
     _createdAt,
     _updatedAt
   }

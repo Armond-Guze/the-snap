@@ -12,6 +12,8 @@ import { Metadata } from 'next';
 import RelatedArticles from "@/app/components/RelatedArticles";
 import YouTubeEmbed from "@/app/components/YoutubeEmbed";
 import TwitterEmbed from "@/app/components/TwitterEmbed";
+import InstagramEmbed from "@/app/components/InstagramEmbed";
+import TikTokEmbed from "@/app/components/TikTokEmbed";
 import ReadingTime from "@/app/components/ReadingTime";
 import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
@@ -302,7 +304,7 @@ function LegacyRankingsRenderer({
           
           {/* Sidebar */}
           <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
-            {/* Video/Social Section - YouTube or Twitter */}
+            {/* Video/Social Section - Priority: YouTube > Twitter > Instagram > TikTok */}
             {ranking.youtubeVideoId && (
               <div className="mb-4">
                 <YouTubeEmbed 
@@ -313,13 +315,19 @@ function LegacyRankingsRenderer({
               </div>
             )}
             
-            {/* Twitter Embed - Only show if Twitter URL exists and no YouTube video */}
             {!ranking.youtubeVideoId && ranking.twitterUrl && (
               <div className="mb-4 w-full">
-                <TwitterEmbed 
-                  twitterUrl={ranking.twitterUrl}
-                  className="w-full"
-                />
+                <TwitterEmbed twitterUrl={ranking.twitterUrl} className="w-full" />
+              </div>
+            )}
+            {!ranking.youtubeVideoId && !ranking.twitterUrl && ranking.instagramUrl && (
+              <div className="mb-4 w-full">
+                <InstagramEmbed url={ranking.instagramUrl} className="w-full" />
+              </div>
+            )}
+            {!ranking.youtubeVideoId && !ranking.twitterUrl && !ranking.instagramUrl && ranking.tiktokUrl && (
+              <div className="mb-4 w-full">
+                <TikTokEmbed url={ranking.tiktokUrl} className="w-full" />
               </div>
             )}
             

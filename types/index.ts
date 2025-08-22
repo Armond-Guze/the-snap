@@ -89,6 +89,10 @@ export interface Headline {
   videoTitle?: string;
   twitterUrl?: string;
   twitterTitle?: string;
+  instagramUrl?: string;
+  instagramTitle?: string;
+  tiktokUrl?: string;
+  tiktokTitle?: string;
   seo?: SEOData;
   _createdAt: string;
   _updatedAt: string;
@@ -192,6 +196,8 @@ export interface Rankings {
   youtubeVideoId?: string;
   videoTitle?: string;
   twitterUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
   teams: RankingTeam[];
   methodology?: PortableTextContent;
   seo?: SEOData;
