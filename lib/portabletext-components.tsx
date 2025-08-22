@@ -202,8 +202,8 @@ export const portableTextComponents: PortableTextComponents = {
             return <div className="my-8 p-6 bg-gray-900/60 border border-gray-700 rounded-xl shadow-lg flex flex-col sm:flex-row gap-6">{children}</div>
           default: // banner
             const colors = useTeamColors && TEAM_COLORS[finalTeam]
-            const gradientClass = colors
-              ? `player-gradient bg-[linear-gradient(110deg,_${colors.bg}_0%,_${colors.accent}_100%)]`
+            const gradientClass = colors && finalTeam
+              ? `player-gradient-${finalTeam}`
               : 'bg-gradient-to-r from-white/10 to-white/5'
             return <div className={`relative my-10 py-10 px-6 sm:px-10 rounded-2xl overflow-hidden border border-white/10 backdrop-blur ${gradientClass}`}>{children}</div>
         }
@@ -228,7 +228,7 @@ export const portableTextComponents: PortableTextComponents = {
                 {finalName}
               </h2>
               <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-wide text-gray-300">
-                {finalTeam && <span className="px-2 py-0.5 bg-white/10 rounded-md text-white/90">{finalTeam}</span>}
+                {finalTeam && <span className="px-2 py-0.5 bg-black/30 backdrop-blur-sm rounded-md text-white/90 border border-white/20">{finalTeam}</span>}
                 {finalPos && <span className="px-2 py-0.5 bg-white/5 rounded-md text-gray-300">{finalPos}</span>}
               </div>
               {subtitle && <p className="text-gray-200 text-sm mt-2 max-w-xl">{subtitle}</p>}

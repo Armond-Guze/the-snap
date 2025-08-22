@@ -81,7 +81,14 @@ export const headlineDetailQuery = `
       canonicalUrl
     },
     date,
-    body,
+    body[]{
+      ...,
+      _type == 'playerHeading' => {
+        ...,
+        headshot{asset->{url}, alt},
+        player->{name, team, position, headshot{asset->{url}, alt}}
+      }
+    },
     youtubeVideoId,
     videoTitle,
     twitterUrl,
