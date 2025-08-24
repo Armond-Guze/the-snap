@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import NavbarAd from './NavbarAd';
+// import NavbarAd from './NavbarAd'; // Ads temporarily disabled
 import BackToTop from './BackToTop';
 import PageTransition from './PageTransition';
 
@@ -16,7 +16,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <>
       {!isStudioRoute && <Navbar />}
-      {!isStudioRoute && !isArticlePage && !isHomePage && <NavbarAd />}
+  {/* {!isStudioRoute && !isArticlePage && !isHomePage && <NavbarAd />}  Ads disabled temporarily */}
       <PageTransition>
         <main>{children}</main>
       </PageTransition>

@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'Privacy Policy | The Game Snap',
+  description: 'Privacy practices, data collection, cookies, and user rights for The Game Snap.'
+};
+
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-black text-white">
@@ -163,9 +168,8 @@ export default function PrivacyPolicy() {
 
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-800 text-center">
-            <p className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} The Game Snap. All rights reserved.
-            </p>
+            <p className="text-gray-400 text-sm">© {new Date().getFullYear()} The Game Snap. All rights reserved.</p>
+            <p className="text-gray-500 text-xs mt-2">Last Updated: {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
         </div>
       </div>

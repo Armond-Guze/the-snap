@@ -4,6 +4,12 @@ import "./globals.css";
 import StructuredData, { createWebsiteStructuredData, createOrganizationStructuredData } from "./components/StructuredData";
 import LayoutWrapper from "./components/LayoutWrapper";
 import AnalyticsGate from "./components/AnalyticsGate";
+import CookieConsent from "./components/CookieConsent";
+
+// Centralized config (build-time evaluated)
+const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID; // e.g. ca-pub-7706858365277925
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION; // e.g. abcDEF123...
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,9 +71,8 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-actual-verification-code-here', // Replace with your Google Search Console verification code
-  },
+  // Inject Google Search Console verification only if provided
+  verification: GOOGLE_SITE_VERIFICATION ? { google: GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export default function RootLayout({
@@ -88,12 +93,15 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content="dark only" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7706858365277925"
-          crossOrigin="anonymous"
-        />
+        {/* Google AdSense (conditionally loaded) */}
+        {ADS_ENABLED && ADSENSE_CLIENT && (
+          <script
+            async
+            // NOTE: AdSense requires the client param in the src query string. Keep 'ca-pub-' prefix.
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
         <StructuredData data={websiteData} />
         <StructuredData data={organizationData} />
       </head>
@@ -103,6 +111,7 @@ export default function RootLayout({
         <LayoutWrapper>
           {children}
         </LayoutWrapper>
+        <CookieConsent />
         <AnalyticsGate />
       </body>
     </html>
