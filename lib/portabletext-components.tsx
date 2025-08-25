@@ -44,14 +44,81 @@ const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
   NYG: { bg: '#0B2265', accent: '#A71930' },
 };
 
+// Utility to create deterministic slug IDs from heading text (TOC + deep links)
+const slugify = (text: string) =>
+  text
+    .toLowerCase()
+    .trim()
+    // remove accents
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    // replace non word
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 export const portableTextComponents: PortableTextComponents = {
   // Block-level components
   block: {
-    normal: ({ children }) => <p className="mb-4 text-lg leading-relaxed">{children}</p>,
-    h1: ({ children }) => <h1 className="text-4xl font-bold mb-6 mt-8">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-3xl font-bold mb-4 mt-6">{children}</h2>,
-    h3: ({ children }) => <h3 className="text-2xl font-bold mb-3 mt-5">{children}</h3>,
-    h4: ({ children }) => <h4 className="text-xl font-bold mb-2 mt-4">{children}</h4>,
+    normal: ({ children }) => <p className="mb-5 text-[1.05rem] leading-relaxed tracking-[0.01em]">{children}</p>,
+    h1: ({ children }) => <h1 className="text-4xl font-extrabold mb-6 mt-10 tracking-tight scroll-mt-28" id={slugify(String(children))}>{children}</h1>,
+    h2: ({ children }) => {
+      const text = String(children);
+      const id = slugify(text);
+      return (
+        <h2
+          id={id}
+          className="group relative text-3xl font-bold mb-4 mt-12 tracking-tight scroll-mt-28"
+        >
+          <a
+            href={`#${id}`}
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            aria-label="Link to section"
+          >
+            #
+          </a>
+          {children}
+        </h2>
+      );
+    },
+    h3: ({ children }) => {
+      const text = String(children);
+      const id = slugify(text);
+      return (
+        <h3
+          id={id}
+          className="group relative text-2xl font-semibold mb-3 mt-10 tracking-tight scroll-mt-28"
+        >
+          <a
+            href={`#${id}`}
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            aria-label="Link to subsection"
+          >
+            #
+          </a>
+          {children}
+        </h3>
+      );
+    },
+    h4: ({ children }) => {
+      const text = String(children);
+      const id = slugify(text);
+      return (
+        <h4
+          id={id}
+          className="group relative text-xl font-semibold mb-2 mt-8 tracking-tight scroll-mt-28"
+        >
+          <a
+            href={`#${id}`}
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            aria-label="Link to subsection"
+          >
+            #
+          </a>
+          {children}
+        </h4>
+      );
+    },
     blockquote: ({ children }) => (
       <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 text-gray-300 bg-gray-900/50 py-4 rounded-r-lg">
         {children}

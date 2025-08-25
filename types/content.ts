@@ -38,6 +38,11 @@ export interface BaseContent {
         url: string;
       };
     };
+  role?: string; // editorial role / title
+  bio?: string;
+  experienceYears?: number;
+  twitter?: string;
+  website?: string;
   };
   seo?: SEOData;
 }

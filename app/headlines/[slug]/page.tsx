@@ -1,15 +1,10 @@
 import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { client } from "@/sanity/lib/client";
 import type { Headline, HeadlineListItem, HeadlinePageProps } from "@/types";
 import RelatedArticles from "@/app/components/RelatedArticles";
-import YouTubeEmbed from "@/app/components/YoutubeEmbed";
-import TwitterEmbed from "@/app/components/TwitterEmbed";
-import InstagramEmbed from "@/app/components/InstagramEmbed";
-import TikTokEmbed from "@/app/components/TikTokEmbed";
+// (Embeds will be reintroduced with lazy loading in a later phase)
 import ReadingTime from "@/app/components/ReadingTime";
-import SocialShare from "@/app/components/SocialShare";
 import Breadcrumb from "@/app/components/Breadcrumb";
 import ArticleViewTracker from "@/app/components/ArticleViewTracker";
 import { generateSEOMetadata } from "@/lib/seo";
@@ -18,6 +13,9 @@ import { calculateReadingTime, extractTextFromBlocks } from "@/lib/reading-time"
 import { formatArticleDate } from "@/lib/date-utils";
 import { portableTextComponents } from "@/lib/portabletext-components";
 import { Metadata } from 'next';
+import StructuredData, { createEnhancedArticleStructuredData } from "@/app/components/StructuredData";
+import ArticleViewWrapper from "@/app/components/ArticleViewWrapper";
+import ProgressiveImage from "@/app/components/ProgressiveImage";
 
 export const dynamic = "force-dynamic";
 
@@ -78,103 +76,86 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
     { label: headline.title }
   ];
 
-  return (
-    <main className="bg-black text-white min-h-screen">
-      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main Article Section */}
-        <article className="lg:col-span-2 flex flex-col">
-          {/* Breadcrumb */}
-          <div className="hidden sm:block">
-            <Breadcrumb items={breadcrumbItems} className="mb-4" />
-          </div>
-          
-          {/* Title + Meta */}
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">
-            {headline.title}
-          </h1>
-          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
-            {headline.author?.image?.asset?.url && (
-              <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image
-                  src={headline.author.image.asset.url}
-                  alt={headline.author.name || "Author"}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <span>
-              By {headline.author?.name || "Unknown"} •{" "}
-              {formatArticleDate(headline.date)}
-            </span>
-            <span className="text-gray-500">•</span>
-            <ReadingTime minutes={readingTime} />
-          </div>
-          {/* Cover Image */}
-          {headline.coverImage?.asset?.url && (
-            <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-  <Image
-    src={headline.coverImage.asset.url}
-    alt={headline.title}
-    fill
-    className="object-cover w-full h-full"
-    priority
-  />
-</div>
-            </div>
-          )}
-          {/* Body Text */}
-          <section className="w-full mb-8">
-            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-              {headline.body && <PortableText value={headline.body} components={portableTextComponents} />}
-            </div>
-          </section>
+  // Extract headings for TOC (mirror slugify logic: keep in sync with portabletext-components)
+  const slugify = (text: string) => text.toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  interface SpanChild { _type: string; text: string; }
+  interface Block { _type: string; style?: string; children?: SpanChild[]; }
+  const tocHeadings = (headline.body as Block[] | undefined || [])
+    .filter(b => b._type === 'block' && b.style && ['h2','h3','h4'].includes(b.style))
+    .map(b => {
+      const text = (b.children || []).map(c => c.text).join(' ');
+      return { id: slugify(text), text, level: Number(b.style!.replace('h','')) };
+    });
 
-          {/* Social Share */}
-          <SocialShare 
-            url={`https://thegamesnap.com/headlines/${trimmedSlug}`}
-            title={headline.title}
-            description={headline.summary || ''}
-            variant="compact"
-            className="mb-8"
-          />
-        </article>
-        
-        {/* Sidebar */}
-        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
-          {/* Video/Social Section - Priority: YouTube > Twitter > Instagram > TikTok */}
-          {headline.youtubeVideoId && (
-            <div className="mb-4">
-              <YouTubeEmbed 
-                videoId={headline.youtubeVideoId}
-                title={headline.videoTitle || `Video: ${headline.title}`}
-                variant="article"
+  const shareUrl = `https://thegamesnap.com/headlines/${trimmedSlug}`;
+
+  // Structured Data
+  const articleSD = createEnhancedArticleStructuredData({
+    headline: headline.title,
+    description: headline.summary || '',
+    canonicalUrl: shareUrl,
+    images: [
+      ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : []),
+    ],
+    datePublished: headline.date,
+    dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date,
+    author: { name: headline.author?.name || 'Staff Writer' },
+    articleSection: headline.category?.title,
+    keywords: headline.tags?.map((t: { title: string }) => t.title),
+    speakableSelectors: ['h1','meta[name="description"]'],
+  });
+
+  return (
+    <main className="bg-black text-white min-h-screen pb-20">
+      <StructuredData data={articleSD} />
+      <ArticleViewWrapper headings={tocHeadings} shareUrl={shareUrl} title={headline.title} category={headline.category?.title}>
+        <article className="flex flex-col">
+          <div className="hidden sm:block">
+            <Breadcrumb items={breadcrumbItems} className="mb-6" />
+          </div>
+          <header className="mb-8">
+            <div className="flex items-center gap-2 mb-3 text-xs uppercase tracking-wide text-emerald-400 font-medium">
+              {headline.category?.title && <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-400/30 rounded">{headline.category.title}</span>}
+              <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-400/30 rounded">Analysis</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.1] tracking-tight mb-6 max-w-[18ch]">
+              {headline.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+              {headline.author?.name && (
+                <span className="font-medium text-white/90">By {headline.author.name}{headline.author && 'role' in headline.author && (headline.author as { role?: string }).role ? `, ${(headline.author as { role?: string }).role}` : ''}</span>
+              )}
+              <span className="w-1 h-1 rounded-full bg-gray-600" />
+              <time dateTime={headline.date}>{formatArticleDate(headline.date)}</time>
+              <span className="w-1 h-1 rounded-full bg-gray-600" />
+              <ReadingTime minutes={readingTime} />
+              {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
+                <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
+              )}
+            </div>
+          </header>
+          {headline.coverImage?.asset?.url && (
+            <div className="mb-10 -mx-6 md:mx-0">
+              <ProgressiveImage
+                src={headline.coverImage.asset.url}
+                alt={headline.title}
+                fill
+                aspect="16/9"
+                priority
               />
+              {headline.summary && (
+                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-[70ch]">{headline.summary}</p>
+              )}
             </div>
           )}
-          {!headline.youtubeVideoId && headline.twitterUrl && (
-            <div className="mb-4 w-full">
-              <TwitterEmbed twitterUrl={headline.twitterUrl} className="w-full" />
-            </div>
-          )}
-          {!headline.youtubeVideoId && !headline.twitterUrl && headline.instagramUrl && (
-            <div className="mb-4 w-full">
-              <InstagramEmbed url={headline.instagramUrl} title={headline.instagramTitle} className="w-full" />
-            </div>
-          )}
-            {!headline.youtubeVideoId && !headline.twitterUrl && !headline.instagramUrl && headline.tiktokUrl && (
-            <div className="mb-4 w-full">
-              <TikTokEmbed url={headline.tiktokUrl} title={headline.tiktokTitle} className="w-full" />
-            </div>
-          )}
-          
-          {/* Related Articles */}
-          <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
-        </aside>
-      </div>
-      
-      {/* Article View Tracker */}
+          <div className="prose prose-invert max-w-[72ch] text-white">
+            {headline.body && <PortableText value={headline.body} components={portableTextComponents} />}
+          </div>
+          <div className="mt-12 border-t border-white/10 pt-6">
+            <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
+          </div>
+        </article>
+      </ArticleViewWrapper>
       <ArticleViewTracker 
         slug={trimmedSlug}
         headlineId={headline._id}
