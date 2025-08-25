@@ -77,7 +77,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   ];
 
   // Extract headings for TOC (mirror slugify logic: keep in sync with portabletext-components)
-  const slugify = (text: string) => text.toLowerCase().trim().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+  const slugify = (text: string) => text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
   interface SpanChild { _type: string; text: string; }
   interface Block { _type: string; style?: string; children?: SpanChild[]; }
   const tocHeadings = (headline.body as Block[] | undefined || [])
@@ -107,7 +107,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   return (
     <main className="bg-black text-white min-h-screen pb-20">
-      <StructuredData data={articleSD} />
+  <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />
       <ArticleViewWrapper headings={tocHeadings} shareUrl={shareUrl} title={headline.title} category={headline.category?.title}>
         <article className="flex flex-col">
           <div className="hidden sm:block">

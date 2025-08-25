@@ -102,8 +102,8 @@ export default function RootLayout({
             crossOrigin="anonymous"
           />
         )}
-        <StructuredData data={websiteData} />
-        <StructuredData data={organizationData} />
+  <StructuredData id="sd-website" data={websiteData} />
+  <StructuredData id="sd-organization" data={organizationData} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}

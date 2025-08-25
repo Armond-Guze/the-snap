@@ -49,10 +49,8 @@ const slugify = (text: string) =>
   text
     .toLowerCase()
     .trim()
-    // remove accents
     .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    // replace non word
+    .replace(/[\u0300-\u036f]/g, '') // strip combining marks for wider runtime compatibility
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');

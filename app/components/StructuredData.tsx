@@ -2,12 +2,26 @@ import Script from 'next/script'
 
 interface StructuredDataProps {
   data: Record<string, unknown>
+  id?: string // allow multiple distinct structured data blocks
 }
 
-export default function StructuredData({ data }: StructuredDataProps) {
+export default function StructuredData({ data, id }: StructuredDataProps) {
+  const typeSegment = typeof data['@type'] === 'string' ? (data['@type'] as string).toLowerCase() : 'data';
+  // Attempt to read a headline or name field without using any casting
+  const possibleHeadline = typeof (data as Record<string, unknown>)['headline'] === 'string'
+    ? (data as Record<string, unknown>)['headline'] as string
+    : (typeof (data as Record<string, unknown>)['name'] === 'string'
+        ? (data as Record<string, unknown>)['name'] as string
+        : 'global');
+  const headlineSegment = possibleHeadline
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .slice(0, 40);
+  const derivedId = id || `sd-${typeSegment}-${headlineSegment}`;
+
   return (
     <Script
-      id="structured-data"
+      id={derivedId}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
