@@ -80,34 +80,44 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   const slugify = (text: string) => text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
   interface SpanChild { _type: string; text: string; }
   interface Block { _type: string; style?: string; children?: SpanChild[]; }
-  const tocHeadings = (headline.body as Block[] | undefined || [])
-    .filter(b => b._type === 'block' && b.style && ['h2','h3','h4'].includes(b.style))
+  const rawBlocks: Block[] = Array.isArray(headline.body) ? (headline.body as Block[]) : [];
+  const tocHeadings = rawBlocks
+    .filter(b => b && b._type === 'block' && typeof b.style === 'string' && ['h2','h3','h4'].includes(b.style))
     .map(b => {
-      const text = (b.children || []).map(c => c.text).join(' ');
-      return { id: slugify(text), text, level: Number(b.style!.replace('h','')) };
+      const text = Array.isArray(b.children)
+        ? b.children.map(c => (typeof c.text === 'string' ? c.text : '')).join(' ').trim()
+        : '';
+      const level = Number(b.style!.replace('h','')) || 2;
+      const id = slugify(text || `section-${level}-${Math.random().toString(36).slice(2,8)}`);
+      return { id, text: text || 'Section', level };
     });
 
   const shareUrl = `https://thegamesnap.com/headlines/${trimmedSlug}`;
 
   // Structured Data
-  const articleSD = createEnhancedArticleStructuredData({
-    headline: headline.title,
-    description: headline.summary || '',
-    canonicalUrl: shareUrl,
-    images: [
-      ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : []),
-    ],
-    datePublished: headline.date,
-    dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date,
-    author: { name: headline.author?.name || 'Staff Writer' },
-    articleSection: headline.category?.title,
-    keywords: headline.tags?.map((t: { title: string }) => t.title),
-    speakableSelectors: ['h1','meta[name="description"]'],
-  });
+  let articleSD; // wrap in try/catch to avoid hard crash
+  try {
+    articleSD = createEnhancedArticleStructuredData({
+      headline: headline.title,
+      description: headline.summary || '',
+      canonicalUrl: shareUrl,
+      images: [
+        ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : []),
+      ],
+      datePublished: headline.date,
+      dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date,
+      author: { name: headline.author?.name || 'Staff Writer' },
+      articleSection: headline.category?.title,
+      keywords: headline.tags?.map((t: { title: string }) => t.title),
+      speakableSelectors: ['h1','meta[name="description"]'],
+    });
+  } catch (e) {
+    console.error('Structured data generation failed', e);
+  }
 
   return (
     <main className="bg-black text-white min-h-screen pb-20">
-  <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />
+  {articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
       <ArticleViewWrapper headings={tocHeadings} shareUrl={shareUrl} title={headline.title} category={headline.category?.title}>
         <article className="flex flex-col">
           <div className="hidden sm:block">
@@ -149,7 +159,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             </div>
           )}
           <div className="prose prose-invert max-w-[72ch] text-white">
-            {headline.body && <PortableText value={headline.body} components={portableTextComponents} />}
+            {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
           </div>
           <div className="mt-12 border-t border-white/10 pt-6">
             <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
