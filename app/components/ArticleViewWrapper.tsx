@@ -11,9 +11,10 @@ interface ArticleViewWrapperProps {
   shareUrl: string;
   title: string;
   category?: string;
+  rightRailExtras?: React.ReactNode; // e.g. related articles, ads, newsletter
 }
 
-export default function ArticleViewWrapper({ children, headings, shareUrl, title }: ArticleViewWrapperProps) {
+export default function ArticleViewWrapper({ children, headings, shareUrl, title, rightRailExtras }: ArticleViewWrapperProps) {
   const [showFloatingShare, setShowFloatingShare] = useState(false);
 
   useEffect(() => {
@@ -35,8 +36,8 @@ export default function ArticleViewWrapper({ children, headings, shareUrl, title
           {children}
         </div>
         <aside className="hidden lg:block lg:col-span-4 xl:col-span-3 pt-4 space-y-10 sticky top-24 h-max">
-          <TableOfContents headings={headings} />
-          {/* Placeholder for future modules (related, ads, next up, newsletter) */}
+          {headings.length > 0 && <TableOfContents headings={headings} />}
+          {rightRailExtras}
         </aside>
       </div>
       {showFloatingShare && (

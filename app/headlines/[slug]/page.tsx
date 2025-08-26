@@ -118,7 +118,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   return (
     <main className="bg-black text-white min-h-screen pb-20">
   {articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
-      <ArticleViewWrapper headings={tocHeadings} shareUrl={shareUrl} title={headline.title} category={headline.category?.title}>
+  <ArticleViewWrapper headings={tocHeadings} shareUrl={shareUrl} title={headline.title} category={headline.category?.title} rightRailExtras={<RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />}>
         <article className="flex flex-col">
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-6" />
@@ -145,14 +145,16 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             </div>
           </header>
           {headline.coverImage?.asset?.url && (
-            <div className="mb-10 -mx-6 md:mx-0">
-              <ProgressiveImage
-                src={headline.coverImage.asset.url}
-                alt={headline.title}
-                fill
-                aspect="16/9"
-                priority
-              />
+            <div className="mb-10 -mx-6 md:mx-0 lg:mx-0 lg:pr-10 lg:max-w-[880px]">
+              <div className="lg:rounded-xl overflow-hidden">
+                <ProgressiveImage
+                  src={headline.coverImage.asset.url}
+                  alt={headline.title}
+                  fill
+                  aspect="16/9"
+                  priority
+                />
+              </div>
               {headline.summary && (
                 <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-[70ch]">{headline.summary}</p>
               )}
@@ -161,7 +163,8 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <div className="prose prose-invert max-w-[72ch] text-white">
             {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
           </div>
-          <div className="mt-12 border-t border-white/10 pt-6">
+          {/* Related articles for mobile (bottom). Hidden on large where sidebar shows them */}
+          <div className="mt-12 border-t border-white/10 pt-6 lg:hidden">
             <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
           </div>
         </article>
