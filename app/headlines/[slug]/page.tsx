@@ -97,6 +97,12 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   // Structured Data
   let articleSD; // wrap in try/catch to avoid hard crash
   try {
+  // Safely derive keyword strings from tags; guard against null/invalid entries coming from Sanity
+  const keywordList = Array.isArray(headline.tags)
+    ? headline.tags
+      .map(t => (t && typeof t.title === 'string' ? t.title.trim() : null))
+      .filter((t): t is string => !!t && t.length > 0)
+    : undefined;
     articleSD = createEnhancedArticleStructuredData({
       headline: headline.title,
       description: headline.summary || '',
@@ -108,7 +114,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
       dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date,
       author: { name: headline.author?.name || 'Staff Writer' },
       articleSection: headline.category?.title,
-      keywords: headline.tags?.map((t: { title: string }) => t.title),
+    keywords: keywordList && keywordList.length ? keywordList : undefined,
       speakableSelectors: ['h1','meta[name="description"]'],
     });
   } catch (e) {
