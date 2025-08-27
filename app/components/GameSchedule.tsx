@@ -2,7 +2,7 @@
 
 import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import styles from './GameSchedule.module.css';
 
 interface Game {
@@ -57,29 +57,69 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const featuredGames = games;
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  // Separate state for mobile horizontal list
+  const [canMobileScrollLeft, setCanMobileScrollLeft] = useState(false);
+  const [canMobileScrollRight, setCanMobileScrollRight] = useState(true);
+  const [partialDesktopId, setPartialDesktopId] = useState<string | null>(null);
+  const [partialMobileId, setPartialMobileId] = useState<string | null>(null);
+  const desktopRef = useRef<HTMLDivElement | null>(null);
+  const mobileRef = useRef<HTMLDivElement | null>(null);
 
-  const checkScrollButtons = () => {
-    const container = document.getElementById('games-container');
-    if (container) {
-      const { scrollLeft, scrollWidth, clientWidth } = container;
+  const detectPartial = useCallback((container: HTMLElement, setState: (id: string | null) => void) => {
+    /*
+      Identify the first card whose right edge extends beyond the visible container (trailing partial card).
+      We purposefully ignore a small sub‑pixel variance by using Math.ceil on positions.
+    */
+    const cards = Array.from(container.querySelectorAll('[data-game-card="true"]')) as HTMLElement[];
+    const cRect = container.getBoundingClientRect();
+    const containerRight = Math.ceil(cRect.right);
+    let found: string | null = null;
+    for (const el of cards) {
+      const r = el.getBoundingClientRect();
+      const right = Math.ceil(r.right);
+      const left = Math.floor(r.left);
+      const fullyVisible = left >= cRect.left && right <= containerRight; // entirely within viewport
+      const overlapsRight = left < containerRight && right > containerRight; // sticks out to the right
+      if (!fullyVisible && overlapsRight) {
+        found = el.dataset.id || null;
+        break; // first such card is the trailing partial card
+      }
+    }
+    setState(found);
+  }, []);
+
+  const checkScrollButtons = useCallback(() => {
+    const desktop = desktopRef.current;
+    if (desktop) {
+      const { scrollLeft, scrollWidth, clientWidth } = desktop;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+      detectPartial(desktop, setPartialDesktopId);
     }
-  };
+    const mobile = mobileRef.current;
+    if (mobile) {
+      const { scrollLeft, scrollWidth, clientWidth } = mobile;
+      setCanMobileScrollLeft(scrollLeft > 0);
+      setCanMobileScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+      detectPartial(mobile, setPartialMobileId);
+    }
+  }, [detectPartial]);
 
   useEffect(() => {
-    const container = document.getElementById('games-container');
-    if (container) {
-      // Initial check
-      checkScrollButtons();
-      
-      // Add scroll event listener
-      container.addEventListener('scroll', checkScrollButtons);
-      
-      // Cleanup
-      return () => container.removeEventListener('scroll', checkScrollButtons);
-    }
-  }, [featuredGames]);
+    // Delay to next frame so layout is ready
+    const id = requestAnimationFrame(() => checkScrollButtons());
+    const desktop = desktopRef.current;
+    const mobile = mobileRef.current;
+    desktop?.addEventListener('scroll', checkScrollButtons, { passive: true });
+    mobile?.addEventListener('scroll', checkScrollButtons, { passive: true });
+    window.addEventListener('resize', checkScrollButtons);
+    return () => {
+      cancelAnimationFrame(id);
+      desktop?.removeEventListener('scroll', checkScrollButtons);
+      mobile?.removeEventListener('scroll', checkScrollButtons);
+      window.removeEventListener('resize', checkScrollButtons);
+    };
+  }, [featuredGames, checkScrollButtons]);
 
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
@@ -113,7 +153,11 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
     return (
-      <div key={game._id} className="bg-shadcn-zinc rounded-lg p-2 hover:bg-gray-800 transition-colors duration-300">
+      <div
+        key={game._id}
+        data-game-card-inner
+        className="rounded-lg p-2 transition-colors duration-300 border border-neutral-800 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-sm bg-[#111111]/95 hover:bg-[#181818]/95"
+      >
         {/* Date and Time Header} */}
         <div className="flex items-center justify-between mb-2">
           <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
@@ -206,13 +250,16 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             {/* Scrollable Games Container */}
             <div 
               id="mobile-games-container"
+              ref={mobileRef}
               className={`overflow-x-auto scrollbar-hide px-4 ${styles.mobileScrollContainer}`}
             >
               <div className="flex space-x-2 pb-2">
                 {featuredGames.map((game) => (
                   <div 
                     key={game._id} 
-                    className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard}`}
+                    data-game-card="true"
+                    data-id={game._id}
+                    className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard} ${partialMobileId === game._id ? styles.partialEdge : ''}`}
                   >
                     {renderGameCard(game)}
                   </div>
@@ -221,7 +268,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 <div className="w-2 flex-shrink-0"></div>
               </div>
             </div>
-
+            {/* Gradient overlays for mobile */}
+            {canMobileScrollLeft && (
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black via-black/40 to-transparent" />
+            )}
+            {canMobileScrollRight && (
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black via-black/40 to-transparent" />
+            )}
 
           </div>
         </div>
@@ -258,16 +311,26 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {/* Scrollable Games Container */}
           <div 
             id="games-container"
+            ref={desktopRef}
             className="overflow-x-auto scrollbar-hide mx-12 lg:mx-16 xl:mx-20 px-2"
           >
             <div className="flex space-x-2 pb-2">
               {featuredGames.map((game) => (
-                <div key={game._id} className="flex-shrink-0 w-36 min-w-36">
+                <div
+                  key={game._id}
+                  data-game-card="true"
+                  data-id={game._id}
+                  className={`flex-shrink-0 w-36 min-w-36 ${partialDesktopId === game._id ? styles.partialEdge : ''}`}
+                >
                   {renderGameCard(game)}
                 </div>
               ))}
             </div>
           </div>
+          {/* Keep left overlay; right handled by partial card shadow for better focus */}
+          {canScrollLeft && (
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black via-black/40 to-transparent" />
+          )}
         </div>
       </div>
     </section>

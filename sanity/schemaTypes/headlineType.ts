@@ -178,8 +178,8 @@ const headlineType = defineType({
       name: "priority",
       title: "Priority",
       type: "number",
-      description: "Lower numbers show first (e.g., 1 is the top story)",
-      validation: (Rule) => Rule.required().min(1).max(100),
+  description: "(Legacy - optional) Lower numbers show first. NEW: Use 'Homepage Settings' > 'Pinned Headlines' to control homepage ordering without renumbering.",
+  validation: (Rule) => Rule.min(1).max(100),
     }),
   ],
   groups: [

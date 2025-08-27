@@ -12,6 +12,7 @@ import { seoType } from './seoType'
 import fantasyFootball from './fantasyFootball'
 import { newsletterSubscriber } from './newsletterSubscriber'
 import { playerType } from './playerType'
+import { homepageSettings } from './homepageSettings'
 
 
 export const schemaTypes = [
@@ -29,4 +30,5 @@ export const schemaTypes = [
   fantasyFootball,
   newsletterSubscriber,
   playerType,
+  homepageSettings,
 ]

@@ -28,41 +28,58 @@ interface HeadlinesProps {
 }
 
 export default async function Headlines({ textureSrc, hideSummaries = false }: HeadlinesProps) {
-  // Query only for headline content (excluding rankings)
-  const headlinesQuery = `
-    *[_type == "headline" && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
-      _id,
-      _type,
-      title,
-      slug,
-      summary,
-      coverImage {
-        asset->{
-          url
+  // New strategy: Use Homepage Settings singleton for manual ordering (pinnedHeadlines),
+  // then append the rest of the latest published headlines.
+  // If no settings or no pinned items, we just fallback to newest.
+
+  const homepageHeadlinesQuery = `
+    {
+      "settings": *[_type == "homepageSettings"][0]{
+        pinnedHeadlines[]->@{
+          _id,
+          _type,
+          title,
+          slug,
+          summary,
+          coverImage { asset->{ url } },
+          players[]->{ name, team, position, headshot{asset->{url}} },
+          priority,
+          date,
+          publishedAt,
+          author->{ name },
+          tags,
+          published
         }
       },
-      players[]->{
-        name,
-        team,
-        position,
-        headshot{asset->{url}}
-      },
-      priority,
-      date,
-      publishedAt,
-      author->{
-        name
-      },
-      tags
+      "rest": *[_type == "headline" && published == true && !(_id in *[_type=="homepageSettings"][0].pinnedHeadlines[]._ref)]
+        | order(_createdAt desc){
+          _id,
+          _type,
+          title,
+          slug,
+          summary,
+          coverImage { asset->{ url } },
+          players[]->{ name, team, position, headshot{asset->{url}} },
+          priority,
+          date,
+          publishedAt,
+          author->{ name },
+          tags
+        }
     }
   `;
 
-  const headlines: HeadlineItem[] = await sanityFetch(
-    headlinesQuery,
+  const resultRaw = await sanityFetch(
+    homepageHeadlinesQuery,
     {},
     { next: { revalidate: 300 } },
     []
   );
+
+  const result = resultRaw as unknown as { settings?: { pinnedHeadlines?: (HeadlineItem & { published?: boolean })[] }, rest: HeadlineItem[] };
+
+  const pinned = (result.settings?.pinnedHeadlines || []).filter(h => h?.published !== false);
+  const headlines: HeadlineItem[] = [...pinned, ...result.rest];
 
   // Debug: Log the headlines data (dev only to avoid noisy production console / potential AdSense review clutter)
   if (process.env.NODE_ENV === 'development') {

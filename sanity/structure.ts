@@ -1,7 +1,23 @@
-import type {StructureResolver} from 'sanity/structure'
+import type { StructureResolver } from 'sanity/structure'
 
-// https://www.sanity.io/docs/structure-builder-cheat-sheet
-export const structure: StructureResolver = (S) =>
-  S.list()
+// Custom structure to surface the singleton settings doc & clean grouping
+export const structure: StructureResolver = (S) => {
+  const hiddenDocTypes = new Set(['homepageSettings'])
+
+  return S.list()
     .title('Content')
-    .items(S.documentTypeListItems())
+    .items([
+      // Singleton: Homepage Settings
+      S.listItem()
+        .title('Homepage Settings')
+        .id('homepageSettings')
+        .child(
+          S.document()
+            .schemaType('homepageSettings')
+            .documentId('homepageSettings')
+        ),
+      S.divider(),
+      // All other document types
+      ...S.documentTypeListItems().filter((li) => !hiddenDocTypes.has(li.getId() || ''))
+    ])
+}

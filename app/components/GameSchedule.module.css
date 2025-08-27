@@ -6,3 +6,35 @@
 .gameCard {
   scroll-snap-align: start;
 }
+
+/* Optional gradient mask utility (not currently applied) */
+.fadeEdge {
+  position: relative;
+}
+.fadeEdge:after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  background: linear-gradient(to left, rgba(0,0,0,0.9), rgba(0,0,0,0));
+}
+
+/* Highlight the partially visible trailing card with a soft shadow gradient */
+.partialEdge {
+  position: relative;
+}
+.partialEdge:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55px; /* wide enough to cover revealed sliver */
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to left, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+  /* subtle inner glow edge */
+  box-shadow: inset -4px 0 8px -4px rgba(0,0,0,0.8);
+}
