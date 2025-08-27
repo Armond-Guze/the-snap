@@ -35,20 +35,20 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
   const homepageHeadlinesQuery = `
     {
       "settings": *[_type == "homepageSettings"][0]{
-        pinnedHeadlines[]->@{
+        pinnedHeadlines[]->{
           _id,
           _type,
-          title,
-          slug,
-          summary,
-          coverImage { asset->{ url } },
-          players[]->{ name, team, position, headshot{asset->{url}} },
-          priority,
-          date,
-          publishedAt,
-          author->{ name },
-          tags,
-          published
+            title,
+            slug,
+            summary,
+            coverImage { asset->{ url } },
+            players[]->{ name, team, position, headshot{asset->{url}} },
+            priority,
+            date,
+            publishedAt,
+            author->{ name },
+            tags,
+            published
         }
       },
       "rest": *[_type == "headline" && published == true && !(_id in *[_type=="homepageSettings"][0].pinnedHeadlines[]._ref)]
@@ -76,10 +76,12 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
     []
   );
 
-  const result = resultRaw as unknown as { settings?: { pinnedHeadlines?: (HeadlineItem & { published?: boolean })[] }, rest: HeadlineItem[] };
+  interface HomepageResult { settings?: { pinnedHeadlines?: (HeadlineItem & { published?: boolean })[] }; rest?: HeadlineItem[] }
+  const result: HomepageResult = resultRaw as unknown as HomepageResult;
 
   const pinned = (result.settings?.pinnedHeadlines || []).filter(h => h?.published !== false);
-  const headlines: HeadlineItem[] = [...pinned, ...result.rest];
+  const rest = Array.isArray(result.rest) ? result.rest : [];
+  const headlines: HeadlineItem[] = [...pinned, ...rest];
 
   // Debug: Log the headlines data (dev only to avoid noisy production console / potential AdSense review clutter)
   if (process.env.NODE_ENV === 'development') {

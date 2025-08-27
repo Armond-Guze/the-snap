@@ -1,4 +1,5 @@
 import type { StructureResolver } from 'sanity/structure'
+import { CogIcon } from '@sanity/icons'
 
 // Custom structure to surface the singleton settings doc & clean grouping
 export const structure: StructureResolver = (S) => {
@@ -11,6 +12,7 @@ export const structure: StructureResolver = (S) => {
       S.listItem()
         .title('Homepage Settings')
         .id('homepageSettings')
+        .icon(CogIcon)
         .child(
           S.document()
             .schemaType('homepageSettings')
