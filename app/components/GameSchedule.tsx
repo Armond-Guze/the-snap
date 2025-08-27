@@ -254,12 +254,12 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               className={`overflow-x-auto scrollbar-hide px-4 ${styles.mobileScrollContainer}`}
             >
               <div className="flex space-x-2 pb-2">
-                {featuredGames.map((game) => (
+        {featuredGames.map((game, idx) => (
                   <div 
                     key={game._id} 
                     data-game-card="true"
                     data-id={game._id}
-                    className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard} ${partialMobileId === game._id ? styles.partialEdge : ''}`}
+          className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard} ${styles.gameCardShadow} ${idx === 0 ? '' : styles.withLeft} ${partialMobileId === game._id ? styles.partialEdge : ''}`}
                   >
                     {renderGameCard(game)}
                   </div>
@@ -315,12 +315,12 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             className="overflow-x-auto scrollbar-hide mx-12 lg:mx-16 xl:mx-20 px-2"
           >
             <div className="flex space-x-2 pb-2">
-              {featuredGames.map((game) => (
+        {featuredGames.map((game, idx) => (
                 <div
                   key={game._id}
                   data-game-card="true"
                   data-id={game._id}
-                  className={`flex-shrink-0 w-36 min-w-36 ${partialDesktopId === game._id ? styles.partialEdge : ''}`}
+          className={`flex-shrink-0 w-36 min-w-36 ${styles.gameCardShadow} ${idx === 0 ? '' : styles.withLeft} ${partialDesktopId === game._id ? styles.partialEdge : ''}`}
                 >
                   {renderGameCard(game)}
                 </div>
