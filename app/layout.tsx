@@ -60,6 +60,11 @@ export const metadata: Metadata = {
     creator: '@thesnap', // Replace with your actual Twitter handle
   images: ['/images/logo--design copy.png'],
   },
+  icons: {
+    icon: '/images/logo--design copy.png',
+    shortcut: '/images/logo--design copy.png',
+    apple: '/images/logo--design copy.png',
+  },
   robots: {
     index: true,
     follow: true,
@@ -93,6 +98,8 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content="dark only" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  {/* Explicit favicon links (using new logo image) */}
+  <link rel="icon" type="image/png" href="/images/logo--design copy.png" />
         {/* Google AdSense (conditionally loaded) */}
         {ADS_ENABLED && ADSENSE_CLIENT && (
           <script

@@ -46,18 +46,24 @@ export default function RelatedArticles({
             >
               <div className="flex gap-3 p-2 lg:p-3 rounded-md hover:bg-gray-800/50 transition-colors">
                 <div className="relative w-14 h-11 lg:w-20 lg:h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-700/40">
-                  {article.coverImage?.asset?.url ? (
-                    <Image
-                      src={article.coverImage.asset.url}
-                      alt={article.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Eye className="w-4 h-4 text-gray-400" />
-                    </div>
-                  )}
+                  {(() => {
+                    const img = article.featuredImage?.asset?.url || article.coverImage?.asset?.url || article.image?.asset?.url;
+                    if (img) {
+                      return (
+                        <Image
+                          src={img}
+                          alt={article.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      );
+                    }
+                    return (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Eye className="w-4 h-4 text-gray-400" />
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-white text-xs lg:text-sm leading-snug line-clamp-2 group-hover:text-gray-300 transition-colors">

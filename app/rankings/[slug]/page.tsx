@@ -110,7 +110,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
       null
     ),
     sanityFetch(
-      `*[(_type in ["unifiedContent", "headline", "powerRanking"]) && published == true] | order(_createdAt desc)[0...6]{
+      `*[(_type in ["unifiedContent", "headline", "powerRanking", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
         _id,
         _type,
         title,
@@ -123,9 +123,10 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         author-> {
           name
         },
-        featuredImage {
-          asset->{ url }
-        }
+        // support various image field names
+        featuredImage { asset->{ url } },
+        coverImage { asset->{ url } },
+        image { asset->{ url } }
       }`,
       {},
       { next: { revalidate: 300 } },
@@ -539,18 +540,15 @@ function PowerRankingsStyleRanking({ ranking }: { ranking: Rankings }) {
 function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
   const change = team.previousRank ? team.previousRank - team.rank : 0;
   const movement = getMovementIndicator(change);
+  const teamCode = getTeamCode(team.teamName || '');
 
   return (
     <article className="group">
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
-        {team.teamColor && (
-          <div
-            className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ backgroundColor: team.teamColor }}
-            aria-hidden="true"
-          />
+        {teamCode && (
+          <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full player-gradient-${teamCode}`} />
         )}
         
         <div className="flex items-center gap-4">
@@ -634,18 +632,15 @@ function getMovementIndicator(change: number): MovementIndicator {
 function RankingTeamCard({ team }: { team: RankingTeam }) {
   const change = team.previousRank ? team.previousRank - team.rank : 0;
   const movement = getMovementIndicator(change);
+  const teamCode = getTeamCode(team.teamName || '');
 
   return (
     <article className="group">
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
-        {team.teamColor && (
-          <div
-            className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ backgroundColor: team.teamColor }}
-            aria-hidden="true"
-          />
+        {teamCode && (
+          <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full player-gradient-${teamCode}`} />
         )}
         
         <div className="flex items-center gap-4">
@@ -713,4 +708,46 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
       </div>
     </article>
   );
+}
+
+// Map full team names (or common variations) to standard NFL abbreviations used in gradient class names
+const TEAM_NAME_TO_CODE: Record<string, string> = {
+  'dallas cowboys': 'DAL',
+  'buffalo bills': 'BUF',
+  'kansas city chiefs': 'KC',
+  'philadelphia eagles': 'PHI',
+  'san francisco 49ers': 'SF',
+  'green bay packers': 'GB',
+  'miami dolphins': 'MIA',
+  'new york jets': 'NYJ',
+  'new england patriots': 'NE',
+  'pittsburgh steelers': 'PIT',
+  'baltimore ravens': 'BAL',
+  'denver broncos': 'DEN',
+  'chicago bears': 'CHI',
+  'detroit lions': 'DET',
+  'minnesota vikings': 'MIN',
+  'new orleans saints': 'NO',
+  'las vegas raiders': 'LV',
+  'los angeles chargers': 'LAC',
+  'los angeles rams': 'LAR',
+  'atlanta falcons': 'ATL',
+  'carolina panthers': 'CAR',
+  'cleveland browns': 'CLE',
+  'houston texans': 'HOU',
+  'indianapolis colts': 'IND',
+  'jacksonville jaguars': 'JAX',
+  'tennessee titans': 'TEN',
+  'seattle seahawks': 'SEA',
+  'tampa bay buccaneers': 'TB',
+  'washington commanders': 'WAS',
+  'arizona cardinals': 'ARI',
+  'cincinnati bengals': 'CIN',
+  'new york giants': 'NYG'
+};
+
+function getTeamCode(name: string): string | null {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  return TEAM_NAME_TO_CODE[key] || null;
 }

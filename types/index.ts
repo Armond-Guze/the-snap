@@ -104,6 +104,8 @@ export interface HeadlineListItem {
   title: string;
   slug: SanitySlug;
   coverImage?: SanityImageWithUrl;
+  featuredImage?: SanityImageWithUrl; // added for unified content support
+  image?: SanityImageWithUrl; // generic fallback image field
   summary?: string;
   date?: string;
   publishedAt?: string;

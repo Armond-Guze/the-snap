@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Instagram } from "lucide-react";
+import { Mail, Instagram, Youtube, Twitter, Music2 } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -73,6 +73,36 @@ const Footer = () => {
                 <Instagram size={16} />
                 <span>Instagram</span>
               </a>
+              <a
+                href="https://www.youtube.com/@thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on YouTube"
+              >
+                <Youtube size={16} />
+                <span>YouTube</span>
+              </a>
+              <a
+                href="https://twitter.com/thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on Twitter"
+              >
+                <Twitter size={16} />
+                <span>Twitter / X</span>
+              </a>
+              <a
+                href="https://www.tiktok.com/@thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on TikTok"
+              >
+                <Music2 size={16} />
+                <span>TikTok</span>
+              </a>
             </div>
           </div>
 
@@ -132,6 +162,36 @@ const Footer = () => {
                 <Instagram size={16} />
                 <span>Instagram</span>
               </a>
+              <a
+                href="https://www.youtube.com/@thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on YouTube"
+              >
+                <Youtube size={16} />
+                <span>YouTube</span>
+              </a>
+              <a
+                href="https://twitter.com/thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on Twitter"
+              >
+                <Twitter size={16} />
+                <span>Twitter / X</span>
+              </a>
+              <a
+                href="https://www.tiktok.com/@thegamesnap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                aria-label="Visit The Game Snap on TikTok"
+              >
+                <Music2 size={16} />
+                <span>TikTok</span>
+              </a>
             </div>
           </MobileSection>
           <MobileSection title="Legal">
@@ -145,6 +205,14 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="mt-8 md:mt-12 pt-6 border-t border-gray-800">
+          {/* Quick social icon row */}
+          <div className="flex items-center justify-center mb-4 gap-6 text-gray-400">
+            <a href="https://www.instagram.com/thegamesnap" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram size={18} /></a>
+            <a href="https://www.youtube.com/@thegamesnap" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Youtube size={18} /></a>
+            <a href="https://twitter.com/thegamesnap" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Twitter size={18} /></a>
+            <a href="https://www.tiktok.com/@thegamesnap" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 size={18} /></a>
+            <a href="mailto:TheGameSnap@yahoo.com" aria-label="Email" className="hover:text-white transition-colors"><Mail size={18} /></a>
+          </div>
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
             <div className="text-xs text-gray-500 text-center md:text-left">
               &copy; {currentYear} The Game Snap. All rights reserved.

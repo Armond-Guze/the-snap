@@ -202,3 +202,6 @@ select.custom-select-dark, select.custom-select-dark option {
   color: #fff !important;
 }
 select.custom-select-dark option { font-weight: 500; }
+
+/* Team accent dynamic background (uses data-color attr set in components) */
+.team-accent[data-color] { background-color: var(--team-accent, #444); }
