@@ -185,3 +185,20 @@ twitter-widget iframe {
     max-height: 220px;
   }
 }
+
+/* Remove default white focus outlines/rings site-wide (user requested) */
+button:focus, a:focus, select:focus, input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* (Optional) If later you want keyboard-only focus styling, replace the above with:
+   :focus:not(:focus-visible){outline:none;box-shadow:none}
+   :focus-visible{outline:2px solid rgba(255,255,255,0.35);outline-offset:2px}
+*/
+
+/* Dark select dropdown styling */
+select.custom-select-dark, select.custom-select-dark option {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+select.custom-select-dark option { font-weight: 500; }

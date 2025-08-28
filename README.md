@@ -269,3 +269,19 @@ This codebase represents significant intellectual property including:
    - Test mobile experience on actual devices
 
 **Built with ❤️ for NFL fans who demand the best**
+
+---
+
+### 🔄 New Navbar & Profile Placeholder (2025-08)
+
+The header has been upgraded:
+
+* Left hamburger opens an off‑canvas mega menu with configurable feature boxes.
+* Configuration lives in `app/components/navConfig.ts` – add objects to extend links.
+* Centered logo widened to 150px target width.
+* Right side now includes persistent `SmartSearch` (desktop + inside panel on mobile) and a `ProfileMenu` placeholder.
+* `ProfileMenu` stores a lightweight local profile (favorite team) in `localStorage`; no external auth yet. Selecting a team updates the label; later this can swap the avatar or appear inline.
+* Provide a square placeholder avatar image at `public/images/avatar-placeholder.png` (not included by default).
+* Focus trapping + ESC support inside the mega menu for accessibility.
+
+Future steps: integrate real authentication (e.g., NextAuth) and persist favorite team to Sanity or a user DB, then surface chosen team’s logo in the navbar.
