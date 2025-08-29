@@ -20,15 +20,16 @@ const Footer = () => {
   <div className="hidden md:grid md:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div>
-            <div className="flex items-center space-x-3 mb-4">
+            <div className="flex flex-col items-start mb-4">
               <Image
-                src="/images/logo--design copy.png"
+                src="/images/thesnap-logo-transparent.png"
                 alt="The Game Snap Logo"
-                width={56}
-                height={56}
-                className="h-12 w-auto"
+                width={200}
+                height={200}
+                className="h-16 md:h-20 w-auto mb-3"
+                priority
               />
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-2xl font-bold text-white leading-snug">
                 The Game Snap
               </h3>
             </div>

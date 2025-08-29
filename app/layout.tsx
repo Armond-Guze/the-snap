@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: 'The Snap',
     images: [
       {
-  url: '/images/logo--design copy.png',
+  url: '/images/thesnap-logo-transparent.png',
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL News and Analysis',
@@ -58,12 +58,20 @@ export const metadata: Metadata = {
     title: "The Snap - NFL News, Power Rankings & Analysis",
     description: "Your premier destination for NFL insights, power rankings, and breaking news.",
     creator: '@thesnap', // Replace with your actual Twitter handle
-  images: ['/images/logo--design copy.png'],
+  images: ['/images/thesnap-logo-transparent.png'],
   },
   icons: {
-    icon: '/images/logo--design copy.png',
-    shortcut: '/images/logo--design copy.png',
-    apple: '/images/logo--design copy.png',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      // PNG fallbacks (replace with true square branded assets when available)
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '32x32' },
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '192x192' },
+      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '512x512' }
+    ],
+    apple: [
+      { url: '/favicon.svg', sizes: '180x180', type: 'image/svg+xml' }
+    ],
+    shortcut: ['/favicon.svg']
   },
   robots: {
     index: true,
@@ -89,7 +97,7 @@ export default function RootLayout({
   const organizationData = createOrganizationStructuredData(
     'The Snap', 
     'https://thegamesnap.com', 
-  'https://thegamesnap.com/images/logo--design copy.png'
+  'https://thegamesnap.com/images/thesnap-logo-transparent.png'
   )
 
   return (
@@ -98,8 +106,9 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content="dark only" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  {/* Explicit favicon links (using new logo image) */}
-  <link rel="icon" type="image/png" href="/images/logo--design copy.png" />
+  {/* Explicit favicon links (square SVG for crisp scaling) */}
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="alternate icon" href="/favicon.svg" />
         {/* Google AdSense (conditionally loaded) */}
         {ADS_ENABLED && ADSENSE_CLIENT && (
           <script

@@ -137,24 +137,24 @@ export default function Navbar() {
       <div className="flex-1 flex justify-center md:justify-start">
         <Link href="/" className="inline-flex items-center group">
           <Image
-            src="/images/logo--design copy.png"
+            src="/images/thesnap-logo-transparent.png"
             alt="The Snap Logo"
-            width={110}
-            height={110}
-            className="h-10 md:h-12 lg:h-14 w-auto transition-transform group-hover:scale-[1.03]"
+            width={220}
+            height={220}
+            className="h-16 md:h-20 lg:h-24 w-auto transition-transform group-hover:scale-[1.03]"
             priority
           />
         </Link>
       </div>
       {/* Desktop Nav Links */}
-      <div className="hidden md:flex items-center gap-6 mx-6">
+  <div className="hidden md:flex items-center gap-6 mx-6">
         {navItems.map(({ label, href, key }) => {
           const isActive = pathname === href;
           return (
             <Link
               key={key || label}
               href={href}
-              className={`relative text-sm font-medium tracking-wide transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-white after:transition-all after:duration-300 ${isActive ? 'text-white after:w-full' : 'text-white/60 hover:text-white after:w-0 hover:after:w-full'} focus:outline-none`}
+      className={`relative text-sm font-semibold tracking-wide transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-white after:transition-all after:duration-300 ${isActive ? 'text-white after:w-full' : 'text-white/60 hover:text-white after:w-0 hover:after:w-full'} focus:outline-none`}
             >
               {label}
             </Link>
@@ -176,7 +176,8 @@ export default function Navbar() {
         id="mega-menu-panel"
         role="dialog"
         aria-modal="true"
-        className={`absolute top-0 left-0 h-full w-[330px] max-w-[85%] bg-black border-r border-white/10 shadow-2xl flex flex-col transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute top-0 left-0 h-full w-[330px] max-w-[85%] border-r border-white/10 shadow-2xl flex flex-col transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'} 
+        bg-gradient-to-b from-[#101010] via-black to-[#050505] supports-[backdrop-filter]:bg-black/80 backdrop-blur-xl`}
       >
         {/* Fixed Header inside panel keeps close button position & shows logo */}
         <div className="relative h-16 flex items-center border-b border-white/10 px-4">
@@ -184,8 +185,10 @@ export default function Navbar() {
             <CgClose className="w-5 h-5 text-white" />
           </button>
           <Link href="/" onClick={handleLinkClick} className="mx-auto flex items-center">
-            <Image src="/images/logo--design copy.png" alt="The Snap Logo" width={110} height={110} className="h-8 w-auto" />
+            <Image src="/images/thesnap-logo-transparent.png" alt="The Snap Logo" width={220} height={220} className="h-14 w-auto" />
           </Link>
+          {/* subtle bottom glow line */}
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
         </div>
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 text-white">
@@ -200,12 +203,14 @@ export default function Navbar() {
                     key={key || label}
                     href={href}
                     onClick={handleLinkClick}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border h-24 px-3 py-3 text-center transition-all ${isActive ? 'border-white/40 bg-white/10 text-white' : 'border-white/10 text-white/70 hover:text-white hover:border-white/25 hover:bg-white/5'} focus:outline-none`}
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-2xl border h-24 px-3 py-3 text-center transition-all 
+                    before:absolute before:inset-0 before:rounded-2xl before:pointer-events-none before:opacity-0 before:transition-opacity before:bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_70%)] 
+                    ${isActive ? 'border-white/40 bg-white/[0.08] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.15),0_4px_14px_-2px_rgba(0,0,0,0.7)]' : 'border-white/10 text-white/70 hover:text-white hover:border-white/25 hover:bg-white/[0.04] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_6px_16px_-4px_rgba(0,0,0,0.6)]'} focus:outline-none hover:before:opacity-100`}
                   >
                     <div className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors ${iconStyles[key || 'home'] || 'bg-white/5 text-white/70 group-hover:bg-white/10 group-hover:text-white'}`}>
                       {navIcons[key || ''] || <Sparkles className="w-4 h-4" />}
                     </div>
-                    <span className="text-[12px] leading-snug font-medium break-words px-1">{label}</span>
+                    <span className="text-[12px] leading-snug font-semibold break-words px-1 tracking-wide">{label}</span>
                     {isActive && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-white animate-pulse" />}
                   </Link>
                 );

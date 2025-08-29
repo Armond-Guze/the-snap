@@ -57,11 +57,11 @@ export default function Navbar() {
           {/* Centered Logo for mobile */}
           <Link href="/" className="inline-flex items-center space-x-2 group absolute left-1/2 transform -translate-x-1/2">
             <Image
-              src="/images/logo--design copy.png"
+              src="/images/thesnap-logo-transparent.png"
               alt="FootballNews Logo"
-              width={100}
-              height={100}
-              className="h-10 w-auto md:h-11 lg:h-12 transition-transform group-hover:scale-105"
+              width={200}
+              height={200}
+              className="h-20 w-auto md:h-24 lg:h-28 transition-transform group-hover:scale-105"
               priority
             />
           </Link>
@@ -97,11 +97,11 @@ export default function Navbar() {
           {/* Logo - Now serves as Home link */}
           <Link href="/" className="inline-flex items-center space-x-2 group">
             <Image
-              src="/images/logo--design copy.png"
+              src="/images/thesnap-logo-transparent.png"
               alt="FootballNews Logo"
-              width={110}
-              height={110}
-              className="h-10 md:h-12 lg:h-14 w-auto transition-transform group-hover:scale-105"
+              width={220}
+              height={220}
+              className="h-20 md:h-24 lg:h-28 w-auto transition-transform group-hover:scale-105"
               priority
             />
           </Link>

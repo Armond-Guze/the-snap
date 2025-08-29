@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com/power-rankings',
     images: [
       {
-  url: '/images/logo--design copy.png',
+  url: '/images/thesnap-logo-transparent.png',
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL Power Rankings',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "NFL Power Rankings 2025 - Week by Week Team Rankings",
     description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up.",
-  images: ['/images/logo--design copy.png'],
+  images: ['/images/thesnap-logo-transparent.png'],
   },
   alternates: {
     canonical: '/power-rankings',
