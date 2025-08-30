@@ -221,14 +221,16 @@ export const blockContentType = defineType({
           { title: 'Inline Compact', value: 'inline' },
           { title: 'Card', value: 'card' }
         ] }, initialValue: 'banner' },
+        { name: 'rank', title: 'Rank Number', type: 'number', description: 'Optional ranking position to display (e.g. 1, 12).', validation: Rule => Rule.min(1).max(999).warning('Rank should be between 1 and 999'), options: { layout: 'number' } },
         { name: 'subtitle', title: 'Subtitle / Tagline', type: 'string', description: 'Optional short context line' },
         { name: 'useTeamColors', title: 'Auto Team Colors', type: 'boolean', initialValue: true, description: 'Apply NFL team color background (uses team code). Works with reference or manual team.' },
       ],
       preview: {
-        select: { title: 'player.name', refTeam: 'player.team', manualName: 'playerName', manualTeam: 'team', mediaRef: 'player.headshot', mediaManual: 'headshot' },
+        select: { title: 'player.name', refTeam: 'player.team', manualName: 'playerName', manualTeam: 'team', mediaRef: 'player.headshot', mediaManual: 'headshot', rank: 'rank' },
         prepare(sel) {
           const title = sel.title || sel.manualName || 'Player Heading'
-          const subtitle = sel.refTeam || sel.manualTeam || ''
+          const subtitleParts = [sel.rank ? `#${sel.rank}` : null, sel.refTeam || sel.manualTeam].filter(Boolean)
+          const subtitle = subtitleParts.join(' • ')
           const media = sel.mediaRef || sel.mediaManual
           return { title, subtitle, media }
         }

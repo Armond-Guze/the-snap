@@ -251,7 +251,7 @@ export const portableTextComponents: PortableTextComponents = {
     // Player Heading component
     playerHeading: ({ value }) => {
       if (!value) return null
-      const { player, playerName, team, position, headshot, style = 'banner', subtitle, useTeamColors } = value
+  const { player, playerName, team, position, headshot, style = 'banner', subtitle, useTeamColors, rank } = value
 
       // If GROQ query expanded player reference, prefer those fields
       const finalName = player?.name || playerName
@@ -290,8 +290,13 @@ export const portableTextComponents: PortableTextComponents = {
               </div>
             )}
             <div className="space-y-1">
-              <h2 className={style === 'inline' ? 'text-2xl font-bold' : style === 'card' ? 'text-3xl font-extrabold' : 'text-3xl sm:text-[2rem] font-extrabold tracking-tight'}>
-                {finalName}
+              <h2 className={style === 'inline' ? 'text-2xl font-bold flex items-baseline gap-3' : style === 'card' ? 'text-3xl font-extrabold flex items-baseline gap-4' : 'text-3xl sm:text-[2rem] font-extrabold tracking-tight flex items-baseline gap-4'}>
+                {typeof rank === 'number' && !isNaN(rank) && (
+                  <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 border border-white/15 font-bold text-xl text-white shadow-sm backdrop-blur-sm">
+                    {rank}
+                  </span>
+                )}
+                <span>{finalName}</span>
               </h2>
               <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-gray-300">
                 {finalTeam && <span className="px-1.5 py-0.5 bg-black/30 backdrop-blur-sm rounded-md text-white/90 border border-white/15">{finalTeam}</span>}
