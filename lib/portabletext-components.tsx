@@ -290,19 +290,28 @@ export const portableTextComponents: PortableTextComponents = {
               </div>
             )}
             <div className="space-y-1">
-              <h2 className={style === 'inline' ? 'text-2xl font-bold flex items-baseline gap-3' : style === 'card' ? 'text-3xl font-extrabold flex items-baseline gap-4' : 'text-3xl sm:text-[2rem] font-extrabold tracking-tight flex items-baseline gap-4'}>
+              <h2 className={
+                style === 'inline'
+                  ? 'text-2xl font-bold flex items-center gap-4'
+                  : style === 'card'
+                    ? 'text-3xl font-extrabold flex items-center gap-5'
+                    : 'text-3xl sm:text-[2.25rem] font-extrabold tracking-tight flex items-center gap-5'
+              }>
                 {typeof rank === 'number' && !isNaN(rank) && (
-                  <span className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white/10 border border-white/15 font-bold text-xl text-white shadow-sm backdrop-blur-sm">
+                  <span className="shrink-0 inline-flex items-center justify-center w-14 h-14 rounded-xl bg-white/15 border border-white/20 font-extrabold text-3xl text-white shadow-sm backdrop-blur-sm">
                     {rank}
                   </span>
                 )}
-                <span>{finalName}</span>
+                <div className="flex flex-col leading-tight">
+                  <span className="block">{finalName}</span>
+                  {(finalTeam || finalPos) && (
+                    <span className="mt-1 text-xs sm:text-sm font-medium tracking-wide text-gray-300/90 uppercase">
+                      {[finalTeam, finalPos].filter(Boolean).join(' • ')}
+                    </span>
+                  )}
+                </div>
               </h2>
-              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-gray-300">
-                {finalTeam && <span className="px-1.5 py-0.5 bg-black/30 backdrop-blur-sm rounded-md text-white/90 border border-white/15">{finalTeam}</span>}
-                {finalPos && <span className="px-1.5 py-0.5 bg-white/5 rounded-md text-gray-300">{finalPos}</span>}
-              </div>
-              {subtitle && <p className="text-gray-300 text-[13px] leading-snug mt-2 max-w-xl">{subtitle}</p>}
+              {subtitle && <p className="text-gray-300 text-[13px] leading-snug mt-3 max-w-xl">{subtitle}</p>}
             </div>
           </div>
         </Wrapper>
