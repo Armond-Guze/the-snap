@@ -265,20 +265,21 @@ export const portableTextComponents: PortableTextComponents = {
             return <div className="flex items-center gap-4 my-6 py-2 border-b border-gray-700">{children}</div>
           case 'card':
             return <div className="my-8 p-6 bg-gray-900/60 border border-gray-700 rounded-xl shadow-lg flex flex-col sm:flex-row gap-6">{children}</div>
-          default: // banner
+          default: // banner (compact tweaks)
             const colors = useTeamColors && TEAM_COLORS[finalTeam]
             const gradientClass = colors && finalTeam
               ? `player-gradient-${finalTeam}`
               : 'bg-gradient-to-r from-white/10 to-white/5'
-            return <div className={`relative my-10 py-10 px-6 sm:px-10 rounded-2xl overflow-hidden border border-white/10 backdrop-blur ${gradientClass}`}>{children}</div>
+            // Reduced vertical spacing & padding for a more compact look
+            return <div className={`relative my-8 py-6 px-5 sm:py-7 sm:px-8 rounded-xl overflow-hidden border border-white/10 backdrop-blur ${gradientClass}`}>{children}</div>
         }
       }
 
       return (
         <Wrapper>
-          <div className={style === 'banner' ? 'flex items-center gap-6' : 'flex items-center gap-4'}>
+          <div className={style === 'banner' ? 'flex items-center gap-5' : 'flex items-center gap-4'}>
             {finalHeadshot?.asset && (
-              <div className={style === 'banner' ? 'w-28 h-28 relative rounded-xl overflow-hidden ring-2 ring-white/20 flex-shrink-0' : 'w-20 h-20 relative rounded-lg overflow-hidden flex-shrink-0'}>
+              <div className={style === 'banner' ? 'w-24 h-24 relative rounded-xl overflow-hidden ring-2 ring-white/15 flex-shrink-0' : 'w-20 h-20 relative rounded-lg overflow-hidden flex-shrink-0'}>
                 <Image
                   src={urlFor(finalHeadshot).toString()}
                   alt={finalHeadshot.alt || finalName || 'Player headshot'}
@@ -289,14 +290,14 @@ export const portableTextComponents: PortableTextComponents = {
               </div>
             )}
             <div className="space-y-1">
-              <h2 className={style === 'inline' ? 'text-2xl font-bold' : style === 'card' ? 'text-3xl font-extrabold' : 'text-4xl font-extrabold tracking-tight'}>
+              <h2 className={style === 'inline' ? 'text-2xl font-bold' : style === 'card' ? 'text-3xl font-extrabold' : 'text-3xl sm:text-[2rem] font-extrabold tracking-tight'}>
                 {finalName}
               </h2>
-              <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-wide text-gray-300">
-                {finalTeam && <span className="px-2 py-0.5 bg-black/30 backdrop-blur-sm rounded-md text-white/90 border border-white/20">{finalTeam}</span>}
-                {finalPos && <span className="px-2 py-0.5 bg-white/5 rounded-md text-gray-300">{finalPos}</span>}
+              <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-gray-300">
+                {finalTeam && <span className="px-1.5 py-0.5 bg-black/30 backdrop-blur-sm rounded-md text-white/90 border border-white/15">{finalTeam}</span>}
+                {finalPos && <span className="px-1.5 py-0.5 bg-white/5 rounded-md text-gray-300">{finalPos}</span>}
               </div>
-              {subtitle && <p className="text-gray-200 text-sm mt-2 max-w-xl">{subtitle}</p>}
+              {subtitle && <p className="text-gray-300 text-[13px] leading-snug mt-2 max-w-xl">{subtitle}</p>}
             </div>
           </div>
         </Wrapper>
