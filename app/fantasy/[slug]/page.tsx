@@ -70,6 +70,8 @@ export default async function FantasyArticlePage(props: PageProps) {
       // Expand both body & content arrays (support legacy / new)
       content[]{
         ...,
+        // ensure inline images resolve their asset url + alt
+        _type == 'image' => { ..., asset->{ url }, alt },
         _type == "playerHeading" => {
           ...,
           headshot{asset->{url}, alt}, // ensure manual headshot image has URL
@@ -78,6 +80,7 @@ export default async function FantasyArticlePage(props: PageProps) {
       },
       body[]{
         ...,
+        _type == 'image' => { ..., asset->{ url }, alt },
         _type == "playerHeading" => {
           ...,
           headshot{asset->{url}, alt},
