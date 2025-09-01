@@ -112,7 +112,7 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/privacypolicy" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Privacy Policy
                 </Link>
               </li>
@@ -197,7 +197,7 @@ const Footer = () => {
           </MobileSection>
           <MobileSection title="Legal">
             <ul className="space-y-2 pt-2">
-              <li><Link href="/privacypolicy" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="/privacy-policy" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
               <li><Link href="/terms" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</Link></li>
               <li><Link href="/contact" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Contact</Link></li>
             </ul>
@@ -219,7 +219,7 @@ const Footer = () => {
               &copy; {currentYear} The Game Snap. All rights reserved.
             </div>
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-1 text-xs text-gray-500">
-              <Link href="/privacypolicy" className="hover:text-gray-400 transition-colors">Privacy</Link>
+              <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
               <span>•</span>
               <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
               <span>•</span>

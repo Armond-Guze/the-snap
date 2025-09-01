@@ -195,10 +195,10 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-[11px] font-extrabold tracking-wide uppercase truncate">
+            <span className="text-white text-xs font-extrabold tracking-wide uppercase truncate leading-none">
               {game.awayTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[10px] font-semibold tabular-nums">
+            <span className="text-gray-400 text-[11px] font-semibold tabular-nums leading-none">
               {game.awayRecord || '0-0'}
             </span>
           </div>
@@ -220,10 +220,10 @@ export default function GameSchedule({ games }: GameScheduleProps) {
                 </span>
               </div>
             )}
-            <span className="text-white text-[11px] font-extrabold tracking-wide uppercase truncate">
+            <span className="text-white text-xs font-extrabold tracking-wide uppercase truncate leading-none">
               {game.homeTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[10px] font-semibold tabular-nums">
+            <span className="text-gray-400 text-[11px] font-semibold tabular-nums leading-none">
               {game.homeRecord || '0-0'}
             </span>
           </div>

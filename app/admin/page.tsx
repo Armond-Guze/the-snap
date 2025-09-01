@@ -14,16 +14,6 @@ export default function AdminPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link 
-            href="/admin/analytics" 
-            className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors group"
-          >
-            <h2 className="text-2xl font-bold mb-4 group-hover:text-gray-300">Analytics</h2>
-            <p className="text-gray-400">
-              View website analytics, page views, and performance metrics.
-            </p>
-          </Link>
-          
-          <Link 
             href="/studio" 
             className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors group"
           >
