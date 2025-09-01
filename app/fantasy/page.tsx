@@ -1,11 +1,13 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
+import { HERO_SIZES, CARD_SIZES, THUMB_SIZES } from '@/lib/image-sizes';
 import { urlFor } from "@/sanity/lib/image";
 
 interface FantasyArticle {
   _id: string;
   title: string;
+  homepageTitle?: string;
   slug: { current: string };
   summary?: string;
   coverImage?: { asset?: { url: string } };
@@ -20,6 +22,7 @@ export default async function FantasyFootballPage() {
     `*[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc) {
       _id,
       title,
+  homepageTitle,
       slug,
       summary,
       coverImage { asset->{ url } },
@@ -85,6 +88,7 @@ export default async function FantasyFootballPage() {
                     src={urlFor(featured.coverImage).width(1200).height(650).url()}
                     alt={featured.title}
                     fill
+                    sizes={HERO_SIZES}
                     className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500"
                     priority
                   />
@@ -99,8 +103,11 @@ export default async function FantasyFootballPage() {
                 )}
                 <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-5 max-w-3xl drop-shadow-lg">
                   <span className="bg-gradient-to-r from-white via-purple-50 to-purple-200 bg-clip-text text-transparent">
-                    {featured.title}
+                    {featured.homepageTitle || featured.title}
                   </span>
+                  {featured.homepageTitle && featured.homepageTitle !== featured.title && (
+                    <span className="ml-2 align-middle text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                  )}
                 </h1>
                 {featured.summary && (
                   <p className="max-w-2xl text-gray-300 text-base md:text-lg leading-relaxed line-clamp-3">
@@ -138,13 +145,17 @@ export default async function FantasyFootballPage() {
                           src={urlFor(qp.coverImage).width(400).height(260).url()}
                           alt={qp.title}
                           fill
+                          sizes={CARD_SIZES}
                           className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                       <div className="relative p-4 flex flex-col justify-end h-full">
                         <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
-                          {qp.title}
+                          {qp.homepageTitle || qp.title}
+                          {qp.homepageTitle && qp.homepageTitle !== qp.title && (
+                            <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                          )}
                         </h3>
                         {qp.fantasyType && (
                           <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-purple-600/70 text-white font-medium tracking-wide">
@@ -197,6 +208,7 @@ export default async function FantasyFootballPage() {
                               src={urlFor(a.coverImage).width(180).height(180).url()}
                               alt={a.title}
                               fill
+                              sizes={THUMB_SIZES}
                               className="object-cover object-center md:group-hover:scale-[1.05] transition-transform opacity-70 md:group-hover:opacity-90"
                             />
                           )}
@@ -205,7 +217,10 @@ export default async function FantasyFootballPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-base md:text-lg font-semibold leading-tight text-white line-clamp-2 group-hover:text-purple-200">
-                            {a.title}
+                            {a.homepageTitle || a.title}
+                            {a.homepageTitle && a.homepageTitle !== a.title && (
+                              <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                            )}
                           </h3>
                           {a.summary && (
                             <p className="mt-2 text-xs md:text-sm text-gray-400 line-clamp-2 md:line-clamp-3">

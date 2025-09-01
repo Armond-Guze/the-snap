@@ -13,6 +13,7 @@ interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string }; [key:
 interface HeadlineItem {
   _id: string;
   title: string;
+  homepageTitle?: string;
   summary?: string;
   slug?: { current?: string };
   coverImage?: HeadlineImageAssetRef;
@@ -66,7 +67,7 @@ export default async function MoreHeadlinesSection({ textureSrc, hideSummaries =
                   )}
                 </div>
                 <div className="flex flex-col min-w-0 flex-1 pt-2 sm:pt-3">
-                  <h3 className="text-base sm:text-[17px] font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1.5">{item.title}</h3>
+                  <h3 className="text-[17px] sm:text-[18px] font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1.5">{item.homepageTitle || item.title}{item.homepageTitle && item.homepageTitle !== item.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}</h3>
                   {item.summary && !hideSummaries && (
                     <p className="text-sm text-gray-400/90 line-clamp-2 hidden md:block mb-1.5 leading-snug">{item.summary}</p>
                   )}

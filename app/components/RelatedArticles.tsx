@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { THUMB_SIZES } from '@/lib/image-sizes';
 import { Calendar, TrendingUp, Eye } from "lucide-react";
 import type { HeadlineListItem } from "@/types";
 import { formatCompactDate } from "@/lib/date-utils";
@@ -54,6 +55,7 @@ export default function RelatedArticles({
                           src={img}
                           alt={article.title}
                           fill
+                          sizes={THUMB_SIZES}
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       );
@@ -66,8 +68,11 @@ export default function RelatedArticles({
                   })()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white text-xs lg:text-sm leading-snug line-clamp-2 group-hover:text-gray-300 transition-colors">
-                    {article.title}
+                  <h3 className="font-semibold text-white text-[13px] lg:text-sm leading-snug line-clamp-2 group-hover:text-gray-300 transition-colors">
+                    {article.homepageTitle || article.title}
+                    {article.homepageTitle && article.homepageTitle !== article.title && (
+                      <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                    )}
                   </h3>
                   <div className="mt-1 flex items-center text-[10px] lg:text-[11px] text-gray-500 gap-2">
                     <div className="flex items-center">

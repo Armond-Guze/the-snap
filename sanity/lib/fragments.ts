@@ -10,6 +10,7 @@ export const baseContentFields = `
   _createdAt,
   _updatedAt,
   title,
+  homepageTitle,
   slug,
   excerpt,
   publishedAt,

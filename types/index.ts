@@ -76,6 +76,7 @@ export interface MovementIndicator {
 export interface Headline {
   _id: string;
   title: string;
+  homepageTitle?: string;
   slug: SanitySlug;
   summary?: string;
   date: string;
@@ -102,6 +103,7 @@ export interface HeadlineListItem {
   _id: string;
   _type: 'headline' | 'rankings';
   title: string;
+  homepageTitle?: string;
   slug: SanitySlug;
   coverImage?: SanityImageWithUrl;
   featuredImage?: SanityImageWithUrl; // added for unified content support
@@ -185,6 +187,7 @@ export interface RankingTeam {
 export interface Rankings {
   _id: string;
   title: string;
+  homepageTitle?: string;
   slug: SanitySlug;
   rankingType: 'offense' | 'defense' | 'rookie' | 'fantasy-qb' | 'fantasy-rb' | 'fantasy-wr' | 'fantasy-te' | 'draft' | 'position' | 'team';
   summary?: string;

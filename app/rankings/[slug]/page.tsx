@@ -1,6 +1,7 @@
 import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { unifiedContentFields, rankingFields } from "@/sanity/lib/fragments";
 import { normalizeContent, isRankingContent } from "@/lib/content/normalize";
@@ -114,6 +115,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         _id,
         _type,
         title,
+  homepageTitle,
         slug,
         excerpt,
         date,
@@ -223,6 +225,7 @@ function LegacyRankingsRenderer({
                     src={ranking.author.image.asset.url}
                     alt={ranking.author?.name || "Author"}
                     fill
+                    sizes={AVATAR_SIZES}
                     className="object-cover"
                   />
                 </div>
@@ -243,6 +246,7 @@ function LegacyRankingsRenderer({
                     src={ranking.coverImage.asset.url}
                     alt={ranking.title}
                     fill
+                    sizes={ARTICLE_COVER_SIZES}
                     className="object-cover w-full h-full"
                     priority
                   />
@@ -417,6 +421,7 @@ function UnifiedRankingRenderer({
                   src={ranking.featuredImage.asset.url}
                   alt={ranking.title}
                   fill
+                  sizes={ARTICLE_COVER_SIZES}
                   className="object-cover w-full h-full"
                   priority
                 />

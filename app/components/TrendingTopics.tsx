@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { HERO_SIZES } from '@/lib/image-sizes';
 import { client } from '@/sanity/lib/client';
 import { trendingTagsQuery, categoriesQuery } from '@/sanity/lib/queries';
 import { Tag, Category } from '@/types';
@@ -61,7 +62,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 priority
                 quality={100}
                 className="object-cover opacity-20 md:opacity-25"
-                sizes="100vw"
+                sizes={HERO_SIZES}
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/75 to-black/95 -z-10" />
@@ -95,7 +96,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 priority
                 quality={100}
                 className="object-cover opacity-30"
-                sizes="100vw"
+                sizes={HERO_SIZES}
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/55 to-black/80 -z-10" />
@@ -104,7 +105,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
         <div className="mx-auto max-w-6xl relative z-10">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+            <h2 className="heading-h2 text-white mb-4 flex items-center justify-center gap-3">
               <span className="text-2xl">🔥</span>
               Trending Topics
             </h2>
@@ -116,7 +117,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
 
           {/* Static Popular Topics */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+            <h3 className="heading-h3 text-white mb-6 flex items-center gap-2">
               🏷️ Popular Topics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -211,7 +212,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
       <div className="mx-auto max-w-6xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] relative z-10">
         {/* Section Header */}
         <div className="text-center mb-8 2xl:mb-12 3xl:mb-16">
-          <h2 className="text-3xl md:text-4xl 2xl:text-5xl 3xl:text-6xl font-bold text-white mb-3 flex items-center justify-center gap-3">
+          <h2 className="heading-h2 text-white mb-3 flex items-center justify-center gap-3">
             <span className="text-2xl 2xl:text-3xl 3xl:text-4xl">🔥</span>
             Trending Topics
           </h2>
@@ -225,7 +226,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
           {/* Trending Tags */}
           {trendingTags.length > 0 && (
             <div>
-              <h3 className="text-xl 2xl:text-2xl 3xl:text-3xl font-semibold text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
+              <h3 className="heading-h3 text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
                 🏷️ Hot Tags
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 2xl:gap-6 3xl:gap-8">
@@ -248,7 +249,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
           {/* Popular Categories */}
           {categories.length > 0 && (
             <div>
-              <h3 className="text-xl 2xl:text-2xl 3xl:text-3xl font-semibold text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
+              <h3 className="heading-h3 text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
                 📂 Popular Categories
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 2xl:gap-6 3xl:gap-8">

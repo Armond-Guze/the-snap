@@ -12,6 +12,13 @@ export default defineType({
       validation: Rule => Rule.required()
     }),
     defineField({
+      name: 'homepageTitle',
+      title: 'Homepage Display Title',
+      type: 'string',
+      description: 'Optional shorter version for homepage modules; full Title still used on detail page & SEO.',
+  validation: Rule => Rule.max(70).error('Homepage Display Title must be 70 characters or fewer'),
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',

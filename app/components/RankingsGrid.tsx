@@ -3,6 +3,7 @@ import { headlineQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
+import { CARD_SIZES, THUMB_SIZES } from '@/lib/image-sizes';
 import { FaAlignLeft, FaTrophy } from 'react-icons/fa';
 import type { HeadlineListItem, Rankings } from "@/types";
 import { formatArticleDate } from "@/lib/date-utils";
@@ -13,6 +14,7 @@ const rankingsQuery = `
     _id,
     _type,
     title,
+  homepageTitle,
     slug,
     rankingType,
     summary,
@@ -114,7 +116,10 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
 
                 <div className="p-6">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight text-white hover:text-gray-300 transition-colors duration-300">
-                    {main.title || "Untitled"}
+                    {main.homepageTitle || main.title || "Untitled"}
+                    {main.homepageTitle && main.homepageTitle !== main.title && (
+                      <span className="ml-2 align-middle text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                    )}
                   </h2>
                   <p className="text-gray-300 text-base leading-snug mb-4">
                     {main.summary || "No summary available."}
@@ -138,6 +143,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                                   src={team.teamLogo.asset.url}
                                   alt={team.teamName}
                                   fill
+                                  sizes={THUMB_SIZES}
                                   className="object-contain rounded-full"
                                 />
                               </div>
@@ -173,6 +179,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                               src={ranking.coverImage.asset.url}
                               alt={ranking.title}
                               fill
+                              sizes={CARD_SIZES}
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
@@ -186,7 +193,10 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                         
                         <div className="p-4">
                       <h4 className="text-lg font-bold text-white mb-2 group-hover:text-gray-300 transition-colors">
-                        {ranking.title}
+                        {ranking.homepageTitle || ranking.title}
+                        {ranking.homepageTitle && ranking.homepageTitle !== ranking.title && (
+                          <span className="ml-1.5 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                        )}
                       </h4>
                           
                           {ranking.summary && (
@@ -212,6 +222,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                                         src={team.teamLogo.asset.url}
                                         alt={team.teamName}
                                         fill
+                                        sizes={THUMB_SIZES}
                                         className="object-contain rounded-full"
                                       />
                                     </div>
@@ -260,7 +271,10 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                           </div>
                           <div className="flex-1">
                             <span className="hover:text-gray-400 transition-colors duration-300 font-medium leading-tight text-white block">
-                              {headline.title}
+                              {headline.homepageTitle || headline.title}
+                              {headline.homepageTitle && headline.homepageTitle !== headline.title && (
+                                <span className="ml-1 align-middle text-[8px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                              )}
                             </span>
                             {headline._type === 'rankings' && headline.rankingType && (
                               <span className="text-xs text-purple-400 mt-1 block font-semibold">

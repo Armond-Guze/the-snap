@@ -12,6 +12,13 @@ const headlineType = defineType({
       validation: (Rule) => Rule.required().min(5).max(120),
     }),
     defineField({
+      name: 'homepageTitle',
+      title: 'Homepage Display Title',
+      type: 'string',
+      description: 'Optional shorter / cleaner title just for homepage modules. Leaves full Title for article page & SEO.',
+  validation: Rule => Rule.max(70).error('Homepage Display Title must be 70 characters or fewer'),
+    }),
+    defineField({
       name: "slug",
       title: "Slug",
       type: "slug",

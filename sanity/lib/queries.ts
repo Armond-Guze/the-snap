@@ -3,6 +3,7 @@ export const headlineQuery = `
     _id,
     _type,
     title,
+  homepageTitle,
     slug,
     summary,
     coverImage {
@@ -29,6 +30,7 @@ export const headlineDetailQuery = `
   *[_type == "headline" && slug.current == $slug && published == true][0] {
     _id,
     title,
+  homepageTitle,
     slug,
     summary,
     coverImage {
@@ -112,6 +114,7 @@ export const relatedHeadlinesQuery = `
   | order(priority asc, _createdAt desc)[0...6] {
     _id,
     title,
+  homepageTitle,
     slug,
     summary,
     coverImage {
@@ -132,6 +135,7 @@ export const categoriesQuery = `
   *[_type == "category"] | order(priority asc, title asc) {
     _id,
     title,
+  homepageTitle,
     slug,
     description,
     color,
@@ -255,6 +259,8 @@ export const featuredGamesQuery = `
     _id,
     homeTeam,
     awayTeam,
+  homeRecord,
+  awayRecord,
     homeTeamLogo,
     awayTeamLogo,
     gameDate,
@@ -270,6 +276,8 @@ export const upcomingGamesQuery = `
     _id,
     homeTeam,
     awayTeam,
+  homeRecord,
+  awayRecord,
     homeTeamLogo,
     awayTeamLogo,
     gameDate,

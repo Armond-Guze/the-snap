@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
+import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { client } from '@/sanity/lib/client';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import YouTubeEmbed from '@/app/components/YoutubeEmbed';
@@ -94,7 +95,7 @@ export default async function FantasyArticlePage(props: PageProps) {
   youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`, { slug }),
     client.fetch<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
-      _id, _type, title, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
+      _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
     }`)
   ]);
 
@@ -122,7 +123,7 @@ export default async function FantasyArticlePage(props: PageProps) {
           <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
             {article.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image src={article.author.image.asset.url} alt={article.author.name || 'Author'} fill className="object-cover" />
+                <Image src={article.author.image.asset.url} alt={article.author.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
               </div>
             )}
             <span>By {article.author?.name || 'Unknown'} • {formatArticleDate(article.date || article.publishedAt)}</span>
@@ -132,7 +133,7 @@ export default async function FantasyArticlePage(props: PageProps) {
           {article.coverImage?.asset?.url && (
             <div className="w-full mb-6">
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-                <Image src={article.coverImage.asset.url} alt={article.title} fill className="object-cover w-full h-full" priority />
+                <Image src={article.coverImage.asset.url} alt={article.title} fill sizes={ARTICLE_COVER_SIZES} className="object-cover w-full h-full" priority />
               </div>
             </div>
           )}

@@ -12,6 +12,13 @@ export const postType = defineType({
       type: 'string',
     }),
     defineField({
+      name: 'homepageTitle',
+      title: 'Homepage Display Title',
+      type: 'string',
+      description: 'Optional shorter version used ONLY on homepage lists/cards. Full Title still used on article page & SEO.',
+  validation: Rule => Rule.max(70).error('Homepage Display Title must be 70 characters or fewer'),
+    }),
+    defineField({
       name: 'slug',
       type: 'slug',
       options: {

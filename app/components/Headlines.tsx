@@ -1,11 +1,13 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
+import { HERO_SIZES } from '@/lib/image-sizes';
 
 interface HeadlineItem {
   _id: string;
   _type: string;
   title: string;
+  homepageTitle?: string;
   slug: { current: string };
   summary?: string;
   coverImage?: {
@@ -39,6 +41,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
           _id,
           _type,
             title,
+            homepageTitle,
             slug,
             summary,
             coverImage { asset->{ url } },
@@ -56,6 +59,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
           _id,
           _type,
           title,
+          homepageTitle,
           slug,
           summary,
           coverImage { asset->{ url } },
@@ -83,10 +87,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
   const rest = Array.isArray(result.rest) ? result.rest : [];
   const headlines: HeadlineItem[] = [...pinned, ...rest];
 
-  // Debug: Log the headlines data (dev only to avoid noisy production console / potential AdSense review clutter)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Headlines data:', JSON.stringify(headlines, null, 2));
-  }
+  // (Removed verbose dev console logging of headlines to keep console clean)
 
   if (!headlines?.length) {
     console.log('No headlines found');
@@ -123,7 +124,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
           priority
           quality={100}
           className="object-cover opacity-35 md:opacity-45"
-          sizes="100vw"
+          sizes={HERO_SIZES}
         />
       </div>
 
@@ -139,7 +140,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                 src={main.coverImage.asset.url}
                 alt={main.title}
                 fill
-                sizes="100vw"
+                sizes={HERO_SIZES}
                 className="object-cover opacity-85 sm:group-hover:opacity-95 sm:group-hover:scale-102 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -163,7 +164,10 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
 
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                    {main.title || "Untitled"}
+                    {main.homepageTitle || main.title || "Untitled"}
+                    {main.homepageTitle && main.homepageTitle !== main.title && (
+                      <span className="ml-2 align-middle text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                    )}
                   </h2>
                   {main.summary && !hideSummaries && (
                     <p className="text-gray-300 text-base line-clamp-3 leading-relaxed">
@@ -231,7 +235,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                         )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0 pt-1">
-                        <h4 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1">{headline.title}</h4>
+                        <h4 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1">{headline.homepageTitle || headline.title}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}</h4>
                         {!hideSummaries && headline.summary && (
                           <p className="text-[11px] text-gray-400 line-clamp-2 mb-1.5">{headline.summary}</p>
                         )}
@@ -284,7 +288,10 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-2">
                           <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                            {headline.title}
+                            {headline.homepageTitle || headline.title}
+                            {headline.homepageTitle && headline.homepageTitle !== headline.title && (
+                              <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
+                            )}
                           </h4>
                         </div>
                       </div>
@@ -309,7 +316,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-2">
                         <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
-                          {headline.title || "Untitled"}
+                          {headline.homepageTitle || headline.title || "Untitled"}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
                         </h4>
                       </div>
                     </div>
@@ -351,7 +358,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
 
                       <div>
                         <h2 className="text-xl lg:text-2xl 2xl:text-3xl 3xl:text-4xl font-bold text-white mb-3 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                          {main.title || "Untitled"}
+                          {main.homepageTitle || main.title || "Untitled"}{main.homepageTitle && main.homepageTitle !== main.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
                         </h2>
                         {main.summary && !hideSummaries && (
                           <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-3 leading-relaxed">
@@ -420,7 +427,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                             </div>
                             <div className="flex-1">
                               <h4 className="text-white font-bold text-sm 2xl:text-base leading-snug mb-1 group-hover:text-gray-300 transition-colors duration-300 line-clamp-2">
-                                {headline.title}
+                                {headline.homepageTitle || headline.title}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
                               </h4>
                             </div>
                           </div>
@@ -446,7 +453,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                           </div>
                           <div className="flex-1">
                             <h4 className="text-gray-500 font-bold text-xs leading-snug mb-1 line-clamp-2">
-                              {headline.title || "Untitled"}
+                              {headline.homepageTitle || headline.title || "Untitled"}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
                             </h4>
                           </div>
                         </div>

@@ -20,11 +20,27 @@ export const gameType = defineType({
       description: 'Full team name (e.g., "Kansas City Chiefs")'
     }),
     defineField({
+      name: 'homeRecord',
+      title: 'Home Team Record',
+      type: 'string',
+      description: 'Record shown next to home team (e.g., 0-0, 10-7). Keep short.',
+      initialValue: '0-0',
+      validation: Rule => Rule.regex(/^\d+-\d+(-\d+)?$/,{name:'record',invert:false}).warning('Format like W-L or W-L-T')
+    }),
+    defineField({
       name: 'awayTeam',
       title: 'Away Team', 
       type: 'string',
       validation: Rule => Rule.required(),
       description: 'Full team name (e.g., "Buffalo Bills")'
+    }),
+    defineField({
+      name: 'awayRecord',
+      title: 'Away Team Record',
+      type: 'string',
+      description: 'Record shown next to away team (e.g., 0-0, 9-8). Keep short.',
+      initialValue: '0-0',
+      validation: Rule => Rule.regex(/^\d+-\d+(-\d+)?$/,{name:'record',invert:false}).warning('Format like W-L or W-L-T')
     }),
     defineField({
       name: 'homeTeamLogo',

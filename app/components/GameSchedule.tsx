@@ -9,6 +9,8 @@ interface Game {
   _id: string;
   homeTeam: string;
   awayTeam: string;
+  homeRecord?: string;
+  awayRecord?: string;
   homeTeamLogo?: {
     asset?: {
       _ref: string;
@@ -54,7 +56,8 @@ function getImportanceColor(importance: string) {
 }
 
 export default function GameSchedule({ games }: GameScheduleProps) {
-  const featuredGames = games;
+  // Sort games by kickoff time ascending so they appear in chronological order
+  const featuredGames = [...games].sort((a, b) => new Date(a.gameDate).getTime() - new Date(b.gameDate).getTime());
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   // Separate state for mobile horizontal list
@@ -140,10 +143,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const renderGameCard = (game: Game) => {
     const gameDate = new Date(game.gameDate);
     const isToday = gameDate.toDateString() === new Date().toDateString();
-    const dateString = gameDate.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric'
-    });
+  // Weekday only (e.g., Sun, Mon) per request – no month/day number
+  const dateString = gameDate.toLocaleDateString('en-US', { weekday: 'short' });
     const time = gameDate.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
@@ -176,48 +177,54 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         )}
 
         {/* Teams - Stacked Vertically */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {/* Away Team */}
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-2">
             {game.awayTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.awayTeamLogo).width(20).height(20).url()}
                 alt={game.awayTeam}
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-full flex-shrink-0"
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-full flex-shrink-0"
               />
             ) : (
-              <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">
+              <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xs font-extrabold">
                   {game.awayTeam.split(' ').pop()?.charAt(0)}
                 </span>
               </div>
             )}
-            <span className="text-white text-xs font-bold truncate">
+            <span className="text-white text-[11px] font-extrabold tracking-wide uppercase truncate">
               {game.awayTeam.split(' ').pop()}
+            </span>
+            <span className="text-gray-400 text-[10px] font-semibold tabular-nums">
+              {game.awayRecord || '0-0'}
             </span>
           </div>
 
           {/* Home Team */}
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-2">
             {game.homeTeamLogo?.asset ? (
               <Image
                 src={urlFor(game.homeTeamLogo).width(20).height(20).url()}
                 alt={game.homeTeam}
-                width={20}
-                height={20}
-                className="w-5 h-5 rounded-full flex-shrink-0"
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-full flex-shrink-0"
               />
             ) : (
-              <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">
+              <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xs font-extrabold">
                   {game.homeTeam.split(' ').pop()?.charAt(0)}
                 </span>
               </div>
             )}
-            <span className="text-white text-xs font-bold truncate">
+            <span className="text-white text-[11px] font-extrabold tracking-wide uppercase truncate">
               {game.homeTeam.split(' ').pop()}
+            </span>
+            <span className="text-gray-400 text-[10px] font-semibold tabular-nums">
+              {game.homeRecord || '0-0'}
             </span>
           </div>
         </div>
