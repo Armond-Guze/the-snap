@@ -16,19 +16,27 @@ interface UserProfile {
 
 // Hook to persist profile in localStorage
 function useUserProfile(): [UserProfile | null, (p: Partial<UserProfile>) => void] {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
+  // Initialize from localStorage immediately (client-only) to avoid first-paint 'None Selected'
+  const [profile, setProfile] = useState<UserProfile | null>(() => {
+    if (typeof window === 'undefined') return null; // SSR safeguard
     try {
-      const raw = localStorage.getItem('userProfile');
-      if (raw) setProfile(JSON.parse(raw));
+      const raw = window.localStorage.getItem('userProfile');
+      if (raw) return JSON.parse(raw) as UserProfile;
+      // Legacy single-key migration (if an older version stored just the code)
+      const legacyFav = window.localStorage.getItem('favoriteTeam');
+      if (legacyFav) {
+        const migrated: UserProfile = { id: 'local-user', favoriteTeam: legacyFav, teamLogoUrl: TEAM_LOGOS[legacyFav] };
+        window.localStorage.setItem('userProfile', JSON.stringify(migrated));
+        return migrated;
+      }
     } catch {}
-  }, []);
+    return null;
+  });
 
   const update = (p: Partial<UserProfile>) => {
     setProfile(prev => {
       const next = { ...(prev || { id: 'local-user' }), ...p } as UserProfile;
-      try { localStorage.setItem('userProfile', JSON.stringify(next)); } catch {}
+      try { window.localStorage.setItem('userProfile', JSON.stringify(next)); } catch {}
       return next;
     });
   };
@@ -73,7 +81,7 @@ export default function ProfileMenu() {
       <button
         onClick={() => setOpen(o => !o)}
         aria-haspopup="true"
-  aria-expanded={open ? "true" : "false"}
+        aria-expanded={open}
         aria-controls="profile-menu-panel"
         className="relative w-10 h-10 flex items-center justify-center text-white hover:text-white/90 focus:outline-none"
       >
@@ -122,7 +130,7 @@ export default function ProfileMenu() {
                       }}
                       className={`team-color-${code} relative aspect-square rounded-md flex items-center justify-center text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 bg-[color:var(--team-color)] ${textClass} ${active ? 'ring-2 ring-white/70 scale-105 shadow-lg shadow-black/40' : 'opacity-90 hover:opacity-100 hover:brightness-110'} `}
                       role="option"
-                      aria-selected={active ? 'true' : 'false'}
+                      aria-selected={active}
                     >{code}</button>
                   );
                 })}
