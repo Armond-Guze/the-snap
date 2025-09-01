@@ -5,6 +5,7 @@ import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { client } from '@/sanity/lib/client';
 import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
 import RelatedArticles from '@/app/components/RelatedArticles';
+import SocialShare from '@/app/components/SocialShare';
 import ReadingTime from '@/app/components/ReadingTime';
 import Breadcrumb from '@/app/components/Breadcrumb';
 import ArticleViewTracker from '@/app/components/ArticleViewTracker';
@@ -48,16 +49,14 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
     client.fetch<HeadlineListItem[]>(
       `*[_type == "headline" && published == true] | order(_createdAt desc)[0...24]{
         _id,
+        _type,
         title,
+        homepageTitle,
         slug,
         date,
         summary,
-        author-> {
-          name
-        },
-        coverImage {
-          asset->{ url }
-        }
+        author-> { name },
+        coverImage { asset->{ url } }
       }`
     ),
   ]);
@@ -114,7 +113,8 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left max-w-[20ch]">{headline.title}</h1>
+          {/* Extend headline title width similar to fantasy article (remove strict 20ch max) */}
+          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{headline.title}</h1>
           <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
             {headline.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
@@ -147,8 +147,13 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         </article>
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
-          <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines} />
+          {/* Use homepageTitle if present for shorter sidebar list titles */}
+          <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines.map(h => ({...h, title: h.homepageTitle || h.title }))} />
         </aside>
+      </div>
+      {/* Add social share section for consistency with fantasy articles */}
+      <div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
+        <SocialShare url={shareUrl} title={headline.title} description={headline.summary || ''} variant="compact" />
       </div>
       <ArticleViewTracker slug={trimmedSlug} headlineId={headline._id} title={headline.title} category={headline.category?.title} author={headline.author?.name} readingTime={readingTime} className="hidden" />
     </main>

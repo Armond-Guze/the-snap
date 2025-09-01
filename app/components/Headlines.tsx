@@ -235,7 +235,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                         )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0 pt-1">
-                        <h4 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1">{headline.homepageTitle || headline.title}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}</h4>
+                        <h4 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1">{headline.homepageTitle || headline.title}</h4>
                         {!hideSummaries && headline.summary && (
                           <p className="text-[11px] text-gray-400 line-clamp-2 mb-1.5">{headline.summary}</p>
                         )}
@@ -261,10 +261,11 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
 
       {/* Desktop: New layout with left sidebar */}
       <div className="hidden lg:block py-6 md:py-12 px-6 lg:px-8 2xl:px-12 3xl:px-16">
-        <div className="relative z-10 mx-auto max-w-7xl 2xl:max-w-[85rem] 3xl:max-w-[95rem]">
+        {/* Slightly widened container (was max-w-7xl/85rem/95rem) */}
+        <div className="relative z-10 mx-auto max-w-[82rem] 2xl:max-w-[88rem] 3xl:max-w-[100rem]">
           <div className="grid grid-cols-24 gap-3 2xl:gap-4 3xl:gap-6">
-            {/* Left Sidebar - Two vertical images */}
-            <div className="col-span-5 flex flex-col justify-center space-y-3">
+            {/* Left Sidebar - Two vertical images (slightly narrowed from col-span-5 to 4) */}
+            <div className="col-span-4 flex flex-col justify-center space-y-3">
               {leftColumn.map((headline) => (
                 <div key={headline._id} className="group">
                   {headline.slug?.current ? (
@@ -275,7 +276,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
                             fill
-                            sizes="(min-width:1024px) 21vw, 45vw"
+                            sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
                             className="object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-300"
                           />
                         ) : (
@@ -289,9 +290,6 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                         <div className="absolute bottom-0 left-0 right-0 p-2">
                           <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
                             {headline.homepageTitle || headline.title}
-                            {headline.homepageTitle && headline.homepageTitle !== headline.title && (
-                              <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                            )}
                           </h4>
                         </div>
                       </div>
@@ -303,7 +301,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                           src={headline.coverImage.asset.url}
                           alt={headline.title || "Untitled"}
                           fill
-                          sizes="(min-width:1024px) 21vw, 45vw"
+                          sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
                           className="object-cover opacity-85"
                         />
                       ) : (
@@ -316,7 +314,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-2">
                         <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
-                          {headline.homepageTitle || headline.title || "Untitled"}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
+                          {headline.homepageTitle || headline.title || "Untitled"}
                         </h4>
                       </div>
                     </div>
@@ -325,8 +323,8 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
               ))}
             </div>
 
-            {/* Desktop Main Feature Story - Slightly reduced width */}
-            <div className="col-span-12">
+            {/* Desktop Main Feature Story - widened by 1 column (12 -> 13) */}
+            <div className="col-span-13">
               {main?.coverImage?.asset?.url && main?.slug?.current ? (
                 <Link href={getArticleUrl(main)} className="group">
                   <div className="relative h-full min-h-[320px] sm:min-h-[370px] lg:min-h-[400px] 2xl:min-h-[440px] 3xl:min-h-[500px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
@@ -334,7 +332,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                       src={main.coverImage.asset.url}
                       alt={main.title}
                       fill
-                      sizes="(min-width:1536px) 50vw, (min-width:1280px) 55vw, (min-width:1024px) 60vw, 100vw"
+                      sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
                       className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-102 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -358,7 +356,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
 
                       <div>
                         <h2 className="text-xl lg:text-2xl 2xl:text-3xl 3xl:text-4xl font-bold text-white mb-3 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                          {main.homepageTitle || main.title || "Untitled"}{main.homepageTitle && main.homepageTitle !== main.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
+                          {main.homepageTitle || main.title || "Untitled"}
                         </h2>
                         {main.summary && !hideSummaries && (
                           <p className="text-gray-300 text-sm 2xl:text-base 3xl:text-lg line-clamp-3 leading-relaxed">
@@ -402,19 +400,20 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                   <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
                   <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white">Around The NFL</h3>
                 </div>
-                <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
+        <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
                   {rightSidebar.map((headline) => (
                     <li key={headline._id}>
                       {headline.slug?.current ? (
                         <Link href={getArticleUrl(headline)}>
                           <div className="flex items-center gap-3 group cursor-pointer">
-                            <div className="relative w-20 h-12 2xl:w-24 2xl:h-14 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
+            {/* Reduced default desktop thumbnail size slightly (was w-20 h-12 / 2xl:w-24 2xl:h-14) */}
+            <div className="relative w-16 h-10 2xl:w-20 2xl:h-12 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
                               {headline.coverImage?.asset?.url ? (
                                 <Image
                                   src={headline.coverImage.asset.url}
                                   alt={headline.title}
                                   fill
-                                  sizes="128px"
+              sizes="104px"
                                   className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
                                 />
                               ) : (
@@ -427,20 +426,20 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                             </div>
                             <div className="flex-1">
                               <h4 className="text-white font-bold text-sm 2xl:text-base leading-snug mb-1 group-hover:text-gray-300 transition-colors duration-300 line-clamp-2">
-                                {headline.homepageTitle || headline.title}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
+                                {headline.homepageTitle || headline.title}
                               </h4>
                             </div>
                           </div>
                         </Link>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <div className="relative w-20 h-12 2xl:w-24 2xl:h-14 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
+                          <div className="relative w-16 h-10 2xl:w-20 2xl:h-12 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
                             {headline.coverImage?.asset?.url ? (
                               <Image
                                 src={headline.coverImage.asset.url}
                                 alt={headline.title || "Untitled"}
                                 fill
-                                sizes="128px"
+                                sizes="104px"
                                 className="object-cover object-center"
                               />
                             ) : (
@@ -453,7 +452,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                           </div>
                           <div className="flex-1">
                             <h4 className="text-gray-500 font-bold text-xs leading-snug mb-1 line-clamp-2">
-                              {headline.homepageTitle || headline.title || "Untitled"}{headline.homepageTitle && headline.homepageTitle !== headline.title && (<span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>)}
+                              {headline.homepageTitle || headline.title || "Untitled"}
                             </h4>
                           </div>
                         </div>

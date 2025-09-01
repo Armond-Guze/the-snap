@@ -70,9 +70,6 @@ export default function RelatedArticles({
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-white text-[13px] lg:text-sm leading-snug line-clamp-2 group-hover:text-gray-300 transition-colors">
                     {article.homepageTitle || article.title}
-                    {article.homepageTitle && article.homepageTitle !== article.title && (
-                      <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                    )}
                   </h3>
                   <div className="mt-1 flex items-center text-[10px] lg:text-[11px] text-gray-500 gap-2">
                     <div className="flex items-center">

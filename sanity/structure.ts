@@ -5,6 +5,35 @@ import { CogIcon } from '@sanity/icons'
 export const structure: StructureResolver = (S) => {
   const hiddenDocTypes = new Set(['homepageSettings'])
 
+  const customOrdered = [
+    S.listItem()
+      .title('Headlines')
+      .schemaType('headline')
+      .child(
+        S.documentTypeList('headline')
+          .title('Headlines')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Fantasy Football')
+      .schemaType('fantasyFootball')
+      .child(
+        S.documentTypeList('fantasyFootball')
+          .title('Fantasy Football')
+          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Rankings')
+      .schemaType('rankings')
+      .child(
+        S.documentTypeList('rankings')
+          .title('Rankings')
+          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
+      ),
+  ]
+
+  const alreadyHandled = new Set(['headline','fantasyFootball','rankings'])
+
   return S.list()
     .title('Content')
     .items([
@@ -19,7 +48,12 @@ export const structure: StructureResolver = (S) => {
             .documentId('homepageSettings')
         ),
       S.divider(),
-      // All other document types
-      ...S.documentTypeListItems().filter((li) => !hiddenDocTypes.has(li.getId() || ''))
+      ...customOrdered,
+      S.divider(),
+      // Remaining document types (default behavior)
+      ...S.documentTypeListItems().filter((li) => {
+        const id = li.getId() || ''
+        return !hiddenDocTypes.has(id) && !alreadyHandled.has(id)
+      })
     ])
 }

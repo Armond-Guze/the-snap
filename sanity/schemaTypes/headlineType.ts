@@ -202,6 +202,30 @@ const headlineType = defineType({
       media: "coverImage",
     },
   },
+  orderings: [
+    {
+      title: 'Published Date (Newest First)',
+      name: 'dateDesc',
+      by: [
+        { field: 'date', direction: 'desc' },
+      ],
+    },
+    {
+      title: 'Priority (Lowest First)',
+      name: 'priorityAsc',
+      by: [
+        { field: 'priority', direction: 'asc' },
+        { field: 'date', direction: 'desc' },
+      ],
+    },
+    {
+      title: 'Title (A → Z)',
+      name: 'titleAsc',
+      by: [
+        { field: 'title', direction: 'asc' },
+      ],
+    },
+  ],
 });
 
 export default headlineType;

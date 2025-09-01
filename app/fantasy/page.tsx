@@ -105,9 +105,7 @@ export default async function FantasyFootballPage() {
                   <span className="bg-gradient-to-r from-white via-purple-50 to-purple-200 bg-clip-text text-transparent">
                     {featured.homepageTitle || featured.title}
                   </span>
-                  {featured.homepageTitle && featured.homepageTitle !== featured.title && (
-                    <span className="ml-2 align-middle text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                  )}
+
                 </h1>
                 {featured.summary && (
                   <p className="max-w-2xl text-gray-300 text-base md:text-lg leading-relaxed line-clamp-3">
@@ -153,9 +151,7 @@ export default async function FantasyFootballPage() {
                       <div className="relative p-4 flex flex-col justify-end h-full">
                         <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
                           {qp.homepageTitle || qp.title}
-                          {qp.homepageTitle && qp.homepageTitle !== qp.title && (
-                            <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                          )}
+
                         </h3>
                         {qp.fantasyType && (
                           <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-purple-600/70 text-white font-medium tracking-wide">
@@ -218,9 +214,7 @@ export default async function FantasyFootballPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="text-base md:text-lg font-semibold leading-tight text-white line-clamp-2 group-hover:text-purple-200">
                             {a.homepageTitle || a.title}
-                            {a.homepageTitle && a.homepageTitle !== a.title && (
-                              <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                            )}
+
                           </h3>
                           {a.summary && (
                             <p className="mt-2 text-xs md:text-sm text-gray-400 line-clamp-2 md:line-clamp-3">

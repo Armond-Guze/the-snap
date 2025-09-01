@@ -5,7 +5,6 @@ import StructuredData, { createWebsiteStructuredData, createOrganizationStructur
 import LayoutWrapper from "./components/LayoutWrapper";
 import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
-import { TypoExperimentToggle } from "@/components/ui/TypoExperimentToggle";
 
 // Centralized config (build-time evaluated)
 const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
@@ -128,8 +127,7 @@ export default function RootLayout({
         <LayoutWrapper>
           {children}
         </LayoutWrapper>
-  {/* Dev/Test: Remove when experiment concluded */}
-  <TypoExperimentToggle />
+  {/* Typography experiment toggle removed; default scale always active */}
         <CookieConsent />
         <AnalyticsGate />
       </body>

@@ -240,9 +240,7 @@ export default function FilteredHeadlines({
                   
                   <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">
                     {headline.homepageTitle || headline.title}
-                    {headline.homepageTitle && headline.homepageTitle !== headline.title && (
-                      <span className="ml-1 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                    )}
+
                   </h3>
                   
                   {headline.summary && (

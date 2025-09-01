@@ -1,19 +1,20 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { TEAM_LOGOS } from './teamLogos';
+import { TEAM_LOGOS, TEAM_COLORS } from './teamLogos';
 import { FaUserCircle } from 'react-icons/fa';
 
-// Very lightweight future-proof user model
+// Very lightweight user profile stored in localStorage
 interface UserProfile {
   id: string;
-  favoriteTeam?: string; // team code e.g. 'BAL'
-  teamLogoUrl?: string; // optional logo URL to replace placeholder
+  favoriteTeam?: string;
+  teamLogoUrl?: string;
+  // legacy login fields kept for backwards compatibility (ignored now)
   signedIn?: boolean;
   email?: string;
 }
 
-// Simple localStorage bridge (can swap to Sanity or auth provider later)
+// Hook to persist profile in localStorage
 function useUserProfile(): [UserProfile | null, (p: Partial<UserProfile>) => void] {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
@@ -37,24 +38,43 @@ function useUserProfile(): [UserProfile | null, (p: Partial<UserProfile>) => voi
 
 export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const [profile, update] = useUserProfile();
-  const [email, setEmail] = useState('');
-  const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
-  const [authMsg, setAuthMsg] = useState('');
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Placeholder avatar / team logo
-  const derivedLogo = profile?.favoriteTeam ? TEAM_LOGOS[profile.favoriteTeam] : undefined;
-  const avatarSrc = profile?.teamLogoUrl || derivedLogo || '/images/avatar-placeholder.png';
+  // Close on outside click / Escape
+  useEffect(() => {
+    if (!open) return;
+    const handlePointer = (e: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', handlePointer);
+    document.addEventListener('touchstart', handlePointer);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handlePointer);
+      document.removeEventListener('touchstart', handlePointer);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
 
   const allTeams = [
     'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LV','LAC','LAR','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SF','SEA','TB','TEN','WAS'
   ];
 
+  const derivedLogo = profile?.favoriteTeam ? TEAM_LOGOS[profile.favoriteTeam] : undefined;
+  const avatarSrc = profile?.teamLogoUrl || derivedLogo || '/images/avatar-placeholder.png';
+
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
+  {/* Dynamically inject minimal CSS for team colors (once) */}
+  <style dangerouslySetInnerHTML={{ __html: Object.entries(TEAM_COLORS).map(([k,v]) => `.team-color-${k}{--team-color:${v};}`).join('') }} />
       <button
         onClick={() => setOpen(o => !o)}
         aria-haspopup="true"
+  aria-expanded={open ? "true" : "false"}
+        aria-controls="profile-menu-panel"
         className="relative w-10 h-10 flex items-center justify-center text-white hover:text-white/90 focus:outline-none"
       >
         {(derivedLogo || profile?.teamLogoUrl) ? (
@@ -67,72 +87,55 @@ export default function ProfileMenu() {
       </button>
       {open && (
         <div
-          className="absolute right-0 mt-3 w-64 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl z-50"
-          role="dialog" aria-label="Profile menu"
+          className="absolute right-0 mt-3 w-64 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl z-50 animate-fade-in"
+          role="dialog" aria-label="Profile menu" aria-modal="false"
         >
-          <p className="text-xs uppercase tracking-wide text-white/40 mb-2">Account</p>
-          {!profile?.signedIn && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-white/40 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); if(authStatus!=='idle') { setAuthStatus('idle'); setAuthMsg(''); } }}
-                  placeholder="you@example.com"
-                  className="w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none"
-                />
-              </div>
+          <p className="text-xs uppercase tracking-wide text-white/40 mb-2">Favorite Team</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white/80 font-medium">{profile?.favoriteTeam || 'None Selected'}</span>
               <button
                 type="button"
-                disabled={authStatus==='loading'}
-                className="w-full text-center text-sm font-medium text-white/90 hover:text-white hover:bg-white/5 rounded-lg px-3 py-2 transition-colors focus:outline-none disabled:opacity-50"
-                onClick={async () => {
-                  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setAuthStatus('error'); setAuthMsg('Enter a valid email'); return; }
-                  try {
-                    setAuthStatus('loading');
-                    const res = await fetch('/api/newsletter', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
-                    const data = await res.json().catch(()=>({}));
-                    if(!res.ok) { throw new Error(data.error || 'Failed'); }
-                    update({ signedIn: true, email });
-                    setAuthStatus('success');
-                    setAuthMsg(data.message || 'Subscribed');
-                  } catch(e) {
-                    setAuthStatus('error');
-                    setAuthMsg(e instanceof Error ? e.message : 'Error');
-                  }
-                }}
-              >{authStatus==='loading' ? 'Saving...' : 'Sign Up / Sign In'}</button>
-              {authStatus==='error' && <p className="text-xs text-red-400">{authMsg}</p>}
-              {authStatus==='success' && <p className="text-xs text-green-400">{authMsg}</p>}
-              <p className="text-[11px] text-white/40">We use email only for account personalization & newsletter.</p>
+                className="text-xs px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 text-white/80"
+                onClick={() => setShowPicker(s => !s)}
+              >{showPicker ? 'Close' : (profile?.favoriteTeam ? 'Change Team' : 'Choose Team')}</button>
             </div>
-          )}
-          {profile?.signedIn && (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs uppercase tracking-wide text-white/40 mb-2">Favorite Team</label>
-                <select
-                  aria-label="Favorite Team"
-                  value={profile.favoriteTeam || ''}
-                  onChange={e => { const code = e.target.value; update({ favoriteTeam: code, teamLogoUrl: TEAM_LOGOS[code] }); setOpen(false); }}
-                  className="w-full bg-black border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none appearance-none custom-select-dark"
-                >
-                  <option value="" disabled>Select team</option>
-                  {allTeams.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                {!profile.favoriteTeam && <p className="mt-2 text-[11px] text-white/50">Pick a team to personalize later.</p>}
+            {showPicker && (
+              <div className="grid grid-cols-6 gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar" role="listbox" aria-label="Select Favorite Team">
+                {allTeams.map(code => {
+                  const active = profile?.favoriteTeam === code;
+                  const color = TEAM_COLORS[code] || '#444444';
+                  // Compute brightness for text contrast
+                  const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
+                  const brightness = 0.2126*r + 0.7152*g + 0.0722*b;
+                  const textClass = brightness > 160 ? 'text-black' : 'text-white';
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      data-team={code}
+                      data-active={active ? 'true' : 'false'}
+                      onClick={() => {
+                        update({ favoriteTeam: code, teamLogoUrl: TEAM_LOGOS[code], signedIn: true });
+                        setShowPicker(false);
+                        setTimeout(() => setOpen(false), 150);
+                      }}
+                      className={`team-color-${code} relative aspect-square rounded-md flex items-center justify-center text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 bg-[color:var(--team-color)] ${textClass} ${active ? 'ring-2 ring-white/70 scale-105 shadow-lg shadow-black/40' : 'opacity-90 hover:opacity-100 hover:brightness-110'} `}
+                      role="option"
+                      aria-selected={active ? 'true' : 'false'}
+                    >{code}</button>
+                  );
+                })}
               </div>
-              <div className="flex items-center justify-between gap-2">
-                {profile.email && <span className="text-[10px] text-white/40 truncate" title={profile.email}>{profile.email}</span>}
-                <button
-                  type="button"
-                  className="ml-auto text-left text-xs text-red-300/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg px-3 py-2 transition-colors focus:outline-none"
-                  onClick={() => { update({ signedIn: false, favoriteTeam: undefined, email: undefined }); setEmail(''); setAuthStatus('idle'); setAuthMsg(''); }}
-                >Sign Out</button>
-              </div>
-            </div>
-          )}
+            )}
+            {profile?.favoriteTeam && (
+              <button
+                type="button"
+                className="w-full text-left text-[11px] text-red-300/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg px-3 py-2 transition-colors focus:outline-none"
+                onClick={() => { update({ favoriteTeam: undefined }); setShowPicker(true); }}
+              >Clear Selection</button>
+            )}
+          </div>
         </div>
       )}
     </div>

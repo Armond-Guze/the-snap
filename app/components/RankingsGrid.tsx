@@ -117,9 +117,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                 <div className="p-6">
                   <h2 className="text-2xl sm:text-3xl font-bold mb-3 leading-tight text-white hover:text-gray-300 transition-colors duration-300">
                     {main.homepageTitle || main.title || "Untitled"}
-                    {main.homepageTitle && main.homepageTitle !== main.title && (
-                      <span className="ml-2 align-middle text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                    )}
+
                   </h2>
                   <p className="text-gray-300 text-base leading-snug mb-4">
                     {main.summary || "No summary available."}
@@ -194,9 +192,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                         <div className="p-4">
                       <h4 className="text-lg font-bold text-white mb-2 group-hover:text-gray-300 transition-colors">
                         {ranking.homepageTitle || ranking.title}
-                        {ranking.homepageTitle && ranking.homepageTitle !== ranking.title && (
-                          <span className="ml-1.5 align-middle text-[9px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                        )}
+
                       </h4>
                           
                           {ranking.summary && (
@@ -272,9 +268,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
                           <div className="flex-1">
                             <span className="hover:text-gray-400 transition-colors duration-300 font-medium leading-tight text-white block">
                               {headline.homepageTitle || headline.title}
-                              {headline.homepageTitle && headline.homepageTitle !== headline.title && (
-                                <span className="ml-1 align-middle text-[8px] px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                              )}
+
                             </span>
                             {headline._type === 'rankings' && headline.rankingType && (
                               <span className="text-xs text-purple-400 mt-1 block font-semibold">
