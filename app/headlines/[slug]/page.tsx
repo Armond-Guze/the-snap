@@ -32,7 +32,17 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   if (!headline) return {};
 
-  return generateSEOMetadata(headline, '/headlines');
+  const metadata = generateSEOMetadata(headline, '/headlines');
+  // Safety: enforce canonical exactly once (avoid double slash issues)
+  const canonicalBase = 'https://thegamesnap.com/headlines';
+  const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
+  return {
+    ...metadata,
+    alternates: {
+      ...metadata.alternates,
+      canonical: `${canonicalBase}/${cleanSlug}`,
+    },
+  };
 }
 
 export default async function HeadlinePage(props: HeadlinePageProps) {
