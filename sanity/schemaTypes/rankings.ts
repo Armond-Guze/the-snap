@@ -4,6 +4,10 @@ export default defineType({
   name: 'rankings',
   title: 'Rankings',
   type: 'document',
+  description: 'Ranking articles with structured team / player ordering plus optional full article body & embeds.',
+  groups: [
+    { name: 'seo', title: 'SEO' },
+  ],
   fields: [
     defineField({
       name: 'title',
@@ -48,12 +52,21 @@ export default defineType({
         layout: 'dropdown',
       },
       validation: (Rule) => Rule.required(),
+      description: 'Choose the structural context for these rankings (used for filtering / display labels).'
     }),
     defineField({
       name: 'summary',
       title: 'Summary',
       type: 'text',
       rows: 3,
+      validation: Rule => Rule.max(300),
+      description: '1–3 sentence synopsis (also used for SEO description when auto-generate enabled).'
+    }),
+    defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'reference',
+      to: [{ type: 'category' }],
     }),
     defineField({
       name: 'players',
@@ -66,8 +79,16 @@ export default defineType({
           options: { disableNew: false }
         }
       ],
-      description: 'Players central to these rankings (drives cross-linking & potential future filtering).',
+      description: 'Associate one or more players mentioned here for richer linking & filtering.',
       options: { layout: 'tags' }
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+      description: 'Enter relevant tags for this rankings article (one per tag).'
     }),
     defineField({
       name: 'coverImage',
@@ -82,11 +103,8 @@ export default defineType({
       name: 'articleImage',
       title: 'Article Image',
       type: 'image',
-      options: {
-        hotspot: true,
-      },
-      description: 'Optional image to display within the article content',
-      hidden: ({ document }) => !document?.showAsArticle,
+      options: { hotspot: true },
+      description: 'Optional image to display within the body (if provided).'
     }),
     defineField({
       name: 'author',
@@ -101,19 +119,10 @@ export default defineType({
       initialValue: () => new Date().toISOString(),
     }),
     defineField({
-      name: 'showAsArticle',
-      title: 'Show as Article Layout',
-      type: 'boolean',
-      description: 'Enable this to show the ranking with article-style layout (breadcrumbs, author, reading time, sidebar)',
-      initialValue: false,
-    }),
-    defineField({
-      name: 'articleContent',
-      title: 'Article Content',
-      type: 'array',
-      of: [{ type: 'block' }],
-      description: 'Optional article-style content. Will appear above the rankings if "Show as Article Layout" is enabled.',
-      hidden: ({ document }) => !document?.showAsArticle,
+      name: 'body',
+      title: 'Body Content',
+      type: 'blockContent',
+      description: 'Primary article-style body above the structured rankings list.'
     }),
     defineField({
       name: 'viewCount',
@@ -126,44 +135,62 @@ export default defineType({
       name: 'youtubeVideoId',
       title: 'YouTube Video ID',
       type: 'string',
-      description: 'YouTube video ID (e.g., "dQw4w9WgXcQ" from https://www.youtube.com/watch?v=dQw4w9WgXcQ)',
-      hidden: ({ document }) => !document?.showAsArticle,
+      description: 'Enter the YouTube video ID (e.g., dQw4w9WgXcQ).'
     }),
     defineField({
       name: 'videoTitle',
       title: 'Video Title',
       type: 'string',
       description: 'Optional custom title for the video embed',
-      hidden: ({ document }) => !document?.showAsArticle || !document?.youtubeVideoId,
+      hidden: ({ document }) => !document?.youtubeVideoId,
     }),
     defineField({
       name: 'twitterUrl',
-      title: 'Twitter URL',
+      title: 'Twitter/X Post URL',
       type: 'url',
-      description: 'Full Twitter/X post URL (will only show if no YouTube video is provided)',
-      hidden: ({ document }) => !document?.showAsArticle,
+      description: 'Full Twitter/X post URL',
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
+        if (!url) return true;
+        return /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url) || 'Must be a valid Twitter/X post URL';
+      })
+    }),
+    defineField({
+      name: 'twitterTitle',
+      title: 'Twitter Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.twitterUrl,
     }),
     defineField({
       name: 'instagramUrl',
       title: 'Instagram Post URL',
       type: 'url',
-      description: 'Instagram post/reel URL (shown if no YouTube & no Twitter embed)',
-      hidden: ({ document }) => !document?.showAsArticle,
+      description: 'Public Instagram post / reel URL',
       validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post/reel URL';
+        return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post, reel, or IGTV URL';
       })
+    }),
+    defineField({
+      name: 'instagramTitle',
+      title: 'Instagram Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.instagramUrl,
     }),
     defineField({
       name: 'tiktokUrl',
       title: 'TikTok Video URL',
       type: 'url',
-      description: 'TikTok video URL (shown if no YouTube, Twitter, Instagram)',
-      hidden: ({ document }) => !document?.showAsArticle,
+      description: 'TikTok video URL',
       validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
         return /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url) || 'Must be a valid TikTok video URL';
       })
+    }),
+    defineField({
+      name: 'tiktokTitle',
+      title: 'TikTok Embed Title',
+      type: 'string',
+      hidden: ({ document }) => !document?.tiktokUrl,
     }),
     defineField({
       name: 'teams',
@@ -267,9 +294,17 @@ export default defineType({
       description: 'Explanation of how these rankings were determined',
     }),
     defineField({
+      name: 'priority',
+      title: 'Priority',
+      type: 'number',
+      description: '(Optional / legacy) Lower numbers can be surfaced first in certain custom lists.',
+      validation: Rule => Rule.min(1).max(100)
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'seo',
+      group: 'seo',
       initialValue: { autoGenerate: true },
       options: { collapsible: true, collapsed: false },
     }),
