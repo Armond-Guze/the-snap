@@ -2,11 +2,11 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
 
-interface RankingItem { _id: string; _type: string; title: string; slug: { current: string }; summary?: string; excerpt?: string; coverImage?: { asset?: { _ref: string; _type: string; url?: string } }; articleImage?: { asset?: { _ref: string; _type: string; url?: string } }; author?: { name: string }; rankingType?: string; priority?: number; publishedAt?: string; week?: number; showAsArticle?: boolean; }
+interface RankingItem { _id: string; _type: string; title: string; slug: { current: string }; summary?: string; excerpt?: string; coverImage?: { asset?: { _ref: string; _type: string; url?: string } }; articleImage?: { asset?: { _ref: string; _type: string; url?: string } }; author?: { name: string }; rankingType?: string; priority?: number; publishedAt?: string; week?: number; }
 interface RankingsSectionProps { textureSrc?: string; hideSummaries?: boolean; }
 
 export default async function RankingsSection({ textureSrc, hideSummaries = false }: RankingsSectionProps) {
-  const rankingsQuery = `*[_type == "rankings" && published == true] | order(priority asc, publishedAt desc, _createdAt desc) [0...6] { _id,_type,title,slug,summary,excerpt,coverImage{asset->{_ref,_type,url}},articleImage{asset->{_ref,_type,url}},author->{name},rankingType,priority,publishedAt,week,showAsArticle }`;
+  const rankingsQuery = `*[_type == "rankings" && published == true] | order(priority asc, publishedAt desc, _createdAt desc) [0...6] { _id,_type,title,slug,summary,excerpt,coverImage{asset->{_ref,_type,url}},articleImage{asset->{_ref,_type,url}},author->{name},rankingType,priority,publishedAt,week }`;
   const rankings: RankingItem[] = await sanityFetch(rankingsQuery, {}, { next: { revalidate: 300 } }, []);
   if (!rankings?.length) return null;
   const mainRanking = rankings[0];

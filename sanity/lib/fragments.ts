@@ -97,6 +97,7 @@ export const rankingFields = `
       url
     }
   },
+  body,
   teams[] {
     rank,
     previousRank,
@@ -117,13 +118,14 @@ export const rankingFields = `
   },
   methodology,
   rankingType,
-  showAsArticle,
-  articleContent,
   youtubeVideoId,
   videoTitle,
   twitterUrl,
+  twitterTitle,
   instagramUrl,
+  instagramTitle,
   tiktokUrl,
+  tiktokTitle,
   ${seoFields}
 `;
 
@@ -170,13 +172,14 @@ export const unifiedContentFields = `
   },
   methodology,
   rankingType,
-  showAsArticle,
-  articleContent,
   youtubeVideoId,
   videoTitle,
   twitterUrl,
+  twitterTitle,
   instagramUrl,
+  instagramTitle,
   tiktokUrl,
+  tiktokTitle,
   
   ${seoFields}
 `;

@@ -195,16 +195,21 @@ export interface Rankings {
   articleImage?: SanityImageWithUrl;
   author?: Author;
   publishedAt: string;
-  showAsArticle?: boolean;
-  articleContent?: PortableTextContent;
+  body?: PortableTextContent;
   viewCount?: number;
   youtubeVideoId?: string;
   videoTitle?: string;
   twitterUrl?: string;
+  twitterTitle?: string;
   instagramUrl?: string;
+  instagramTitle?: string;
   tiktokUrl?: string;
+  tiktokTitle?: string;
   teams: RankingTeam[];
   methodology?: PortableTextContent;
+  category?: Category;
+  tags?: Pick<Tag, 'title' | 'slug'>[];
+  priority?: number;
   seo?: SEOData;
   published: boolean;
 }
