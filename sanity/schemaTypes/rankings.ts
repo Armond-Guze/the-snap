@@ -125,6 +125,21 @@ export default defineType({
       description: 'Primary article-style body above the structured rankings list.'
     }),
     defineField({
+      name: 'showAsArticle',
+      title: 'Show As Article Layout',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Toggle to render this rankings page in an article-style layout before the rankings list.'
+    }),
+    defineField({
+      name: 'articleContent',
+      title: 'Article Content (Optional)',
+      type: 'array',
+      of: [{ type: 'block' }],
+      description: 'Optional rich article content used when Show As Article Layout is enabled. If empty, body content will be used.',
+      hidden: ({ document }) => !document?.showAsArticle,
+    }),
+    defineField({
       name: 'viewCount',
       title: 'View Count',
       type: 'number',

@@ -287,10 +287,7 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
       <div className="relative bg-black p-3">
         {/* Team Color Accent */}
         {team.teamColor && (
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ backgroundColor: team.teamColor }}
-          />
+          <div className="absolute left-0 top-0 bottom-0 w-1" data-color={team.teamColor} />
         )}
         
         <div className="flex items-center gap-4">

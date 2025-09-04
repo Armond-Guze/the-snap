@@ -196,6 +196,8 @@ export interface Rankings {
   author?: Author;
   publishedAt: string;
   body?: PortableTextContent;
+  showAsArticle?: boolean;
+  articleContent?: PortableTextContent;
   viewCount?: number;
   youtubeVideoId?: string;
   videoTitle?: string;
