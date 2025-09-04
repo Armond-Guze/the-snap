@@ -63,6 +63,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/schedule`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
@@ -93,5 +99,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     },
     ...dynamicEntries,
+    // Pre-render schedule week pages (1-18)
+    ...Array.from({ length: 18 }, (_, i) => ({
+      url: `${baseUrl}/schedule/week/${i + 1}`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'weekly' as const,
+      priority: 0.55,
+    })),
   ]
 }

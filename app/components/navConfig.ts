@@ -11,6 +11,8 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { key: 'headlines', label: 'Headlines', href: '/headlines' },
   { key: 'standings', label: 'NFL Standings', href: '/standings' },
+  { key: 'schedule', label: 'Schedule', href: '/schedule' },
   { key: 'power-rankings', label: 'Power Rankings', href: '/power-rankings' },
   { key: 'fantasy', label: 'Fantasy', href: '/fantasy' }
 ];
+ 

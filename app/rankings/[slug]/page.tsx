@@ -30,9 +30,9 @@ interface RankingsPageProps {
 
 export const revalidate = 60;
 
-// Updated query using fragments - supports both unified and legacy content
+// Updated query: ensure slug filter applies to unified ranking content too
 const rankingsDetailQuery = `
-  *[(_type == "unifiedContent" && contentType == "ranking") || _type == "powerRanking" && slug.current == $slug][0]{
+  *[_type == "unifiedContent" && contentType == "ranking" && slug.current == $slug][0]{
     ${unifiedContentFields}
   }
 `;
@@ -48,12 +48,17 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
   const { slug } = await params;
   
   // Try unified content first, then legacy
-  const ranking = await sanityFetch<UnifiedContent | LegacyRanking | null>(
-    rankingsDetailQuery,
-    { slug },
-    { next: { revalidate: 300 } },
-    null
-  );
+  let ranking: UnifiedContent | LegacyRanking | null = null;
+  try {
+    ranking = await sanityFetch<UnifiedContent | LegacyRanking | null>(
+      rankingsDetailQuery,
+      { slug },
+      { next: { revalidate: 300 } },
+      null
+    );
+  } catch (err) {
+    console.error('Ranking metadata fetch failed', err);
+  }
 
   if (!ranking) {
     // Try legacy rankings
@@ -98,12 +103,19 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
   
   // Fetch ranking content and related content in parallel
   const [ranking, legacyRanking, otherContent] = await Promise.all([
-    sanityFetch<UnifiedContent | LegacyRanking | null>(
-      rankingsDetailQuery,
-      { slug },
-      { next: { revalidate: 300 } },
-      null
-    ),
+    (async () => {
+      try {
+        return await sanityFetch<UnifiedContent | LegacyRanking | null>(
+          rankingsDetailQuery,
+          { slug },
+          { next: { revalidate: 300 } },
+          null
+        );
+      } catch (e) {
+        console.error('Unified ranking fetch error', e);
+        return null;
+      }
+    })(),
     sanityFetch<Rankings | null>(
       legacyRankingsDetailQuery,
       { slug },
@@ -182,7 +194,8 @@ interface SidebarContentItem {
   featuredImage?: { asset?: { url?: string } };
 }
 
-interface RankingsWithOptionalBody extends Rankings { body?: any[] }
+import type { PortableTextContent } from '@/types/content';
+interface RankingsWithOptionalBody extends Rankings { body?: PortableTextContent[] }
 
 function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: RankingsWithOptionalBody; slug: string; otherContent: SidebarContentItem[]; }) {
   // Show article-style layout if body content exists
