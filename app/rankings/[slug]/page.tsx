@@ -6,7 +6,14 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import { unifiedContentFields, rankingFields } from "@/sanity/lib/fragments";
 import { normalizeContent, isRankingContent } from "@/lib/content/normalize";
 import type { UnifiedContent, LegacyRanking, NormalizedContent } from "@/types/content";
-import type { Rankings, MovementIndicator, RankingTeam, HeadlineListItem } from "@/types";
+import type { Rankings as RankingsType, MovementIndicator, RankingTeam, HeadlineListItem } from "@/types";
+
+// Type guard to detect legacy ranking documents
+function isLegacyRanking(doc: unknown): doc is RankingsType {
+  if (!doc || typeof doc !== 'object') return false;
+  const rec = doc as Record<string, unknown>;
+  return rec._type === 'rankings';
+}
 import { portableTextComponents } from "@/lib/portabletext-components";
 import { urlFor } from "@/sanity/lib/image";
 import { Metadata } from 'next';
@@ -62,7 +69,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
 
   if (!ranking) {
     // Try legacy rankings
-    const legacyRanking = await sanityFetch<Rankings | null>(
+  const legacyRanking = await sanityFetch<RankingsType | null>(
       legacyRankingsDetailQuery,
       { slug },
       { next: { revalidate: 300 } },
@@ -116,7 +123,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         return null;
       }
     })(),
-    sanityFetch<Rankings | null>(
+  sanityFetch<RankingsType | null>(
       legacyRankingsDetailQuery,
       { slug },
       { next: { revalidate: 300 } },
@@ -148,20 +155,32 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     )
   ]);
 
-  // Use unified content if available, otherwise fall back to legacy
+  // Select the most appropriate source
   const finalRanking = ranking || legacyRanking;
-  
+
   if (!finalRanking) {
     notFound();
   }
 
-  // If it's a legacy Rankings type, handle it directly
-  if ('rankingType' in finalRanking && 'teams' in finalRanking) {
+  if (isLegacyRanking(finalRanking)) {
     return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;
   }
 
-  // Normalize the content for consistent handling
-  const normalizedRanking = normalizeContent(finalRanking as UnifiedContent | LegacyRanking);
+  let normalizedRanking: NormalizedContent | null = null;
+  try {
+    normalizedRanking = normalizeContent(finalRanking as UnifiedContent | LegacyRanking);
+  } catch (err) {
+    console.error('normalizeContent failed for ranking slug', slug, err);
+    return (
+      <div className="px-4 py-24 text-center text-white">
+        <h1 className="text-2xl font-bold mb-4">Ranking Load Error</h1>
+        <p className="text-white/60 mb-6">We hit an issue rendering this rankings page. It has been logged.</p>
+      </div>
+    );
+  }
+  if (!normalizedRanking) {
+    notFound();
+  }
   
   if (!isRankingContent(normalizedRanking) || !normalizedRanking.teams?.length) {
     return (
@@ -195,7 +214,7 @@ interface SidebarContentItem {
 }
 
 import type { PortableTextContent } from '@/types/content';
-interface RankingsWithOptionalBody extends Rankings { body?: PortableTextContent[] }
+interface RankingsWithOptionalBody extends RankingsType { body?: PortableTextContent[] }
 
 function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: RankingsWithOptionalBody; slug: string; otherContent: SidebarContentItem[]; }) {
   // Show article-style layout if body content exists
@@ -222,7 +241,7 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
                 <Image src={ranking.author.image.asset.url} alt={ranking.author?.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
               </div>
             )}
-            <span>By {ranking.author?.name || 'Unknown'} • {formatArticleDate(ranking.publishedAt)}</span>
+            <span>By {ranking.author?.name || 'Unknown'} • {ranking.publishedAt ? formatArticleDate(ranking.publishedAt) : ''}</span>
             <span className="text-gray-500">•</span>
             <ReadingTime minutes={readingTime} />
           </div>
