@@ -1,5 +1,18 @@
 import { client } from "@/sanity/lib/client";
-import { headlineQuery } from "@/sanity/lib/queries";
+// Custom query: fetch published headlines/rankings ordered by publishedAt desc (fallback _createdAt) up to 40 to have buffer
+const moreHeadlinesQuery = `
+  *[(_type == "headline" || _type == "rankings") && published == true]
+    | order(publishedAt desc, _createdAt desc)[0...40] {
+      _id,
+      title,
+      homepageTitle,
+      summary,
+      slug,
+      coverImage { asset->{ url } },
+      author->{ name },
+      publishedAt
+    }
+`;
 import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,11 +35,12 @@ interface HeadlineItem {
 }
 
 export default async function MoreHeadlinesSection({ textureSrc, hideSummaries = false }: MoreHeadlinesSectionProps) {
-  const headlines: HeadlineItem[] = await client.fetch(headlineQuery);
-
-  // Consumed by Headlines: indexes 0-8 (main + 2 left + 6 right)
-  const START_INDEX = 9;
-  const moreHeadlines = (headlines || []).slice(START_INDEX, START_INDEX + 13);
+  const headlines: HeadlineItem[] = await client.fetch(moreHeadlinesQuery);
+  // First 9 assumed consumed by the top Headlines component. Show next newest items up to a cap (20 max total, so 11 here if 9 used above).
+  const START_INDEX = 9; // skip ones already displayed
+  const MAX_TOTAL = 20;
+  const remainingSlots = Math.max(0, MAX_TOTAL - START_INDEX);
+  const moreHeadlines = (headlines || []).slice(START_INDEX, START_INDEX + remainingSlots);
 
   return (
     <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">

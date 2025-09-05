@@ -30,62 +30,28 @@ interface HeadlinesProps {
 }
 
 export default async function Headlines({ textureSrc, hideSummaries = false }: HeadlinesProps) {
-  // New strategy: Use Homepage Settings singleton for manual ordering (pinnedHeadlines),
-  // then append the rest of the latest published headlines.
-  // If no settings or no pinned items, we just fallback to newest.
+  // Simple strategy: always show newest content (headline or rankings) by publishedAt desc.
+  // Fetch a buffer of 20 (main page cap) – first 9 rendered here, remainder consumed by MoreHeadlinesSection.
+  const newestHeadlinesQuery = `*[( _type == "headline" || _type == "rankings") && published == true]
+    | order(publishedAt desc, _createdAt desc)[0...20]{
+      _id,
+      _type,
+      title,
+      homepageTitle,
+      slug,
+      summary,
+      coverImage { asset->{ url } },
+      author->{ name },
+      publishedAt,
+      tags
+    }`;
 
-  const homepageHeadlinesQuery = `
-    {
-      "settings": *[_type == "homepageSettings"][0]{
-        pinnedHeadlines[]->{
-          _id,
-          _type,
-            title,
-            homepageTitle,
-            slug,
-            summary,
-            coverImage { asset->{ url } },
-            players[]->{ name, team, position, headshot{asset->{url}} },
-            priority,
-            date,
-            publishedAt,
-            author->{ name },
-            tags,
-            published
-        }
-      },
-      "rest": *[_type == "headline" && published == true && !(_id in *[_type=="homepageSettings"][0].pinnedHeadlines[]._ref)]
-        | order(_createdAt desc){
-          _id,
-          _type,
-          title,
-          homepageTitle,
-          slug,
-          summary,
-          coverImage { asset->{ url } },
-          players[]->{ name, team, position, headshot{asset->{url}} },
-          priority,
-          date,
-          publishedAt,
-          author->{ name },
-          tags
-        }
-    }
-  `;
-
-  const resultRaw = await sanityFetch(
-    homepageHeadlinesQuery,
+  const headlines = await sanityFetch<HeadlineItem[]>(
+    newestHeadlinesQuery,
     {},
-    { next: { revalidate: 300 } },
+    { next: { revalidate: 180 } },
     []
   );
-
-  interface HomepageResult { settings?: { pinnedHeadlines?: (HeadlineItem & { published?: boolean })[] }; rest?: HeadlineItem[] }
-  const result: HomepageResult = resultRaw as unknown as HomepageResult;
-
-  const pinned = (result.settings?.pinnedHeadlines || []).filter(h => h?.published !== false);
-  const rest = Array.isArray(result.rest) ? result.rest : [];
-  const headlines: HeadlineItem[] = [...pinned, ...rest];
 
   // (Removed verbose dev console logging of headlines to keep console clean)
 
@@ -267,7 +233,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                 <div key={headline._id} className="group">
                   {headline.slug?.current ? (
                     <Link href={getArticleUrl(headline)}>
-                      <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-300 hover:scale-[1.02]">
+                      <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
                         {headline.coverImage?.asset?.url ? (
                           <Image
                             src={headline.coverImage.asset.url}
@@ -324,7 +290,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
             <div className="col-span-13">
               {main?.coverImage?.asset?.url && main?.slug?.current ? (
                 <Link href={getArticleUrl(main)} className="group">
-                  <div className="relative h-full min-h-[320px] sm:min-h-[370px] lg:min-h-[400px] 2xl:min-h-[440px] 3xl:min-h-[500px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
+                  <div className="relative h-full min-h-[320px] sm:min-h-[370px] lg:min-h-[400px] 2xl:min-h-[440px] 3xl:min-h-[500px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-colors duration-500 shadow-xl hover:shadow-2xl">
                     <Image
                       src={main.coverImage.asset.url}
                       alt={main.title}
