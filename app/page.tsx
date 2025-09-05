@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   url: '/images/thesnap-logo-transparent.png',
         width: 1200,
         height: 630,
-        alt: 'The Snap - NFL News and Analysis Homepage',
+  alt: 'The Snap - NFL News and Analysis Homepage',
       },
     ],
   },

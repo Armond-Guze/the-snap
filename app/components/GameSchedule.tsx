@@ -61,8 +61,6 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   // Separate state for mobile horizontal list
-  const [canMobileScrollLeft, setCanMobileScrollLeft] = useState(false);
-  const [canMobileScrollRight, setCanMobileScrollRight] = useState(true);
   const [partialDesktopId, setPartialDesktopId] = useState<string | null>(null);
   const [partialMobileId, setPartialMobileId] = useState<string | null>(null);
   const desktopRef = useRef<HTMLDivElement | null>(null);
@@ -101,9 +99,6 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     }
     const mobile = mobileRef.current;
     if (mobile) {
-      const { scrollLeft, scrollWidth, clientWidth } = mobile;
-      setCanMobileScrollLeft(scrollLeft > 0);
-      setCanMobileScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
       detectPartial(mobile, setPartialMobileId);
     }
   }, [detectPartial]);
@@ -276,12 +271,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               </div>
             </div>
             {/* Gradient overlays for mobile */}
-            {canMobileScrollLeft && (
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black via-black/40 to-transparent" />
-            )}
-            {canMobileScrollRight && (
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black via-black/40 to-transparent" />
-            )}
+            {/* Removed mobile gradient shadows per request */}
 
           </div>
         </div>
@@ -335,9 +325,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             </div>
           </div>
           {/* Keep left overlay; right handled by partial card shadow for better focus */}
-          {canScrollLeft && (
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black via-black/40 to-transparent" />
-          )}
+          {/* Removed desktop left gradient shadow */}
         </div>
       </div>
     </section>

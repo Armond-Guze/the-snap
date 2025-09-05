@@ -165,9 +165,6 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
                     {main.homepageTitle || main.title || "Untitled"}
-                    {main.homepageTitle && main.homepageTitle !== main.title && (
-                      <span className="ml-2 align-middle text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold tracking-wider">ALT</span>
-                    )}
                   </h2>
                   {main.summary && !hideSummaries && (
                     <p className="text-gray-300 text-base line-clamp-3 leading-relaxed">
