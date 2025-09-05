@@ -1,5 +1,6 @@
 import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
 import { formatGameDateParts } from '@/lib/schedule-format';
+import TimezoneClient from './TimezoneClient';
 import Link from 'next/link';
 import Image from 'next/image';
 import TeamFilterClient from './TeamFilterClient';
@@ -15,10 +16,11 @@ export default async function ScheduleLandingPage() {
   const { week, games } = await getScheduleWeekOrCurrent();
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 text-white">
+    <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
       <h1 className="text-3xl font-bold mb-2">NFL Schedule</h1>
       <p className="text-sm text-white/60 mb-6">Week {week} (auto-detected). Choose another week below.</p>
-      <WeekSelector currentWeek={week} />
+  <WeekSelector currentWeek={week} />
+  <TimezoneClient />
   <TeamFilterClient />
   <GamesBuckets games={filteredGames} />
     </div>
@@ -57,14 +59,17 @@ function GamesBuckets({ games }: GameProps) {
 
 
 function GameRow({ game }: { game: EnrichedGame }) {
-  const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC);
+  // read tz from location (server headers only accessible at top-level; fallback to ET)
+  // For server component we can't use hooks, parse from referer like earlier.
+  const tz = 'ET'; // server fallback; client hydration will update via separate component if necessary.
+  const { dateLabel, timeLabel, relative } = formatGameDateParts(game.dateUTC, { timezoneCode: tz });
   return (
     <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
       <div className="flex flex-col text-sm">
         <span className="font-semibold flex items-center gap-2">
           <TeamBadge abbr={game.away} /> @ <TeamBadge abbr={game.home} />
         </span>
-  <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}</span>
+        <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
   <meta itemProp="startDate" content={game.dateUTC} />
       </div>
       <div className="text-right text-sm min-w-[110px]">
