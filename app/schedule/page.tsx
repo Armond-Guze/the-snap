@@ -1,4 +1,5 @@
 import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
+import { formatGameDateParts } from '@/lib/schedule-format';
 import Link from 'next/link';
 import Image from 'next/image';
 import TeamFilterClient from './TeamFilterClient';
@@ -56,23 +57,15 @@ function GamesBuckets({ games }: GameProps) {
 
 
 function GameRow({ game }: { game: EnrichedGame }) {
-  const d = new Date(game.dateUTC);
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfGame = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const diffDays = Math.round((startOfGame.getTime() - startOfToday.getTime()) / 86400000);
-  let dateLabel: string;
-  if (diffDays === 0) dateLabel = 'Today';
-  else if (diffDays === 1) dateLabel = 'Tomorrow';
-  else dateLabel = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-  const timeLabel = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC);
   return (
-    <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5">
+    <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
       <div className="flex flex-col text-sm">
         <span className="font-semibold flex items-center gap-2">
           <TeamBadge abbr={game.away} /> @ <TeamBadge abbr={game.home} />
         </span>
-        <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}</span>
+  <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}</span>
+  <meta itemProp="startDate" content={game.dateUTC} />
       </div>
       <div className="text-right text-sm min-w-[110px]">
         {game.status === 'FINAL' && game.scores ? (
