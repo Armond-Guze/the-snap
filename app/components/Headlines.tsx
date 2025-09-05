@@ -141,7 +141,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                 alt={main.title}
                 fill
                 sizes={HERO_SIZES}
-                className="object-cover opacity-85 sm:group-hover:opacity-95 sm:group-hover:scale-102 transition-all duration-700"
+                className="object-cover opacity-85 lg:group-hover:opacity-95 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -221,7 +221,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
                             fill
-                            className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.05]"
+                            className="object-cover object-left-top transition-transform duration-500"
                             sizes="112px"
                             priority={false}
                           />
@@ -330,7 +330,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                       alt={main.title}
                       fill
                       sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
-                      className="object-cover opacity-85 group-hover:opacity-95 group-hover:scale-102 transition-all duration-700"
+                      className="object-cover opacity-85 group-hover:opacity-95 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -411,7 +411,7 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
                                   alt={headline.title}
                                   fill
               sizes="104px"
-                                  className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+                                  className="object-cover object-center transition-transform duration-300"
                                 />
                               ) : (
                                 <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
