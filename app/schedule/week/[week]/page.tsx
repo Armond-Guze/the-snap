@@ -5,10 +5,40 @@ import Link from 'next/link';
 import Image from 'next/image';
 import TeamFilterClient from '../../TeamFilterClient';
 import { headers } from 'next/headers';
+import type { Metadata } from 'next';
+import StructuredData from '../../../components/StructuredData';
 
 export const revalidate = 300;
 
 interface Params { week: string }
+
+// Week-level metadata (dynamic per param) – ensures unique keyword rich titles
+export async function generateMetadata(p: { params: Promise<Params> }): Promise<Metadata> {
+  const params = await p.params;
+  const rawWeek = Number(params.week);
+  const week = isNaN(rawWeek) || rawWeek < 1 || rawWeek > 18 ? undefined : rawWeek;
+  const weekLabel = week ? `Week ${week}` : 'Week';
+  const baseTitle = `NFL Schedule ${weekLabel} 2025 – Matchups, Times (ET) & TV Channels`;
+  const desc = `Complete NFL ${weekLabel} 2025 schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
+  const canonical = week ? `/schedule/week/${week}` : '/schedule';
+  return {
+    title: baseTitle + ' | The Snap',
+    description: desc,
+    alternates: { canonical },
+    openGraph: {
+      title: baseTitle + ' | The Snap',
+      description: desc,
+      url: `https://thegamesnap.com${canonical}`,
+      type: 'website'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: baseTitle,
+      description: desc
+    },
+    robots: { index: true, follow: true }
+  };
+}
 
 // In Next.js 15, dynamic route params are provided as a Promise
 export default async function WeekSchedulePage({ params }: { params: Promise<Params> }) {
@@ -19,8 +49,19 @@ export default async function WeekSchedulePage({ params }: { params: Promise<Par
   const weekNum = Number(resolved.week);
   const { week, games } = await getScheduleWeekOrCurrent(weekNum);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
+  const events = filteredGames.slice(0,25).map(g => ({
+    '@type':'SportsEvent',
+    name:`${g.away} @ ${g.home}`,
+    startDate:g.dateUTC,
+    eventStatus: g.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled',
+    location:{ '@type':'Place', name: g.venue || 'Stadium' },
+    competitor:[{ '@type':'SportsTeam', name:g.away },{ '@type':'SportsTeam', name:g.home }],
+    broadcastChannel: g.network || undefined
+  }));
+  const sd = { '@context':'https://schema.org', '@type':'SportsEvent', name:`NFL Schedule Week ${week}`, hasPart: events };
   return (
     <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
+      <StructuredData data={sd} id={`sd-week-${week}`} />
       <h1 className="text-3xl font-bold mb-2">NFL Schedule - Week {week}</h1>
   <WeekSelector currentWeek={week} />
   <TimezoneClient />

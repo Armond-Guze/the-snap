@@ -8,7 +8,7 @@ import NewsletterSignup from '@/app/components/NewsletterSignup';
 import { generateCategorySEOMetadata } from '@/lib/seo';
 import { Metadata } from 'next';
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -25,6 +25,8 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
 
   return generateCategorySEOMetadata(category);
 }
+
+const PAGE_SIZE = 24;
 
 export default async function CategoryPage(props: CategoryPageProps) {
   const params = await props.params;
@@ -89,7 +91,15 @@ export default async function CategoryPage(props: CategoryPageProps) {
             </p>
           )}
           
-          <div className="w-24 h-1 bg-white mt-6"></div>
+          <div className="w-24 h-1 bg-white mt-6 mb-6"></div>
+          {/* Cross-links */}
+          <div className="flex flex-wrap gap-3 text-xs">
+            <Link href="/categories" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">All Categories</Link>
+            <Link href="/headlines" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Latest Headlines</Link>
+            <Link href="/power-rankings" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Power Rankings</Link>
+            <Link href="/standings" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Standings</Link>
+            <Link href="/schedule" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Schedule</Link>
+          </div>
         </div>
 
         {/* Breadcrumbs */}
@@ -116,7 +126,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           <NewsletterSignup />
         </div>
 
-        {/* Headlines Grid */}
+  {/* Headlines Grid (first page only – future: accept ?page= ) */}
         {headlines.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {headlines.map((headline) => (
@@ -188,12 +198,12 @@ export default async function CategoryPage(props: CategoryPageProps) {
           </div>
         )}
 
-        {/* Load More Button (if needed) */}
-        {headlines.length >= 12 && (
+        {/* Archive Link */}
+        {headlines.length >= PAGE_SIZE && (
           <div className="text-center mt-12">
-            <button className="px-8 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
-              Load More Articles
-            </button>
+            <Link href="/headlines/page/2" className="px-8 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors">
+              View Older Articles
+            </Link>
           </div>
         )}
       </div>

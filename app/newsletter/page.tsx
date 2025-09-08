@@ -17,6 +17,15 @@ export default function NewsletterPage() {
 
       {/* Newsletter Signup */}
       <NewsletterSignup />
+      <div className="max-w-4xl mx-auto px-6 -mt-8">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-2 text-white">Prefer using an RSS reader?</h3>
+            <p className="text-gray-400 text-sm max-w-xl">Grab our RSS feed for real-time headline updates in your favorite app.</p>
+          </div>
+          <a href="/rss.xml" className="px-5 py-3 bg-white text-black rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors">Add RSS Feed →</a>
+        </div>
+      </div>
 
       {/* Benefits Section */}
       <div className="py-16 px-6 lg:px-8 bg-black">

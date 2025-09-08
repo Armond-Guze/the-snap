@@ -183,3 +183,27 @@ export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ we
   const games = await getEnrichedWeek(week);
   return { week, games };
 }
+
+// Return all games (enriched) for a given team across the season
+export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[]> {
+  const schedule = await loadStaticSchedule();
+  const lower = team.toUpperCase();
+  const teamGames = schedule.filter(g => g.home === lower || g.away === lower);
+  // Enrich by fetching per-week live data in parallel (group by week)
+  const weeks = Array.from(new Set(teamGames.map(g => g.week)));
+  const enrichedWeeks = await Promise.all(weeks.map(w => getEnrichedWeek(w)));
+  const merged = enrichedWeeks.flat().filter(g => g.home === lower || g.away === lower);
+  // ensure unique by gameId
+  const map = new Map<string, EnrichedGame>();
+  merged.forEach(g => map.set(g.gameId, g));
+  return Array.from(map.values()).sort((a,b) => a.week - b.week);
+}
+
+// Fetch a single game by id (enriched with possible live data)
+export async function getGameById(gameId: string): Promise<EnrichedGame | null> {
+  const schedule = await loadStaticSchedule();
+  const base = schedule.find(g => g.gameId === gameId);
+  if (!base) return null;
+  const enrichedWeek = await getEnrichedWeek(base.week);
+  return enrichedWeek.find(g => g.gameId === gameId) || null;
+}

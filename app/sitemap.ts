@@ -10,10 +10,11 @@ const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
   : new Date('2025-08-01T00:00:00.000Z')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [headlines, rankings, fantasy] = await Promise.all([
+  const [headlines, rankings, fantasy, categories] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "headline" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "rankings" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "category"]{ slug, _updatedAt }`),
   ]);
 
   const dynamicEntries: MetadataRoute.Sitemap = [
@@ -35,6 +36,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.65,
     })),
+    ...categories.map(c => ({
+      url: `${baseUrl}/categories/${c.slug?.current}`,
+      lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
+      changeFrequency: 'weekly' as const,
+      priority: 0.5,
+    })),
   ];
 
   return [
@@ -43,6 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/categories`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'weekly',
+      priority: 0.55,
     },
     {
       url: `${baseUrl}/headlines`,

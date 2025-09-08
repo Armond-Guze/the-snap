@@ -55,27 +55,55 @@ export function generateAutoSeo(input: AutoSeoInput): AutoSeoResult {
   const { title, summary, bodyText, existing } = input
   const plain = extractPlainText(summary || bodyText)
   const descriptionSource = summary || plain || title || ''
-  const metaDescription = truncateWords(descriptionSource, 155)
+  // Append subtle CTA if description is very short
+  const baseDescription = truncateWords(descriptionSource, 150)
+  const metaDescription = baseDescription.length < 90
+    ? truncateWords(baseDescription + ' Get full NFL analysis on The Snap.', 155)
+    : baseDescription
 
   const { focus, additional } = deriveKeywords(input)
 
-  // Meta title preference: existing override, else title enriched if necessary
-  let metaTitle = existing?.metaTitle || title || ''
-  if (metaTitle && metaTitle.length < 40 && focus && !metaTitle.toLowerCase().includes(focus)) {
-    metaTitle = `${metaTitle} | ${focus.replace('nfl ', 'NFL ')}`.slice(0, 60)
+  // Start from existing or raw title
+  let metaTitle = (existing?.metaTitle || title || '').trim()
+
+  // Inject focus keyword if missing & room available
+  if (metaTitle && focus && !metaTitle.toLowerCase().includes(focus) && metaTitle.length < 52) {
+    metaTitle = `${metaTitle} | ${focus.replace('nfl ', 'NFL ')}`
   }
+
+  // Ensure brand presence
+  if (!/the snap/i.test(metaTitle) && metaTitle.length < 55) {
+    metaTitle = `${metaTitle} | The Snap`
+  }
+
+  // Year modifier heuristic (for rankings / seasonal content)
+  const currentYear = new Date().getFullYear()
+  if (/ranking|standings|schedule|draft/i.test(metaTitle) && !metaTitle.includes(String(currentYear))) {
+    if (metaTitle.length < 58) metaTitle = metaTitle.replace('| The Snap', `${currentYear} | The Snap`)
+  }
+
+  // Fallback uniqueness: add a short hash-like suffix if extremely generic
+  if (metaTitle.toLowerCase() === (title || '').toLowerCase()) {
+    const short = focus ? focus.split(' ').slice(0,2).join(' ') : 'NFL'
+    if (short && !metaTitle.toLowerCase().includes(short.toLowerCase()) && metaTitle.length < 55) {
+      metaTitle = `${metaTitle} | ${short}`
+    }
+  }
+
+  // Final length guard
+  metaTitle = truncateWords(metaTitle, 60)
 
   const ogTitle = metaTitle
   const ogDescription = metaDescription
 
   return {
-    metaTitle: truncateWords(metaTitle, 60),
+    metaTitle,
     metaDescription,
     focusKeyword: focus,
     additionalKeywords: additional,
     ogTitle,
     ogDescription,
-  } as AutoSeoResult & { focusKeyword?: string; additionalKeywords?: string[] }
+  }
 }
 
 // Convenience wrapper for headline documents

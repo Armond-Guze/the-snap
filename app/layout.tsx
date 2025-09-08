@@ -109,6 +109,8 @@ export default function RootLayout({
   {/* Explicit favicon links (square SVG for crisp scaling) */}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate icon" href="/favicon.svg" />
+  {/* RSS feed autodiscovery */}
+  <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
         {/* Google AdSense (conditionally loaded) */}
         {ADS_ENABLED && ADSENSE_CLIENT && (
           <script

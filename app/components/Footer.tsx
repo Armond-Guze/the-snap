@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from 'next/dynamic';
+const LatestHeadlinesFooterLinks = dynamic(() => import('./LatestHeadlinesFooterLinks'), { ssr: true });
+const TopTeamsLinks = dynamic(() => import('./TopTeamsLinks'), { ssr: true });
 import { Mail, Instagram, Youtube, Twitter, Music2 } from "lucide-react";
 
 const Footer = () => {
@@ -38,18 +41,22 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Site Sections */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Sections</h4>
-            <ul className="space-y-2">
-              {quickLinks.map(({ label, href }) => (
-                <li key={label}>
-                  <Link href={href} className="text-gray-400 hover:text-white transition-colors text-sm">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Site Sections, Latest Headlines & Top Teams */}
+          <div className="space-y-10">
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Sections</h4>
+              <ul className="space-y-2">
+                {quickLinks.map(({ label, href }) => (
+                  <li key={label}>
+                    <Link href={href} className="text-gray-400 hover:text-white transition-colors text-sm">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <LatestHeadlinesFooterLinks />
+            <TopTeamsLinks />
           </div>
 
           {/* Connect */}
