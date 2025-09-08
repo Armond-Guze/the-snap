@@ -2,9 +2,10 @@ import { getGameById, TEAM_META } from '@/lib/schedule';
 import { formatGameDateParts } from '@/lib/schedule-format';
 import type { Metadata } from 'next';
 
-interface Params { gameId: string }
+// Using a lightweight params shape; avoid over-constraining to satisfy Next.js PageProps inference
+interface MatchupParams { gameId: string }
 
-export async function generateMetadata({ params }: { params: Params}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: MatchupParams }): Promise<Metadata> {
   const g = await getGameById(params.gameId);
   if (!g) return { title: 'NFL Matchup Preview | The Snap' };
   const away = TEAM_META[g.away]?.name || g.away;
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Params}): Promise<M
 
 export const revalidate = 300;
 
-export default async function MatchupPreviewPage({ params }: { params: { gameId: string } }) {
+export default async function MatchupPreviewPage({ params }: { params: MatchupParams }) {
   const g = await getGameById(params.gameId);
   if (!g) return <div className="max-w-3xl mx-auto px-4 py-12 text-white">Matchup not found.</div>;
   const { dateLabel, timeLabel, relative } = formatGameDateParts(g.dateUTC, { timezoneCode: 'ET' });
