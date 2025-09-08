@@ -3,14 +3,16 @@ import { formatGameDateParts } from '@/lib/schedule-format';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-interface Params { team: string }
+// Follow project convention: params delivered as a Promise
+interface TeamPageProps { params: Promise<{ team: string }> }
 
 export async function generateStaticParams() {
   return TEAM_ABBRS.map(t => ({ team: t.toLowerCase() }));
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const abbr = params.team.toUpperCase();
+export async function generateMetadata({ params }: TeamPageProps): Promise<Metadata> {
+  const { team } = await params;
+  const abbr = team.toUpperCase();
   const meta = TEAM_META[abbr];
   if (!meta) return { title: 'Team Schedule | The Snap' };
   const year = 2025;
@@ -28,8 +30,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export const revalidate = 300;
 
-export default async function TeamSchedulePage({ params }: { params: Params }) {
-  const abbr = params.team.toUpperCase();
+export default async function TeamSchedulePage({ params }: TeamPageProps) {
+  const { team } = await params;
+  const abbr = team.toUpperCase();
   const meta = TEAM_META[abbr];
   if (!meta) return <div className="max-w-4xl mx-auto px-4 py-12 text-white">Unknown team.</div>;
   const games = await getTeamSeasonSchedule(abbr);

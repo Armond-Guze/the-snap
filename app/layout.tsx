@@ -5,6 +5,7 @@ import StructuredData, { createWebsiteStructuredData, createOrganizationStructur
 import LayoutWrapper from "./components/LayoutWrapper";
 import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Centralized config (build-time evaluated)
 const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
@@ -132,6 +133,7 @@ export default function RootLayout({
   {/* Typography experiment toggle removed; default scale always active */}
         <CookieConsent />
         <AnalyticsGate />
+  <SpeedInsights />
       </body>
     </html>
   );
