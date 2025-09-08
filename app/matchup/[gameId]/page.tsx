@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Params}): Promise<M
 
 export const revalidate = 300;
 
-export default async function MatchupPreviewPage({ params }: { params: Params }) {
+export default async function MatchupPreviewPage({ params }: { params: { gameId: string } }) {
   const g = await getGameById(params.gameId);
   if (!g) return <div className="max-w-3xl mx-auto px-4 py-12 text-white">Matchup not found.</div>;
   const { dateLabel, timeLabel, relative } = formatGameDateParts(g.dateUTC, { timezoneCode: 'ET' });
