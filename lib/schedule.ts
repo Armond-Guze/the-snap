@@ -23,6 +23,7 @@ export interface EnrichedGame extends StaticGame, LiveGameUpdate {}
 
 // Lazy loaded cache for static schedule
 let _staticSchedule: StaticGame[] | null = null;
+const _teamSeasonCache = new Map<string, Promise<EnrichedGame[]>>();
 
 export async function loadStaticSchedule(): Promise<StaticGame[]> {
   if (_staticSchedule) return _staticSchedule;
@@ -186,17 +187,22 @@ export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ we
 
 // Return all games (enriched) for a given team across the season
 export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[]> {
-  const schedule = await loadStaticSchedule();
-  const lower = team.toUpperCase();
-  const teamGames = schedule.filter(g => g.home === lower || g.away === lower);
-  // Enrich by fetching per-week live data in parallel (group by week)
-  const weeks = Array.from(new Set(teamGames.map(g => g.week)));
-  const enrichedWeeks = await Promise.all(weeks.map(w => getEnrichedWeek(w)));
-  const merged = enrichedWeeks.flat().filter(g => g.home === lower || g.away === lower);
-  // ensure unique by gameId
-  const map = new Map<string, EnrichedGame>();
-  merged.forEach(g => map.set(g.gameId, g));
-  return Array.from(map.values()).sort((a,b) => a.week - b.week);
+  const key = team.toUpperCase();
+  let pending = _teamSeasonCache.get(key);
+  if (!pending) {
+    pending = (async () => {
+      const schedule = await loadStaticSchedule();
+      const teamGames = schedule.filter(g => g.home === key || g.away === key);
+      const weeks = Array.from(new Set(teamGames.map(g => g.week)));
+      const enrichedWeeks = await Promise.all(weeks.map(w => getEnrichedWeek(w)));
+      const merged = enrichedWeeks.flat().filter(g => g.home === key || g.away === key);
+      const map = new Map<string, EnrichedGame>();
+      merged.forEach(g => map.set(g.gameId, g));
+      return Array.from(map.values()).sort((a,b) => a.week - b.week);
+    })();
+    _teamSeasonCache.set(key, pending);
+  }
+  return pending;
 }
 
 // Fetch a single game by id (enriched with possible live data)
@@ -206,4 +212,25 @@ export async function getGameById(gameId: string): Promise<EnrichedGame | null> 
   if (!base) return null;
   const enrichedWeek = await getEnrichedWeek(base.week);
   return enrichedWeek.find(g => g.gameId === gameId) || null;
+}
+
+// Determine if a game is a commonly recognized national primetime window (rough heuristic)
+export function isPrimetimeGame(game: EnrichedGame): boolean {
+  const label = bucketLabelFor(game);
+  return ['Thursday Night','Sunday Night','Monday Night'].includes(label);
+}
+
+// Compute a team's bye week (simple: first week 1..18 not present among its games)
+export function computeByeWeek(teamGames: EnrichedGame[]): number | null {
+  const playedWeeks = new Set(teamGames.map(g => g.week));
+  for (let w = 1; w <= 18; w++) {
+    if (!playedWeeks.has(w)) return w; // assumes exactly one bye
+  }
+  return null;
+}
+
+export function primetimeSummary(teamGames: EnrichedGame[]): { count: number; weeks: number[] } {
+  const weeks: number[] = [];
+  teamGames.forEach(g => { if (isPrimetimeGame(g)) weeks.push(g.week); });
+  return { count: weeks.length, weeks: Array.from(new Set(weeks)).sort((a,b)=>a-b) };
 }
