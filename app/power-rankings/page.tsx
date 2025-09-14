@@ -1,4 +1,5 @@
 import { client } from "@/sanity/lib/client";
+import Link from 'next/link';
 import { powerRankingsQuery } from "@/sanity/lib/queries";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
@@ -22,6 +23,10 @@ function getMovementIndicator(change: number): MovementIndicator {
 export default async function PowerRankingsPage() {
   try {
     const rankings: PowerRankingTeam[] = await client.fetch(powerRankingsQuery);
+    // latest weekly snapshot slug
+    const latest = await client.fetch<{ slug: { current: string } } | null>(
+      `*[_type=="powerRankingWeek"]|order(season desc, week desc)[0]{ slug }`
+    );
 
     // Handle empty state
     if (!rankings || rankings.length === 0) {
@@ -49,6 +54,11 @@ export default async function PowerRankingsPage() {
           <p className="text-xl text-gray-300 font-medium">
             Latest rankings updated weekly • {rankings.length} teams
           </p>
+          {latest?.slug?.current && (
+            <div className="mt-4">
+              <Link href={`/power-rankings/week/${latest.slug.current.replace('week-','')}`} className="inline-block text-sm px-3 py-2 rounded bg-white text-black font-medium hover:bg-gray-200 transition-colors">View This Week’s Edition →</Link>
+            </div>
+          )}
           <div className="mt-4 inline-flex items-center px-4 py-2 bg-black rounded-full">
             <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse" />
             <span className="text-sm text-green-400 font-semibold">
@@ -63,7 +73,6 @@ export default async function PowerRankingsPage() {
               _id,
               rank,
               previousRank,
-              teamColor,
               teamName,
               teamLogo,
               summary,
@@ -77,10 +86,7 @@ export default async function PowerRankingsPage() {
                 {/* Compact Team Header */}
                 <div className="relative bg-black p-3">
                   {/* Team Color Accent */}
-                  <div
-                    className="absolute left-0 top-0 bottom-0 w-1"
-                    style={{ backgroundColor: teamColor || "#6366f1" }}
-                  />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />
 
                   <div className="flex items-center gap-4">
                     {/* Rank Display */}

@@ -45,13 +45,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Power Rankings weekly snapshots
-  const rankingWeekSlugs: { slug: { current: string } }[] = await client.fetch(`*[_type=="powerRankingWeek"]{ slug }`);
-  const rankingWeekEntries: MetadataRoute.Sitemap = rankingWeekSlugs.map((s) => ({
-    url: `${baseUrl}/power-rankings/week/${s.slug?.current?.replace('week-','')}`,
-    lastModified: STATIC_LAST_MOD,
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }));
+  const rankingWeekSlugs: { slug?: { current?: string } | null; _updatedAt?: string }[] = await client.fetch(`*[_type=="powerRankingWeek"]{ slug, _updatedAt }`);
+  const rankingWeekEntries: MetadataRoute.Sitemap = rankingWeekSlugs
+    .map((s) => {
+      const slug = s?.slug?.current || '';
+      const short = slug.replace('week-','');
+      return {
+        url: `${baseUrl}/power-rankings/week/${short}`,
+        lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      } satisfies MetadataRoute.Sitemap[number];
+    });
 
   return [
     {
@@ -121,7 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     },
     ...dynamicEntries,
-  ...rankingWeekEntries,
+    ...rankingWeekEntries,
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,

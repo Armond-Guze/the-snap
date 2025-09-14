@@ -27,8 +27,22 @@ export default async function RankingsWeekPage({ params }: { params: Params }) {
   const data = await client.fetch(powerRankingWeekByParamsQuery, { season, week: w });
   if (!data) return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot for Week {w} — {season} yet.</div>;
   type Item = { rank: number; teamAbbr: string; teamName?: string; note?: string; prevRank?: number; movement?: number };
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const listLd = data ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `NFL Power Rankings ${season} — Week ${w}`,
+    itemListOrder: 'http://schema.org/ItemListOrderAscending',
+    itemListElement: (data.items || []).map((it: Item, idx: number) => ({
+      '@type': 'ListItem',
+      position: it.rank ?? idx + 1,
+      url: `${baseUrl}/teams/${(it.teamAbbr||'').toLowerCase()}`,
+      name: it.teamName || it.teamAbbr
+    }))
+  } : null;
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 text-white">
+      {listLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(listLd) }} />}
       <h1 className="text-3xl md:text-4xl font-bold mb-2">NFL Power Rankings {season} — Week {w}</h1>
       <p className="text-gray-400 mb-6">Published {data.publishedAt ? new Date(data.publishedAt).toLocaleDateString() : '—'}</p>
       <ol className="space-y-3">

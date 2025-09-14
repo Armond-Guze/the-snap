@@ -55,6 +55,20 @@ export default defineType({
       description: 'Choose the structural context for these rankings (used for filtering / display labels).'
     }),
     defineField({
+      name: 'season',
+      title: 'Season Year',
+      type: 'number',
+      description: 'Season these rankings belong to (e.g., 2025). Used for weekly snapshots.',
+      validation: (Rule) => Rule.required().min(2000).max(2100),
+    }),
+    defineField({
+      name: 'currentWeek',
+      title: 'Current Week',
+      type: 'number',
+      description: 'Set to the NFL week number you are publishing (1–25 including preseason/postseason).',
+      validation: (Rule) => Rule.required().min(1).max(25),
+    }),
+    defineField({
       name: 'summary',
       title: 'Summary',
       type: 'text',
@@ -300,6 +314,18 @@ export default defineType({
           },
         },
       ],
+      validation: (Rule) => Rule.custom((arr: unknown) => {
+        if (!Array.isArray(arr)) return true;
+        const ranks = arr
+          .map((t) => (t && typeof t === 'object' && 'rank' in t ? (t as { rank?: unknown }).rank : undefined))
+          .filter((n): n is number => typeof n === 'number');
+        if (ranks.length !== 32) return 'Exactly 32 teams are required';
+        const set = new Set(ranks);
+        if (set.size !== 32) return 'Ranks must be unique 1–32';
+        const min = Math.min(...ranks), max = Math.max(...ranks);
+        if (min !== 1 || max !== 32) return 'Ranks must cover 1 through 32 with no gaps';
+        return true;
+      }),
     }),
     defineField({
       name: 'methodology',

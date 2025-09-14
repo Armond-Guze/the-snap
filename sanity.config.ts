@@ -13,7 +13,7 @@ import {apiVersion, dataset, projectId} from './sanity/env'
 import {schemaTypes} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {biggerContentTextPlugin} from './sanity/plugins/biggerContentText'
-import { createRankingsSnapshotAction } from './sanity/plugins/rankingsSnapshotAction'
+import { createRankingsSnapshotAction, publishAndSnapshotAction } from './sanity/plugins/rankingsSnapshotAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -26,7 +26,7 @@ export default defineConfig({
   document: {
     actions(prev, context) {
       if (context.schemaType === 'rankings') {
-        return [...prev, createRankingsSnapshotAction]
+        return [...prev, createRankingsSnapshotAction, publishAndSnapshotAction]
       }
       return prev
     },
