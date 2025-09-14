@@ -14,6 +14,7 @@ import {schemaTypes} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {biggerContentTextPlugin} from './sanity/plugins/biggerContentText'
 import { createRankingsSnapshotAction, publishAndSnapshotAction } from './sanity/plugins/rankingsSnapshotAction'
+import { migrateTeamCategoryToTagAction } from './sanity/plugins/migrateTeamCategoriesToTags'
 
 export default defineConfig({
   basePath: '/studio',
@@ -27,6 +28,9 @@ export default defineConfig({
     actions(prev, context) {
       if (context.schemaType === 'rankings') {
         return [...prev, createRankingsSnapshotAction, publishAndSnapshotAction]
+      }
+      if (context.schemaType === 'category') {
+        return [...prev, migrateTeamCategoryToTagAction]
       }
       return prev
     },

@@ -85,6 +85,8 @@ export interface Headline {
   coverImage?: SanityImageWithUrl;
   category?: Category;
   tags?: Pick<Tag, 'title' | 'slug'>[];
+  // Reference-based canonical tags (advanced)
+  tagRefs?: Array<{ _ref: string }>;
   published?: boolean;
   youtubeVideoId?: string;
   videoTitle?: string;
@@ -211,6 +213,8 @@ export interface Rankings {
   methodology?: PortableTextContent;
   category?: Category;
   tags?: Pick<Tag, 'title' | 'slug'>[];
+  // Reference-based canonical tags (advanced)
+  tagRefs?: Array<{ _ref: string }>;
   priority?: number;
   seo?: SEOData;
   published: boolean;

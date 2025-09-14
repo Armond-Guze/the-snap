@@ -7,6 +7,7 @@ export default defineType({
   description: 'Ranking articles with structured team / player ordering plus optional full article body & embeds.',
   groups: [
     { name: 'seo', title: 'SEO' },
+    { name: 'advanced', title: 'Advanced' },
   ],
   fields: [
     defineField({
@@ -103,6 +104,15 @@ export default defineType({
       of: [{ type: 'string' }],
       options: { layout: 'tags' },
       description: 'Enter relevant tags for this rankings article (one per tag).'
+    }),
+    defineField({
+      name: 'tagRefs',
+      title: 'Tag References (Advanced)',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      options: { layout: 'tags' },
+      group: 'advanced',
+      description: 'Canonical tag links for this rankings article. Prefer these for consistency and analytics. String tags still work.'
     }),
     defineField({
       name: 'coverImage',

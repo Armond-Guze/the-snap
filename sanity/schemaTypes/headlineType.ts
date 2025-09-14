@@ -99,6 +99,15 @@ const headlineType = defineType({
       description: "Enter relevant tags for this article (one per line)"
     }),
     defineField({
+      name: 'tagRefs',
+      title: 'Tag References (Advanced)',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      options: { layout: 'tags' },
+      group: 'advanced',
+      description: 'Canonical tag links. Use for key articles to improve consistency and analytics. String tags still work.',
+    }),
+    defineField({
       name: "published",
       title: "Published",
       type: "boolean",
@@ -193,6 +202,10 @@ const headlineType = defineType({
     {
       name: "seo",
       title: "SEO",
+    },
+    {
+      name: 'advanced',
+      title: 'Advanced',
     },
   ],
   preview: {

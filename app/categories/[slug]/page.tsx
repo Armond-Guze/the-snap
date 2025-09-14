@@ -42,6 +42,20 @@ export default async function CategoryPage(props: CategoryPageProps) {
   if (!category) {
     notFound();
   }
+  // Build JSON-LD ItemList for SEO
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const listLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${category.title} Articles`,
+    itemListOrder: 'http://schema.org/ItemListOrderDescending',
+    itemListElement: headlines.slice(0, PAGE_SIZE).map((h, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${baseUrl}/headlines/${h.slug.current}`,
+      name: h.title
+    }))
+  };
 
   const getCategoryColorClasses = (color?: string) => {
     switch (color) {
@@ -70,6 +84,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
   return (
     <div className="min-h-screen bg-black text-white py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(listLd) }} />
         {/* Category Header */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">

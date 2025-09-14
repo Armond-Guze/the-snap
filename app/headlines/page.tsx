@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { client } from '@/sanity/lib/client';
-import { headlineQuery, headlinesByCategoryQuery, headlinesByTagQuery } from '@/sanity/lib/queries';
+import { headlineQuery, headlinesByCategoryQuery, headlinesByTagQuery, categoriesQuery } from '@/sanity/lib/queries';
+import type { Category } from '@/types';
 import type { HeadlineListItem } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -67,8 +68,9 @@ export default async function HeadlinesPage() {
   const hdrs = await headers();
   const url = new URL(hdrs.get('x-url') || 'http://localhost');
   const params = url.searchParams;
-  const [headlines] = await Promise.all([
-    fetchHeadlines(params)
+  const [headlines, categories] = await Promise.all([
+    fetchHeadlines(params),
+    client.fetch<Category[]>(categoriesQuery)
   ]);
   const title = buildTitle(params);
   const description = buildDescription(params);
@@ -142,10 +144,11 @@ export default async function HeadlinesPage() {
             <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
               <h3 className="text-lg font-semibold mb-4 text-white">Popular Categories</h3>
               <div className="space-y-2">
-                <Link href="/headlines?category=nfl-draft" className="block text-gray-300 hover:text-white transition-colors">NFL Draft</Link>
-                <Link href="/headlines?category=trade-rumors" className="block text-gray-300 hover:text-white transition-colors">Trade Rumors</Link>
-                <Link href="/headlines?category=injury-report" className="block text-gray-300 hover:text-white transition-colors">Injury Report</Link>
-                <Link href="/headlines?category=power-rankings" className="block text-gray-300 hover:text-white transition-colors">Power Rankings</Link>
+                {(categories || []).slice(0,6).map(cat => (
+                  <Link key={cat._id} href={`/headlines?category=${encodeURIComponent(cat.slug.current)}`} className="block text-gray-300 hover:text-white transition-colors">
+                    {cat.title}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>

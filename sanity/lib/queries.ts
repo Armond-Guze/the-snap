@@ -163,16 +163,19 @@ export const tagsQuery = `
     slug,
     description,
     trending,
-    "articleCount": count(*[_type == "headline" && published == true && tags match "*" + ^.title + "*"])
+    // Count both headlines and rankings that either reference this tag in tagRefs or include its title in string tags
+    "articleCount": count(*[(published == true) && (_type in ["headline","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
 // Trending tags query - fixed to work with string tags
 export const trendingTagsQuery = `
   *[_type == "tag" && trending == true] | order(title asc) {
+    _id,
     title,
     slug,
-    "articleCount": count(*[_type == "headline" && published == true && tags match "*" + ^.title + "*"])
+    // Count both headlines and rankings that either reference this tag in tagRefs or include its title in string tags
+    "articleCount": count(*[(published == true) && (_type in ["headline","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
@@ -203,7 +206,7 @@ export const headlinesByCategoryQuery = `
 
 // Headlines by tag - fixed to work with string tags
 export const headlinesByTagQuery = `
-  *[_type == "headline" && published == true && tags match "*" + $tagTitle + "*"] 
+  *[_type == "headline" && published == true && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))] 
   | order(priority asc, _createdAt desc) {
     _id,
     title,
