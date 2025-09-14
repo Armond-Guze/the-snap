@@ -13,6 +13,7 @@ import fantasyFootball from './fantasyFootball'
 import { newsletterSubscriber } from './newsletterSubscriber'
 import { playerType } from './playerType'
 import { homepageSettings } from './homepageSettings'
+import powerRankingWeek from './powerRankingWeek'
 
 
 export const schemaTypes = [
@@ -31,4 +32,5 @@ export const schemaTypes = [
   newsletterSubscriber,
   playerType,
   homepageSettings,
+  powerRankingWeek,
 ]

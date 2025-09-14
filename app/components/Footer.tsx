@@ -72,7 +72,7 @@ const Footer = () => {
                 <span>Contact Us</span>
               </a>
               <a
-                href="https://www.instagram.com/thegamesnap"
+                href="https://www.instagram.com/thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -82,7 +82,7 @@ const Footer = () => {
                 <span>Instagram</span>
               </a>
               <a
-                href="https://www.youtube.com/@thegamesnap"
+                href="https://www.youtube.com/@thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -92,7 +92,7 @@ const Footer = () => {
                 <span>YouTube</span>
               </a>
               <a
-                href="https://twitter.com/thegamesnap"
+                href="https://twitter.com/thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -102,7 +102,7 @@ const Footer = () => {
                 <span>Twitter / X</span>
               </a>
               <a
-                href="https://www.tiktok.com/@thegamesnap"
+                href="https://www.tiktok.com/@thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -161,7 +161,7 @@ const Footer = () => {
                 <span>Contact Us</span>
               </a>
               <a
-                href="https://www.instagram.com/thegamesnap"
+                href="https://www.instagram.com/thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -171,7 +171,7 @@ const Footer = () => {
                 <span>Instagram</span>
               </a>
               <a
-                href="https://www.youtube.com/@thegamesnap"
+                href="https://www.youtube.com/@thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -181,7 +181,7 @@ const Footer = () => {
                 <span>YouTube</span>
               </a>
               <a
-                href="https://twitter.com/thegamesnap"
+                href="https://twitter.com/thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -191,7 +191,7 @@ const Footer = () => {
                 <span>Twitter / X</span>
               </a>
               <a
-                href="https://www.tiktok.com/@thegamesnap"
+                href="https://www.tiktok.com/@thesnapfootball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
@@ -215,10 +215,10 @@ const Footer = () => {
         <div className="mt-8 md:mt-12 pt-6 border-t border-gray-800">
           {/* Quick social icon row */}
           <div className="flex items-center justify-center mb-4 gap-6 text-gray-400">
-            <a href="https://www.instagram.com/thegamesnap" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram size={18} /></a>
-            <a href="https://www.youtube.com/@thegamesnap" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Youtube size={18} /></a>
-            <a href="https://twitter.com/thegamesnap" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Twitter size={18} /></a>
-            <a href="https://www.tiktok.com/@thegamesnap" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 size={18} /></a>
+            <a href="https://www.instagram.com/thesnapfootball" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram size={18} /></a>
+            <a href="https://www.youtube.com/@thesnapfootball" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Youtube size={18} /></a>
+            <a href="https://twitter.com/thesnapfootball" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Twitter size={18} /></a>
+            <a href="https://www.tiktok.com/@thesnapfootball" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 size={18} /></a>
             <a href="mailto:TheGameSnap@yahoo.com" aria-label="Email" className="hover:text-white transition-colors"><Mail size={18} /></a>
           </div>
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">

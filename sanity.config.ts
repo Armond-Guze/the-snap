@@ -13,6 +13,7 @@ import {apiVersion, dataset, projectId} from './sanity/env'
 import {schemaTypes} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {biggerContentTextPlugin} from './sanity/plugins/biggerContentText'
+import { createRankingsSnapshotAction } from './sanity/plugins/rankingsSnapshotAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -21,6 +22,14 @@ export default defineConfig({
   // Add and edit the content schema in the './sanity/schemaTypes' folder
   schema: {
     types: schemaTypes,
+  },
+  document: {
+    actions(prev, context) {
+      if (context.schemaType === 'rankings') {
+        return [...prev, createRankingsSnapshotAction]
+      }
+      return prev
+    },
   },
   plugins: [
     structureTool({structure}),
