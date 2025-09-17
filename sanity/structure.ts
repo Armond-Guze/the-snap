@@ -30,9 +30,30 @@ export const structure: StructureResolver = (S) => {
           .title('Rankings')
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
+    // Make Power Rankings doc type explicit in the nav (live current list)
+    S.listItem()
+      .title('Power Rankings (Live)')
+      .schemaType('powerRanking')
+      .child(
+        S.documentTypeList('powerRanking')
+          .title('Power Rankings (Live)')
+          .defaultOrdering([{ field: 'rank', direction: 'asc' }])
+      ),
+    // Weekly historical snapshots
+    S.listItem()
+      .title('Power Rankings (Week Snapshots)')
+      .schemaType('powerRankingWeek')
+      .child(
+        S.documentTypeList('powerRankingWeek')
+          .title('Power Rankings (Week Snapshots)')
+          .defaultOrdering([
+            { field: 'season', direction: 'desc' },
+            { field: 'week', direction: 'desc' },
+          ])
+      ),
   ]
 
-  const alreadyHandled = new Set(['headline','fantasyFootball','rankings'])
+  const alreadyHandled = new Set(['headline','fantasyFootball','rankings','powerRanking','powerRankingWeek'])
 
   return S.list()
     .title('Content')
