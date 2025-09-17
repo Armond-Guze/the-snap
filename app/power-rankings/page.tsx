@@ -6,6 +6,7 @@ import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/sanity/lib/image";
 import { portableTextComponents } from "@/lib/portabletext-components";
 import type { PowerRankingTeam, MovementIndicator } from "@/types";
+import { gradientClassForTeam } from "@/lib/team-utils";
 
 export const revalidate = 60;
 
@@ -85,8 +86,8 @@ export default async function PowerRankingsPage() {
               <article key={_id} className="group">
                 {/* Compact Team Header */}
                 <div className="relative bg-black p-3">
-                  {/* Team Color Accent */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/20" />
+                  {/* Team Color Accent: auto from team name */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${gradientClassForTeam(teamName)}`} />
 
                   <div className="flex items-center gap-4">
                     {/* Rank Display */}
