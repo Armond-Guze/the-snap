@@ -15,6 +15,7 @@ import {structure} from './sanity/structure'
 import {biggerContentTextPlugin} from './sanity/plugins/biggerContentText'
 import { createRankingsSnapshotAction, publishAndSnapshotAction } from './sanity/plugins/rankingsSnapshotAction'
 import { migrateTeamCategoryToTagAction } from './sanity/plugins/migrateTeamCategoriesToTags'
+import snapshotFromLivePowerRankingsAction from './sanity/plugins/snapshotFromLiveAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -28,6 +29,9 @@ export default defineConfig({
     actions(prev, context) {
       if (context.schemaType === 'rankings') {
         return [...prev, createRankingsSnapshotAction, publishAndSnapshotAction]
+      }
+      if (context.schemaType === 'powerRanking') {
+        return [...prev, snapshotFromLivePowerRankingsAction]
       }
       if (context.schemaType === 'category') {
         return [...prev, migrateTeamCategoryToTagAction]
