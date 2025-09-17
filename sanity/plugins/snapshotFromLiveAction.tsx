@@ -1,5 +1,5 @@
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity'
-import { createClient } from 'next-sanity'
+import { createClient, type SanityClient } from '@sanity/client'
 import { apiVersion, dataset, projectId } from '../env'
 
 // Map of common team names/aliases to standard abbreviations
@@ -49,22 +49,32 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
   const doc = (draft || published) as { _type?: string } | undefined
   if (!doc || doc._type !== 'powerRanking') return null
 
-  const client = createClient({ projectId, dataset, apiVersion, useCdn: false })
+  // Use a Studio-authenticated client via cookie credentials
+  const client: SanityClient = createClient({ projectId, dataset, apiVersion, useCdn: false, withCredentials: true })
 
   const handleCreate = async (season: number, week: number) => {
       try {
         // Fetch all live power rankings
-        const teams: Array<{ rank: number; teamName?: string; summary?: string }> = await client.fetch(
-          `*[_type=="powerRanking"]|order(rank asc){ rank, teamName, summary }`
+        let teams: Array<{ rank: number; teamName?: string; summary?: string }> = await client.fetch(
+          `*[_type=="powerRanking" && !(_id in path('drafts.**'))]|order(rank asc){ rank, teamName, summary }`
         )
         if (!teams || teams.length !== 32) {
-          throw new Error(`Expected 32 teams, found ${teams?.length ?? 0}. Ensure ranks 1–32 exist.`)
+          // Try including drafts as a fallback to help first-time setup
+          const allTeams: Array<{ rank: number; teamName?: string; summary?: string }> = await client.fetch(
+            `*[_type=="powerRanking"]|order(rank asc){ rank, teamName, summary }`
+          )
+          if (allTeams && allTeams.length === 32) {
+            teams = allTeams
+            // continue with a warning toast at the end
+          } else {
+            throw new Error(`Expected 32 teams. Found ${teams?.length ?? 0} published, ${allTeams?.length ?? 0} total. Ensure ranks 1–32 exist.`)
+          }
         }
 
         // Fetch previous week's snapshot (to compute movement)
         const prevWeek = week - 1
         const prev = prevWeek >= 1
-          ? await client.fetch(
+          ? await client.fetch<{ items?: { teamAbbr: string; rank: number }[] } | null>(
               `*[_type=="powerRankingWeek" && season==$season && week==$week][0]{ items[]{teamAbbr, rank} }`,
               { season, week: prevWeek }
             )
@@ -97,6 +107,16 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
         })
         // @ts-expect-error toast may be undefined depending on Studio version
         props?.toast?.push?.({ status: 'success', title: `Snapshot created: Week ${week} — ${season}` })
+        // If we had to fall back to drafts, let the user know
+        // We can detect this by checking for any draft IDs in the teams query above, but since we merged data,
+        // just provide a general info message to publish for future runs.
+        try {
+          const publishedCount: number = await client.fetch<number>(`count(*[_type=="powerRanking" && !(_id in path('drafts.**'))])`)
+          if (publishedCount < 32) {
+            // @ts-expect-error toast may be undefined depending on Studio version
+            props?.toast?.push?.({ status: 'info', title: 'Using draft rankings', description: 'Some Power Rankings are drafts. Consider publishing all 32 for consistent snapshots.' })
+          }
+        } catch {}
         props.onComplete?.()
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e)
