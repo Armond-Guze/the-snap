@@ -1,3 +1,6 @@
+// Simple helper to render JSON-LD structured data
+// Usage: <StructuredData data={{ ...jsonLd }} />
+// Works in both Server and Client components
 import Script from 'next/script'
 
 interface StructuredDataProps {

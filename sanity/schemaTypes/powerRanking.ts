@@ -45,6 +45,9 @@ export default defineType({
       title: "Summary",
       type: "text",
       rows: 3,
+      description:
+        "1–2 sentence punchy blurb used on cards and as the default SEO description (aim 120–155 chars). Include a team hook and this week's angle.",
+      validation: (Rule) => Rule.max(180).warning("Keep under ~160 characters for best SEO snippets."),
     }),
     defineField({
       name: "body",
@@ -82,6 +85,13 @@ export default defineType({
       title: "Previous Rank",
       type: "number",
       validation: (Rule) => Rule.min(1).max(32),
+    }),
+    // Optional: per-entry SEO overrides (rarely needed for individual team rows)
+    defineField({
+      name: 'seo',
+      title: 'SEO (Optional)',
+      type: 'seo',
+      hidden: true,
     }),
   ],
   preview: {

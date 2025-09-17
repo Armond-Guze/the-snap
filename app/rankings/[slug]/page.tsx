@@ -18,6 +18,7 @@ import { portableTextComponents } from "@/lib/portabletext-components";
 import { urlFor } from "@/sanity/lib/image";
 import { Metadata } from 'next';
 import RelatedArticles from "@/app/components/RelatedArticles";
+import StructuredData, { createEnhancedArticleStructuredData } from "@/app/components/StructuredData";
 import YouTubeEmbed from "@/app/components/YoutubeEmbed";
 import TwitterEmbed from "@/app/components/TwitterEmbed";
 import InstagramEmbed from "@/app/components/InstagramEmbed";
@@ -227,8 +228,42 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
     { label: ranking.title }
   ];
 
+  // Build JSON-LD: NewsArticle + ItemList of teams
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const canonicalUrl = `${baseUrl}/rankings/${slug}`;
+  const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-transparent.png`;
+  const articleLd = createEnhancedArticleStructuredData({
+    headline: ranking.title,
+    description: ranking.summary || `NFL rankings analysis: ${ranking.title}`,
+    canonicalUrl,
+    images: [{ url: ogImage }],
+    datePublished: ranking.publishedAt || new Date().toISOString(),
+    dateModified: ranking.publishedAt || new Date().toISOString(),
+    author: { name: ranking.author?.name || 'The Snap' },
+    articleSection: ranking.rankingType,
+  });
+  const listLd = Array.isArray(ranking.teams) && ranking.teams.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: ranking.title,
+        itemListOrder: 'http://schema.org/ItemListOrderAscending',
+        itemListElement: ranking.teams
+          .slice()
+          .sort((a, b) => a.rank - b.rank)
+          .map((t, i) => ({
+            '@type': 'ListItem',
+            position: t.rank ?? i + 1,
+            name: t.teamName,
+          })),
+      }
+    : null;
+
   return (
     <main className="bg-black text-white min-h-screen">
+      {/* Structured Data */}
+      <StructuredData data={articleLd} />
+      {listLd && <StructuredData data={listLd as unknown as Record<string, unknown>} id="sd-itemlist" />}
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         <article className="lg:col-span-2 flex flex-col">
           <div className="hidden sm:block">
@@ -326,8 +361,43 @@ function UnifiedRankingRenderer({
     { label: ranking.title }
   ];
 
+  // Structured data for unified ranking
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const canonicalUrl = `${baseUrl}/rankings/${slug}`;
+  const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-transparent.png`;
+  const articleLd = createEnhancedArticleStructuredData({
+    headline: ranking.title,
+    description: ranking.excerpt || `NFL rankings analysis: ${ranking.title}`,
+    canonicalUrl,
+    images: [{ url: ogImage }],
+    datePublished: ranking.publishedAt || new Date().toISOString(),
+    dateModified: ranking.publishedAt || new Date().toISOString(),
+    author: { name: ranking.author?.name || 'The Snap' },
+    articleSection: 'Rankings',
+    keywords: ranking.teams?.slice(0,5).map(t => t.teamName || '').filter(Boolean),
+  });
+  const listLd = Array.isArray(ranking.teams) && ranking.teams.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: ranking.title,
+        itemListOrder: 'http://schema.org/ItemListOrderAscending',
+        itemListElement: ranking.teams
+          .slice()
+          .sort((a, b) => a.rank - b.rank)
+          .map((t, i) => ({
+            '@type': 'ListItem',
+            position: t.rank ?? i + 1,
+            name: t.teamName || `Team #${t.rank}`,
+          })),
+      }
+    : null;
+
   return (
     <main className="bg-black text-white min-h-screen">
+      {/* Structured Data */}
+      <StructuredData data={articleLd} />
+      {listLd && <StructuredData data={listLd as unknown as Record<string, unknown>} id="sd-itemlist" />}
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Main Article Section */}
         <article className="lg:col-span-2 flex flex-col">
