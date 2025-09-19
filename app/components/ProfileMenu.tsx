@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { TEAM_LOGOS, TEAM_COLORS } from './teamLogos';
-import { FaUserCircle } from 'react-icons/fa';
 
 // Very lightweight user profile stored in localStorage
 interface UserProfile {
@@ -79,7 +78,7 @@ export default function ProfileMenu() {
   ];
 
   const derivedLogo = profile?.favoriteTeam ? TEAM_LOGOS[profile.favoriteTeam] : undefined;
-  const avatarSrc = (profile?.favoriteTeam ? (profile?.teamLogoUrl || derivedLogo) : undefined) || '/images/avatar-placeholder.png';
+  const avatarSrc = (profile?.favoriteTeam ? (profile?.teamLogoUrl || derivedLogo) : undefined) || '/images/avatar-silhouette-white.svg';
 
   return (
     <div className="relative" ref={menuRef}>
@@ -98,7 +97,9 @@ export default function ProfileMenu() {
               <Image src={avatarSrc} alt={profile?.favoriteTeam ? `${profile.favoriteTeam} logo` : 'Profile'} fill sizes="36px" className="object-cover" />
             </div>
           ) : (
-            <FaUserCircle className="w-8 h-8" />
+            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 bg-white/5">
+              <Image src={avatarSrc} alt="Profile" fill sizes="36px" className="object-contain p-1.5" />
+            </div>
           )}
         </button>
       ) : (
@@ -114,7 +115,9 @@ export default function ProfileMenu() {
               <Image src={avatarSrc} alt={profile?.favoriteTeam ? `${profile.favoriteTeam} logo` : 'Profile'} fill sizes="36px" className="object-cover" />
             </div>
           ) : (
-            <FaUserCircle className="w-8 h-8" />
+            <div className="relative w-9 h-9 rounded-full overflow-hidden ring-1 ring-white/10 bg-white/5">
+              <Image src={avatarSrc} alt="Profile" fill sizes="36px" className="object-contain p-1.5" />
+            </div>
           )}
         </button>
       )}

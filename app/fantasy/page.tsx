@@ -58,6 +58,7 @@ export default async function FantasyFootballPage() {
 
   // Quick picks: next 4
   const quickPicks = rest.slice(0, 4);
+  const showSidebarQuickPicks = quickPicks.length >= 3;
 
   // Group remaining by fantasyType
   const grouped: Record<string, FantasyArticle[]> = {};
@@ -79,7 +80,7 @@ export default async function FantasyFootballPage() {
       <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-32">
         {/* Header / Hero */}
         <header className="mb-16">
-          <div className="flex flex-col lg:flex-row gap-10">
+          <div className={`flex flex-col ${showSidebarQuickPicks ? 'lg:flex-row' : ''} gap-10`}>
             {/* Featured Card */}
             <Link href={`/fantasy/${featured.slug.current}`} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
               <div className="absolute inset-0">
@@ -124,49 +125,87 @@ export default async function FantasyFootballPage() {
             </Link>
 
             {/* Quick Picks */}
-            <div className="w-full lg:w-80 flex flex-col">
-              <h2 className="text-sm font-semibold tracking-wider text-gray-300 mb-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" /> QUICK PICKS
-              </h2>
-              <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible snap-x pb-2 pr-2 -mr-6 lg:mr-0">
-                {quickPicks.map((qp) => (
-                  <Link
-                    key={qp._id}
-                    href={`/fantasy/${qp.slug.current}`}
-                    className="group shrink-0 basis-[85%] min-w-[85%] sm:basis-[70%] sm:min-w-[70%] md:w-64 md:min-w-0 lg:w-auto lg:min-w-0 snap-start"
-                  >
-                    <div className="relative rounded-xl h-40 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
-                      {qp.coverImage?.asset?.url && (
-                        <Image
-                          src={urlFor(qp.coverImage).width(400).height(260).url()}
-                          alt={qp.title}
-                          fill
-                          sizes={CARD_SIZES}
-                          className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                      <div className="relative p-4 flex flex-col justify-end h-full">
-                        <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
-                          {qp.homepageTitle || qp.title}
-
-                        </h3>
-                        {qp.fantasyType && (
-                          <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium tracking-wide">
-                            {qp.fantasyType.replace('-', ' ').toUpperCase()}
-                          </span>
+            {showSidebarQuickPicks && (
+              <div className="w-full lg:w-80 flex flex-col">
+                <h2 className="text-sm font-semibold tracking-wider text-gray-300 mb-3 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" /> QUICK PICKS
+                </h2>
+                <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible snap-x pb-2 pr-2 -mr-6 lg:mr-0">
+                  {quickPicks.map((qp) => (
+                    <Link
+                      key={qp._id}
+                      href={`/fantasy/${qp.slug.current}`}
+                      className="group shrink-0 basis-[85%] min-w-[85%] sm:basis-[70%] sm:min-w-[70%] md:w-64 md:min-w-0 lg:w-auto lg:min-w-0 snap-start"
+                    >
+                      <div className="relative rounded-xl h-40 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
+                        {qp.coverImage?.asset?.url && (
+                          <Image
+                            src={urlFor(qp.coverImage).width(400).height(260).url()}
+                            alt={qp.title}
+                            fill
+                            sizes={CARD_SIZES}
+                            className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
+                          />
                         )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                        <div className="relative p-4 flex flex-col justify-end h-full">
+                          <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
+                            {qp.homepageTitle || qp.title}
+                          </h3>
+                          {qp.fantasyType && (
+                            <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium tracking-wide">
+                              {qp.fantasyType.replace('-', ' ').toUpperCase()}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-                {quickPicks.length === 0 && (
-                  <div className="text-xs text-gray-500 italic py-6">No quick picks</div>
-                )}
+                    </Link>
+                  ))}
+                  {quickPicks.length === 0 && (
+                    <div className="text-xs text-gray-500 italic py-6">No quick picks</div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </header>
+
+        {/* Inline Quick Picks (when not enough to justify a sidebar) */}
+        {!showSidebarQuickPicks && quickPicks.length > 0 && (
+          <section className="mb-16">
+            <h2 className="text-sm font-semibold tracking-wider text-gray-300 mb-4 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" /> QUICK PICKS
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {quickPicks.map((qp) => (
+                <Link key={qp._id} href={`/fantasy/${qp.slug.current}`} className="group">
+                  <div className="relative rounded-xl h-44 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
+                    {qp.coverImage?.asset?.url && (
+                      <Image
+                        src={urlFor(qp.coverImage).width(500).height(300).url()}
+                        alt={qp.title}
+                        fill
+                        sizes={CARD_SIZES}
+                        className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    <div className="relative p-4 flex flex-col justify-end h-full">
+                      <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
+                        {qp.homepageTitle || qp.title}
+                      </h3>
+                      {qp.fantasyType && (
+                        <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium tracking-wide">
+                          {qp.fantasyType.replace('-', ' ').toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Type Navigation */}
         {typeOrder.length > 1 && (
