@@ -145,10 +145,6 @@ export default async function PowerRankingsPage() {
 
                 {/* Content Section */}
                 <div className="mt-3 bg-black p-6">
-                  {/* Auto delta headline before evergreen summary */}
-                  <p className="text-xl text-gray-300 leading-relaxed mb-3">
-                    {change > 0 ? `Up +${change} to #${rank}. ` : change < 0 ? `Down −${Math.abs(change)} to #${rank}. ` : `Hold at #${rank}. `}
-                  </p>
                   {summary && (
                     <p className="text-2xl text-gray-200 leading-relaxed mb-8">
                       {summary}
