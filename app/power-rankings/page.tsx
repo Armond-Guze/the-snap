@@ -76,7 +76,6 @@ export default async function PowerRankingsPage() {
               previousRank,
               teamName,
               teamLogo,
-              summary,
               body,
             } = team;
             const change = previousRank ? previousRank - rank : 0;
@@ -145,11 +144,7 @@ export default async function PowerRankingsPage() {
 
                 {/* Content Section */}
                 <div className="mt-3 bg-black p-6">
-                  {summary && (
-                    <p className="text-2xl text-gray-200 leading-relaxed mb-8">
-                      {summary}
-                    </p>
-                  )}
+                  {/* Summary intentionally hidden on live page (used for SEO only) */}
                   {Array.isArray(body) && body.length > 0 && (
                     <div className="text-2xl text-gray-200 leading-relaxed">
                       <PortableText value={body} components={portableTextComponents} />
