@@ -58,7 +58,15 @@ export default async function RankingsWeekPage({ params }: { params: Params }) {
                   </span>
                 )}
               </div>
-              {it.note && <p className="text-sm text-gray-300 mt-1">{it.note}</p>}
+              {/* Auto delta headline */}
+              <p className="text-sm text-gray-300 mt-1">
+                {typeof it.movement === 'number' && it.movement !== 0
+                  ? (it.movement > 0
+                      ? `Up +${it.movement} to #${it.rank}. `
+                      : `Down −${Math.abs(it.movement)} to #${it.rank}. `)
+                  : `Hold at #${it.rank}. `}
+                {it.note || ''}
+              </p>
             </div>
             {typeof it.prevRank === 'number' && (
               <div className="text-xs text-gray-400">Prev: {it.prevRank}</div>
