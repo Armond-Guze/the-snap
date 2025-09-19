@@ -23,13 +23,13 @@ interface HeadlineItem {
 }
 
 interface HeadlinesProps {
-  /** Optional texture image path under /public (e.g., "/images/texture-image.jpg"). Applied as a decorative overlay. */
+  // textureSrc no longer used; keeping prop for compatibility but ignored
   textureSrc?: string;
   /** When true, summary text is suppressed (e.g., cleaner homepage). */
   hideSummaries?: boolean;
 }
 
-export default async function Headlines({ textureSrc, hideSummaries = false }: HeadlinesProps) {
+export default async function Headlines({ hideSummaries = false }: HeadlinesProps) {
   // Simple strategy: always show newest content (headline or rankings) by publishedAt desc.
   // Fetch a buffer of 20 (main page cap) – first 9 rendered here, remainder consumed by MoreHeadlinesSection.
   const newestHeadlinesQuery = `*[( _type == "headline" || _type == "rankings") && published == true]
@@ -81,21 +81,8 @@ export default async function Headlines({ textureSrc, hideSummaries = false }: H
 
   return (
     <section className="relative">
-      {/* Background Image - use texture if provided, otherwise helmet background */}
-      <div className="absolute inset-0 -z-20">
-        <Image
-          src={textureSrc || "/images/helmet-background.png"}
-          alt="NFL background"
-          fill
-          priority
-          quality={100}
-          className="object-cover opacity-35 md:opacity-45"
-          sizes={HERO_SIZES}
-        />
-      </div>
-
-      {/* Gradient overlay - darker at bottom, lighter at top */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/55 to-black/85 -z-10" />
+      {/* Clean gradient background (top lighter, bottom darker) */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/35 via-black/55 to-black/85" />
 
       {/* Mobile: Full-width main headline */}
       <div className="lg:hidden">

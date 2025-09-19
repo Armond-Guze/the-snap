@@ -5,7 +5,7 @@ import Image from "next/image";
 interface RankingItem { _id: string; _type: string; title: string; slug: { current: string }; summary?: string; excerpt?: string; coverImage?: { asset?: { _ref: string; _type: string; url?: string } }; articleImage?: { asset?: { _ref: string; _type: string; url?: string } }; author?: { name: string }; rankingType?: string; priority?: number; publishedAt?: string; week?: number; }
 interface RankingsSectionProps { textureSrc?: string; hideSummaries?: boolean; }
 
-export default async function RankingsSection({ textureSrc, hideSummaries = false }: RankingsSectionProps) {
+export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
   const rankingsQuery = `*[_type == "rankings" && published == true] | order(priority asc, publishedAt desc, _createdAt desc) [0...6] { _id,_type,title,slug,summary,excerpt,coverImage{asset->{_ref,_type,url}},articleImage{asset->{_ref,_type,url}},author->{name},rankingType,priority,publishedAt,week }`;
   const rankings: RankingItem[] = await sanityFetch(rankingsQuery, {}, { next: { revalidate: 300 } }, []);
   if (!rankings?.length) return null;
@@ -15,7 +15,7 @@ export default async function RankingsSection({ textureSrc, hideSummaries = fals
   const getRankingUrl = (item: RankingItem) => `/rankings/${item.slug.current.trim()}`;
   return (
     <section className="relative py-10 px-6 lg:px-8 2xl:px-10 3xl:px-12">
-      {textureSrc && (<><div className="absolute inset-0 -z-20"><Image src={textureSrc} alt="NFL background" fill priority quality={100} className="object-cover opacity-30 md:opacity-35" sizes="100vw" /></div><div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/65 to-black/90 -z-10" /></>)}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[80rem] 3xl:max-w-[88rem] z-10">
         <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Rankings</h2></div></div>
         {/* Mobile: stacked cards using fantasy featured style */}

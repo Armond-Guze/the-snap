@@ -240,6 +240,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
   return (
     <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-black">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
       <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px] 3xl:max-w-[1800px] mx-auto relative z-10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">

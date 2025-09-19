@@ -42,10 +42,10 @@ export default async function Home() {
     <main className="min-h-screen">
   <GameSchedule games={featuredGames || []} />
   <GoogleAds />
-  <Headlines textureSrc="/images/texture-image.jpg" hideSummaries />
-  <RankingsSection textureSrc="/images/texture-image.jpg" hideSummaries />
-  <FantasySection textureSrc="/images/texture-image.jpg" hideSummaries />
-  <MoreHeadlinesSection textureSrc="/images/texture-image.jpg" hideSummaries />
+  <Headlines hideSummaries />
+  <RankingsSection hideSummaries />
+  <FantasySection hideSummaries />
+  <MoreHeadlinesSection hideSummaries />
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
   {/* Analytics now handled globally via AnalyticsGate in layout */}
