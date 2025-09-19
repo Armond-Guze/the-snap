@@ -42,7 +42,7 @@ const Footer = () => {
           </div>
 
           {/* Site Sections, Latest Headlines & Top Teams */}
-          <div className="space-y-10">
+          <div className="space-y-6">
             <div>
               <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Sections</h4>
               <ul className="space-y-2">
@@ -55,7 +55,7 @@ const Footer = () => {
                 ))}
               </ul>
             </div>
-            <LatestHeadlinesFooterLinks />
+            <LatestHeadlinesFooterLinks limit={5} />
             <TopTeamsLinks />
           </div>
 
