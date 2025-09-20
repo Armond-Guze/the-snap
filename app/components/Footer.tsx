@@ -25,7 +25,7 @@ const Footer = () => {
           <div>
             <div className="flex flex-col items-start mb-4">
               <Image
-                src="/images/thesnap-logo-transparent.png"
+                src="/images/thesnap-logo-new copy.jpg"
                 alt="The Game Snap Logo"
                 width={200}
                 height={200}

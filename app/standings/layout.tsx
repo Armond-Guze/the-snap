@@ -10,18 +10,15 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com/standings',
     images: [
       {
-  url: '/images/thesnap-logo-transparent.png',
-        width: 600, // Reduced width
-        height: 315, // Reduced height
-        alt: 'The Snap - NFL Standings',
+        url: '/images/thesnap-logo-new copy.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'NFL Standings - The Snap',
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: "NFL Standings 2025 - Division Standings & Playoff Picture",
-    description: "Current NFL standings for all divisions. Track team records and playoff implications.",
-  images: ['/images/thesnap-logo-transparent.png'],
+    images: ['/images/thesnap-logo-new copy.jpg'],
   },
   alternates: {
     canonical: '/standings',

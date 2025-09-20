@@ -232,7 +232,7 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   // Build JSON-LD: NewsArticle + ItemList of teams
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
   const canonicalUrl = `${baseUrl}/rankings/${slug}`;
-  const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-transparent.png`;
+  const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
     description: ranking.summary || `NFL rankings analysis: ${ranking.title}`,
@@ -365,7 +365,7 @@ function UnifiedRankingRenderer({
   // Structured data for unified ranking
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
   const canonicalUrl = `${baseUrl}/rankings/${slug}`;
-  const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-transparent.png`;
+  const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
     description: ranking.excerpt || `NFL rankings analysis: ${ranking.title}`,

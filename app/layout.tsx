@@ -44,12 +44,12 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com',
     siteName: 'The Snap',
     images: [
-      {
-  url: '/images/thesnap-logo-transparent.png',
-        width: 1200,
-        height: 630,
-        alt: 'The Snap - NFL News and Analysis',
-      },
+  {
+    url: '/images/thesnap-logo-new copy.jpg',
+    width: 1200,
+    height: 630,
+    alt: 'The Snap - NFL News and Analysis',
+  },
     ],
     locale: 'en_US',
     type: 'website',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     title: "The Snap - NFL News, Power Rankings & Analysis",
     description: "Your premier destination for NFL insights, power rankings, and breaking news.",
     creator: '@thesnap', // Replace with your actual Twitter handle
-  images: ['/images/thesnap-logo-transparent.png'],
+  images: ['/images/thesnap-logo-new copy.jpg'],
   },
   icons: {
     icon: [
@@ -98,7 +98,7 @@ export default function RootLayout({
   const organizationData = createOrganizationStructuredData(
     'The Snap', 
     'https://thegamesnap.com', 
-  'https://thegamesnap.com/images/thesnap-logo-transparent.png'
+  'https://thegamesnap.com/images/thesnap-logo-new copy.jpg'
   )
 
   return (

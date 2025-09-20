@@ -9,19 +9,19 @@ export const metadata: Metadata = {
     description: "Stay updated with the latest NFL headlines, breaking news, trade rumors, and injury reports.",
     url: 'https://thegamesnap.com/headlines',
     images: [
-      {
-  url: '/images/thesnap-logo-transparent.png',
-        width: 1200,
-        height: 630,
-        alt: 'The Snap - NFL Headlines',
-      },
+  {
+    url: '/images/thesnap-logo-new copy.jpg',
+    width: 1200,
+    height: 630,
+    alt: 'The Snap - NFL Headlines',
+  },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: "NFL Headlines & Breaking News - The Snap",
     description: "Stay updated with the latest NFL headlines, breaking news, trade rumors, and injury reports.",
-  images: ['/images/thesnap-logo-transparent.png'],
+  images: ['/images/thesnap-logo-new copy.jpg'],
   },
   alternates: {
     canonical: '/headlines',
