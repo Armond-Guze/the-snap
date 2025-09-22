@@ -1,7 +1,7 @@
 import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
 import type { TeamRecordDoc } from '@/lib/team-records';
-import { formatGameDateParts } from '@/lib/schedule-format';
+import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
 import Image from 'next/image';
 import { headers } from 'next/headers';
@@ -112,7 +112,7 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
           <div className="text-[12px]">
             {timeLabel} •
             {/* Shorten network on mobile, full on sm+ */}
-            <span className="sm:hidden">{(game.network || 'TBD').replace('Prime Video','Prime')}</span>
+            <span className="sm:hidden">{shortNetworkLabel(game.network)}</span>
             <span className="hidden sm:inline">{game.network || 'TBD'}</span>
           </div>
           <meta itemProp="startDate" content={game.dateUTC} />

@@ -66,3 +66,23 @@ export function formatGameLine(game: EnrichedGame, opts?: FormatOptions): string
   const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC, opts);
   return `${dateLabel} ${timeLabel}`;
 }
+
+// Shorten TV network labels for compact/mobile displays
+// Examples:
+// - "Prime Video" -> "Prime"
+// - "NFL Network" -> "NFLN"
+// - "ESPN/ABC" -> "ESPN"
+// - Keep short codes like CBS/FOX/NBC/ESPN/NFLN as-is
+export function shortNetworkLabel(network?: string): string {
+  if (!network || !network.trim()) return 'TBD';
+  const n = network.trim();
+  // Prime Video variations
+  if (/^prime(\s+video)?$/i.test(n)) return 'Prime';
+  // NFL Network full name
+  if (/^nfl\s*network$/i.test(n)) return 'NFLN';
+  // Already-short forms
+  if (/^(CBS|FOX|NBC|ESPN|ABC|NFLN)$/i.test(n)) return n.toUpperCase();
+  // If multiple networks separated by '/', prefer the first (e.g., ESPN/ABC -> ESPN)
+  if (n.includes('/')) return n.split('/')[0];
+  return n;
+}
