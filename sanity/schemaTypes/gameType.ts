@@ -23,9 +23,8 @@ export const gameType = defineType({
       name: 'homeRecord',
       title: 'Home Team Record',
       type: 'string',
-      description: 'Record shown next to home team (e.g., 0-0, 10-7). Keep short.',
-      initialValue: '0-0',
-      validation: Rule => Rule.regex(/^\d+-\d+(-\d+)?$/,{name:'record',invert:false}).warning('Format like W-L or W-L-T')
+      description: 'Auto from teamRecord – no longer editable here.',
+      hidden: true
     }),
     defineField({
       name: 'awayTeam',
@@ -38,9 +37,8 @@ export const gameType = defineType({
       name: 'awayRecord',
       title: 'Away Team Record',
       type: 'string',
-      description: 'Record shown next to away team (e.g., 0-0, 9-8). Keep short.',
-      initialValue: '0-0',
-      validation: Rule => Rule.regex(/^\d+-\d+(-\d+)?$/,{name:'record',invert:false}).warning('Format like W-L or W-L-T')
+      description: 'Auto from teamRecord – no longer editable here.',
+      hidden: true
     }),
     defineField({
       name: 'homeTeamLogo',

@@ -8,7 +8,22 @@ import GameSchedule from "./components/GameSchedule";
 import GoogleAds from "./components/GoogleAds"; // Single enabled ad for AdSense review
 import { client } from "@/sanity/lib/client";
 import { featuredGamesQuery } from "@/sanity/lib/queries";
+import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
+import { teamCodeFromName } from "@/lib/team-utils";
 import { Metadata } from 'next'
+
+type FeaturedGame = {
+  _id: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeTeamLogo?: { asset?: { _ref: string; _type: string } };
+  awayTeamLogo?: { asset?: { _ref: string; _type: string } };
+  gameDate: string;
+  tvNetwork?: string;
+  gameImportance?: string;
+  preview?: string;
+  week: number;
+};
 
 export const metadata: Metadata = {
   title: "The Snap - NFL News, Power Rankings, Standings & Analysis",
@@ -37,10 +52,17 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const featuredGames = await client.fetch(featuredGamesQuery);
+  const recMap = await fetchTeamRecords(2025);
 
   return (
     <main className="min-h-screen">
-  <GameSchedule games={featuredGames || []} />
+  <GameSchedule games={(featuredGames as FeaturedGame[] || []).map((g)=>{
+    const homeAbbr = teamCodeFromName(g.homeTeam);
+    const awayAbbr = teamCodeFromName(g.awayTeam);
+    const homeRecord = shortRecord(homeAbbr ? recMap.get(homeAbbr) : undefined);
+    const awayRecord = shortRecord(awayAbbr ? recMap.get(awayAbbr) : undefined);
+    return { ...g, homeRecord, awayRecord };
+  })} />
   <GoogleAds />
   <Headlines hideSummaries />
   <RankingsSection hideSummaries />
