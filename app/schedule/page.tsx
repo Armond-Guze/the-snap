@@ -72,7 +72,7 @@ export default async function ScheduleLandingPage() {
       <StructuredData data={sd} id={`sd-schedule-week-${week}`} />
       <h1 className="text-3xl font-bold mb-2">NFL Schedule</h1>
       <p className="text-sm text-white/60 mb-6">Week {week} (auto-detected). Choose another week below.</p>
-  <WeekDropdown currentWeek={week} />
+  <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
   <TimezoneClient />
   <TeamFilterClient />
   <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
@@ -102,24 +102,33 @@ function GamesBuckets({ games, recordsMap }: GameProps) {
 
 
 function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<string, TeamRecordDoc> }) {
-  // read tz from location (server headers only accessible at top-level; fallback to ET)
-  // For server component we can't use hooks, parse from referer like earlier.
-  const tz = 'ET'; // server fallback; client hydration will update via separate component if necessary.
-  const { dateLabel, timeLabel, relative } = formatGameDateParts(game.dateUTC, { timezoneCode: tz });
+  // Always format in ET per request
+  const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC, { timezoneCode: 'ET', includeRelative: false });
   return (
     <div className="border border-white/10 rounded-lg p-5 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
-      <div className="flex flex-col text-[15px]">
-        <span className="font-semibold flex items-center gap-2">
-          <TeamBadge abbr={game.away} />
-          {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-sm">({rec})</span>) : null; })()}
-          <span>@</span>
-          <TeamBadge abbr={game.home} />
-          {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-sm">({rec})</span>) : null; })()}
-        </span>
-        <span className="text-white/60 text-sm">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
-  <meta itemProp="startDate" content={game.dateUTC} />
+      {/* Left info + matchup */}
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        {/* Kickoff info column (date on top, then time • network) */}
+        <div className="w-40 shrink-0 text-white/70 leading-tight">
+          <div className="text-[12px] font-medium">{dateLabel}</div>
+          <div className="text-[12px]">{timeLabel} • {game.network || 'TBD'}</div>
+          <meta itemProp="startDate" content={game.dateUTC} />
+        </div>
+
+        {/* Teams */}
+        <div className="flex flex-col leading-[1.15] text-[18px] sm:text-[20px] flex-1 min-w-0">
+          <span className="font-semibold flex items-center gap-2 truncate">
+            <TeamBadge abbr={game.away} />
+            {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-[14px]">({rec})</span>) : null; })()}
+            <span>@</span>
+            <TeamBadge abbr={game.home} />
+            {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-[14px]">({rec})</span>) : null; })()}
+          </span>
+        </div>
       </div>
-      <div className="text-right text-base min-w-[120px]">
+
+      {/* Right status */}
+      <div className="text-right text-base min-w-[120px] ml-4">
         {game.status === 'FINAL' && game.scores ? (
           <span className="font-bold">{game.scores.away}-{game.scores.home} <span className="text-white/50 font-normal">Final</span></span>
         ) : game.status === 'IN_PROGRESS' ? (
@@ -136,11 +145,11 @@ function TeamBadge({ abbr }: { abbr: string }) {
   const meta = TEAM_META[abbr];
   if (!meta) return <span>{abbr}</span>;
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="relative w-6 h-6 inline-block">
-        <Image src={meta.logo} alt={meta.name} fill sizes="24px" className="object-contain" />
+    <span className="inline-flex items-center gap-1.5 min-w-0">
+      <span className="relative w-7 h-7 inline-block shrink-0">
+        <Image src={meta.logo} alt={meta.name} fill sizes="28px" className="object-contain" />
       </span>
-      <span>{abbr}</span>
+      <span className="truncate">{abbr}</span>
     </span>
   );
 }

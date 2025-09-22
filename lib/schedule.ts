@@ -137,19 +137,25 @@ export const TEAM_ABBRS = Object.keys(TEAM_META);
 export interface GroupedGamesBucket { label: string; games: EnrichedGame[] }
 
 export function bucketLabelFor(game: EnrichedGame): string {
+  // Compute weekday/hour in Eastern Time to avoid UTC day crossover issues.
   const d = new Date(game.dateUTC);
-  const day = d.getUTCDay(); // 0 Sun
-  const hour = d.getUTCHours();
-  // Rough ET calculation (UTC-4 or -5). We'll just compare UTC hour ranges relative.
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short',
+    hour: '2-digit',
+    hour12: false
+  }).formatToParts(d);
+  const wd = parts.find(p => p.type === 'weekday')?.value || '';
+  const hour = Number(parts.find(p => p.type === 'hour')?.value || '0');
+  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const day = map[wd as keyof typeof map];
+
   if (day === 4) return 'Thursday Night';
-  if (day === 1) return 'Monday Night';
-  if (day === 0) { // Sunday variants
-    if (hour < 19) return 'Sunday Early'; // before ~1:00 PM ET (17 UTC early season) - approximate
-    if (hour < 23) return 'Sunday Late';
-    return 'Sunday Night';
-  }
-  if (day === 5 || day === 6) return 'Weekend';
-  return d.toLocaleDateString(undefined, { weekday: 'long' });
+  if (day === 5) return 'Friday';
+  if (day === 6) return 'Saturday';
+  if (day === 0) return hour >= 20 ? 'Sunday Night' : 'Sunday';
+  if (day === 1) return hour >= 20 ? 'Monday Night' : 'Monday';
+  return wd;
 }
 
 export function groupGamesByBucket(games: EnrichedGame[]): GroupedGamesBucket[] {
@@ -163,33 +169,38 @@ export function groupGamesByBucket(games: EnrichedGame[]): GroupedGamesBucket[] 
 }
 
 export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): number {
-  // Choose week whose range contains now; if none, pick nearest upcoming week, else last past week.
-  const ranges: { week: number; min: number; max: number }[] = [];
-  const map = new Map<number, { min: number; max: number }>();
-  schedule.forEach((g) => {
+  // Choose: in-range week; else nearest upcoming; else last past; fallback 1.
+  const weeks = new Map<number, { min: number; max: number }>();
+  schedule.forEach(g => {
     const t = Date.parse(g.dateUTC);
-    const w = map.get(g.week);
-    if (!w) map.set(g.week, { min: t, max: t });
-    else {
-      w.min = Math.min(w.min, t);
-      w.max = Math.max(w.max, t);
-    }
+    const w = weeks.get(g.week);
+    if (!w) weeks.set(g.week, { min: t, max: t });
+    else { w.min = Math.min(w.min, t); w.max = Math.max(w.max, t); }
   });
-  for (const [week, r] of map) ranges.push({ week, ...r });
-  if (!ranges.length) return 1;
-  ranges.sort((a, b) => a.min - b.min);
+  if (weeks.size === 0) return 1;
   const ts = now.getTime();
-  const preBuf = 6 * 3600 * 1000; // 6h before first kickoff
-  const postBuf = 24 * 3600 * 1000; // 24h after last game
-  // 1) Inside any week's buffered window?
-  for (const r of ranges) {
-    if (ts >= r.min - preBuf && ts <= r.max + postBuf) return r.week;
+  // 1) In-range
+  for (const [week, range] of weeks) {
+    if (ts >= range.min - 6*3600*1000 && ts <= range.max + 24*3600*1000) return week;
   }
-  // 2) Otherwise, pick the first upcoming week
-  const upcoming = ranges.find((r) => ts < r.min - preBuf);
+  // 2) Nearest upcoming (smallest future min)
+  let upcoming: { week: number; min: number } | null = null;
+  for (const [week, range] of weeks) {
+    if (range.min > ts) {
+      if (!upcoming || range.min < upcoming.min) upcoming = { week, min: range.min };
+    }
+  }
   if (upcoming) return upcoming.week;
-  // 3) Otherwise, we're past the last week; return the final week
-  return ranges[ranges.length - 1].week;
+  // 3) Last past (largest past max)
+  let lastPast: { week: number; max: number } | null = null;
+  for (const [week, range] of weeks) {
+    if (range.max < ts) {
+      if (!lastPast || range.max > lastPast.max) lastPast = { week, max: range.max };
+    }
+  }
+  if (lastPast) return lastPast.week;
+  // 4) Fallback
+  return 1;
 }
 
 export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {

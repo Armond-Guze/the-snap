@@ -1,12 +1,130 @@
 [
+  
   {
-    "gameId": "401547146",
+    "gameId": "2025W1-DAL-PHI",
     "week": 1,
-    "dateUTC": "2025-09-05T00:20:00Z",
+    "dateUTC": "2025-09-04T23:30:00Z",
+    "home": "PHI",
+    "away": "DAL",
+    "network": "FOX",
+    "venue": "Lincoln Financial Field"
+  },
+  {
+    "gameId": "2025W1-LAC-KC",
+    "week": 1,
+    "dateUTC": "2025-09-06T00:20:00Z",
     "home": "KC",
-    "away": "BAL",
+    "away": "LAC",
     "network": "NBC",
     "venue": "GEHA Field at Arrowhead Stadium"
+  },
+  {
+    "gameId": "2025W1-TB-ATL",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "ATL",
+    "away": "TB",
+    "network": "FOX",
+    "venue": "Mercedes-Benz Stadium"
+  },
+  {
+    "gameId": "2025W1-CIN-CLE",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "CLE",
+    "away": "CIN",
+    "network": "CBS",
+    "venue": "Cleveland Browns Stadium"
+  },
+  {
+    "gameId": "2025W1-MIA-PIT",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "PIT",
+    "away": "MIA",
+    "network": "CBS",
+    "venue": "Acrisure Stadium"
+  },
+  {
+    "gameId": "2025W1-CAR-IND",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "IND",
+    "away": "CAR",
+    "network": "CBS",
+    "venue": "Lucas Oil Stadium"
+  },
+  {
+    "gameId": "2025W1-JAX-GB",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "GB",
+    "away": "JAX",
+    "network": "FOX",
+    "venue": "Lambeau Field"
+  },
+  {
+    "gameId": "2025W1-NE-WAS",
+    "week": 1,
+    "dateUTC": "2025-09-07T17:00:00Z",
+    "home": "WAS",
+    "away": "NE",
+    "network": "FOX",
+    "venue": "Commanders Field"
+  },
+  {
+    "gameId": "2025W1-BUF-NYJ",
+    "week": 1,
+    "dateUTC": "2025-09-07T20:25:00Z",
+    "home": "NYJ",
+    "away": "BUF",
+    "network": "CBS",
+    "venue": "MetLife Stadium"
+  },
+  {
+    "gameId": "2025W1-ARI-NO",
+    "week": 1,
+    "dateUTC": "2025-09-07T20:25:00Z",
+    "home": "NO",
+    "away": "ARI",
+    "network": "FOX",
+    "venue": "Caesars Superdome"
+  },
+  {
+    "gameId": "2025W1-DET-CHI",
+    "week": 1,
+    "dateUTC": "2025-09-07T20:25:00Z",
+    "home": "CHI",
+    "away": "DET",
+    "network": "FOX",
+    "venue": "Soldier Field"
+  },
+  {
+    "gameId": "2025W1-HOU-LV",
+    "week": 1,
+    "dateUTC": "2025-09-07T20:25:00Z",
+    "home": "LV",
+    "away": "HOU",
+    "network": "CBS",
+    "venue": "Allegiant Stadium"
+  },
+  {
+    "gameId": "2025W1-SF-LAR",
+    "week": 1,
+    "dateUTC": "2025-09-08T00:20:00Z",
+    "home": "LAR",
+    "away": "SF",
+    "network": "NBC",
+    "venue": "SoFi Stadium"
+  },
+  {
+    "gameId": "2025W1-MIN-CHI",
+    "week": 1,
+    "dateUTC": "2025-09-09T00:15:00Z",
+    "home": "CHI",
+    "away": "MIN",
+    "network": "ESPN",
+    "venue": "Soldier Field"
   },
   
   {
