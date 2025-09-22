@@ -163,18 +163,33 @@ export function groupGamesByBucket(games: EnrichedGame[]): GroupedGamesBucket[] 
 }
 
 export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): number {
-  // Basic heuristic: choose week whose range contains now.
-  const weeks = new Map<number, { min: number; max: number }>();
-  schedule.forEach(g => {
+  // Choose week whose range contains now; if none, pick nearest upcoming week, else last past week.
+  const ranges: { week: number; min: number; max: number }[] = [];
+  const map = new Map<number, { min: number; max: number }>();
+  schedule.forEach((g) => {
     const t = Date.parse(g.dateUTC);
-    const w = weeks.get(g.week);
-    if (!w) weeks.set(g.week, { min: t, max: t }); else { w.min = Math.min(w.min, t); w.max = Math.max(w.max, t); }
+    const w = map.get(g.week);
+    if (!w) map.set(g.week, { min: t, max: t });
+    else {
+      w.min = Math.min(w.min, t);
+      w.max = Math.max(w.max, t);
+    }
   });
+  for (const [week, r] of map) ranges.push({ week, ...r });
+  if (!ranges.length) return 1;
+  ranges.sort((a, b) => a.min - b.min);
   const ts = now.getTime();
-  for (const [week, range] of weeks) {
-    if (ts >= range.min - 6*3600*1000 && ts <= range.max + 24*3600*1000) return week; // small buffer
+  const preBuf = 6 * 3600 * 1000; // 6h before first kickoff
+  const postBuf = 24 * 3600 * 1000; // 24h after last game
+  // 1) Inside any week's buffered window?
+  for (const r of ranges) {
+    if (ts >= r.min - preBuf && ts <= r.max + postBuf) return r.week;
   }
-  return 1; // default
+  // 2) Otherwise, pick the first upcoming week
+  const upcoming = ranges.find((r) => ts < r.min - preBuf);
+  if (upcoming) return upcoming.week;
+  // 3) Otherwise, we're past the last week; return the final week
+  return ranges[ranges.length - 1].week;
 }
 
 export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
