@@ -10,6 +10,118 @@
     "venue": "Lincoln Financial Field"
   },
   {
+    "gameId": "2025W2-WAS-GB",
+    "week": 2,
+    "dateUTC": "2025-09-12T00:15:00Z",
+    "home": "GB",
+    "away": "WAS"
+  },
+  {
+    "gameId": "2025W2-CLE-BAL",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "BAL",
+    "away": "CLE"
+  },
+  {
+    "gameId": "2025W2-JAX-CIN",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "CIN",
+    "away": "JAX"
+  },
+  {
+    "gameId": "2025W2-NYG-DAL",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "DAL",
+    "away": "NYG"
+  },
+  {
+    "gameId": "2025W2-CHI-DET",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "DET",
+    "away": "CHI"
+  },
+  {
+    "gameId": "2025W2-NE-MIA",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "MIA",
+    "away": "NE"
+  },
+  {
+    "gameId": "2025W2-SF-NO",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "NO",
+    "away": "SF"
+  },
+  {
+    "gameId": "2025W2-BUF-NYJ",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "NYJ",
+    "away": "BUF"
+  },
+  {
+    "gameId": "2025W2-SEA-PIT",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "PIT",
+    "away": "SEA"
+  },
+  {
+    "gameId": "2025W2-LAR-TEN",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "TEN",
+    "away": "LAR"
+  },
+  {
+    "gameId": "2025W2-CAR-ARI",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "ARI",
+    "away": "CAR"
+  },
+  {
+    "gameId": "2025W2-DEN-IND",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "IND",
+    "away": "DEN"
+  },
+  {
+    "gameId": "2025W2-PHI-KC",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "KC",
+    "away": "PHI"
+  },
+  {
+    "gameId": "2025W2-ATL-MIN",
+    "week": 2,
+    "dateUTC": "2025-09-14T17:00:00Z",
+    "home": "MIN",
+    "away": "ATL"
+  },
+  {
+    "gameId": "2025W2-TB-HOU",
+    "week": 2,
+    "dateUTC": "2025-09-16T00:15:00Z",
+    "home": "HOU",
+    "away": "TB"
+  },
+  {
+    "gameId": "2025W2-LAC-LV",
+    "week": 2,
+    "dateUTC": "2025-09-15T23:15:00Z",
+    "home": "LV",
+    "away": "LAC"
+  },
+  {
     "gameId": "2025W1-LAC-KC",
     "week": 1,
     "dateUTC": "2025-09-06T00:20:00Z",
@@ -261,5 +373,38 @@
     "away": "CIN",
     "network": "ABC",
     "venue": "Empower Field at Mile High"
-  }
+  },
+
+  
+  { "gameId": "2025W3-MIA-BUF", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "BUF", "away": "MIA" },
+  { "gameId": "2025W3-ATL-CAR", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "CAR", "away": "ATL" },
+  { "gameId": "2025W3-GB-CLE",  "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "CLE", "away": "GB"  },
+  { "gameId": "2025W3-HOU-JAX", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "JAX", "away": "HOU" },
+  { "gameId": "2025W3-CIN-MIN", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "MIN", "away": "CIN" },
+  { "gameId": "2025W3-PIT-NE",  "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "NE",  "away": "PIT" },
+  { "gameId": "2025W3-LAR-PHI", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "PHI", "away": "LAR" },
+  { "gameId": "2025W3-NYJ-TB",  "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "TB",  "away": "NYJ" },
+  { "gameId": "2025W3-IND-TEN", "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "TEN", "away": "IND" },
+  { "gameId": "2025W3-LV-WAS",  "week": 3, "dateUTC": "2025-09-21T17:00:00Z", "home": "WAS", "away": "LV"  },
+  { "gameId": "2025W3-DEN-LAC", "week": 3, "dateUTC": "2025-09-21T20:25:00Z", "home": "LAC", "away": "DEN" },
+  { "gameId": "2025W3-NO-SEA",  "week": 3, "dateUTC": "2025-09-21T20:25:00Z", "home": "SEA", "away": "NO"  },
+  { "gameId": "2025W3-DAL-CHI", "week": 3, "dateUTC": "2025-09-21T20:25:00Z", "home": "CHI", "away": "DAL" },
+  { "gameId": "2025W3-ARI-SF",  "week": 3, "dateUTC": "2025-09-21T20:05:00Z", "home": "SF",  "away": "ARI" },
+  { "gameId": "2025W3-KC-NYG",  "week": 3, "dateUTC": "2025-09-22T00:20:00Z", "home": "NYG", "away": "KC"  },
+  { "gameId": "2025W3-DET-BAL", "week": 3, "dateUTC": "2025-09-23T00:15:00Z", "home": "BAL", "away": "DET" },
+
+  { "gameId": "2025W5-SF-LAR",   "week": 5, "dateUTC": "2025-10-03T00:15:00Z", "home": "LAR", "away": "SF",  "network": "Prime Video" },
+  { "gameId": "2025W5-MIN-CLE-LON","week": 5, "dateUTC": "2025-10-05T13:30:00Z", "home": "CLE", "away": "MIN", "network": "NFLN" },
+  { "gameId": "2025W5-HOU-BAL",   "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "BAL", "away": "HOU", "network": "CBS" },
+  { "gameId": "2025W5-MIA-CAR",   "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "CAR", "away": "MIA", "network": "FOX" },
+  { "gameId": "2025W5-LV-IND",    "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "IND", "away": "LV",  "network": "FOX" },
+  { "gameId": "2025W5-NYG-NO",    "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "NO",  "away": "NYG", "network": "CBS" },
+  { "gameId": "2025W5-DAL-NYJ",   "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "NYJ", "away": "DAL", "network": "FOX" },
+  { "gameId": "2025W5-DEN-PHI",   "week": 5, "dateUTC": "2025-10-05T17:00:00Z", "home": "PHI", "away": "DEN", "network": "CBS" },
+  { "gameId": "2025W5-TEN-ARI",   "week": 5, "dateUTC": "2025-10-05T20:05:00Z", "home": "ARI", "away": "TEN", "network": "FOX" },
+  { "gameId": "2025W5-TB-SEA",    "week": 5, "dateUTC": "2025-10-05T20:05:00Z", "home": "SEA", "away": "TB",  "network": "FOX" },
+  { "gameId": "2025W5-DET-CIN",   "week": 5, "dateUTC": "2025-10-05T20:25:00Z", "home": "CIN", "away": "DET", "network": "FOX" },
+  { "gameId": "2025W5-WAS-LAC",   "week": 5, "dateUTC": "2025-10-05T20:25:00Z", "home": "LAC", "away": "WAS", "network": "CBS" },
+  { "gameId": "2025W5-NE-BUF",    "week": 5, "dateUTC": "2025-10-06T00:20:00Z", "home": "BUF", "away": "NE",  "network": "NBC" },
+  { "gameId": "2025W5-KC-JAX",    "week": 5, "dateUTC": "2025-10-07T00:15:00Z", "home": "JAX", "away": "KC",  "network": "ESPN/ABC" }
 ]
