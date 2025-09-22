@@ -136,14 +136,7 @@ export default function Navbar() {
       {/* Center: Logo */}
       <div className="flex-1 flex justify-center md:justify-start">
         <Link href="/" className="inline-flex items-center group">
-          <Image
-            src="/images/thesnap-logo-new copy.jpg"
-            alt="The Snap Logo"
-            width={220}
-            height={220}
-            className="h-16 md:h-20 lg:h-24 w-auto transition-transform group-hover:scale-[1.03]"
-            priority
-          />
+            <Image src="/images/thesnap-logo-transparent.png" alt="The Snap Logo" width={140} height={120} className="h-10 w-auto" />
         </Link>
       </div>
       {/* Desktop Nav Links */}
@@ -185,7 +178,7 @@ export default function Navbar() {
             <CgClose className="w-5 h-5 text-white" />
           </button>
           <Link href="/" onClick={handleLinkClick} className="mx-auto flex items-center">
-            <Image src="/images/thesnap-logo-new copy.jpg" alt="The Snap Logo" width={220} height={220} className="h-14 w-auto" />
+            <Image src="/images/thesnap-logo-transparent.png" alt="The Snap Logo" width={180} height={180} className="h-12 w-auto" />
           </Link>
           {/* subtle bottom glow line */}
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />

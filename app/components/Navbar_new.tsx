@@ -57,11 +57,11 @@ export default function Navbar() {
           {/* Centered Logo for mobile */}
           <Link href="/" className="inline-flex items-center space-x-2 group absolute left-1/2 transform -translate-x-1/2">
             <Image
-              src="/images/thesnap-logo-new copy.jpg"
+              src="/images/thesnap-logo-transparent.png"
               alt="FootballNews Logo"
-              width={200}
-              height={200}
-              className="h-20 w-auto md:h-24 lg:h-28 transition-transform group-hover:scale-105"
+              width={160}
+              height={160}
+              className="h-14 w-auto md:h-16 lg:h-18 transition-transform group-hover:scale-105"
               priority
             />
           </Link>
