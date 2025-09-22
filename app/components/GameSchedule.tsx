@@ -138,13 +138,9 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   const renderGameCard = (game: Game) => {
     const gameDate = new Date(game.gameDate);
     const isToday = gameDate.toDateString() === new Date().toDateString();
-  // Weekday only (e.g., Sun, Mon) per request – no month/day number
-  const dateString = gameDate.toLocaleDateString('en-US', { weekday: 'short' });
-    const time = gameDate.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    }).toUpperCase();
+    // Weekday only (e.g., Sun, Mon)
+    const dateString = gameDate.toLocaleDateString('en-US', { weekday: 'short' });
+    const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
     const importanceLabel = getImportanceLabel(game.gameImportance || '');
     const importanceColor = getImportanceColor(game.gameImportance || '');
 
@@ -154,73 +150,48 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         data-game-card-inner
         className="rounded-lg p-2 transition-colors duration-300 border border-neutral-800 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-sm bg-[#111111]/95 hover:bg-[#181818]/95"
       >
-        {/* Date and Time Header} */}
+        {/* Date and Time Header centered to left of teams not needed here; ensure team names are centered in their rows */}
         <div className="flex items-center justify-between mb-2">
-          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
-            {dateString}
-          </span>
-          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>
-            {time}
-          </span>
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>{dateString}</span>
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>{time}</span>
         </div>
 
-        {/* Game Importance Badge */}
         {importanceLabel && (
           <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full mb-2 ${importanceColor}`}>
             <span className="text-white text-xs font-semibold">{importanceLabel}</span>
           </div>
         )}
 
-        {/* Teams - Stacked Vertically */}
+        {/* Teams - Stacked Vertically and centered */}
         <div className="space-y-2">
           {/* Away Team */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-start space-x-2">
             {game.awayTeamLogo?.asset ? (
-              <Image
-                src={urlFor(game.awayTeamLogo).width(20).height(20).url()}
-                alt={game.awayTeam}
-                width={24}
-                height={24}
-                className="w-6 h-6 rounded-full flex-shrink-0"
-              />
+              <Image src={urlFor(game.awayTeamLogo).width(20).height(20).url()} alt={game.awayTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-extrabold">
-                  {game.awayTeam.split(' ').pop()?.charAt(0)}
-                </span>
+                <span className="text-white text-xs font-extrabold">{game.awayTeam.split(' ').pop()?.charAt(0)}</span>
               </div>
             )}
-            <span className="text-white text-xs font-extrabold tracking-wide uppercase truncate leading-none">
+            <span className="text-white text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
               {game.awayTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[11px] font-semibold tabular-nums leading-none">
-              {game.awayRecord || '0-0'}
-            </span>
+            <span className="text-gray-400 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.awayRecord || '0-0'}</span>
           </div>
 
           {/* Home Team */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-start space-x-2">
             {game.homeTeamLogo?.asset ? (
-              <Image
-                src={urlFor(game.homeTeamLogo).width(20).height(20).url()}
-                alt={game.homeTeam}
-                width={24}
-                height={24}
-                className="w-6 h-6 rounded-full flex-shrink-0"
-              />
+              <Image src={urlFor(game.homeTeamLogo).width(20).height(20).url()} alt={game.homeTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-extrabold">
-                  {game.homeTeam.split(' ').pop()?.charAt(0)}
-                </span>
+                <span className="text-white text-xs font-extrabold">{game.homeTeam.split(' ').pop()?.charAt(0)}</span>
               </div>
             )}
-            <span className="text-white text-xs font-extrabold tracking-wide uppercase truncate leading-none">
+            <span className="text-white text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
               {game.homeTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[11px] font-semibold tabular-nums leading-none">
-              {game.homeRecord || '0-0'}
-            </span>
+            <span className="text-gray-400 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.homeRecord || '0-0'}</span>
           </div>
         </div>
       </div>

@@ -4,7 +4,6 @@ import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
 import Image from 'next/image';
-import TeamFilterClient from './TeamFilterClient';
 import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../components/StructuredData';
@@ -74,7 +73,6 @@ export default async function ScheduleLandingPage() {
       <p className="text-sm text-white/60 mb-6">Week {week} (auto-detected). Choose another week below.</p>
   <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
   <TimezoneClient />
-  <TeamFilterClient />
   <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
   <ScheduleFAQ />
     </div>
@@ -105,30 +103,35 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
   // Always format in ET per request
   const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC, { timezoneCode: 'ET', includeRelative: false });
   return (
-    <div className="border border-white/10 rounded-lg p-5 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
+  <div className="border border-white/10 rounded-lg p-4 sm:p-5 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
       {/* Left info + matchup */}
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
         {/* Kickoff info column (date on top, then time • network) */}
-        <div className="w-40 shrink-0 text-white/70 leading-tight">
+        <div className="w-28 sm:w-40 shrink-0 text-white/70 leading-tight">
           <div className="text-[12px] font-medium">{dateLabel}</div>
-          <div className="text-[12px]">{timeLabel} • {game.network || 'TBD'}</div>
+          <div className="text-[12px]">
+            {timeLabel} •
+            {/* Shorten network on mobile, full on sm+ */}
+            <span className="sm:hidden">{(game.network || 'TBD').replace('Prime Video','Prime')}</span>
+            <span className="hidden sm:inline">{game.network || 'TBD'}</span>
+          </div>
           <meta itemProp="startDate" content={game.dateUTC} />
         </div>
 
-        {/* Teams */}
-        <div className="flex flex-col leading-[1.15] text-[18px] sm:text-[20px] flex-1 min-w-0">
-          <span className="font-semibold flex items-center gap-2 truncate">
+        {/* Teams: left-aligned on mobile; allow truncation if extremely narrow */}
+        <div className="leading-[1.15] text-[16px] sm:text-[20px] flex-1 min-w-0">
+          <span className="flex font-semibold items-center gap-2 truncate">
             <TeamBadge abbr={game.away} />
-            {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-[14px]">({rec})</span>) : null; })()}
+            {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-[14px] hidden sm:inline">({rec})</span>) : null; })()}
             <span>@</span>
             <TeamBadge abbr={game.home} />
-            {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-[14px]">({rec})</span>) : null; })()}
+            {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-[14px] hidden sm:inline">({rec})</span>) : null; })()}
           </span>
         </div>
       </div>
 
-      {/* Right status */}
-      <div className="text-right text-base min-w-[120px] ml-4">
+      {/* Right status (hidden on mobile to free space) */}
+      <div className="text-right text-base min-w-[120px] ml-4 hidden sm:block">
         {game.status === 'FINAL' && game.scores ? (
           <span className="font-bold">{game.scores.away}-{game.scores.home} <span className="text-white/50 font-normal">Final</span></span>
         ) : game.status === 'IN_PROGRESS' ? (
@@ -146,8 +149,8 @@ function TeamBadge({ abbr }: { abbr: string }) {
   if (!meta) return <span>{abbr}</span>;
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0">
-      <span className="relative w-7 h-7 inline-block shrink-0">
-        <Image src={meta.logo} alt={meta.name} fill sizes="28px" className="object-contain" />
+      <span className="relative w-6 h-6 sm:w-7 sm:h-7 inline-block shrink-0">
+        <Image src={meta.logo} alt={meta.name} fill sizes="24px, (min-width: 640px) 28px" className="object-contain" />
       </span>
       <span className="truncate">{abbr}</span>
     </span>
@@ -170,7 +173,7 @@ function ScheduleFAQ() {
     },
     {
       q: 'Where can I see a specific team\'s full schedule?',
-      a: 'Use the team filter above or visit dedicated team pages like /teams/kc or /teams/sf for the full 2025 slate.'
+      a: 'Visit dedicated team pages like /teams/kc or /teams/sf for the full 2025 slate.'
     }
   ];
   const faqLd = {
