@@ -148,10 +148,25 @@ export default function StandingsPage() {
   }, []);
 
   // Group teams by division (memoize to avoid recalculation on minor state changes)
-  const standingsByDivision = useMemo(() => divisions.reduce((acc, division) => {
-    acc[division] = standings.filter(team => team.division === division);
-    return acc;
-  }, {} as Record<string, StandingsTeam[]>), [standings]);
+  const standingsByDivision = useMemo(() => {
+    const sortFn = (a: StandingsTeam, b: StandingsTeam) => {
+      // Primary: win percentage desc
+      const byPct = b.winPercentage - a.winPercentage;
+      if (byPct !== 0) return byPct;
+      // Tiebreakers: wins desc, losses asc, ties desc, name asc
+      const byWins = b.wins - a.wins; if (byWins !== 0) return byWins;
+      const byLosses = a.losses - b.losses; if (byLosses !== 0) return byLosses;
+      const byTies = (b.ties || 0) - (a.ties || 0); if (byTies !== 0) return byTies;
+      return a.teamName.localeCompare(b.teamName);
+    };
+    return divisions.reduce((acc, division) => {
+      acc[division] = standings
+        .filter(team => team.division === division)
+        .slice()
+        .sort(sortFn);
+      return acc;
+    }, {} as Record<string, StandingsTeam[]>);
+  }, [standings]);
 
   const afcDivisions = divisions.slice(0, 4);
   const nfcDivisions = divisions.slice(4, 8);

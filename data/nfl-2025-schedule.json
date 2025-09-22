@@ -7,5 +7,141 @@
     "away": "BAL",
     "network": "NBC",
     "venue": "GEHA Field at Arrowhead Stadium"
+  },
+  
+  {
+    "gameId": "2025W4-SEA-ARI",
+    "week": 4,
+    "dateUTC": "2025-09-26T00:15:00Z",
+    "home": "ARI",
+    "away": "SEA",
+    "network": "Prime Video",
+    "venue": "State Farm Stadium"
+  },
+  {
+    "gameId": "2025W4-MIN-PIT",
+    "week": 4,
+    "dateUTC": "2025-09-28T13:30:00Z",
+    "home": "PIT",
+    "away": "MIN",
+    "network": "NFLN",
+    "venue": "Acrisure Stadium"
+  },
+  {
+    "gameId": "2025W4-WAS-ATL",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "ATL",
+    "away": "WAS",
+    "network": "FOX",
+    "venue": "Mercedes-Benz Stadium"
+  },
+  {
+    "gameId": "2025W4-PHI-TB",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "TB",
+    "away": "PHI",
+    "network": "FOX",
+    "venue": "Raymond James Stadium"
+  },
+  {
+    "gameId": "2025W4-NO-BUF",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "BUF",
+    "away": "NO",
+    "network": "CBS",
+    "venue": "Highmark Stadium"
+  },
+  {
+    "gameId": "2025W4-CLE-DET",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "DET",
+    "away": "CLE",
+    "network": "FOX",
+    "venue": "Ford Field"
+  },
+  {
+    "gameId": "2025W4-TEN-HOU",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "HOU",
+    "away": "TEN",
+    "network": "CBS",
+    "venue": "NRG Stadium"
+  },
+  {
+    "gameId": "2025W4-LAC-NYG",
+    "week": 4,
+    "dateUTC": "2025-09-28T17:00:00Z",
+    "home": "NYG",
+    "away": "LAC",
+    "network": "CBS",
+    "venue": "MetLife Stadium"
+  },
+  {
+    "gameId": "2025W4-IND-LAR",
+    "week": 4,
+    "dateUTC": "2025-09-28T20:05:00Z",
+    "home": "LAR",
+    "away": "IND",
+    "network": "FOX",
+    "venue": "SoFi Stadium"
+  },
+  {
+    "gameId": "2025W4-JAX-SF",
+    "week": 4,
+    "dateUTC": "2025-09-28T20:05:00Z",
+    "home": "SF",
+    "away": "JAX",
+    "network": "FOX",
+    "venue": "Levi's Stadium"
+  },
+  {
+    "gameId": "2025W4-BAL-KC",
+    "week": 4,
+    "dateUTC": "2025-09-28T20:25:00Z",
+    "home": "KC",
+    "away": "BAL",
+    "network": "CBS",
+    "venue": "GEHA Field at Arrowhead Stadium"
+  },
+  {
+    "gameId": "2025W4-CHI-LV",
+    "week": 4,
+    "dateUTC": "2025-09-28T20:25:00Z",
+    "home": "LV",
+    "away": "CHI",
+    "network": "CBS",
+    "venue": "Allegiant Stadium"
+  },
+  {
+    "gameId": "2025W4-GB-DAL",
+    "week": 4,
+    "dateUTC": "2025-09-29T00:20:00Z",
+    "home": "DAL",
+    "away": "GB",
+    "network": "NBC",
+    "venue": "AT&T Stadium"
+  },
+  {
+    "gameId": "2025W4-NYJ-MIA",
+    "week": 4,
+    "dateUTC": "2025-09-29T23:15:00Z",
+    "home": "MIA",
+    "away": "NYJ",
+    "network": "ESPN",
+    "venue": "Hard Rock Stadium"
+  },
+  {
+    "gameId": "2025W4-CIN-DEN",
+    "week": 4,
+    "dateUTC": "2025-09-30T00:15:00Z",
+    "home": "DEN",
+    "away": "CIN",
+    "network": "ABC",
+    "venue": "Empower Field at Mile High"
   }
 ]

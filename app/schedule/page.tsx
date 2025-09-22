@@ -107,19 +107,19 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
   const tz = 'ET'; // server fallback; client hydration will update via separate component if necessary.
   const { dateLabel, timeLabel, relative } = formatGameDateParts(game.dateUTC, { timezoneCode: tz });
   return (
-    <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
-      <div className="flex flex-col text-sm">
+    <div className="border border-white/10 rounded-lg p-5 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
+      <div className="flex flex-col text-[15px]">
         <span className="font-semibold flex items-center gap-2">
           <TeamBadge abbr={game.away} />
-          {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
+          {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-sm">({rec})</span>) : null; })()}
           <span>@</span>
           <TeamBadge abbr={game.home} />
-          {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
+          {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-sm">({rec})</span>) : null; })()}
         </span>
-        <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
+        <span className="text-white/60 text-sm">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
   <meta itemProp="startDate" content={game.dateUTC} />
       </div>
-      <div className="text-right text-sm min-w-[110px]">
+      <div className="text-right text-base min-w-[120px]">
         {game.status === 'FINAL' && game.scores ? (
           <span className="font-bold">{game.scores.away}-{game.scores.home} <span className="text-white/50 font-normal">Final</span></span>
         ) : game.status === 'IN_PROGRESS' ? (
@@ -136,9 +136,9 @@ function TeamBadge({ abbr }: { abbr: string }) {
   const meta = TEAM_META[abbr];
   if (!meta) return <span>{abbr}</span>;
   return (
-    <span className="inline-flex items-center gap-1">
-      <span className="relative w-5 h-5 inline-block">
-        <Image src={meta.logo} alt={meta.name} fill sizes="20px" className="object-contain" />
+    <span className="inline-flex items-center gap-1.5">
+      <span className="relative w-6 h-6 inline-block">
+        <Image src={meta.logo} alt={meta.name} fill sizes="24px" className="object-contain" />
       </span>
       <span>{abbr}</span>
     </span>
