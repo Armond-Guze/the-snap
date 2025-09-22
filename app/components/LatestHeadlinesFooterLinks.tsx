@@ -17,7 +17,7 @@ export default function LatestHeadlinesFooterLinks({ limit = 6 }: { limit?: numb
         const json = await res.json();
         if (!cancelled) setItems(json.items || []);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setLoading(false); 
       }
     }
     load();
