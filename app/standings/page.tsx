@@ -1,28 +1,21 @@
 "use client";
 
 import { client } from "@/sanity/lib/client";
-import { standingsQuery } from "@/sanity/lib/queries";
-import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
 import { useState, useEffect, useMemo } from "react";
+import { TEAM_META } from "@/lib/schedule";
 
 interface StandingsTeam {
   _id: string;
   teamName: string;
-  teamLogo?: {
-    asset?: {
-      _ref: string;
-      _type: string;
-    };
-  };
+  teamAbbr: string;
   wins: number;
   losses: number;
   ties: number;
   winPercentage: number;
   conference: string;
   division: string;
-  season: string;
-  lastUpdated: string;
+  streak?: string;
 }
 
 const divisions = [
@@ -48,6 +41,7 @@ function DivisionTable({
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">W</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">L</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Win %</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Strk</th>
             </tr>
           </thead>
           <tbody>
@@ -58,25 +52,22 @@ function DivisionTable({
               >
                 <td className="px-2.5 py-2.5">
                   <div className="flex items-center gap-2">
-                    {team.teamLogo?.asset ? (
+                    <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                       <Image
-                        src={urlFor(team.teamLogo).width(40).height(40).url()}
+                        src={TEAM_META[team.teamAbbr]?.logo || "/images/teams/placeholder.svg"}
                         alt={team.teamName}
-                        width={40}
-                        height={40}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain shadow"
+                        fill
+                        sizes="40px"
+                        className="object-contain"
                       />
-                    ) : (
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-600 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">{team.teamName.charAt(0)}</span>
-                      </div>
-                    )}
+                    </div>
                     <span className="text-white font-medium text-[13px] sm:text-sm truncate max-w-[110px] md:max-w-[160px]">{team.teamName}</span>
                   </div>
                 </td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.wins}</td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.losses}</td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{(team.winPercentage * 100).toFixed(1)}%</td>
+                <td className="px-2.5 py-2.5 text-center text-white/80 font-medium text-xs">{team.streak || '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -94,12 +85,55 @@ export default function StandingsPage() {
   const [loading, setLoading] = useState(true);
   // Removed syncing/logo update/last updated UI per design request
 
-  // Fetch standings data
+  // Fetch standings data (from teamRecord docs, combined with static division mapping)
   const fetchStandings = async () => {
     try {
-      const data: StandingsTeam[] = await client.fetch(standingsQuery);
-      setStandings(data);
-  // last updated removed from UI
+      const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string }>
+        = await client.fetch(`*[_type=="teamRecord" && season == 2025]{ _id, teamAbbr, wins, losses, ties, streak }`);
+
+      // Map abbr to full team name using TEAM_META or fallback to abbr
+      const abbrToName: Record<string, string> = {
+        ARI: 'Arizona Cardinals', ATL: 'Atlanta Falcons', BAL: 'Baltimore Ravens', BUF: 'Buffalo Bills',
+        CAR: 'Carolina Panthers', CHI: 'Chicago Bears', CIN: 'Cincinnati Bengals', CLE: 'Cleveland Browns',
+        DAL: 'Dallas Cowboys', DEN: 'Denver Broncos', DET: 'Detroit Lions', GB: 'Green Bay Packers',
+        HOU: 'Houston Texans', IND: 'Indianapolis Colts', JAX: 'Jacksonville Jaguars', KC: 'Kansas City Chiefs',
+        LAC: 'Los Angeles Chargers', LAR: 'Los Angeles Rams', LV: 'Las Vegas Raiders', MIA: 'Miami Dolphins',
+        MIN: 'Minnesota Vikings', NE: 'New England Patriots', NO: 'New Orleans Saints', NYG: 'New York Giants',
+        NYJ: 'New York Jets', PHI: 'Philadelphia Eagles', PIT: 'Pittsburgh Steelers', SEA: 'Seattle Seahawks',
+        SF: 'San Francisco 49ers', TB: 'Tampa Bay Buccaneers', TEN: 'Tennessee Titans', WAS: 'Washington Commanders'
+      };
+
+      const abbrToDivision: Record<string, { division: string; conference: string }> = {
+        BUF: { division: 'AFC East', conference: 'AFC' }, MIA: { division: 'AFC East', conference: 'AFC' }, NE: { division: 'AFC East', conference: 'AFC' }, NYJ: { division: 'AFC East', conference: 'AFC' },
+        BAL: { division: 'AFC North', conference: 'AFC' }, CIN: { division: 'AFC North', conference: 'AFC' }, CLE: { division: 'AFC North', conference: 'AFC' }, PIT: { division: 'AFC North', conference: 'AFC' },
+        HOU: { division: 'AFC South', conference: 'AFC' }, IND: { division: 'AFC South', conference: 'AFC' }, JAX: { division: 'AFC South', conference: 'AFC' }, TEN: { division: 'AFC South', conference: 'AFC' },
+        DEN: { division: 'AFC West', conference: 'AFC' }, KC: { division: 'AFC West', conference: 'AFC' }, LAC: { division: 'AFC West', conference: 'AFC' }, LV: { division: 'AFC West', conference: 'AFC' },
+        DAL: { division: 'NFC East', conference: 'NFC' }, NYG: { division: 'NFC East', conference: 'NFC' }, PHI: { division: 'NFC East', conference: 'NFC' }, WAS: { division: 'NFC East', conference: 'NFC' },
+        CHI: { division: 'NFC North', conference: 'NFC' }, DET: { division: 'NFC North', conference: 'NFC' }, GB: { division: 'NFC North', conference: 'NFC' }, MIN: { division: 'NFC North', conference: 'NFC' },
+        ATL: { division: 'NFC South', conference: 'NFC' }, CAR: { division: 'NFC South', conference: 'NFC' }, NO: { division: 'NFC South', conference: 'NFC' }, TB: { division: 'NFC South', conference: 'NFC' },
+        ARI: { division: 'NFC West', conference: 'NFC' }, LAR: { division: 'NFC West', conference: 'NFC' }, SF: { division: 'NFC West', conference: 'NFC' }, SEA: { division: 'NFC West', conference: 'NFC' },
+      };
+
+      const enriched: StandingsTeam[] = docs.map(d => {
+        const abbr = d.teamAbbr.toUpperCase();
+        const name = abbrToName[abbr] || abbr;
+        const group = abbrToDivision[abbr];
+        const wins = d.wins || 0, losses = d.losses || 0, ties = d.ties || 0;
+        const gp = wins + losses + ties;
+        const winPercentage = gp > 0 ? (wins + ties * 0.5) / gp : 0;
+        return {
+          _id: d._id,
+          teamName: name,
+          teamAbbr: abbr,
+          wins, losses, ties,
+          winPercentage,
+          conference: group?.conference || 'AFC',
+          division: group?.division || 'AFC East',
+          streak: d.streak
+        };
+      });
+
+      setStandings(enriched);
     } catch (error) {
       console.error('Error fetching standings:', error);
     } finally {

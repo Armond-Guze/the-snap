@@ -14,6 +14,7 @@ import { newsletterSubscriber } from './newsletterSubscriber'
 import { playerType } from './playerType'
 import { homepageSettings } from './homepageSettings'
 import powerRankingWeek from './powerRankingWeek'
+import { teamRecord } from './teamRecord'
 
 
 export const schemaTypes = [
@@ -33,4 +34,5 @@ export const schemaTypes = [
   playerType,
   homepageSettings,
   powerRankingWeek,
+  teamRecord,
 ]

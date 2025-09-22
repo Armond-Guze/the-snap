@@ -7,6 +7,8 @@ import { urlFor } from "@/sanity/lib/image";
 import { portableTextComponents } from "@/lib/portabletext-components";
 import type { PowerRankingTeam, MovementIndicator } from "@/types";
 import { gradientClassForTeam } from "@/lib/team-utils";
+import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
+import { teamCodeFromName } from "@/lib/team-utils";
 
 export const revalidate = 60;
 
@@ -24,6 +26,7 @@ function getMovementIndicator(change: number): MovementIndicator {
 export default async function PowerRankingsPage() {
   try {
     const rankings: PowerRankingTeam[] = await client.fetch(powerRankingsQuery);
+    const records = await fetchTeamRecords(2025);
     // latest weekly snapshot slug
     const latest = await client.fetch<{ slug: { current: string } } | null>(
       `*[_type=="powerRankingWeek"]|order(season desc, week desc)[0]{ slug }`
@@ -116,9 +119,10 @@ export default async function PowerRankingsPage() {
                     {/* Team Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
-                          {teamName}
-                        </h2>
+                        <div className="flex flex-col items-start">
+                          <h2 className="text-xl sm:text-2xl font-bold text-white truncate">{teamName}</h2>
+                          {(() => { const abbr = teamCodeFromName(teamName); const rec = shortRecord(abbr ? records.get(abbr) : undefined); return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null; })()}
+                        </div>
 
                         {/* Movement Indicator */}
                         <div className="flex flex-col items-center min-w-[50px] rounded-lg p-2">

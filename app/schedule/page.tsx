@@ -1,12 +1,14 @@
 import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
+import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
+import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
-import Link from 'next/link';
 import Image from 'next/image';
 import TeamFilterClient from './TeamFilterClient';
 import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../components/StructuredData';
+import WeekDropdown from './WeekDropdown';
 
 // Root schedule metadata (static – week specific pages handle granular titles)
 export const metadata: Metadata = {
@@ -44,6 +46,7 @@ export default async function ScheduleLandingPage() {
   const url = new URL(hdrs.get('x-url') || 'http://localhost');
   const teamParam = url.searchParams.get('team')?.toUpperCase();
   const { week, games } = await getScheduleWeekOrCurrent();
+  const recordsMap = await fetchTeamRecords(2025);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   // Build SportsEvent list structured data (limited to first 25 to keep payload small)
   const events = filteredGames.slice(0,25).map(g => ({
@@ -69,29 +72,18 @@ export default async function ScheduleLandingPage() {
       <StructuredData data={sd} id={`sd-schedule-week-${week}`} />
       <h1 className="text-3xl font-bold mb-2">NFL Schedule</h1>
       <p className="text-sm text-white/60 mb-6">Week {week} (auto-detected). Choose another week below.</p>
-  <WeekSelector currentWeek={week} />
+  <WeekDropdown currentWeek={week} />
   <TimezoneClient />
   <TeamFilterClient />
-  <GamesBuckets games={filteredGames} />
+  <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
   <ScheduleFAQ />
     </div>
   );
 }
 
-function WeekSelector({ currentWeek }: { currentWeek: number }) {
-  const weeks = Array.from({ length: 18 }, (_, i) => i + 1);
-  return (
-    <div className="flex flex-wrap gap-2 mb-8">
-      {weeks.map(w => (
-        <Link key={w} href={`/schedule/week/${w}`} className={`px-3 py-1 rounded-md text-sm border transition-colors ${w === currentWeek ? 'bg-white text-black border-white' : 'border-white/20 text-white/70 hover:text-white hover:border-white/50'}`}>Week {w}</Link>
-      ))}
-    </div>
-  );
-}
+interface GameProps { games: Awaited<ReturnType<typeof getScheduleWeekOrCurrent>>['games']; recordsMap?: Map<string, TeamRecordDoc> }
 
-interface GameProps { games: Awaited<ReturnType<typeof getScheduleWeekOrCurrent>>['games']; }
-
-function GamesBuckets({ games }: GameProps) {
+function GamesBuckets({ games, recordsMap }: GameProps) {
   if (!games.length) return <p className="text-white/60">No games found for this week (placeholder schedule, add more games JSON).</p>;
   const buckets = groupGamesByBucket(games);
   return (
@@ -100,7 +92,7 @@ function GamesBuckets({ games }: GameProps) {
         <div key={b.label}>
           <h2 className="text-lg font-semibold mb-3 tracking-wide text-white/80">{b.label}</h2>
           <div className="space-y-3">
-            {b.games.map(g => <GameRow key={g.gameId} game={g} />)}
+            {b.games.map(g => <GameRow key={g.gameId} game={g} recordsMap={recordsMap} />)}
           </div>
         </div>
       ))}
@@ -109,7 +101,7 @@ function GamesBuckets({ games }: GameProps) {
 }
 
 
-function GameRow({ game }: { game: EnrichedGame }) {
+function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<string, TeamRecordDoc> }) {
   // read tz from location (server headers only accessible at top-level; fallback to ET)
   // For server component we can't use hooks, parse from referer like earlier.
   const tz = 'ET'; // server fallback; client hydration will update via separate component if necessary.
@@ -118,7 +110,11 @@ function GameRow({ game }: { game: EnrichedGame }) {
     <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
       <div className="flex flex-col text-sm">
         <span className="font-semibold flex items-center gap-2">
-          <TeamBadge abbr={game.away} /> @ <TeamBadge abbr={game.home} />
+          <TeamBadge abbr={game.away} />
+          {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
+          <span>@</span>
+          <TeamBadge abbr={game.home} />
+          {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
         </span>
         <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
   <meta itemProp="startDate" content={game.dateUTC} />

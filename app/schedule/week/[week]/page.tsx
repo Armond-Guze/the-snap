@@ -1,12 +1,14 @@
 import { getScheduleWeekOrCurrent, groupGamesByBucket, TEAM_META, EnrichedGame } from '@/lib/schedule';
+import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
+import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts } from '@/lib/schedule-format';
 import TimezoneClient from '../../TimezoneClient';
-import Link from 'next/link';
 import Image from 'next/image';
 import TeamFilterClient from '../../TeamFilterClient';
 import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../../../components/StructuredData';
+import WeekDropdown from '../../WeekDropdown';
 
 export const revalidate = 300;
 
@@ -48,6 +50,7 @@ export default async function WeekSchedulePage({ params }: { params: Promise<Par
   const teamParam = url.searchParams.get('team')?.toUpperCase();
   const weekNum = Number(resolved.week);
   const { week, games } = await getScheduleWeekOrCurrent(weekNum);
+  const recordsMap = await fetchTeamRecords(2025);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   const events = filteredGames.slice(0,25).map(g => ({
     '@type':'SportsEvent',
@@ -63,29 +66,17 @@ export default async function WeekSchedulePage({ params }: { params: Promise<Par
     <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
       <StructuredData data={sd} id={`sd-week-${week}`} />
       <h1 className="text-3xl font-bold mb-2">NFL Schedule - Week {week}</h1>
-  <WeekSelector currentWeek={week} />
+  <WeekDropdown currentWeek={week} showAutoWeekLink />
   <TimezoneClient />
   <TeamFilterClient />
-  <GamesBuckets games={filteredGames} />
+  <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
     </div>
   );
 }
 
-function WeekSelector({ currentWeek }: { currentWeek: number }) {
-  const weeks = Array.from({ length: 18 }, (_, i) => i + 1);
-  return (
-    <div className="flex flex-wrap gap-2 mb-8">
-      {weeks.map(w => (
-        <Link key={w} href={`/schedule/week/${w}`} className={`px-3 py-1 rounded-md text-sm border transition-colors ${w === currentWeek ? 'bg-white text-black border-white' : 'border-white/20 text-white/70 hover:text-white hover:border-white/50'}`}>Week {w}</Link>
-      ))}
-      <Link href="/schedule" className="ml-auto text-xs text-white/50 hover:text-white/80">Auto Week</Link>
-    </div>
-  );
-}
+interface GameProps { games: EnrichedGame[]; recordsMap?: Map<string, TeamRecordDoc> }
 
-interface GameProps { games: EnrichedGame[] }
-
-function GamesBuckets({ games }: GameProps) {
+function GamesBuckets({ games, recordsMap }: GameProps) {
   if (!games.length) return <p className="text-white/60">No games found for this week (expand schedule JSON).</p>;
   const buckets = groupGamesByBucket(games);
   return (
@@ -94,7 +85,7 @@ function GamesBuckets({ games }: GameProps) {
         <div key={b.label}>
           <h2 className="text-lg font-semibold mb-3 tracking-wide text-white/80">{b.label}</h2>
           <div className="space-y-3">
-            {b.games.map(g => <GameRow key={g.gameId} game={g} />)}
+            {b.games.map(g => <GameRow key={g.gameId} game={g} recordsMap={recordsMap} />)}
           </div>
         </div>
       ))}
@@ -103,13 +94,17 @@ function GamesBuckets({ games }: GameProps) {
 }
 
 
-function GameRow({ game }: { game: EnrichedGame }) {
+function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<string, TeamRecordDoc> }) {
   const { dateLabel, timeLabel, relative } = formatGameDateParts(game.dateUTC, { timezoneCode: 'ET' });
   return (
     <div className="border border-white/10 rounded-lg p-4 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
       <div className="flex flex-col text-sm">
         <span className="font-semibold flex items-center gap-2">
-          <TeamBadge abbr={game.away} /> @ <TeamBadge abbr={game.home} />
+          <TeamBadge abbr={game.away} />
+          {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
+          <span>@</span>
+          <TeamBadge abbr={game.home} />
+          {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-xs">({rec})</span>) : null; })()}
         </span>
         <span className="text-white/50 text-xs">{dateLabel} {timeLabel} • {game.network || 'TBD'}{relative ? <span className="text-white/40"> • {relative}</span> : null}</span>
   <meta itemProp="startDate" content={game.dateUTC} />
