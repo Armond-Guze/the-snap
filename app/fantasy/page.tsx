@@ -84,9 +84,18 @@ export default async function FantasyFootballPage() {
             {/* Featured Card */}
             <Link href={`/fantasy/${featured.slug.current}`} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
               <div className="absolute inset-0">
-                {featured.coverImage?.asset?.url && (
+                {featured.coverImage?.asset?.url ? (
                   <Image
                     src={urlFor(featured.coverImage).width(1200).height(650).url()}
+                    alt={featured.title}
+                    fill
+                    sizes={HERO_SIZES}
+                    className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src="/images/texture-image.jpg"
                     alt={featured.title}
                     fill
                     sizes={HERO_SIZES}
@@ -138,9 +147,17 @@ export default async function FantasyFootballPage() {
                       className="group shrink-0 basis-[85%] min-w-[85%] sm:basis-[70%] sm:min-w-[70%] md:w-64 md:min-w-0 lg:w-auto lg:min-w-0 snap-start"
                     >
                       <div className="relative rounded-xl h-40 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
-                        {qp.coverImage?.asset?.url && (
+                        {qp.coverImage?.asset?.url ? (
                           <Image
                             src={urlFor(qp.coverImage).width(400).height(260).url()}
+                            alt={qp.title}
+                            fill
+                            sizes={CARD_SIZES}
+                            className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
+                          />
+                        ) : (
+                          <Image
+                            src="/images/texture-image.jpg"
                             alt={qp.title}
                             fill
                             sizes={CARD_SIZES}
@@ -180,9 +197,17 @@ export default async function FantasyFootballPage() {
               {quickPicks.map((qp) => (
                 <Link key={qp._id} href={`/fantasy/${qp.slug.current}`} className="group">
                   <div className="relative rounded-xl h-44 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
-                    {qp.coverImage?.asset?.url && (
+                    {qp.coverImage?.asset?.url ? (
                       <Image
                         src={urlFor(qp.coverImage).width(500).height(300).url()}
+                        alt={qp.title}
+                        fill
+                        sizes={CARD_SIZES}
+                        className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
+                      />
+                    ) : (
+                      <Image
+                        src="/images/texture-image.jpg"
                         alt={qp.title}
                         fill
                         sizes={CARD_SIZES}
@@ -236,9 +261,17 @@ export default async function FantasyFootballPage() {
                     <li key={a._id} className="group relative">
                       <Link href={`/fantasy/${a.slug.current}`} className="flex gap-5 p-5 md:p-6 hover:bg-white/[0.04] transition-colors">
                         <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-white/[0.03] border border-white/10">
-                          {a.coverImage?.asset?.url && (
+                          {a.coverImage?.asset?.url ? (
                             <Image
                               src={urlFor(a.coverImage).width(180).height(180).url()}
+                              alt={a.title}
+                              fill
+                              sizes={THUMB_SIZES}
+                              className="object-cover object-center md:group-hover:scale-[1.05] transition-transform opacity-70 md:group-hover:opacity-90"
+                            />
+                          ) : (
+                            <Image
+                              src="/images/texture-image.jpg"
                               alt={a.title}
                               fill
                               sizes={THUMB_SIZES}
