@@ -1,7 +1,7 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
-import { HERO_SIZES, CARD_SIZES, THUMB_SIZES } from '@/lib/image-sizes';
+import { HERO_SIZES, CARD_SIZES } from '@/lib/image-sizes';
 import { urlFor } from "@/sanity/lib/image";
 
 interface FantasyArticle {
@@ -53,256 +53,148 @@ export default async function FantasyFootballPage() {
     );
   }
 
-  // Featured article (first by priority, then date)
+  // Basic ordering: first is featured, next 4 quick picks, rest grouped.
   const [featured, ...rest] = fantasyArticles;
-
-  // Quick picks: next 4
   const quickPicks = rest.slice(0, 4);
-  const showSidebarQuickPicks = quickPicks.length >= 3;
+  const remaining = rest.slice(4);
 
   // Group remaining by fantasyType
-  const grouped: Record<string, FantasyArticle[]> = {};
-  rest.slice(4).forEach(a => {
-    const key = a.fantasyType || 'general';
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(a);
-  });
-  const typeOrder = Object.keys(grouped).sort();
+  const groups: Record<string, FantasyArticle[]> = {};
+  for (const a of remaining) {
+    const type = a.fantasyType || 'general-tips';
+    if (!groups[type]) groups[type] = [];
+    groups[type].push(a);
+  }
+
+  const preferredOrder = [
+    'start-sit',
+    'waiver-wire',
+    'player-analysis',
+    'week-preview',
+    'injury-report',
+    'trade-analysis',
+    'draft-strategy',
+    'general-tips'
+  ];
+  const orderedTypes = [
+    ...preferredOrder.filter(t => Object.keys(groups).includes(t)),
+    ...Object.keys(groups).filter(t => !preferredOrder.includes(t)).sort()
+  ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
-      {/* Decorative background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_60%),radial-gradient(circle_at_80%_40%,rgba(255,255,255,0.06),transparent_55%)]" />
-        <div className="absolute inset-0 backdrop-grain mix-blend-overlay" />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-32">
-        {/* Header / Hero */}
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-6 pt-16 pb-24">
+        {/* Featured */}
         <header className="mb-16">
-          <div className={`flex flex-col ${showSidebarQuickPicks ? 'lg:flex-row' : ''} gap-10`}>
-            {/* Featured Card */}
-            <Link href={`/fantasy/${featured.slug.current}`} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
-              <div className="absolute inset-0">
-                {featured.coverImage?.asset?.url ? (
-                  <Image
-                    src={urlFor(featured.coverImage).width(1200).height(650).url()}
-                    alt={featured.title}
-                    fill
-                    sizes={HERO_SIZES}
-                    className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500"
-                    priority
-                  />
-                ) : (
-                  <Image
-                    src="/images/texture-image.jpg"
-                    alt={featured.title}
-                    fill
-                    sizes={HERO_SIZES}
-                    className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500"
-                    priority
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              </div>
-              <div className="relative h-full flex flex-col justify-end p-10">
+          <div className="grid lg:grid-cols-3 gap-10 items-stretch">
+            <Link href={`/fantasy/${featured.slug.current}`} className="relative group rounded-2xl overflow-hidden lg:col-span-2 border border-white/10 bg-neutral-900">
+              {featured.coverImage?.asset?.url && (
+                <Image
+                  src={urlFor(featured.coverImage).width(1400).height(700).url()}
+                  alt={featured.title}
+                  fill
+                  className="object-cover"
+                  sizes={HERO_SIZES}
+                  priority
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="relative p-8 sm:p-10 flex flex-col justify-end h-[360px] md:h-[460px]">
                 {featured.fantasyType && (
-                  <span className="inline-block px-4 py-1.5 text-[11px] tracking-wide rounded-full bg-white/10 text-white font-semibold ring-1 ring-white/10 mb-5">
+                  <span className="mb-4 inline-block text-[11px] font-medium tracking-wider bg-white/15 px-3 py-1 rounded-full">
                     {featured.fantasyType.replace('-', ' ').toUpperCase()}
                   </span>
                 )}
-                <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-5 max-w-3xl drop-shadow-lg">
-                  <span className="text-white">{featured.homepageTitle || featured.title}</span>
-
+                <h1 className="text-3xl md:text-5xl font-extrabold leading-tight max-w-2xl">
+                  {featured.homepageTitle || featured.title}
                 </h1>
                 {featured.summary && (
-                  <p className="max-w-2xl text-gray-300 text-base md:text-lg leading-relaxed line-clamp-3">
-                    {featured.summary}
-                  </p>
+                  <p className="mt-4 text-sm md:text-base text-gray-300 max-w-xl line-clamp-3">{featured.summary}</p>
                 )}
-                <div className="mt-6 flex items-center text-xs text-gray-300/80">
-                  <span>{featured.author?.name || 'Staff Writer'}</span>
-                  {featured.publishedAt && <span className="mx-2">•</span>}
-                  {featured.publishedAt && (
-                    <time dateTime={featured.publishedAt}>{new Date(featured.publishedAt).toLocaleDateString()}</time>
-                  )}
+                <div className="mt-6 text-xs text-gray-400">
+                  {(featured.author?.name || 'Staff Writer')}{featured.publishedAt ? ` • ${new Date(featured.publishedAt).toLocaleDateString()}` : ''}
                 </div>
-              </div>
-              <div className="absolute top-4 right-4 text-[11px] font-medium tracking-wide bg-black/50 border border-white/20 px-3 py-1 rounded-full text-gray-200">
-                FEATURED
+                <span className="absolute top-4 right-4 text-[10px] font-semibold tracking-wider bg-black/70 border border-white/10 rounded-full px-3 py-1">FEATURED</span>
               </div>
             </Link>
-
-            {/* Quick Picks */}
-            {showSidebarQuickPicks && (
-              <div className="w-full lg:w-80 flex flex-col">
-                <h2 className="text-sm font-semibold tracking-wider text-gray-300 mb-3 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" /> QUICK PICKS
-                </h2>
-                <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible snap-x pb-2 pr-2 -mr-6 lg:mr-0">
-                  {quickPicks.map((qp) => (
-                    <Link
-                      key={qp._id}
-                      href={`/fantasy/${qp.slug.current}`}
-                      className="group shrink-0 basis-[85%] min-w-[85%] sm:basis-[70%] sm:min-w-[70%] md:w-64 md:min-w-0 lg:w-auto lg:min-w-0 snap-start"
-                    >
-                      <div className="relative rounded-xl h-40 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
-                        {qp.coverImage?.asset?.url ? (
-                          <Image
-                            src={urlFor(qp.coverImage).width(400).height(260).url()}
-                            alt={qp.title}
-                            fill
-                            sizes={CARD_SIZES}
-                            className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
-                          />
-                        ) : (
-                          <Image
-                            src="/images/texture-image.jpg"
-                            alt={qp.title}
-                            fill
-                            sizes={CARD_SIZES}
-                            className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
-                          />
+            {quickPicks.length > 0 && (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-sm font-semibold tracking-wider text-gray-300">QUICK PICKS</h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                  {quickPicks.map(qp => (
+                    <Link key={qp._id} href={`/fantasy/${qp.slug.current}`} className="group relative rounded-xl overflow-hidden border border-white/10 bg-neutral-900 hover:bg-neutral-800 transition-colors">
+                      {qp.coverImage?.asset?.url && (
+                        <Image
+                          src={urlFor(qp.coverImage).width(400).height(260).url()}
+                          alt={qp.title}
+                          fill
+                          sizes={CARD_SIZES}
+                          className="object-cover opacity-35 group-hover:opacity-50 transition-opacity"/>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                      <div className="relative p-4 h-40 flex flex-col justify-end">
+                        <h3 className="text-sm font-semibold leading-snug line-clamp-3">{qp.homepageTitle || qp.title}</h3>
+                        {qp.fantasyType && (
+                          <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10">{qp.fantasyType.replace('-', ' ').toUpperCase()}</span>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                        <div className="relative p-4 flex flex-col justify-end h-full">
-                          <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
-                            {qp.homepageTitle || qp.title}
-                          </h3>
-                          {qp.fantasyType && (
-                            <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium tracking-wide">
-                              {qp.fantasyType.replace('-', ' ').toUpperCase()}
-                            </span>
-                          )}
-                        </div>
                       </div>
                     </Link>
                   ))}
-                  {quickPicks.length === 0 && (
-                    <div className="text-xs text-gray-500 italic py-6">No quick picks</div>
-                  )}
                 </div>
               </div>
             )}
           </div>
         </header>
 
-        {/* Inline Quick Picks (when not enough to justify a sidebar) */}
-        {!showSidebarQuickPicks && quickPicks.length > 0 && (
-          <section className="mb-16">
-            <h2 className="text-sm font-semibold tracking-wider text-gray-300 mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse" /> QUICK PICKS
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {quickPicks.map((qp) => (
-                <Link key={qp._id} href={`/fantasy/${qp.slug.current}`} className="group">
-                  <div className="relative rounded-xl h-44 overflow-hidden border border-white/10 hover:border-white/20 bg-white/[0.02] backdrop-blur-sm transition-all">
-                    {qp.coverImage?.asset?.url ? (
-                      <Image
-                        src={urlFor(qp.coverImage).width(500).height(300).url()}
-                        alt={qp.title}
-                        fill
-                        sizes={CARD_SIZES}
-                        className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
-                      />
-                    ) : (
-                      <Image
-                        src="/images/texture-image.jpg"
-                        alt={qp.title}
-                        fill
-                        sizes={CARD_SIZES}
-                        className="object-cover opacity-40 group-hover:opacity-55 transition-opacity"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="relative p-4 flex flex-col justify-end h-full">
-                      <h3 className="text-sm font-semibold leading-snug text-gray-100 line-clamp-3 group-hover:text-white">
-                        {qp.homepageTitle || qp.title}
-                      </h3>
-                      {qp.fantasyType && (
-                        <span className="mt-2 inline-block text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white font-medium tracking-wide">
-                          {qp.fantasyType.replace('-', ' ').toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Type Navigation */}
-        {typeOrder.length > 1 && (
-          <div className="mb-10 flex flex-wrap gap-2">
-            {typeOrder.map(type => (
-              <a key={type} href={`#type-${type}`} className="group relative px-4 py-1.5 text-xs font-semibold tracking-wide rounded-full bg-white/[0.04] hover:bg-white/10 border border-white/10 hover:border-white/20 text-gray-300 hover:text-white transition-all">
-                <span className="capitalize">{type.replace('-', ' ')}</span>
+        {/* Type navigation simple */}
+        {orderedTypes.length > 1 && (
+          <div className="flex flex-wrap gap-2 mb-10">
+            {orderedTypes.map(t => (
+              <a key={t} href={`#type-${t}`} className="px-4 py-1.5 text-xs font-medium tracking-wide rounded-full bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/20 transition">
+                {t.replace('-', ' ')}
               </a>
             ))}
           </div>
         )}
 
-        {/* Grouped Lists */}
+        {/* Group sections */}
         <div className="space-y-20">
-          {typeOrder.map(type => {
-            const items = grouped[type];
-            if (!items.length) return null;
+          {orderedTypes.map(type => {
+            const items = groups[type];
+            if (!items?.length) return null;
             return (
               <section key={type} id={`type-${type}`} className="scroll-mt-28">
                 <div className="flex items-center gap-4 mb-6">
-                  <h2 className="text-xl md:text-2xl font-bold tracking-tight">
-                    <span className="bg-gradient-to-r from-white via-white to-gray-200 bg-clip-text text-transparent capitalize">{type.replace('-', ' ')}</span>
-                  </h2>
-                  <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-transparent" />
+                  <h2 className="text-xl md:text-2xl font-bold capitalize">{type.replace('-', ' ')}</h2>
+                  <div className="h-px flex-1 bg-white/10" />
                 </div>
-                <ul className="divide-y divide-white/5 rounded-xl border border-white/5 overflow-hidden backdrop-blur-sm bg-white/[0.015]">
-                  {items.map((a, idx) => (
-                    <li key={a._id} className="group relative">
-                      <Link href={`/fantasy/${a.slug.current}`} className="flex gap-5 p-5 md:p-6 hover:bg-white/[0.04] transition-colors">
-                        <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-white/[0.03] border border-white/10">
-                          {a.coverImage?.asset?.url ? (
-                            <Image
-                              src={urlFor(a.coverImage).width(180).height(180).url()}
-                              alt={a.title}
-                              fill
-                              sizes={THUMB_SIZES}
-                              className="object-cover object-center md:group-hover:scale-[1.05] transition-transform opacity-70 md:group-hover:opacity-90"
-                            />
-                          ) : (
-                            <Image
-                              src="/images/texture-image.jpg"
-                              alt={a.title}
-                              fill
-                              sizes={THUMB_SIZES}
-                              className="object-cover object-center md:group-hover:scale-[1.05] transition-transform opacity-70 md:group-hover:opacity-90"
-                            />
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {items.map(item => (
+                    <Link key={item._id} href={`/fantasy/${item.slug.current}`} className="group relative border border-white/10 rounded-xl overflow-hidden bg-neutral-900 hover:bg-neutral-800 transition-colors">
+                      {item.coverImage?.asset?.url && (
+                        <div className="relative h-40">
+                          <Image
+                            src={urlFor(item.coverImage).width(600).height(360).url()}
+                            alt={item.title}
+                            fill
+                            sizes={CARD_SIZES}
+                            className="object-cover opacity-40 group-hover:opacity-55 transition-opacity" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                          {item.fantasyType && (
+                            <span className="absolute top-3 left-3 inline-block text-[10px] font-semibold bg-black/60 px-2 py-0.5 rounded-full tracking-wide">{item.fantasyType.replace('-', ' ').toUpperCase()}</span>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/40" />
-                          <span className="absolute top-1 left-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-black/60 text-gray-200 border border-white/10">{idx + 1}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-base md:text-lg font-semibold leading-tight text-white line-clamp-2 group-hover:text-white">
-                            {a.homepageTitle || a.title}
-
-                          </h3>
-                          {a.summary && (
-                            <p className="mt-2 text-xs md:text-sm text-gray-400 line-clamp-2 md:line-clamp-3">
-                              {a.summary}
-                            </p>
-                          )}
-                          <div className="mt-3 flex items-center gap-3 text-[11px] uppercase tracking-wider text-gray-400 font-medium">
-                            <span>{a.author?.name || 'Staff'}</span>
-                            {a.publishedAt && <span>• {new Date(a.publishedAt).toLocaleDateString()}</span>}
-                          </div>
+                      )}
+                      <div className="p-4 flex flex-col gap-2">
+                        <h3 className="text-sm font-semibold leading-snug line-clamp-2">{item.homepageTitle || item.title}</h3>
+                        {item.summary && <p className="text-xs text-gray-400 line-clamp-2">{item.summary}</p>}
+                        <div className="mt-auto text-[10px] uppercase tracking-wider text-gray-500">
+                          {(item.author?.name || 'Staff')}{item.publishedAt ? ` • ${new Date(item.publishedAt).toLocaleDateString()}` : ''}
                         </div>
-                        <div className="hidden md:flex items-center text-gray-500 group-hover:text-white transition-colors">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                        </div>
-                      </Link>
-                    </li>
+                      </div>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               </section>
             );
           })}
