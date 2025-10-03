@@ -17,6 +17,7 @@ import { siteSettings } from './siteSettings'
 import { adPlacements } from './adPlacements'
 import powerRankingWeek from './powerRankingWeek'
 import { teamRecord } from './teamRecord'
+import { topicHub } from './topicHub'
 
 
 export const schemaTypes = [
@@ -39,4 +40,5 @@ export const schemaTypes = [
   adPlacements,
   powerRankingWeek,
   teamRecord,
+  topicHub,
 ]

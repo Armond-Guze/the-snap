@@ -96,7 +96,7 @@ const headlineType = defineType({
       type: "array",
       of: [ { type: "string" } ],
       options: { layout: 'tags' },
-      description: "Enter relevant tags for this article (one per line)"
+      description: "LEGACY free-form tags. Use Tag References below for new content.",
     }),
     defineField({
       name: 'tagRefs',
@@ -105,7 +105,7 @@ const headlineType = defineType({
       of: [{ type: 'reference', to: [{ type: 'tag' }] }],
       options: { layout: 'tags' },
       group: 'advanced',
-      description: 'Canonical tag links. Use for key articles to improve consistency and analytics. String tags still work.',
+      description: 'Canonical tag references (preferred). Migration will copy legacy string tags here.',
     }),
     defineField({
       name: "published",

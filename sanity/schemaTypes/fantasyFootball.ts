@@ -172,7 +172,16 @@ export default defineType({
       type: 'array',
       of: [{ type: 'string' }],
       options: { layout: 'tags' },
-      description: 'Enter relevant tags (press enter after each)',
+      description: 'LEGACY free-form tags (will be migrated to references).',
+    }),
+    defineField({
+      name: 'tagRefs',
+      title: 'Tag References',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      options: { layout: 'tags' },
+      description: 'Preferred canonical tag references.',
+      group: 'seo'
     }),
     defineField({
       name: 'seo',

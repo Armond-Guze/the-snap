@@ -23,6 +23,14 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     S.listItem()
+      .title('Topic Hubs')
+      .schemaType('topicHub')
+      .child(
+        S.documentTypeList('topicHub')
+          .title('Topic Hubs')
+          .defaultOrdering([{ field: 'title', direction: 'asc' }])
+      ),
+    S.listItem()
       .title('Rankings')
       .schemaType('rankings')
       .child(
