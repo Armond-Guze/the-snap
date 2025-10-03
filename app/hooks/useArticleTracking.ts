@@ -77,6 +77,21 @@ export const useArticleTracking = () => {
       author: data.author || 'unknown',
       reading_time: data.readingTime || 0
     });
+
+    // Persist to internal analytics store (non-blocking)
+    fetch('/api/analytics/article-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        articleId: data.articleId,
+        articleTitle: data.articleTitle,
+        slug: data.articleSlug,
+        category: data.category,
+        author: data.author,
+        readingTime: data.readingTime,
+        timestamp: new Date().toISOString()
+      })
+    }).catch(()=>{});
   };
 
   const trackArticleShare = (data: Omit<ArticleClickData, 'position' | 'source'> & { platform: string }) => {

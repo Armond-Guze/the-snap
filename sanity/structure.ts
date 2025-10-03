@@ -3,7 +3,7 @@ import { CogIcon } from '@sanity/icons'
 
 // Custom structure to surface the singleton settings doc & clean grouping
 export const structure: StructureResolver = (S) => {
-  const hiddenDocTypes = new Set(['homepageSettings'])
+  const hiddenDocTypes = new Set(['homepageSettings','siteSettings','adPlacements'])
 
   const customOrdered = [
     S.listItem()
@@ -58,7 +58,16 @@ export const structure: StructureResolver = (S) => {
   return S.list()
     .title('Content')
     .items([
-      // Singleton: Homepage Settings
+      // Singletons
+      S.listItem()
+        .title('Site Settings')
+        .id('siteSettings')
+        .icon(CogIcon)
+        .child(
+          S.document()
+            .schemaType('siteSettings')
+            .documentId('siteSettings')
+        ),
       S.listItem()
         .title('Homepage Settings')
         .id('homepageSettings')
@@ -67,6 +76,15 @@ export const structure: StructureResolver = (S) => {
           S.document()
             .schemaType('homepageSettings')
             .documentId('homepageSettings')
+        ),
+      S.listItem()
+        .title('Ad Placements')
+        .id('adPlacements')
+        .icon(CogIcon)
+        .child(
+          S.document()
+            .schemaType('adPlacements')
+            .documentId('adPlacements')
         ),
       S.divider(),
       ...customOrdered,

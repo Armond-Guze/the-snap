@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { appendEvent } from '../../../../lib/analytics-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,19 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Here you would typically save to your analytics database
-    // For now, we'll just log the data
-    console.log('Article view tracked:', {
+    // Persist minimal event (file-based). Omits IP for privacy.
+    await appendEvent({
+      type: 'article_view',
       articleId,
+      articleSlug: slug,
       articleTitle,
-      slug,
       category,
       author,
       readingTime,
-      timestamp,
-      userAgent: request.headers.get('user-agent'),
-      referer: request.headers.get('referer'),
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+      timestamp
     });
 
     // In a real implementation, you might:
@@ -42,10 +40,7 @@ export async function POST(request: NextRequest) {
     // 3. Update view counts in your CMS (Sanity)
     // 4. Queue for batch processing
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Article view tracked successfully' 
-    });
+    return NextResponse.json({ success: true });
 
   } catch (error) {
     console.error('Error tracking article view:', error);

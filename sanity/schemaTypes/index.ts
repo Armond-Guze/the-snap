@@ -13,6 +13,8 @@ import fantasyFootball from './fantasyFootball'
 import { newsletterSubscriber } from './newsletterSubscriber'
 import { playerType } from './playerType'
 import { homepageSettings } from './homepageSettings'
+import { siteSettings } from './siteSettings'
+import { adPlacements } from './adPlacements'
 import powerRankingWeek from './powerRankingWeek'
 import { teamRecord } from './teamRecord'
 
@@ -33,6 +35,8 @@ export const schemaTypes = [
   newsletterSubscriber,
   playerType,
   homepageSettings,
+  siteSettings,
+  adPlacements,
   powerRankingWeek,
   teamRecord,
 ]

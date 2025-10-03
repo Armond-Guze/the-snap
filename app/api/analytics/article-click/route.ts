@@ -1,30 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { appendEvent } from '../../../../lib/analytics-store';
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
     
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Article Click Tracked:', {
-        timestamp: data.timestamp,
-        article: data.articleTitle,
-        slug: data.articleSlug,
-        category: data.category,
-        author: data.author,
-        position: data.position,
-        source: data.source,
-        userAgent: data.userAgent,
-        url: data.url,
-        referrer: data.referrer
-      });
-    }
-
-    // Here you could save to your database
-    // await saveClickData(data);
-    
-    // Or send to external analytics service
-    // await sendToAnalyticsService(data);
+    await appendEvent({
+      type: 'article_click',
+      articleId: data.articleId,
+      articleSlug: data.articleSlug,
+      articleTitle: data.articleTitle,
+      category: data.category,
+      author: data.author,
+      readingTime: data.readingTime,
+      timestamp: data.timestamp || new Date().toISOString(),
+      source: data.source,
+      position: data.position
+    } as any); // retained any due to dynamic shape; can refine later
 
     return NextResponse.json({ success: true });
   } catch (error) {
