@@ -1,5 +1,7 @@
+// Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
 export const headlineQuery = `
-  *[(_type == "headline" || _type == "rankings") && published == true] | order(priority asc, _createdAt desc, publishedAt desc) {
+  *[(_type == "headline" || _type == "rankings") && published == true]
+  | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     _type,
     title,
@@ -111,7 +113,7 @@ export const headlineDetailQuery = `
 export const relatedHeadlinesQuery = `
   *[_type == "headline" && published == true && _id != $currentId && 
     (category._ref == $categoryId || count((tags[]._ref)[@ in $tagIds]) > 0)] 
-  | order(priority asc, _createdAt desc)[0...6] {
+  | order(coalesce(publishedAt, _createdAt) desc)[0...6] {
     _id,
     title,
   homepageTitle,
@@ -182,7 +184,7 @@ export const trendingTagsQuery = `
 // Headlines by category - fixed to work without requiring category references
 export const headlinesByCategoryQuery = `
   *[_type == "headline" && published == true && category->slug.current == $categorySlug] 
-  | order(priority asc, _createdAt desc) {
+  | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     title,
     slug,
@@ -207,7 +209,7 @@ export const headlinesByCategoryQuery = `
 // Headlines by tag - fixed to work with string tags
 export const headlinesByTagQuery = `
   *[_type == "headline" && published == true && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))] 
-  | order(priority asc, _createdAt desc) {
+  | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     title,
     slug,
