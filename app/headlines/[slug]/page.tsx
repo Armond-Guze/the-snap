@@ -16,6 +16,10 @@ import { formatArticleDate } from '@/lib/date-utils';
 import { portableTextComponents } from '@/lib/portabletext-components';
 import { Metadata } from 'next';
 import StructuredData, { createEnhancedArticleStructuredData } from '@/app/components/StructuredData';
+import YouTubeEmbed from '@/app/components/YoutubeEmbed';
+import TwitterEmbed from '@/app/components/TwitterEmbed';
+import InstagramEmbed from '@/app/components/InstagramEmbed';
+import TikTokEmbed from '@/app/components/TikTokEmbed';
 
 export const dynamic = "force-dynamic";
 
@@ -157,6 +161,31 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         </article>
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
+          {/* Media embeds */}
+          {headline.youtubeVideoId && (
+            <div className="mb-4">
+              <YouTubeEmbed
+                videoId={headline.youtubeVideoId}
+                title={headline.videoTitle || `Video: ${headline.title}`}
+                variant="article"
+              />
+            </div>
+          )}
+          {!headline.youtubeVideoId && headline.twitterUrl && (
+            <div className="mb-4 w-full">
+              <TwitterEmbed twitterUrl={headline.twitterUrl} />
+            </div>
+          )}
+          {!headline.youtubeVideoId && !headline.twitterUrl && headline.instagramUrl && (
+            <div className="mb-4 w-full">
+              <InstagramEmbed url={headline.instagramUrl} title={headline.instagramTitle} />
+            </div>
+          )}
+          {!headline.youtubeVideoId && !headline.twitterUrl && !headline.instagramUrl && headline.tiktokUrl && (
+            <div className="mb-4 w-full">
+              <TikTokEmbed url={headline.tiktokUrl} title={headline.tiktokTitle} />
+            </div>
+          )}
           {/* Use homepageTitle if present for shorter sidebar list titles */}
           <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines.map(h => ({...h, title: h.homepageTitle || h.title }))} />
         </aside>
