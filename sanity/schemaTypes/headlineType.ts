@@ -120,10 +120,26 @@ const headlineType = defineType({
     }),
     defineField({
       name: "youtubeVideoId",
-      title: "YouTube Video ID",
+      title: "YouTube Video ID or URL",
       type: "string",
-      description: "Enter the YouTube video ID (e.g., 'dQw4w9WgXcQ' from https://www.youtube.com/watch?v=dQw4w9WgXcQ)",
-      validation: (Rule) => Rule.regex(/^[a-zA-Z0-9_-]{11}$/, { name: "YouTube Video ID", invert: false }).error("Must be a valid 11-character YouTube video ID")
+      description: "Paste either the 11-character ID or a full YouTube link (watch/shorts/youtu.be). We'll extract the ID automatically.",
+      validation: (Rule) => Rule.custom((val) => {
+        if (!val) return true;
+        // Accept raw IDs or URLs that contain an 11-char ID
+        const raw = String(val).trim();
+        if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return true;
+        try {
+          const url = new URL(raw);
+          const v = url.searchParams.get('v');
+          if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return true;
+          if (/\/(shorts|embed|live)\/[a-zA-Z0-9_-]{11}/.test(url.pathname)) return true;
+          if (url.hostname.toLowerCase().endsWith('youtu.be')) {
+            const id = url.pathname.split('/').filter(Boolean)[0];
+            if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return true;
+          }
+        } catch {}
+        return 'Enter a valid YouTube ID or URL';
+      })
     }),
     defineField({
       name: "videoTitle",

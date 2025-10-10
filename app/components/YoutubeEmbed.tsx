@@ -3,28 +3,31 @@
 import { useState, useEffect } from 'react';
 import { Play, ExternalLink, Maximize2 } from 'lucide-react';
 import Image from 'next/image';
+import { youtubeEmbedUrl, youtubeThumbnailUrl, youtubeWatchUrl } from '@/lib/youtube';
 
 interface YouTubeEmbedProps {
   videoId: string;
   title?: string;
   className?: string;
-  variant?: 'default' | 'article'; // Add variant prop
+  variant?: 'default' | 'article'; // deprecated, kept for compatibility
 }
 
 export default function YouTubeEmbed({ 
   videoId, 
   title = "Related Video",
   className = "",
-  variant = 'default'
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  variant
 }: YouTubeEmbedProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const thumbnailUrl = youtubeThumbnailUrl(videoId);
+  const embedUrl = youtubeEmbedUrl(videoId);
+  const watchUrl = youtubeWatchUrl(videoId);
+  const hasValidId = Boolean(embedUrl);
 
   // Add timeout to handle stuck loading
   useEffect(() => {
@@ -76,7 +79,7 @@ export default function YouTubeEmbed({
     };
   }, [isFullscreen]);
 
-  if (hasError) {
+  if (hasError || !hasValidId) {
     return (
       <div className={`bg-gray-900 border border-gray-800 rounded-2xl p-6 ${className}`}>
         <div className="text-center">
