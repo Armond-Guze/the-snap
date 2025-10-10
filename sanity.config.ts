@@ -17,6 +17,7 @@ import { createRankingsSnapshotAction, publishAndSnapshotAction } from './sanity
 import { migrateTeamCategoryToTagAction } from './sanity/plugins/migrateTeamCategoriesToTags'
 import snapshotFromLivePowerRankingsAction from './sanity/plugins/snapshotFromLiveAction'
 import duplicatePowerRankingWeekAction from './sanity/plugins/duplicatePowerRankingWeek'
+import suggestPrimetimeTagAction from './sanity/plugins/suggestPrimetimeTag'
 
 export default defineConfig({
   basePath: '/studio',
@@ -33,6 +34,9 @@ export default defineConfig({
       }
       if (context.schemaType === 'powerRanking') {
         return [...prev, snapshotFromLivePowerRankingsAction]
+      }
+      if (context.schemaType === 'headline') {
+        return [...prev, suggestPrimetimeTagAction]
       }
       if (context.schemaType === 'powerRankingWeek') {
         return [...prev, duplicatePowerRankingWeekAction]

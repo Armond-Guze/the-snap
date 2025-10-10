@@ -14,6 +14,15 @@ export const tagType = defineType({
       validation: (Rule) => Rule.required().min(2).max(30),
     }),
     defineField({
+      name: 'aliases',
+      title: 'Aliases (optional)',
+      description: 'Alternate names/abbreviations that should map to this tag. Example: MNF, Monday Night',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+      validation: (Rule) => Rule.max(10),
+    }),
+    defineField({
       name: 'slug',
       type: 'slug',
       options: {

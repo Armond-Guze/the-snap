@@ -30,14 +30,20 @@ const DRY_RUN = process.argv.includes('--dry-run') || !token;
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function fetchAllTags() {
-  const tags = await client.fetch(`*[_type == "tag"]{ _id, title, slug }`);
+  const tags = await client.fetch(`*[_type == "tag"]{ _id, title, slug, aliases }`);
   const mapByTitle = new Map();
   const mapBySlug = new Map();
+  const mapByAlias = new Map();
   for (const t of tags) {
     if (t.title) mapByTitle.set(t.title.toLowerCase(), t);
     if (t.slug?.current) mapBySlug.set(t.slug.current.toLowerCase(), t);
+    if (Array.isArray(t.aliases)) {
+      for (const a of t.aliases) {
+        if (a && typeof a === 'string') mapByAlias.set(a.toLowerCase(), t);
+      }
+    }
   }
-  return { mapByTitle, mapBySlug };
+  return { mapByTitle, mapBySlug, mapByAlias };
 }
 
 function normalizeTagString(s) {
@@ -50,7 +56,7 @@ function toRef(tag) {
 }
 
 async function backfillForType(typeName) {
-  const { mapByTitle, mapBySlug } = await fetchAllTags();
+  const { mapByTitle, mapBySlug, mapByAlias } = await fetchAllTags();
 
   console.log(`\nProcessing type: ${typeName}`);
   const docs = await client.fetch(`*[_type == $type && defined(tags) && count(tags) > 0]{ _id, tags, tagRefs }`, { type: typeName });
@@ -66,7 +72,13 @@ async function backfillForType(typeName) {
       if (!key) continue;
       const byTitle = mapByTitle.get(key);
       const bySlug = mapBySlug.get(key);
-      const tag = byTitle || bySlug;
+      const byAlias = mapByAlias.get(key);
+      const tag = byTitle || bySlug || byAlias ||
+        // built-in synonyms for common primetime tags
+        (key === 'mnf' || key === 'monday night football' || key === 'monday night') ? mapByTitle.get('monday night football') :
+        (key === 'tnf' || key === 'thursday night football' || key === 'thursday night') ? mapByTitle.get('thursday night football') :
+        (key === 'snf' || key === 'sunday night football' || key === 'sunday night') ? mapByTitle.get('sunday night football') :
+        null;
       if (tag && !existingRefs.has(tag._id)) {
         newRefs.push(toRef(tag));
       }
