@@ -1,9 +1,8 @@
-"use client";
-
 import { client } from "@/sanity/lib/client";
 import Image from "next/image";
-import { useState, useEffect, useMemo } from "react";
 import { TEAM_META } from "@/lib/schedule";
+
+export const revalidate = 3600; // allow ISR; tag-based revalidation will refresh instantly when triggered
 
 interface StandingsTeam {
   _id: string;
@@ -80,19 +79,17 @@ function DivisionTable({
   );
 }
 
-export default function StandingsPage() {
-  const [standings, setStandings] = useState<StandingsTeam[]>([]);
-  const [loading, setLoading] = useState(true);
-  // Removed syncing/logo update/last updated UI per design request
+export default async function StandingsPage() {
+  // Fetch standings data (server-side) with tag for instant revalidation
+  const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string }>
+    = await client.fetch(
+      `*[_type=="teamRecord" && season == 2025]{ _id, teamAbbr, wins, losses, ties, streak }`,
+      {},
+      { next: { tags: ['standings'], revalidate: 3600 } }
+    );
 
-  // Fetch standings data (from teamRecord docs, combined with static division mapping)
-  const fetchStandings = async () => {
-    try {
-      const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string }>
-        = await client.fetch(`*[_type=="teamRecord" && season == 2025]{ _id, teamAbbr, wins, losses, ties, streak }`);
-
-      // Map abbr to full team name using TEAM_META or fallback to abbr
-      const abbrToName: Record<string, string> = {
+  // Map abbr to full team name using TEAM_META or fallback to abbr
+  const abbrToName: Record<string, string> = {
         ARI: 'Arizona Cardinals', ATL: 'Atlanta Falcons', BAL: 'Baltimore Ravens', BUF: 'Buffalo Bills',
         CAR: 'Carolina Panthers', CHI: 'Chicago Bears', CIN: 'Cincinnati Bengals', CLE: 'Cleveland Browns',
         DAL: 'Dallas Cowboys', DEN: 'Denver Broncos', DET: 'Detroit Lions', GB: 'Green Bay Packers',
@@ -103,7 +100,7 @@ export default function StandingsPage() {
         SF: 'San Francisco 49ers', TB: 'Tampa Bay Buccaneers', TEN: 'Tennessee Titans', WAS: 'Washington Commanders'
       };
 
-      const abbrToDivision: Record<string, { division: string; conference: string }> = {
+  const abbrToDivision: Record<string, { division: string; conference: string }> = {
         BUF: { division: 'AFC East', conference: 'AFC' }, MIA: { division: 'AFC East', conference: 'AFC' }, NE: { division: 'AFC East', conference: 'AFC' }, NYJ: { division: 'AFC East', conference: 'AFC' },
         BAL: { division: 'AFC North', conference: 'AFC' }, CIN: { division: 'AFC North', conference: 'AFC' }, CLE: { division: 'AFC North', conference: 'AFC' }, PIT: { division: 'AFC North', conference: 'AFC' },
         HOU: { division: 'AFC South', conference: 'AFC' }, IND: { division: 'AFC South', conference: 'AFC' }, JAX: { division: 'AFC South', conference: 'AFC' }, TEN: { division: 'AFC South', conference: 'AFC' },
@@ -114,73 +111,40 @@ export default function StandingsPage() {
         ARI: { division: 'NFC West', conference: 'NFC' }, LAR: { division: 'NFC West', conference: 'NFC' }, SF: { division: 'NFC West', conference: 'NFC' }, SEA: { division: 'NFC West', conference: 'NFC' },
       };
 
-      const enriched: StandingsTeam[] = docs.map(d => {
-        const abbr = d.teamAbbr.toUpperCase();
-        const name = abbrToName[abbr] || abbr;
-        const group = abbrToDivision[abbr];
-        const wins = d.wins || 0, losses = d.losses || 0, ties = d.ties || 0;
-        const gp = wins + losses + ties;
-        const winPercentage = gp > 0 ? (wins + ties * 0.5) / gp : 0;
-        return {
-          _id: d._id,
-          teamName: name,
-          teamAbbr: abbr,
-          wins, losses, ties,
-          winPercentage,
-          conference: group?.conference || 'AFC',
-          division: group?.division || 'AFC East',
-          streak: d.streak
-        };
-      });
+  const enriched: StandingsTeam[] = docs.map(d => {
+    const abbr = d.teamAbbr.toUpperCase();
+    const name = abbrToName[abbr] || abbr;
+    const group = abbrToDivision[abbr];
+    const wins = d.wins || 0, losses = d.losses || 0, ties = d.ties || 0;
+    const gp = wins + losses + ties;
+    const winPercentage = gp > 0 ? (wins + ties * 0.5) / gp : 0;
+    return {
+      _id: d._id,
+      teamName: name,
+      teamAbbr: abbr,
+      wins, losses, ties,
+      winPercentage,
+      conference: group?.conference || 'AFC',
+      division: group?.division || 'AFC East',
+      streak: d.streak
+    };
+  });
 
-      setStandings(enriched);
-    } catch (error) {
-      console.error('Error fetching standings:', error);
-    } finally {
-      setLoading(false);
-    }
+  const sortFn = (a: StandingsTeam, b: StandingsTeam) => {
+    const byPct = b.winPercentage - a.winPercentage; if (byPct !== 0) return byPct;
+    const byWins = b.wins - a.wins; if (byWins !== 0) return byWins;
+    const byLosses = a.losses - b.losses; if (byLosses !== 0) return byLosses;
+    const byTies = (b.ties || 0) - (a.ties || 0); if (byTies !== 0) return byTies;
+    return a.teamName.localeCompare(b.teamName);
   };
 
-  // Removed sync & logo update handlers (no longer used)
-
-  useEffect(() => {
-    fetchStandings();
-  }, []);
-
-  // Group teams by division (memoize to avoid recalculation on minor state changes)
-  const standingsByDivision = useMemo(() => {
-    const sortFn = (a: StandingsTeam, b: StandingsTeam) => {
-      // Primary: win percentage desc
-      const byPct = b.winPercentage - a.winPercentage;
-      if (byPct !== 0) return byPct;
-      // Tiebreakers: wins desc, losses asc, ties desc, name asc
-      const byWins = b.wins - a.wins; if (byWins !== 0) return byWins;
-      const byLosses = a.losses - b.losses; if (byLosses !== 0) return byLosses;
-      const byTies = (b.ties || 0) - (a.ties || 0); if (byTies !== 0) return byTies;
-      return a.teamName.localeCompare(b.teamName);
-    };
-    return divisions.reduce((acc, division) => {
-      acc[division] = standings
-        .filter(team => team.division === division)
-        .slice()
-        .sort(sortFn);
-      return acc;
-    }, {} as Record<string, StandingsTeam[]>);
-  }, [standings]);
+  const standingsByDivision = divisions.reduce((acc, division) => {
+    acc[division] = enriched.filter(t => t.division === division).slice().sort(sortFn);
+    return acc;
+  }, {} as Record<string, StandingsTeam[]>);
 
   const afcDivisions = divisions.slice(0, 4);
   const nfcDivisions = divisions.slice(4, 8);
-
-  if (loading) {
-    return (
-      <div className="bg-black min-h-screen text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading standings...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-black min-h-screen text-white">

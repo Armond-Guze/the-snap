@@ -17,6 +17,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "category"]{ slug, _updatedAt }`),
   ]);
 
+  // Latest update time for standings page from teamRecord documents
+  const latestTeamRecordUpdatedAt = await client.fetch<string | null>(
+    `*[_type == "teamRecord" && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
+  );
+  const standingsLastMod = latestTeamRecordUpdatedAt ? new Date(latestTeamRecordUpdatedAt) : undefined;
+
   const dynamicEntries: MetadataRoute.Sitemap = [
     ...headlines.map(h => ({
       url: `${baseUrl}/headlines/${h.slug?.current}`,
@@ -85,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/standings`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: standingsLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
