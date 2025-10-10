@@ -1,5 +1,6 @@
 import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
+import { getActiveSeason } from '@/lib/season';
 import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
@@ -45,7 +46,8 @@ export default async function ScheduleLandingPage() {
   const url = new URL(hdrs.get('x-url') || 'http://localhost');
   const teamParam = url.searchParams.get('team')?.toUpperCase();
   const { week, games } = await getScheduleWeekOrCurrent();
-  const recordsMap = await fetchTeamRecords(2025);
+  const season = await getActiveSeason();
+  const recordsMap = await fetchTeamRecords(season);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   // Build SportsEvent list structured data (limited to first 25 to keep payload small)
   const events = filteredGames.slice(0,25).map(g => ({

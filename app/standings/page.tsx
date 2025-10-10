@@ -1,6 +1,7 @@
 import { client } from "@/sanity/lib/client";
 import Image from "next/image";
 import { TEAM_META } from "@/lib/schedule";
+import { getActiveSeason } from "@/lib/season";
 
 export const revalidate = 3600; // allow ISR; tag-based revalidation will refresh instantly when triggered
 
@@ -81,11 +82,13 @@ function DivisionTable({
 
 export default async function StandingsPage() {
   // Fetch standings data (server-side) with tag for instant revalidation
+  const season = await getActiveSeason();
+  const noCdnClient = client.withConfig({ useCdn: false });
   const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string }>
-    = await client.fetch(
-      `*[_type=="teamRecord" && season == 2025]{ _id, teamAbbr, wins, losses, ties, streak }`,
-      {},
-      { next: { tags: ['standings'], revalidate: 3600 } }
+    = await noCdnClient.fetch(
+      `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak }`,
+      { season },
+      { next: { tags: ['standings'], revalidate: 120 } }
     );
 
   // Map abbr to full team name using TEAM_META or fallback to abbr

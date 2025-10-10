@@ -4,11 +4,13 @@ export const standingsType = defineType({
   name: 'standings',
   title: 'NFL Standings',
   type: 'document',
+  description: 'Read-only mirror of Team Records. Edit records in "NFL Team Record" only.',
   fields: [
     defineField({
       name: 'teamName',
       title: 'Team Name',
       type: 'string',
+      readOnly: true,
       validation: Rule => Rule.required()
     }),
     defineField({
@@ -18,17 +20,20 @@ export const standingsType = defineType({
       options: {
         hotspot: true,
       },
+      readOnly: true,
     }),
     defineField({
       name: 'wins',
       title: 'Wins',
       type: 'number',
+      readOnly: true,
       validation: Rule => Rule.required().min(0).max(17)
     }),
     defineField({
       name: 'losses',
       title: 'Losses',
       type: 'number',
+      readOnly: true,
       validation: Rule => Rule.required().min(0).max(17)
     }),
     defineField({
@@ -36,6 +41,7 @@ export const standingsType = defineType({
       title: 'Ties',
       type: 'number',
       initialValue: 0,
+      readOnly: true,
       validation: Rule => Rule.min(0).max(17)
     }),
     defineField({
@@ -49,6 +55,7 @@ export const standingsType = defineType({
       name: 'conference',
       title: 'Conference',
       type: 'string',
+      readOnly: true,
       options: {
         list: [
           { title: 'AFC', value: 'AFC' },
@@ -61,6 +68,7 @@ export const standingsType = defineType({
       name: 'division',
       title: 'Division',
       type: 'string',
+      readOnly: true,
       options: {
         list: [
           { title: 'AFC East', value: 'AFC East' },
@@ -80,12 +88,14 @@ export const standingsType = defineType({
       title: 'Season',
       type: 'string',
       initialValue: '2024',
+      readOnly: true,
       validation: Rule => Rule.required()
     }),
     defineField({
       name: 'lastUpdated',
       title: 'Last Updated',
       type: 'datetime',
+      readOnly: true,
       initialValue: () => new Date().toISOString()
     })
   ],

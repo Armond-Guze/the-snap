@@ -8,6 +8,7 @@ import { portableTextComponents } from "@/lib/portabletext-components";
 import type { PowerRankingTeam, MovementIndicator } from "@/types";
 import { gradientClassForTeam } from "@/lib/team-utils";
 import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
+import { getActiveSeason } from "@/lib/season";
 import { teamCodeFromName } from "@/lib/team-utils";
 
 export const revalidate = 60;
@@ -25,8 +26,9 @@ function getMovementIndicator(change: number): MovementIndicator {
 
 export default async function PowerRankingsPage() {
   try {
-    const rankings: PowerRankingTeam[] = await client.fetch(powerRankingsQuery);
-    const records = await fetchTeamRecords(2025);
+  const rankings: PowerRankingTeam[] = await client.fetch(powerRankingsQuery);
+  const season = await getActiveSeason();
+  const records = await fetchTeamRecords(season);
     // latest weekly snapshot slug
     const latest = await client.fetch<{ slug: { current: string } } | null>(
       `*[_type=="powerRankingWeek"]|order(season desc, week desc)[0]{ slug }`
