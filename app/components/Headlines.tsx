@@ -33,7 +33,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
   // Simple strategy: always show newest content (headline or rankings) by publishedAt desc.
   // Fetch a buffer of 20 (main page cap) – first 9 rendered here, remainder consumed by MoreHeadlinesSection.
   const newestHeadlinesQuery = `*[( _type == "headline" || _type == "rankings") && published == true]
-    | order(publishedAt desc, _createdAt desc)[0...20]{
+    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...20]{
       _id,
       _type,
       title,

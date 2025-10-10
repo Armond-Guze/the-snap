@@ -2,7 +2,7 @@ import { client } from "@/sanity/lib/client";
 // Custom query: fetch published headlines/rankings ordered by publishedAt desc (fallback _createdAt) up to 40 to have buffer
 const moreHeadlinesQuery = `
   *[(_type == "headline" || _type == "rankings") && published == true]
-    | order(publishedAt desc, _createdAt desc)[0...40] {
+    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...40] {
       _id,
       title,
       homepageTitle,
