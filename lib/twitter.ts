@@ -33,17 +33,19 @@ function truncateForTweet(text: string, reserve = 30) {
 }
 
 export function getTwitterClient() {
-  const bearer = process.env.X_BEARER_TOKEN || process.env.TWITTER_BEARER_TOKEN;
   const appKey = process.env.X_API_KEY || process.env.TWITTER_API_KEY;
   const appSecret = process.env.X_API_SECRET || process.env.TWITTER_API_SECRET;
   const accessToken = process.env.X_ACCESS_TOKEN || process.env.TWITTER_ACCESS_TOKEN;
   const accessSecret = process.env.X_ACCESS_SECRET || process.env.TWITTER_ACCESS_SECRET;
+  const bearer = process.env.X_BEARER_TOKEN || process.env.TWITTER_BEARER_TOKEN;
 
-  if (bearer) {
-    return new TwitterApi(bearer);
-  }
+  // Prefer user-context OAuth keys (required to post tweets)
   if (appKey && appSecret && accessToken && accessSecret) {
     return new TwitterApi({ appKey, appSecret, accessToken, accessSecret });
+  }
+  // Bearer token is app-only (read). Kept for future read-only use cases.
+  if (bearer) {
+    return new TwitterApi(bearer);
   }
   return null;
 }
