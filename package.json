@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "backfill:tagRefs": "node scripts/backfill-tag-refs.mjs",
-  "backfill:tagRefs:dry": "node scripts/backfill-tag-refs.mjs --dry-run",
-  "seed:primetime": "node scripts/seed-primetime-tags.mjs"
+    "backfill:tagRefs:dry": "node scripts/backfill-tag-refs.mjs --dry-run",
+    "seed:primetime": "node scripts/seed-primetime-tags.mjs"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",
@@ -20,17 +20,18 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "framer-motion": "^12.23.0",
     "lucide-react": "^0.525.0",
     "next": "15.3.4",
-  "next-sanity": "^9.12.0",
-  "dotenv": "^16.4.5",
+    "next-sanity": "^9.12.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "sanity": "^3.95.0",
     "styled-components": "^6.1.19",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "twitter-api-v2": "^1.27.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

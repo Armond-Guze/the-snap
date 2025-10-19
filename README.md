@@ -225,7 +225,48 @@ NEXT_PUBLIC_FORMSPREE_ID=your_formspree_id
 - Image optimization could be further enhanced
 - Consider implementing Edge Runtime for better performance
 
-## 🔒 Confidentiality & IP Protection
+## � Auto-post new articles to X (Twitter)
+
+This project can automatically post a tweet when a new Headline is published in Sanity. Tweets rotate through a few templates so the feed doesn't look repetitive.
+
+### Setup
+
+1) Add credentials to `.env.local` (see `.env.local.example`):
+
+```
+SITE_URL=https://thegamesnap.com
+SANITY_WEBHOOK_SECRET=your-strong-secret
+
+# Either bearer token OR 4-legged OAuth keys (preferred)
+X_API_KEY=...
+X_API_SECRET=...
+X_ACCESS_TOKEN=...
+X_ACCESS_SECRET=...
+```
+
+2) In Sanity, create a webhook (Project Settings → API → Webhooks):
+
+- Trigger on: Published events
+- Document type: `headline`
+- URL: `https://<your-host>/api/social/new-article?secret=YOUR_SECRET`
+- Method: POST
+- JSON body: default (includes document ids)
+
+3) Local testing (optional):
+
+```
+curl -X POST "http://localhost:3000/api/social/new-article?secret=YOUR_SECRET" \
+   -H "Content-Type: application/json" \
+   -d '{"id":"<sanity-doc-id>"}'
+```
+
+If X credentials are not configured, the endpoint runs in dry‑run mode and simply returns the tweet text it would have posted.
+
+### Customizing the tweet
+
+Edit `lib/twitter.ts` to add/remove templates. The utility automatically truncates to 280 characters and will include up to 2 tags as hashtags.
+
+## �🔒 Confidentiality & IP Protection
 
 **⚠️ CRITICAL: This is proprietary technology**
 
