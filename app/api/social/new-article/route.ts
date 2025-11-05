@@ -24,6 +24,38 @@ function verifySecret(req: NextRequest) {
   return token === secret;
 }
 
+// Lightweight diagnostics: report whether env is configured (no secret values leaked)
+export async function GET(req: NextRequest) {
+  if (!verifySecret(req)) {
+    return new Response(JSON.stringify({ ok: false, error: 'Invalid secret' }), { status: 401 });
+  }
+
+  const has = {
+    X_API_KEY: !!process.env.X_API_KEY || !!process.env.TWITTER_API_KEY,
+    X_API_SECRET: !!process.env.X_API_SECRET || !!process.env.TWITTER_API_SECRET,
+    X_ACCESS_TOKEN: !!process.env.X_ACCESS_TOKEN || !!process.env.TWITTER_ACCESS_TOKEN,
+    X_ACCESS_SECRET: !!process.env.X_ACCESS_SECRET || !!process.env.TWITTER_ACCESS_SECRET,
+    X_BEARER_TOKEN: !!process.env.X_BEARER_TOKEN || !!process.env.TWITTER_BEARER_TOKEN,
+    SANITY_WEBHOOK_SECRET: !!process.env.SANITY_WEBHOOK_SECRET,
+    SITE_URL: !!process.env.SITE_URL,
+  };
+
+  const wouldDryRun = !((!!process.env.X_API_KEY || !!process.env.TWITTER_API_KEY)
+    && (!!process.env.X_API_SECRET || !!process.env.TWITTER_API_SECRET)
+    && (!!process.env.X_ACCESS_TOKEN || !!process.env.TWITTER_ACCESS_TOKEN)
+    && (!!process.env.X_ACCESS_SECRET || !!process.env.TWITTER_ACCESS_SECRET));
+
+  const info = {
+    ok: true,
+    envPresent: has,
+    wouldDryRun,
+    note: wouldDryRun ? 'Missing one or more X OAuth variables on the server.' : 'Ready to post (provided no &dry=1 in request).',
+    runtime: 'node',
+  };
+
+  return new Response(JSON.stringify(info), { status: 200, headers: { 'Content-Type': 'application/json' } });
+}
+
 export async function POST(req: NextRequest) {
   if (!verifySecret(req)) {
     return new Response(JSON.stringify({ ok: false, error: 'Invalid secret' }), { status: 401 });
@@ -66,7 +98,12 @@ export async function POST(req: NextRequest) {
   const styleParam = urlParams.get('style');
   const templateIndex = styleParam ? Number(styleParam) : undefined;
 
-  const dryRun = forceDry || (!process.env.X_API_KEY && !process.env.TWITTER_API_KEY);
+  // Dry-run if explicitly requested, or if any of the required X keys are missing
+  const missingAny = !((!!process.env.X_API_KEY || !!process.env.TWITTER_API_KEY)
+    && (!!process.env.X_API_SECRET || !!process.env.TWITTER_API_SECRET)
+    && (!!process.env.X_ACCESS_TOKEN || !!process.env.TWITTER_ACCESS_TOKEN)
+    && (!!process.env.X_ACCESS_SECRET || !!process.env.TWITTER_ACCESS_SECRET));
+  const dryRun = forceDry || missingAny;
   const result = await postTweet({
     title: doc.title,
     url,

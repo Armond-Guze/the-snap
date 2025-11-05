@@ -62,7 +62,8 @@ export default async function WeekSchedulePage({ params }: { params: Promise<Par
     competitor:[{ '@type':'SportsTeam', name:g.away },{ '@type':'SportsTeam', name:g.home }],
     broadcastChannel: g.network || undefined
   }));
-  const sd = { '@context':'https://schema.org', '@type':'SportsEvent', name:`NFL Schedule Week ${week}`, hasPart: events };
+  // Use ItemList to represent the collection of events for the week
+  const sd = { '@context':'https://schema.org', '@type':'ItemList', name:`NFL Schedule Week ${week}`, itemListElement: events };
   return (
     <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
       <StructuredData data={sd} id={`sd-week-${week}`} />
@@ -107,7 +108,19 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
             <span className="sm:hidden">{shortNetworkLabel(game.network)}</span>
             <span className="hidden sm:inline">{game.network || 'TBD'}</span>
           </div>
+          {/* Structured data (microdata) to complement JSON-LD and satisfy Search Console */}
           <meta itemProp="startDate" content={game.dateUTC} />
+          {/* Required name field for SportsEvent microdata */}
+          <meta itemProp="name" content={`${game.away} @ ${game.home}`} />
+          {/* Recommended eventStatus field for SportsEvent microdata */}
+          <meta
+            itemProp="eventStatus"
+            content={game.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled'}
+          />
+          {/* Provide minimal location (Place -> name) */}
+          <span itemProp="location" itemScope itemType="https://schema.org/Place" className="hidden">
+            <meta itemProp="name" content={game.venue || 'Stadium'} />
+          </span>
         </div>
 
         {/* Teams: left-aligned on mobile; allow truncation if extremely narrow */}
