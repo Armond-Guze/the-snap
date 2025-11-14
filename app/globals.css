@@ -19,6 +19,13 @@ html, body {
   color: #ffffff !important;
 }
 
+.home-gradient {
+  background: radial-gradient(circle at 20% 15%, rgba(30, 30, 30, 0.8), transparent 45%),
+              radial-gradient(circle at 80% 0%, rgba(14, 37, 84, 0.35), transparent 50%),
+              linear-gradient(180deg, #020202 0%, #050505 45%, #080808 100%);
+  background-attachment: fixed;
+}
+
 /* Ensure mobile devices respect dark theme */
 @media screen and (max-width: 768px) {
   html, body {

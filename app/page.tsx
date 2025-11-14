@@ -55,7 +55,7 @@ export default async function Home() {
   const recMap = await fetchTeamRecords(2025);
 
   return (
-    <main className="min-h-screen">
+    <main className="home-gradient min-h-screen">
   <GameSchedule games={(featuredGames as FeaturedGame[] || []).map((g)=>{
     const homeAbbr = teamCodeFromName(g.homeTeam);
     const awayAbbr = teamCodeFromName(g.awayTeam);
