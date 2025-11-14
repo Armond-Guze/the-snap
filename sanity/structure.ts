@@ -3,7 +3,7 @@ import { CogIcon } from '@sanity/icons'
 
 // Custom structure to surface the singleton settings doc & clean grouping
 export const structure: StructureResolver = (S) => {
-  const hiddenDocTypes = new Set(['homepageSettings','siteSettings','adPlacements','standings'])
+  const hiddenDocTypes = new Set(['homepageSettings','siteSettings','adPlacements','standings','gameCenterSettings'])
 
   const customOrdered = [
     S.listItem()
@@ -61,7 +61,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['headline','fantasyFootball','rankings','powerRanking','powerRankingWeek'])
+  const alreadyHandled = new Set(['headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings'])
 
   return S.list()
     .title('Content')
@@ -93,6 +93,14 @@ export const structure: StructureResolver = (S) => {
           S.document()
             .schemaType('adPlacements')
             .documentId('adPlacements')
+        ),
+      S.listItem()
+        .title('GameCenter Settings')
+        .schemaType('gameCenterSettings')
+        .child(
+          S.documentTypeList('gameCenterSettings')
+            .title('GameCenter Settings')
+            .defaultOrdering([{ field: 'gameId', direction: 'asc' }])
         ),
       S.divider(),
       ...customOrdered,
