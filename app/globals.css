@@ -20,9 +20,10 @@ html, body {
 }
 
 .home-gradient {
-  background: radial-gradient(circle at 20% 15%, rgba(30, 30, 30, 0.8), transparent 45%),
-              radial-gradient(circle at 80% 0%, rgba(14, 37, 84, 0.35), transparent 50%),
-              linear-gradient(180deg, #020202 0%, #050505 45%, #080808 100%);
+  background:
+    radial-gradient(circle at 25% 10%, rgba(25, 25, 25, 0.45), transparent 42%),
+    radial-gradient(circle at 80% -5%, rgba(12, 32, 70, 0.18), transparent 48%),
+    linear-gradient(180deg, #010101 0%, #030303 40%, #070707 100%);
   background-attachment: fixed;
 }
 
@@ -112,8 +113,13 @@ html, body {
 
 /* Hide scrollbar for horizontal scrolling */
 .scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+}
+
+@supports (scrollbar-width: none) {
+  .scrollbar-hide {
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {

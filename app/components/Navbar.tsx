@@ -111,6 +111,22 @@ export default function Navbar() {
     fantasy: 'bg-emerald-600/20 text-emerald-300 group-hover:bg-emerald-600/30'
   };
 
+  const navDescriptions: Record<string, string> = {
+    home: 'Back to hub',
+    headlines: 'Latest stories',
+    standings: 'Division view',
+    'power-rankings': 'Weekly movers',
+    fantasy: 'Player intel'
+  };
+
+  const cardAccents: Record<string, string> = {
+    home: 'from-white/15 via-zinc-500/10 to-transparent',
+    headlines: 'from-blue-400/25 via-transparent to-transparent',
+    standings: 'from-amber-400/25 via-transparent to-transparent',
+    'power-rankings': 'from-violet-400/25 via-transparent to-transparent',
+    fantasy: 'from-emerald-400/25 via-transparent to-transparent'
+  };
+
   return (
   <nav ref={navRef} className="bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10">
     <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 lg:h-20 flex items-center">
@@ -170,7 +186,7 @@ export default function Navbar() {
         role="dialog"
         aria-modal="true"
         className={`absolute top-0 left-0 h-full w-[330px] max-w-[85%] border-r border-white/10 shadow-2xl flex flex-col transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'} 
-        bg-gradient-to-b from-[#101010] via-black to-[#050505] supports-[backdrop-filter]:bg-black/80 backdrop-blur-xl`}
+        bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_55%)] bg-gradient-to-b from-[#0b0b0b] via-[#050505] to-[#020202] supports-[backdrop-filter]:bg-black/80 backdrop-blur-xl`}
       >
         {/* Fixed Header inside panel keeps close button position & shows logo */}
         <div className="relative h-16 flex items-center border-b border-white/10 px-4">
@@ -191,20 +207,28 @@ export default function Navbar() {
             <div className="grid grid-cols-2 gap-4">
               {navItems.map(({ label, href, key }) => {
                 const isActive = pathname === href;
+                const cardKey = (key || label.toLowerCase().replace(/\s+/g, '-'));
                 return (
                   <Link
                     key={key || label}
                     href={href}
                     onClick={handleLinkClick}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-2xl border h-24 px-3 py-3 text-center transition-all 
-                    before:absolute before:inset-0 before:rounded-2xl before:pointer-events-none before:opacity-0 before:transition-opacity before:bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_70%)] 
-                    ${isActive ? 'border-white/40 bg-white/[0.08] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.15),0_4px_14px_-2px_rgba(0,0,0,0.7)]' : 'border-white/10 text-white/70 hover:text-white hover:border-white/25 hover:bg-white/[0.04] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_6px_16px_-4px_rgba(0,0,0,0.6)]'} focus:outline-none hover:before:opacity-100`}
+                    className={`group relative overflow-hidden rounded-2xl border h-28 px-3 py-3 text-center transition-all focus:outline-none
+                    ${isActive ? 'border-white/40 text-white shadow-[0_12px_45px_rgba(0,0,0,0.5)] bg-white/[0.04]' : 'border-white/5 text-white/70 hover:text-white hover:border-white/20 hover:bg-white/[0.02]'}
+                    `}
                   >
-                    <div className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors ${iconStyles[key || 'home'] || 'bg-white/5 text-white/70 group-hover:bg-white/10 group-hover:text-white'}`}>
-                      {navIcons[key || ''] || <Sparkles className="w-4 h-4" />}
+                    <span className={`absolute inset-0 bg-gradient-to-br ${cardAccents[cardKey] || 'from-white/10 via-transparent to-transparent'} opacity-0 group-hover:opacity-100 transition duration-500`} aria-hidden="true" />
+                    <span className="absolute inset-px rounded-[18px] bg-black/70 border border-white/5" aria-hidden="true" />
+                    <div className="relative z-10 flex flex-col items-center justify-between h-full">
+                      <div className={`flex items-center justify-center w-10 h-10 rounded-xl border border-white/[0.08] backdrop-blur-sm transition-colors ${iconStyles[cardKey] || 'bg-white/5 text-white/80 group-hover:bg-white/10 group-hover:text-white'}`}>
+                        {navIcons[cardKey] || <Sparkles className="w-4 h-4" />}
+                      </div>
+                      <div className="space-y-1">
+                        <span className="block text-[12px] leading-snug font-semibold tracking-wide">{label}</span>
+                        <span className="block text-[10px] uppercase tracking-[0.25em] text-white/35">{navDescriptions[cardKey] || 'Explore'}</span>
+                      </div>
                     </div>
-                    <span className="text-[12px] leading-snug font-semibold break-words px-1 tracking-wide">{label}</span>
-                    {isActive && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-white animate-pulse" />}
+                    {isActive && <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white animate-pulse" />}
                   </Link>
                 );
               })}

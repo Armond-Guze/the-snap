@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from 'next/dynamic';
-const LatestHeadlinesFooterLinks = dynamic(() => import('./LatestHeadlinesFooterLinks'), { ssr: true });
-const TopTeamsLinks = dynamic(() => import('./TopTeamsLinks'), { ssr: true });
+import type { ReactNode } from "react";
 import { Mail, Instagram, Youtube, Twitter, Music2 } from "lucide-react";
 
 const Footer = () => {
@@ -18,9 +16,9 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-black border-t border-gray-800 py-8 md:py-12 text-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-  <div className="hidden md:grid md:grid-cols-4 gap-8">
+    <footer className="bg-black border-t border-gray-800 py-8 md:py-10 text-gray-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+	<div className="hidden md:grid md:grid-cols-3 gap-8">
           {/* Brand Section */}
           <div>
             <div className="flex flex-col items-start mb-4">
@@ -41,105 +39,82 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Site Sections, Latest Headlines & Top Teams */}
-          <div className="space-y-6">
+          {/* Site Sections */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Explore</h4>
+            <ul className="space-y-2">
+              {quickLinks.map(({ label, href }) => (
+                <li key={label}>
+                  <Link href={href} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Connect + Legal condensed */}
+          <div className="grid grid-cols-2 gap-6">
             <div>
-              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Sections</h4>
+              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Connect</h4>
+              <div className="space-y-3">
+                <a
+                  href="mailto:TheGameSnap@yahoo.com"
+                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  aria-label="Email The Game Snap"
+                >
+                  <Mail size={16} />
+                  <span>Contact Us</span>
+                </a>
+                <a
+                  href="https://www.instagram.com/thesnapfootball"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  aria-label="Visit The Game Snap on Instagram"
+                >
+                  <Instagram size={16} />
+                  <span>Instagram</span>
+                </a>
+                <a
+                  href="https://www.youtube.com/@thesnapfootball"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+                  aria-label="Visit The Game Snap on YouTube"
+                >
+                  <Youtube size={16} />
+                  <span>YouTube</span>
+                </a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Legal</h4>
               <ul className="space-y-2">
-                {quickLinks.map(({ label, href }) => (
-                  <li key={label}>
-                    <Link href={href} className="text-gray-400 hover:text-white transition-colors text-sm">
-                      {label}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Terms of Use
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
-            <LatestHeadlinesFooterLinks limit={5} />
-            <TopTeamsLinks />
-          </div>
-
-          {/* Connect */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Connect</h4>
-            <div className="space-y-3">
-              <a
-                href="mailto:TheGameSnap@yahoo.com"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Email The Game Snap"
-              >
-                <Mail size={16} />
-                <span>Contact Us</span>
-              </a>
-              <a
-                href="https://www.instagram.com/thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on Instagram"
-              >
-                <Instagram size={16} />
-                <span>Instagram</span>
-              </a>
-              <a
-                href="https://www.youtube.com/@thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on YouTube"
-              >
-                <Youtube size={16} />
-                <span>YouTube</span>
-              </a>
-              <a
-                href="https://twitter.com/thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on Twitter"
-              >
-                <Twitter size={16} />
-                <span>Twitter / X</span>
-              </a>
-              <a
-                href="https://www.tiktok.com/@thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on TikTok"
-              >
-                <Music2 size={16} />
-                <span>TikTok</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Legal</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Terms of Use
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Contact
-                </Link>
-              </li>
-            </ul>
           </div>
         </div>
 
-        {/* Mobile Accordions */}
-        <div className="md:hidden divide-y divide-gray-800 border-t border-gray-800 mt-6">
-          <MobileSection title="Sections">
+        {/* Mobile stack */}
+        <div className="md:hidden border-t border-gray-800 mt-6 pt-6 space-y-6">
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Explore</h4>
             <ul className="space-y-2">
               {quickLinks.map(({ label, href }) => (
                 <li key={label}>
@@ -149,72 +124,31 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </MobileSection>
-          <MobileSection title="Connect">
-            <div className="space-y-3 pt-2">
-              <a
-                href="mailto:TheGameSnap@yahoo.com"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Email The Game Snap"
-              >
-                <Mail size={16} />
-                <span>Contact Us</span>
-              </a>
-              <a
-                href="https://www.instagram.com/thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on Instagram"
-              >
-                <Instagram size={16} />
-                <span>Instagram</span>
-              </a>
-              <a
-                href="https://www.youtube.com/@thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on YouTube"
-              >
-                <Youtube size={16} />
-                <span>YouTube</span>
-              </a>
-              <a
-                href="https://twitter.com/thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on Twitter"
-              >
-                <Twitter size={16} />
-                <span>Twitter / X</span>
-              </a>
-              <a
-                href="https://www.tiktok.com/@thesnapfootball"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                aria-label="Visit The Game Snap on TikTok"
-              >
-                <Music2 size={16} />
-                <span>TikTok</span>
-              </a>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Connect</h4>
+            <div className="space-y-3">
+              <FooterLink href="mailto:TheGameSnap@yahoo.com" label="Contact Us" icon={<Mail size={16} />} />
+              <FooterLink href="https://www.instagram.com/thesnapfootball" label="Instagram" icon={<Instagram size={16} />} external />
+              <FooterLink href="https://www.youtube.com/@thesnapfootball" label="YouTube" icon={<Youtube size={16} />} external />
+              <FooterLink href="https://twitter.com/thesnapfootball" label="Twitter / X" icon={<Twitter size={16} />} external />
+              <FooterLink href="https://www.tiktok.com/@thesnapfootball" label="TikTok" icon={<Music2 size={16} />} external />
             </div>
-          </MobileSection>
-          <MobileSection title="Legal">
-            <ul className="space-y-2 pt-2">
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Legal</h4>
+            <ul className="space-y-2">
               <li><Link href="/privacy-policy" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
               <li><Link href="/terms" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</Link></li>
               <li><Link href="/contact" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Contact</Link></li>
             </ul>
-          </MobileSection>
+          </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-8 md:mt-12 pt-6 border-t border-gray-800">
           {/* Quick social icon row */}
-          <div className="flex items-center justify-center mb-4 gap-6 text-gray-400">
+          <div className="flex items-center justify-center mb-4 gap-5 text-gray-400">
             <a href="https://www.instagram.com/thesnapfootball" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram size={18} /></a>
             <a href="https://www.youtube.com/@thesnapfootball" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Youtube size={18} /></a>
             <a href="https://twitter.com/thesnapfootball" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Twitter size={18} /></a>
@@ -241,22 +175,24 @@ const Footer = () => {
   );
 };
 
-interface MobileSectionProps {
-  title: string;
-  children: React.ReactNode;
+interface FooterLinkProps {
+  href: string;
+  label: string;
+  icon: ReactNode;
+  external?: boolean;
 }
 
-function MobileSection({ title, children }: MobileSectionProps) {
+function FooterLink({ href, label, icon, external }: FooterLinkProps) {
   return (
-    <details className="group">
-      <summary className="flex items-center justify-between py-3 cursor-pointer select-none">
-        <span className="text-sm font-semibold text-white uppercase tracking-wide">{title}</span>
-        <span className="text-gray-500 group-open:rotate-180 transition-transform">▾</span>
-      </summary>
-      <div className="pb-4 pl-1">
-        {children}
-      </div>
-    </details>
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
+    >
+      {icon}
+      <span>{label}</span>
+    </a>
   );
 }
 
