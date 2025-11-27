@@ -28,6 +28,8 @@ The Snap is an elite NFL content platform designed to compete with major sports 
 
 ### **Key Integrations**
 - **ESPN API** - Live NFL game data, scores, and standings
+- **SportsDataIO** - Paid NFL data feed powering standings and schedule automation
+- **Vercel Cron + Revalidation** - Automated cache warmers for standings data
 - **YouTube Embeds** - Video content integration
 - **Twitter/X Embeds** - Social media content embedding
 - **Google Analytics** - User tracking and engagement metrics
@@ -198,11 +200,21 @@ the-snap/
 - **Formspree** - Contact form processing
 
 ### **Environment Variables Required**
+Copy `.env.example` to `.env.local` and fill in the values that apply to your deployment.
+
 ```bash
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
 SANITY_API_TOKEN=your_token
 NEXT_PUBLIC_FORMSPREE_ID=your_formspree_id
+SITE_URL=https://thegamesnap.com
+SANITY_WEBHOOK_SECRET=change-me
+REVALIDATE_SECRET=change-me
+
+# SportsDataIO automation
+SPORTSDATA_API_KEY=your_paid_key
+NFL_SEASON=2024
+NFL_SYNC_MODE=in-season
 ```
 
 ## 🚨 Important Notes for Future Development
@@ -231,7 +243,7 @@ This project can automatically post a tweet when a new Headline is published in 
 
 ### Setup
 
-1) Add credentials to `.env.local` (see `.env.local.example`):
+1) Add credentials to `.env.local` (see `.env.example`):
 
 ```
 SITE_URL=https://thegamesnap.com
@@ -261,6 +273,23 @@ curl -X POST "http://localhost:3000/api/social/new-article?secret=YOUR_SECRET" \
 ```
 
 If X credentials are not configured, the endpoint runs in dry‑run mode and simply returns the tweet text it would have posted.
+
+## ♻️ Manual Cache Revalidation
+
+Use the shared endpoint to force ISR revalidation or warm SportsDataIO data:
+
+```bash
+curl -X POST "https://your-site.com/api/revalidate?tag=standings&secret=REVALIDATE_SECRET"
+```
+
+- Accepts multiple `tag` or `path` query params as well as JSON bodies, e.g. `{"tags":["standings","rankings"],"paths":["/","/power-rankings"]}`.
+- Authenticates via `REVALIDATE_SECRET` (falls back to `SANITY_WEBHOOK_SECRET`).
+- When the `standings` tag is included the route calls `fetchNFLStandingsWithFallback()` immediately, so you’ll see the SportsDataIO logging without waiting for a page view.
+- If the request comes from Vercel Cron (`x-vercel-cron` header) the route trusts it automatically—manual requests must still provide the secret.
+
+### Automated Cron Refresh
+
+`vercel.json` ships with a cron entry that calls `/api/revalidate?tag=standings` every 30 minutes. Once deployed to Vercel this keeps standings fresh even if nobody loads the page. Adjust the schedule or add more entries (e.g., for schedules) as traffic grows.
 
 ### Customizing the tweet
 

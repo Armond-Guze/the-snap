@@ -1,3 +1,5 @@
+import { fetchSportsDataStandings, SportsDataStandingsTeam } from '@/lib/sportsdata-client';
+
 // NFL team mapping with logo URLs for consistent naming between ESPN API and our system
 export const NFL_TEAMS_MAP = {
   // AFC East
@@ -208,88 +210,72 @@ export interface ProcessedTeamData {
 }
 
 export async function fetchNFLStandings(): Promise<ProcessedTeamData[]> {
-  try {
-    // Try multiple APIs in order of preference
-    const apiEndpoints = [
-      'https://site.api.espn.com/apis/site/v2/sports/football/nfl/standings',
-      'https://api.sportsdata.io/v3/nfl/scores/json/Standings/2024?key=demo', // Demo key - limited but works
-      'https://api-nfl-v1.p.rapidapi.com/standings?season=2024' // Would need API key
-    ];
-
-    let data = null;
-    let apiUsed = '';
-
-    // Try ESPN first
-    try {
-      console.log('Trying ESPN API...');
-      const response = await fetch(apiEndpoints[0], {
-        next: { revalidate: 3600 }
-      });
-
-      if (response.ok) {
-        data = await response.json();
-        apiUsed = 'ESPN';
-        console.log('ESPN API Response structure:', JSON.stringify(data, null, 2));
-      }
-    } catch (error) {
-      console.log('ESPN API failed:', error);
-    }
-
-    // Try SportsData.io demo if ESPN failed
-    if (!data || !data.children) {
-      try {
-        console.log('Trying SportsData.io API...');
-        const response = await fetch(apiEndpoints[1], {
-          next: { revalidate: 3600 }
-        });
-
-        if (response.ok) {
-          data = await response.json();
-          apiUsed = 'SportsData.io';
-          console.log('SportsData.io API Response:', JSON.stringify(data, null, 2));
-        }
-      } catch (error) {
-        console.log('SportsData.io API failed:', error);
-      }
-    }
-
-    if (!data) {
-      throw new Error('All APIs failed - using fallback data');
-    }
-    
-    const processedData: ProcessedTeamData[] = [];
-
-    // Handle different API response structures
-    if (apiUsed === 'ESPN' && data.children) {
-      // ESPN format
-      data.children.forEach((conference: any) => {
-        if (!conference.standings || !conference.standings.entries) {
-          console.log('Conference missing standings/entries:', conference);
-          return;
-        }
-
-        conference.standings.entries.forEach((entry: any) => {
-          const teamData = processESPNTeamEntry(entry);
-          if (teamData) processedData.push(teamData);
-        });
-      });
-    } else if (apiUsed === 'SportsData.io' && Array.isArray(data)) {
-      // SportsData.io format
-      data.forEach((team: any) => {
-        const teamData = processSportsDataTeam(team);
-        if (teamData) processedData.push(teamData);
-      });
-    } else {
-      console.log('Unexpected API structure. API used:', apiUsed, 'Data keys:', Object.keys(data));
-      throw new Error('API returned unexpected data structure');
-    }
-
-    console.log(`Processed ${processedData.length} teams from ${apiUsed} API`);
-    return processedData;
-  } catch (error) {
-    console.error('Error fetching NFL standings:', error);
-    throw error;
+  const sportsDataStandings = await trySportsDataStandings();
+  if (sportsDataStandings) {
+    return sportsDataStandings;
   }
+
+  return fetchEspnStandings();
+}
+
+async function trySportsDataStandings(): Promise<ProcessedTeamData[] | null> {
+  try {
+    const standings = await fetchSportsDataStandings();
+    const processed = standings
+      .map((team) => processSportsDataTeam(team))
+      .filter((team): team is ProcessedTeamData => Boolean(team));
+
+    if (!processed.length) {
+      console.warn('SportsDataIO returned no standings rows, falling back to ESPN.');
+      return null;
+    }
+
+    console.log(`Processed ${processed.length} teams from SportsDataIO API`);
+    return processed;
+  } catch (error) {
+    console.warn('SportsDataIO API failed, falling back to ESPN:', error);
+    return null;
+  }
+}
+
+async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
+  const endpoint = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/standings';
+
+  console.log('Trying ESPN API as fallback...');
+  const response = await fetch(endpoint, {
+    next: { revalidate: 3600 }
+  });
+
+  if (!response.ok) {
+    throw new Error(`ESPN API failed with status ${response.status}`);
+  }
+
+  const data = (await response.json()) as ESPNStandingsResponse;
+
+  if (!data.children) {
+    throw new Error('ESPN API returned unexpected data structure');
+  }
+
+  const processedData: ProcessedTeamData[] = [];
+
+  data.children.forEach((conference: any) => {
+    if (!conference.standings || !conference.standings.entries) {
+      console.log('Conference missing standings/entries:', conference);
+      return;
+    }
+
+    conference.standings.entries.forEach((entry: any) => {
+      const teamData = processESPNTeamEntry(entry);
+      if (teamData) processedData.push(teamData);
+    });
+  });
+
+  if (!processedData.length) {
+    throw new Error('ESPN API returned no standings entries');
+  }
+
+  console.log(`Processed ${processedData.length} teams from ESPN API`);
+  return processedData;
 }
 
 function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
@@ -334,41 +320,7 @@ function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
   };
 }
 
-function processESPNTeamData(teamData: any): ProcessedTeamData | null {
-  const teamName = teamData.displayName;
-  if (!teamName) return null;
-
-  const teamInfo = NFL_TEAMS_MAP[teamName as keyof typeof NFL_TEAMS_MAP];
-  if (!teamInfo) {
-    console.warn(`Team not found in mapping: ${teamName}`);
-    return null;
-  }
-
-  const record = teamData.record?.items?.[0];
-  if (!record) return null;
-
-  const wins = record.wins || 0;
-  const losses = record.losses || 0;
-  const ties = record.ties || 0;
-  const gamesPlayed = wins + losses + ties;
-  
-  const winPercentage = gamesPlayed > 0 
-    ? (wins + (ties * 0.5)) / gamesPlayed 
-    : 0;
-
-  return {
-    teamName,
-    logoUrl: teamData.logos?.[0]?.href,
-    wins,
-    losses,
-    ties,
-    winPercentage: Number(winPercentage.toFixed(3)),
-    conference: teamInfo.conference,
-    division: teamInfo.division
-  };
-}
-
-function processSportsDataTeam(team: any): ProcessedTeamData | null {
+function processSportsDataTeam(team: SportsDataStandingsTeam): ProcessedTeamData | null {
   const teamName = team.Name || team.TeamName;
   if (!teamName) {
     console.log('SportsData team missing name:', team);
