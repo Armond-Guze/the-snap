@@ -98,12 +98,11 @@ export default async function StandingsPage() {
   }, null);
 
   const lastUpdatedDisplay = lastUpdatedISO
-    ? new Intl.DateTimeFormat('en-US', {
+    ? new Date(lastUpdatedISO).toLocaleString('en-US', {
         dateStyle: 'medium',
         timeStyle: 'short',
-        timeZone: 'America/New_York',
-        timeZoneName: 'short'
-      }).format(new Date(lastUpdatedISO))
+        timeZone: 'America/New_York'
+      })
     : null;
 
   // Map abbr to full team name using TEAM_META or fallback to abbr
