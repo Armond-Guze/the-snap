@@ -84,12 +84,27 @@ export default async function StandingsPage() {
   // Fetch standings data (server-side) with tag for instant revalidation
   const season = await getActiveSeason();
   const noCdnClient = client.withConfig({ useCdn: false });
-  const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string }>
+  const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string; updatedAt: string }>
     = await noCdnClient.fetch(
-      `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak }`,
+      `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak, "updatedAt": _updatedAt }`,
       { season },
       { next: { tags: ['standings'], revalidate: 120 } }
     );
+
+  const lastUpdatedISO = docs.reduce<string | null>((latest, doc) => {
+    if (!doc.updatedAt) return latest;
+    if (!latest) return doc.updatedAt;
+    return doc.updatedAt > latest ? doc.updatedAt : latest;
+  }, null);
+
+  const lastUpdatedDisplay = lastUpdatedISO
+    ? new Intl.DateTimeFormat('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: 'America/New_York',
+        timeZoneName: 'short'
+      }).format(new Date(lastUpdatedISO))
+    : null;
 
   // Map abbr to full team name using TEAM_META or fallback to abbr
   const abbrToName: Record<string, string> = {
@@ -160,6 +175,9 @@ export default async function StandingsPage() {
           <p className="text-sm md:text-base text-gray-400 leading-relaxed max-w-3xl">
             Stay updated on the NFL standings with the latest rankings and team performance insights from <span className="text-gray-200 font-semibold">The Snap</span>.
           </p>
+          {lastUpdatedDisplay && (
+            <p className="text-xs text-gray-500 mt-2">Last updated {lastUpdatedDisplay}.</p>
+          )}
         </div>
       </header>
       {/* Standings Content (moved up, improved design) */}
