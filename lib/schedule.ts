@@ -1,6 +1,3 @@
-import { fetchSportsDataScoresByWeek, fetchSportsDataCurrentWeek, SportsDataScore } from '@/lib/sportsdata-client';
-import { sportsDataConfig } from '@/lib/config/sportsdata';
-
 // Lightweight schedule utilities (initial scaffold)
 // Designed to be extended later with automatic ingestion.
 
@@ -207,9 +204,6 @@ export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): 
 }
 
 export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
-  const sportsDataWeek = await trySportsDataWeek(weekParam);
-  if (sportsDataWeek) return sportsDataWeek;
-
   const schedule = await loadStaticSchedule();
   const current = determineCurrentWeek(schedule);
   const week = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : current;
@@ -265,67 +259,4 @@ export function primetimeSummary(teamGames: EnrichedGame[]): { count: number; we
   const weeks: number[] = [];
   teamGames.forEach(g => { if (isPrimetimeGame(g)) weeks.push(g.week); });
   return { count: weeks.length, weeks: Array.from(new Set(weeks)).sort((a,b)=>a-b) };
-}
-
-async function trySportsDataWeek(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] } | null> {
-  try {
-    let targetWeek = typeof weekParam === 'number' && weekParam > 0 ? weekParam : undefined;
-    if (!targetWeek) {
-      targetWeek = await fetchSportsDataCurrentWeek();
-    }
-    if (!targetWeek || targetWeek < 1) return null;
-    const season = sportsDataConfig.defaultSeason;
-    const apiGames = await fetchSportsDataScoresByWeek(targetWeek, season);
-    if (!apiGames?.length) return null;
-    const mapped = apiGames
-      .filter(g => g.HomeTeam && g.AwayTeam)
-      .map((game) => convertSportsDataGame(game))
-      .sort((a, b) => new Date(a.dateUTC).getTime() - new Date(b.dateUTC).getTime());
-    if (!mapped.length) return null;
-    return { week: targetWeek, games: mapped };
-  } catch (err) {
-    console.warn('SportsData schedule fetch failed, falling back to static json', err);
-    return null;
-  }
-}
-
-function convertSportsDataGame(game: SportsDataScore): EnrichedGame {
-  const isoDate = toIso(game.Date ?? game.DateTime);
-  const status = normalizeSportsDataStatus(game.Status);
-  const hasScores = typeof game.HomeScore === 'number' && typeof game.AwayScore === 'number';
-  return {
-    gameId: game.GameKey || `${game.Season ?? sportsDataConfig.defaultSeason}W${game.Week}-${game.AwayTeam}-${game.HomeTeam}`,
-    week: game.Week,
-    dateUTC: isoDate,
-    home: game.HomeTeam,
-    away: game.AwayTeam,
-    network: game.Channel || undefined,
-    venue: game.StadiumDetails?.Name || undefined,
-    status,
-    quarter: status === 'IN_PROGRESS' ? normalizeQuarter(game.Quarter) : undefined,
-    clock: status === 'IN_PROGRESS' ? (game.TimeRemaining || undefined) : undefined,
-    scores: hasScores && status !== 'SCHEDULED' ? { home: game.HomeScore ?? 0, away: game.AwayScore ?? 0 } : undefined
-  };
-}
-
-function toIso(value?: string): string {
-  if (!value) return new Date().toISOString();
-  const date = new Date(value);
-  return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
-}
-
-function normalizeQuarter(value?: string): string | undefined {
-  if (!value) return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  const upper = trimmed.toUpperCase();
-  return upper.startsWith('Q') ? upper : `Q${upper}`;
-}
-
-function normalizeSportsDataStatus(status?: string): LiveGameUpdate['status'] {
-  const normalized = (status || '').toLowerCase();
-  if (normalized.includes('in') && normalized.includes('progress')) return 'IN_PROGRESS';
-  if (normalized.includes('live')) return 'IN_PROGRESS';
-  if (normalized.includes('final')) return 'FINAL';
-  return 'SCHEDULED';
 }
