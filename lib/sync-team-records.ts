@@ -2,8 +2,10 @@ import { client } from '@/sanity/lib/client';
 import { fetchNFLStandingsWithFallback, ProcessedTeamData } from '@/lib/nfl-api';
 import { TEAM_META } from '@/lib/schedule';
 
+const SANITY_WRITE_TOKEN = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_WRITE_TOKEN;
+
 const writeClient = client.withConfig({
-  token: process.env.SANITY_API_WRITE_TOKEN,
+  token: SANITY_WRITE_TOKEN,
   useCdn: false,
 });
 
@@ -45,8 +47,8 @@ function toRecordDoc(team: ProcessedTeamData, teamAbbr: string, season: number) 
 }
 
 export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeamRecordsResult> {
-  if (!process.env.SANITY_API_WRITE_TOKEN) {
-    throw new Error('SANITY_API_WRITE_TOKEN is not configured.');
+  if (!SANITY_WRITE_TOKEN) {
+    throw new Error('SANITY_API_WRITE_TOKEN (or SANITY_WRITE_TOKEN) is not configured.');
   }
 
   const season = seasonOverride ?? Number(process.env.NFL_SEASON ?? new Date().getFullYear());

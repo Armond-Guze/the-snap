@@ -2,8 +2,10 @@ import { client } from '@/sanity/lib/client';
 import { fetchNFLStandingsWithFallback, ProcessedTeamData } from './nfl-api';
 
 // Create a client with write permissions for syncing
+const SANITY_WRITE_TOKEN = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_WRITE_TOKEN;
+
 const writeClient = client.withConfig({
-  token: process.env.SANITY_API_WRITE_TOKEN,
+  token: SANITY_WRITE_TOKEN,
   useCdn: false,
 });
 

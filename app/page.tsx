@@ -6,24 +6,9 @@ import MoreHeadlinesSection from "./components/MoreHeadlinesSection";
 // import TrendingTopics from "./components/TrendingTopics";
 import GameSchedule from "./components/GameSchedule";
 import GoogleAds from "./components/GoogleAds"; // Single enabled ad for AdSense review
-import { client } from "@/sanity/lib/client";
-import { featuredGamesQuery } from "@/sanity/lib/queries";
 import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
-import { teamCodeFromName } from "@/lib/team-utils";
+import { getScheduleWeekOrCurrent, TEAM_META, bucketLabelFor } from "@/lib/schedule";
 import { Metadata } from 'next'
-
-type FeaturedGame = {
-  _id: string;
-  homeTeam: string;
-  awayTeam: string;
-  homeTeamLogo?: { asset?: { _ref: string; _type: string } };
-  awayTeamLogo?: { asset?: { _ref: string; _type: string } };
-  gameDate: string;
-  tvNetwork?: string;
-  gameImportance?: string;
-  preview?: string;
-  week: number;
-};
 
 export const metadata: Metadata = {
   title: "The Snap - NFL News, Power Rankings, Standings & Analysis",
@@ -51,18 +36,42 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const featuredGames = await client.fetch(featuredGamesQuery);
-  const recMap = await fetchTeamRecords(2025);
+  const [{ games }, recMap] = await Promise.all([
+    getScheduleWeekOrCurrent(),
+    fetchTeamRecords(2025)
+  ]);
+
+  const now = Date.now();
+  const upcomingGames = games
+    .filter((g) => new Date(g.dateUTC).getTime() >= now - 6 * 60 * 60 * 1000)
+    .sort((a, b) => new Date(a.dateUTC).getTime() - new Date(b.dateUTC).getTime());
+
+  const weekGames = (upcomingGames.length ? upcomingGames : games).map((g) => {
+    const homeMeta = TEAM_META[g.home];
+    const awayMeta = TEAM_META[g.away];
+    const importanceLabel = bucketLabelFor(g);
+    const isPrimetime = importanceLabel === 'Thursday Night' || importanceLabel === 'Sunday Night' || importanceLabel === 'Monday Night';
+
+    return {
+      _id: g.gameId,
+      homeTeam: homeMeta?.name || g.home,
+      awayTeam: awayMeta?.name || g.away,
+      homeAbbr: g.home,
+      awayAbbr: g.away,
+      homeLogoUrl: homeMeta?.logo,
+      awayLogoUrl: awayMeta?.logo,
+      homeRecord: shortRecord(recMap.get(g.home)) || undefined,
+      awayRecord: shortRecord(recMap.get(g.away)) || undefined,
+      gameDate: g.dateUTC,
+      tvNetwork: g.network,
+      gameImportance: isPrimetime ? 'primetime' : undefined,
+      week: g.week,
+    };
+  });
 
   return (
     <main className="home-gradient min-h-screen">
-  <GameSchedule games={(featuredGames as FeaturedGame[] || []).map((g)=>{
-    const homeAbbr = teamCodeFromName(g.homeTeam);
-    const awayAbbr = teamCodeFromName(g.awayTeam);
-    const homeRecord = shortRecord(homeAbbr ? recMap.get(homeAbbr) : undefined);
-    const awayRecord = shortRecord(awayAbbr ? recMap.get(awayAbbr) : undefined);
-    return { ...g, homeRecord, awayRecord };
-  })} />
+  <GameSchedule games={weekGames} />
   <GoogleAds />
   <Headlines hideSummaries />
   <RankingsSection hideSummaries />

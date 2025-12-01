@@ -9,6 +9,8 @@ interface Game {
   _id: string;
   homeTeam: string;
   awayTeam: string;
+  homeAbbr?: string;
+  awayAbbr?: string;
   homeRecord?: string;
   awayRecord?: string;
   homeTeamLogo?: {
@@ -23,6 +25,8 @@ interface Game {
       _type: string;
     };
   };
+  homeLogoUrl?: string;
+  awayLogoUrl?: string;
   gameDate: string;
   tvNetwork?: string;
   gameImportance?: string;
@@ -135,6 +139,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     }
   };
 
+  const resolveLogo = (logo: Game['homeTeamLogo'], fallbackUrl?: string) => {
+    if (logo?.asset) {
+      return urlFor(logo).width(20).height(20).url();
+    }
+    return fallbackUrl;
+  };
+
   const renderGameCard = (game: Game) => {
     const gameDate = new Date(game.gameDate);
     const isToday = gameDate.toDateString() === new Date().toDateString();
@@ -143,6 +154,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
     const importanceLabel = getImportanceLabel(game.gameImportance || '');
     const importanceColor = getImportanceColor(game.gameImportance || '');
+    const homeLogo = resolveLogo(game.homeTeamLogo, game.homeLogoUrl);
+    const awayLogo = resolveLogo(game.awayTeamLogo, game.awayLogoUrl);
 
     return (
       <div
@@ -166,8 +179,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
         <div className="space-y-2">
           {/* Away Team */}
           <div className="flex items-center justify-start space-x-2">
-            {game.awayTeamLogo?.asset ? (
-              <Image src={urlFor(game.awayTeamLogo).width(20).height(20).url()} alt={game.awayTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
+            {awayLogo ? (
+              <Image src={awayLogo} alt={game.awayTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-xs font-extrabold">{game.awayTeam.split(' ').pop()?.charAt(0)}</span>
@@ -181,8 +194,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
           {/* Home Team */}
           <div className="flex items-center justify-start space-x-2">
-            {game.homeTeamLogo?.asset ? (
-              <Image src={urlFor(game.homeTeamLogo).width(20).height(20).url()} alt={game.homeTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
+            {homeLogo ? (
+              <Image src={homeLogo} alt={game.homeTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-xs font-extrabold">{game.homeTeam.split(' ').pop()?.charAt(0)}</span>

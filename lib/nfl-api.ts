@@ -239,9 +239,14 @@ async function trySportsDataStandings(): Promise<ProcessedTeamData[] | null> {
 }
 
 async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
-  const endpoint = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/standings';
+  const seasonYear = Number(process.env.NFL_SEASON) || new Date().getFullYear();
+  const endpoint = new URL('https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings');
+  endpoint.searchParams.set('region', 'us');
+  endpoint.searchParams.set('lang', 'en');
+  endpoint.searchParams.set('season', String(seasonYear));
+  endpoint.searchParams.set('seasontype', '2'); // 2 = regular season
 
-  console.log('Trying ESPN API as fallback...');
+  console.log('Trying ESPN API as fallback...', endpoint.toString());
   const response = await fetch(endpoint, {
     next: { revalidate: 3600 }
   });
