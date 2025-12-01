@@ -26,6 +26,25 @@ export interface SportsDataStandingsTeam {
   LogoURL?: string;
 }
 
+export interface SportsDataScore {
+  GameKey?: string;
+  GlobalGameID?: number;
+  Season?: number;
+  SeasonType?: number;
+  Week: number;
+  Date?: string;
+  DateTime?: string;
+  AwayTeam: string;
+  HomeTeam: string;
+  Channel?: string;
+  StadiumDetails?: { Name?: string } | null;
+  Status?: string;
+  Quarter?: string;
+  TimeRemaining?: string;
+  HomeScore?: number | null;
+  AwayScore?: number | null;
+}
+
 export async function sportsDataFetch<T>(path: string, options: SportsDataFetchOptions = {}): Promise<T> {
   const apiKey = getSportsDataApiKey();
   const url = buildUrl(path, options.query);
@@ -57,6 +76,15 @@ export async function sportsDataFetch<T>(path: string, options: SportsDataFetchO
 export async function fetchSportsDataStandings(season?: number): Promise<SportsDataStandingsTeam[]> {
   const seasonToUse = season ?? sportsDataConfig.defaultSeason;
   return sportsDataFetch<SportsDataStandingsTeam[]>(`scores/json/Standings/${seasonToUse}`);
+}
+
+export async function fetchSportsDataScoresByWeek(week: number, season?: number): Promise<SportsDataScore[]> {
+  const seasonToUse = season ?? sportsDataConfig.defaultSeason;
+  return sportsDataFetch<SportsDataScore[]>(`scores/json/ScoresByWeek/${seasonToUse}/${week}`, { revalidateSeconds: 300 });
+}
+
+export async function fetchSportsDataCurrentWeek(): Promise<number> {
+  return sportsDataFetch<number>('scores/json/CurrentWeek', { revalidateSeconds: 300 });
 }
 
 function buildUrl(path: string, query?: QueryRecord): string {
