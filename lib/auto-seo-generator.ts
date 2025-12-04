@@ -66,6 +66,13 @@ export function generateAutoSeo(input: AutoSeoInput): AutoSeoResult {
   // Start from existing or raw title
   let metaTitle = (existing?.metaTitle || title || '').trim()
 
+  // Fallback when no usable title exists
+  if (!metaTitle) {
+    const focusLabel = focus?.replace(/^nfl\s+/i, 'NFL ').trim()
+    const fallback = focusLabel || 'NFL Insights'
+    metaTitle = `${fallback} | The Snap`
+  }
+
   // Inject focus keyword if missing & room available
   if (metaTitle && focus && !metaTitle.toLowerCase().includes(focus) && metaTitle.length < 52) {
     metaTitle = `${metaTitle} | ${focus.replace('nfl ', 'NFL ')}`
