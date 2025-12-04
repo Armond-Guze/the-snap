@@ -2,8 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/revalidate?tag=standings",
-      "schedule": "0 0 * * *"
+      "path": "/api/sync/team-records",
+      "schedule": "0 * * * *",
+      "headers": {
+        "x-sync-secret": "@sync-cron-secret"
+      }
     }
   ]
 }
