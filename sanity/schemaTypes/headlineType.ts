@@ -10,13 +10,15 @@ const headlineType = defineType({
       title: "Title",
       type: "string",
       validation: (Rule) => Rule.required().min(5).max(120),
+      group: 'quick',
     }),
     defineField({
       name: 'homepageTitle',
       title: 'Homepage Display Title',
       type: 'string',
       description: 'Optional shorter / cleaner title just for homepage modules. Leaves full Title for article page & SEO.',
-  validation: Rule => Rule.max(70).error('Homepage Display Title must be 70 characters or fewer'),
+      validation: Rule => Rule.max(70).error('Homepage Display Title must be 70 characters or fewer'),
+      group: 'quick',
     }),
     defineField({
       name: "slug",
@@ -33,6 +35,7 @@ const headlineType = defineType({
             .slice(0, 96),
       },
       validation: (Rule) => Rule.required(),
+      group: 'quick',
     }),
 
     // Consolidated SEO object (auto generation supported via seoType)
@@ -42,7 +45,7 @@ const headlineType = defineType({
       type: 'seo',
       group: 'seo',
       initialValue: { autoGenerate: true },
-      options: { collapsible: true, collapsed: false }
+      options: { collapsible: true, collapsed: true }
     }),
 
     defineField({
@@ -50,18 +53,21 @@ const headlineType = defineType({
       title: "Cover Image",
       type: "image",
       options: { hotspot: true },
+      group: 'media',
     }),
     defineField({
       name: "author",
       title: "Author",
       type: "reference",
       to: [{ type: "author" }],
+      group: 'quick',
     }),
     defineField({
       name: "date",
       title: "Published Date",
       type: "datetime",
       initialValue: () => new Date().toISOString(),
+      group: 'quick',
     }),
     defineField({
       name: "summary",
@@ -69,12 +75,14 @@ const headlineType = defineType({
       type: "text",
       rows: 3,
       validation: (Rule) => Rule.max(300),
+      group: 'quick',
     }),
     defineField({
       name: "category",
       title: "Category",
       type: "reference",
       to: [{ type: "category" }],
+      group: 'quick',
     }),
     defineField({
       name: 'players',
@@ -88,7 +96,8 @@ const headlineType = defineType({
         }
       ],
       description: 'Associate one or more players mentioned in this headline for richer linking & filtering.',
-      options: { layout: 'tags' }
+      options: { layout: 'tags' },
+      group: 'quick',
     }),
     defineField({
       name: "tags",
@@ -97,6 +106,7 @@ const headlineType = defineType({
       of: [ { type: "string" } ],
       options: { layout: 'tags' },
       description: "LEGACY free-form tags. Use Tag References below for new content.",
+      group: 'quick',
     }),
     defineField({
       name: 'tagRefs',
@@ -112,11 +122,13 @@ const headlineType = defineType({
       title: "Published",
       type: "boolean",
       initialValue: false,
+      group: 'quick',
     }),
     defineField({
       name: "body",
       title: "Body Content",
       type: "blockContent",
+      group: 'quick',
     }),
     defineField({
       name: "youtubeVideoId",
@@ -139,7 +151,8 @@ const headlineType = defineType({
           }
         } catch {}
         return 'Enter a valid YouTube ID or URL';
-      })
+      }),
+      group: 'embeds',
     }),
     defineField({
       name: "videoTitle",
@@ -147,6 +160,7 @@ const headlineType = defineType({
       type: "string",
       description: "Optional: Custom title for the video embed",
       hidden: ({ document }) => !document?.youtubeVideoId,
+      group: 'embeds',
     }),
     // Twitter/X Embed Fields
     defineField({
@@ -161,7 +175,8 @@ const headlineType = defineType({
         if (!url) return true; // Allow empty
         const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
         return isValidTwitterUrl || 'Must be a valid Twitter/X post URL';
-      })
+      }),
+      group: 'embeds',
     }),
     defineField({
       name: "twitterTitle",
@@ -169,6 +184,7 @@ const headlineType = defineType({
       type: "string",
       description: "Optional: Custom title for the Twitter embed",
       hidden: ({ document }) => !document?.twitterUrl,
+      group: 'embeds',
     }),
     // Instagram Embed Fields
     defineField({
@@ -180,13 +196,15 @@ const headlineType = defineType({
         if (!url) return true;
         const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
         return ok || 'Must be a valid Instagram post, reel, or IGTV URL';
-      })
+      }),
+      group: 'embeds',
     }),
     defineField({
       name: 'instagramTitle',
       title: 'Instagram Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.instagramUrl,
+      group: 'embeds',
     }),
     // TikTok Embed Fields
     defineField({
@@ -198,31 +216,31 @@ const headlineType = defineType({
         if (!url) return true;
         const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
         return ok || 'Must be a valid TikTok video URL';
-      })
+      }),
+      group: 'embeds',
     }),
     defineField({
       name: 'tiktokTitle',
       title: 'TikTok Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.tiktokUrl,
+      group: 'embeds',
     }),
     defineField({
       name: "priority",
       title: "Priority",
       type: "number",
-  description: "(Legacy - optional) Lower numbers show first. NEW: Use 'Homepage Settings' > 'Pinned Headlines' to control homepage ordering without renumbering.",
-  validation: (Rule) => Rule.min(1).max(100),
+      description: "(Legacy - optional) Lower numbers show first. NEW: Use 'Homepage Settings' > 'Pinned Headlines' to control homepage ordering without renumbering.",
+      validation: (Rule) => Rule.min(1).max(100),
+      group: 'advanced',
     }),
   ],
   groups: [
-    {
-      name: "seo",
-      title: "SEO",
-    },
-    {
-      name: 'advanced',
-      title: 'Advanced',
-    },
+    { name: 'quick', title: 'Quick Publish' },
+    { name: 'media', title: 'Media' },
+    { name: 'embeds', title: 'Embeds' },
+    { name: 'seo', title: 'SEO' },
+    { name: 'advanced', title: 'Advanced' },
   ],
   preview: {
     select: {

@@ -18,6 +18,7 @@ import { migrateTeamCategoryToTagAction } from './sanity/plugins/migrateTeamCate
 import snapshotFromLivePowerRankingsAction from './sanity/plugins/snapshotFromLiveAction'
 import duplicatePowerRankingWeekAction from './sanity/plugins/duplicatePowerRankingWeek'
 import suggestPrimetimeTagAction from './sanity/plugins/suggestPrimetimeTag'
+import seoRegenerateAction from './sanity/plugins/seoRegenerateAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -29,22 +30,28 @@ export default defineConfig({
   },
   document: {
     actions(prev, context) {
+      let actions = [...prev]
+
       if (context.schemaType === 'rankings') {
-        return [...prev, createRankingsSnapshotAction, publishAndSnapshotAction]
+        actions = [...actions, createRankingsSnapshotAction, publishAndSnapshotAction]
       }
       if (context.schemaType === 'powerRanking') {
-        return [...prev, snapshotFromLivePowerRankingsAction]
+        actions = [...actions, snapshotFromLivePowerRankingsAction]
       }
       if (context.schemaType === 'headline') {
-        return [...prev, suggestPrimetimeTagAction]
+        actions = [...actions, suggestPrimetimeTagAction]
       }
       if (context.schemaType === 'powerRankingWeek') {
-        return [...prev, duplicatePowerRankingWeekAction]
+        actions = [...actions, duplicatePowerRankingWeekAction]
       }
       if (context.schemaType === 'category') {
-        return [...prev, migrateTeamCategoryToTagAction]
+        actions = [...actions, migrateTeamCategoryToTagAction]
       }
-      return prev
+      if (['headline', 'rankings', 'category'].includes(context.schemaType)) {
+        actions = [...actions, seoRegenerateAction]
+      }
+
+      return actions
     },
   },
   plugins: [
