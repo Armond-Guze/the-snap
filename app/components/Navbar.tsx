@@ -172,7 +172,14 @@ export default function Navbar() {
       </div>
       {/* Right: Search + Profile */}
       <div className="flex items-center gap-4">
-        <div className="hidden sm:block"><SmartSearch /></div>
+        <Link
+          href="/headlines"
+          className="hidden lg:inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white hover:text-black transition-colors"
+        >
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+          Latest Headlines
+        </Link>
+        <div className="hidden sm/block"><SmartSearch /></div>
         <ProfileMenu />
       </div>
     </div>
@@ -202,7 +209,7 @@ export default function Navbar() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 text-white">
           {/* Grid of nav items - larger horizontal cards */}
-          <div>
+          <div className="space-y-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50 mb-3">Featured</p>
             <div className="grid grid-cols-2 gap-4">
               {navItems.map(({ label, href, key }) => {
@@ -233,6 +240,13 @@ export default function Navbar() {
                 );
               })}
             </div>
+            <Link
+              href="/headlines"
+              onClick={handleLinkClick}
+              className="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-semibold tracking-wide text-white hover:border-white/30 hover:bg-white/10 transition-colors"
+            >
+              Catch Up on Headlines ↗
+            </Link>
           </div>
           {/* Search inline */}
           <div>

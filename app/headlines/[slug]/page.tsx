@@ -1,6 +1,7 @@
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { client } from '@/sanity/lib/client';
 import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
@@ -20,6 +21,7 @@ import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
+import MostRead from '@/app/components/MostRead';
 
 export const dynamic = "force-dynamic";
 
@@ -70,12 +72,37 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         date,
         summary,
         author-> { name },
-        coverImage { asset->{ url } }
+        coverImage { asset->{ url } },
+        featuredImage { asset->{ url } },
+        image { asset->{ url } },
+        category->{ title, slug, color },
+        tags[]->{ title }
       }`
     ),
   ]);
 
   if (!headline) notFound();
+
+  const tagList = Array.isArray(headline.tags)
+    ? headline.tags
+        .map(tag => (tag?.title ? { title: tag.title, slug: tag.slug?.current } : null))
+        .filter((tag): tag is { title: string; slug?: string } => Boolean(tag?.title))
+    : [];
+
+  const categorySlug = headline.category?.slug?.current;
+  const categoryMatches = categorySlug
+    ? otherHeadlines
+        .filter(
+          (article) =>
+            article.slug.current !== trimmedSlug &&
+            article.category?.slug?.current === categorySlug
+        )
+        .slice(0, 3)
+    : [];
+
+  const trendingArticles = otherHeadlines
+    .filter((article) => article.slug.current !== trimmedSlug)
+    .slice(0, 5);
 
   // Calculate reading time
   const textContent = extractTextFromBlocks(headline.body || []);
@@ -139,6 +166,14 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             <span>• {formatArticleDate(headline.date)}</span>
             <span className="text-gray-500">•</span>
             <ReadingTime minutes={readingTime} />
+            {headline.category?.slug?.current && headline.category?.title && (
+              <Link
+                href={`/categories/${headline.category.slug.current}`}
+                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+              >
+                {headline.category.title}
+              </Link>
+            )}
             {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
               <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
             )}
@@ -151,6 +186,19 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               {headline.summary && (
                 <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>
               )}
+              {tagList.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tagList.map((tag) => (
+                    <Link
+                      key={tag.slug || tag.title}
+                      href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
+                      className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
+                    >
+                      #{tag.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <section className="w-full mb-8">
@@ -158,6 +206,88 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
             </div>
           </section>
+          {categoryMatches.length > 1 && (
+            <section className="mt-10">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-semibold text-white">
+                  More from {headline.category?.title}
+                </h2>
+                <Link
+                  href={`/categories/${headline.category?.slug?.current}`}
+                  className="text-sm font-semibold text-emerald-300 hover:text-emerald-200"
+                >
+                  View category →
+                </Link>
+              </div>
+              <div className="grid gap-5 md:grid-cols-3">
+                {categoryMatches.map((article) => {
+                  const img =
+                    article.coverImage?.asset?.url ||
+                    article.featuredImage?.asset?.url ||
+                    article.image?.asset?.url ||
+                    null;
+                  return (
+                    <Link
+                      key={article._id}
+                      href={`/headlines/${article.slug.current}`}
+                      className="group rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm hover:border-white/30 hover:bg-white/10 transition-colors"
+                    >
+                      {img && (
+                        <div className="relative mb-4 h-36 overflow-hidden rounded-xl">
+                          <Image
+                            src={img}
+                            alt={article.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </div>
+                      )}
+                      <p className="text-xs uppercase tracking-wide text-white/50 mb-2">
+                        {formatArticleDate(article.date || article.publishedAt)}
+                      </p>
+                      <h3 className="text-lg font-semibold text-white leading-snug line-clamp-2">
+                        {article.homepageTitle || article.title}
+                      </h3>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+          {trendingArticles.length > 0 && (
+            <section className="mt-12">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-10 w-10 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
+                  🔥
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">Trending now</p>
+                  <h2 className="text-2xl font-semibold text-white">What readers are clicking</h2>
+                </div>
+              </div>
+              <ol className="space-y-3">
+                {trendingArticles.map((article, index) => (
+                  <li key={article._id} className="flex items-start gap-4">
+                    <span className="text-3xl font-black text-white/10 leading-none">
+                      {(index + 1).toString().padStart(2, '0')}
+                    </span>
+                    <div className="flex-1 border-b border-white/5 pb-3">
+                      <Link
+                        href={article._type === 'rankings' ? `/rankings/${article.slug.current}` : `/headlines/${article.slug.current}`}
+                        className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
+                      >
+                        {article.homepageTitle || article.title}
+                      </Link>
+                      <div className="mt-1 text-xs uppercase tracking-wide text-white/40">
+                        {article.category?.title || (article._type === 'rankings' ? `${article.rankingType?.replace('-', ' ')} rankings` : 'Headline')}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
         </article>
         {/* Sidebar */}
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
@@ -188,6 +318,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           )}
           {/* Use homepageTitle if present for shorter sidebar list titles */}
           <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines.map(h => ({...h, title: h.homepageTitle || h.title }))} />
+          <div className="mt-6">
+            {/* Async server component renders most recent headlines for broader recirculation */}
+            <MostRead limit={6} />
+          </div>
         </aside>
       </div>
       {/* Add social share section for consistency with fantasy articles */}
