@@ -340,7 +340,12 @@ export default defineType({
           },
         },
       ],
-      validation: (Rule) => Rule.custom((arr: unknown) => {
+      validation: (Rule) => Rule.custom((arr: unknown, context) => {
+        // Skip the expensive validation while editing nested fields inside the teams array.
+        const path = context?.path || [];
+        const editingNestedField = path.some((segment) => typeof segment === 'number');
+        if (editingNestedField) return true;
+
         if (!Array.isArray(arr)) return true;
         const ranks = arr
           .map((t) => (t && typeof t === 'object' && 'rank' in t ? (t as { rank?: unknown }).rank : undefined))
