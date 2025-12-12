@@ -8,7 +8,7 @@ import SmartSearch from "./SmartSearch";
 import ProfileMenu from "./ProfileMenu";
 import { NAV_ITEMS } from "./navConfig";
 import { CgClose } from 'react-icons/cg';
-import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Home as HomeIcon } from 'lucide-react';
+import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon } from 'lucide-react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -101,7 +101,8 @@ export default function Navbar() {
     standings: <BarChart3 className="w-4 h-4" />,
     'power-rankings': <TrendingUp className="w-4 h-4" />,
     fantasy: <Sparkles className="w-4 h-4" />,
-    calendar: <CalendarDays className="w-4 h-4" />
+    calendar: <CalendarDays className="w-4 h-4" />,
+    tankathon: <Target className="w-4 h-4" />
   };
 
   const iconStyles: Record<string, string> = {
@@ -110,7 +111,8 @@ export default function Navbar() {
     standings: 'bg-amber-600/20 text-amber-300 group-hover:bg-amber-600/30',
     'power-rankings': 'bg-violet-600/20 text-violet-300 group-hover:bg-violet-600/30',
     fantasy: 'bg-emerald-600/20 text-emerald-300 group-hover:bg-emerald-600/30',
-    calendar: 'bg-cyan-600/20 text-cyan-300 group-hover:bg-cyan-600/30'
+    calendar: 'bg-cyan-600/20 text-cyan-300 group-hover:bg-cyan-600/30',
+    tankathon: 'bg-rose-600/20 text-rose-300 group-hover:bg-rose-600/30'
   };
 
   const navDescriptions: Record<string, string> = {
@@ -119,7 +121,8 @@ export default function Navbar() {
     standings: 'Division view',
     'power-rankings': 'Weekly movers',
     fantasy: 'Player intel',
-    calendar: 'Save the dates'
+    calendar: 'Save the dates',
+    tankathon: 'Draft order live'
   };
 
   const cardAccents: Record<string, string> = {
@@ -128,7 +131,8 @@ export default function Navbar() {
     standings: 'from-amber-400/25 via-transparent to-transparent',
     'power-rankings': 'from-violet-400/25 via-transparent to-transparent',
     fantasy: 'from-emerald-400/25 via-transparent to-transparent',
-    calendar: 'from-cyan-400/25 via-transparent to-transparent'
+    calendar: 'from-cyan-400/25 via-transparent to-transparent',
+    tankathon: 'from-rose-400/25 via-transparent to-transparent'
   };
 
   return (
