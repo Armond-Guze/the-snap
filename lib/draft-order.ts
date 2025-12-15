@@ -10,6 +10,7 @@ export interface DraftPick {
   ties: number;
   winPct: number;
   record: string;
+  sos?: number;
   note?: string;
 }
 
@@ -33,6 +34,7 @@ export async function computeDraftOrder(season?: number): Promise<DraftOrderResu
     ties: row.ties,
     winPct: row.winPct,
     record: row.record,
+    sos: row.sos,
     note: row.note,
   }));
 
@@ -52,6 +54,7 @@ function mapStandingRow(team: SportsDataStandingsTeam) {
   const games = wins + losses + ties;
   const winPct = games > 0 ? (wins + ties * 0.5) / games : 0;
   const abbr = (team.Key || team.TeamName || team.TeamID?.toString() || '').toUpperCase();
+  const sos = team.StrengthOfSchedule ?? computeSosFromOpponents(team);
   return {
     teamAbbr: abbr,
     wins,
@@ -59,6 +62,7 @@ function mapStandingRow(team: SportsDataStandingsTeam) {
     ties,
     winPct,
     record: `${wins}-${losses}${ties ? `-${ties}` : ''}`,
+    sos,
     owningTeam: abbr as string,
     note: undefined as string | undefined,
   };
@@ -71,6 +75,8 @@ function compareForDraft(a: StandingsRow, b: StandingsRow): number {
   if (a.wins !== b.wins) return a.wins - b.wins;
   // If still tied, more losses first.
   if (a.losses !== b.losses) return b.losses - a.losses;
+  // Use SOS (lower SOS = easier opponents -> lower priority), so higher SOS should pick later. NFL tie-break uses strength of schedule; smaller SOS wins the tie.
+  if (a.sos !== undefined && b.sos !== undefined && a.sos !== b.sos) return a.sos - b.sos;
   // Finally, deterministic by team name.
   return a.teamAbbr.localeCompare(b.teamAbbr);
 }
@@ -95,4 +101,14 @@ function applyTradedPicks(rows: StandingsRow[], trades: TradedPick[]): Standings
       note: primary.note,
     };
   });
+}
+
+function computeSosFromOpponents(team: SportsDataStandingsTeam): number | undefined {
+  if (team.OpponentWins === undefined || team.OpponentLosses === undefined) return undefined;
+  const oppWins = team.OpponentWins ?? 0;
+  const oppLosses = team.OpponentLosses ?? 0;
+  const oppTies = team.OpponentTies ?? 0;
+  const games = oppWins + oppLosses + oppTies;
+  if (games === 0) return undefined;
+  return (oppWins + oppTies * 0.5) / games;
 }

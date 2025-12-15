@@ -75,6 +75,7 @@ export default async function TankathonPage() {
                   <th className="py-2 pr-4 text-left">Original Team</th>
                   <th className="py-2 pr-4 text-left">Record</th>
                   <th className="py-2 pr-4 text-left">Win %</th>
+                  <th className="py-2 pr-4 text-left">SOS</th>
                   <th className="py-2 pr-4 text-left">Note</th>
                 </tr>
               </thead>
@@ -86,6 +87,7 @@ export default async function TankathonPage() {
                     <td className="py-2 pr-4 text-white/70">{pick.owningTeam === pick.originalTeam ? '—' : teamName(pick.originalTeam)}</td>
                     <td className="py-2 pr-4 text-white/90">{pick.record}</td>
                     <td className="py-2 pr-4 text-white/70">{(pick.winPct * 100).toFixed(1)}%</td>
+                    <td className="py-2 pr-4 text-white/70">{pick.sos !== undefined ? pick.sos.toFixed(3) : '—'}</td>
                     <td className="py-2 pr-4 text-white/60">{pick.note || '—'}</td>
                   </tr>
                 ))}
@@ -98,6 +100,7 @@ export default async function TankathonPage() {
           <h3 className="text-lg font-semibold mb-2">How this works</h3>
           <ul className="list-disc pl-5 space-y-1 text-sm text-white/70">
             <li>Draft order is sorted by worst record (win %), then wins, then losses.</li>
+            <li>Strength of schedule (SOS) is used as a tie-break when records match (lower SOS picks earlier).</li>
             <li>Traded picks are reassigned to the acquiring team; add more trades in <code className="text-rose-200">data/traded-picks.ts</code>.</li>
             <li>Data comes from SportsDataIO standings; we refresh after each game window via sync.</li>
           </ul>

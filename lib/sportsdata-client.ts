@@ -24,6 +24,10 @@ export interface SportsDataStandingsTeam {
   Ties: number;
   Percentage: number;
   LogoURL?: string;
+  StrengthOfSchedule?: number;
+  OpponentWins?: number;
+  OpponentLosses?: number;
+  OpponentTies?: number;
 }
 
 export interface SportsDataScore {
