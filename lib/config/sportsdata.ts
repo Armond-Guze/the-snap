@@ -9,6 +9,11 @@ export interface SportsDataConfig {
   syncMode: NflSyncMode;
 }
 
+export function isSportsDataEnabled(): boolean {
+  // Allow disabling SportsDataIO integration when the API is unavailable or noisy
+  return (process.env.SPORTSDATA_ENABLED ?? 'true').toLowerCase() !== 'false';
+}
+
 export const sportsDataConfig: SportsDataConfig = {
   baseUrl: 'https://api.sportsdata.io/v3/nfl',
   defaultSeason: Number.isFinite(DEFAULT_SEASON) ? DEFAULT_SEASON : new Date().getFullYear(),

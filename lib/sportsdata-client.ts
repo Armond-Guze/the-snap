@@ -1,4 +1,4 @@
-import { getSportsDataApiKey, sportsDataConfig } from '@/lib/config/sportsdata';
+import { getSportsDataApiKey, isSportsDataEnabled, sportsDataConfig } from '@/lib/config/sportsdata';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_REVALIDATE_SECONDS = 1_800; // 30 minutes balances freshness vs. quota
@@ -50,6 +50,9 @@ export interface SportsDataScore {
 }
 
 export async function sportsDataFetch<T>(path: string, options: SportsDataFetchOptions = {}): Promise<T> {
+  if (!isSportsDataEnabled()) {
+    throw new Error('SportsDataIO disabled via SPORTSDATA_ENABLED');
+  }
   const apiKey = getSportsDataApiKey();
   const url = buildUrl(path, options.query);
   const controller = options.signal ? null : new AbortController();

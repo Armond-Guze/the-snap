@@ -9,6 +9,7 @@ import GoogleAds from "./components/GoogleAds"; // Single enabled ad for AdSense
 import { fetchTeamRecords, shortRecord, TeamRecordDoc } from "@/lib/team-records";
 import { getScheduleWeekOrCurrent, TEAM_META, bucketLabelFor, EnrichedGame } from "@/lib/schedule";
 import { fetchSportsDataCurrentWeek, fetchSportsDataScoresByWeek, SportsDataScore } from "@/lib/sportsdata-client";
+import { isSportsDataEnabled } from "@/lib/config/sportsdata";
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -58,8 +59,10 @@ export default async function Home() {
 type GameScheduleCard = Parameters<typeof GameSchedule>[0]['games'][number];
 
 async function buildHomepageGames(recMap: Map<string, TeamRecordDoc>): Promise<GameScheduleCard[]> {
-  const sportsDataGames = await trySportsDataCarousel(recMap);
-  if (sportsDataGames?.length) return sportsDataGames;
+  if (isSportsDataEnabled()) {
+    const sportsDataGames = await trySportsDataCarousel(recMap);
+    if (sportsDataGames?.length) return sportsDataGames;
+  }
   const { games } = await getScheduleWeekOrCurrent();
   return filterUpcomingGames(games.map((g) => mapEnrichedGameToCard(g, recMap)));
 }
