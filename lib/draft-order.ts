@@ -1,4 +1,6 @@
 import { fetchSportsDataStandings, SportsDataStandingsTeam } from '@/lib/sportsdata-client';
+import { fetchNFLStandingsWithFallback, ProcessedTeamData } from '@/lib/nfl-api';
+import { TEAM_META } from '@/lib/schedule';
 import { tradedPicks, TradedPick } from '@/data/traded-picks';
 
 export interface DraftPick {
@@ -21,9 +23,8 @@ export interface DraftOrderResult {
 }
 
 export async function computeDraftOrder(season?: number): Promise<DraftOrderResult> {
-  const standings = await fetchSportsDataStandings(season);
   const seasonUsed = season ?? new Date().getFullYear();
-  const base = standings.map(mapStandingRow);
+  const base = await getStandingsRows(seasonUsed);
   const sorted = base.sort(compareForDraft);
   const picks = applyTradedPicks(sorted, tradedPicks).map((row, idx) => ({
     pick: idx + 1,
@@ -47,6 +48,25 @@ export async function computeDraftOrder(season?: number): Promise<DraftOrderResu
 
 type StandingsRow = ReturnType<typeof mapStandingRow>;
 
+async function getStandingsRows(season: number): Promise<StandingsRow[]> {
+  const hasApiKey = Boolean(process.env.SPORTSDATA_API_KEY);
+
+  if (hasApiKey) {
+    try {
+      const standings = await fetchSportsDataStandings(season);
+      return standings.map(mapStandingRow);
+    } catch (err) {
+      console.warn('SportsDataIO standings failed, falling back to ESPN data:', err);
+    }
+  }
+
+  // Fallback path: use ESPN-derived standings (no API key required).
+  const fallback = await fetchNFLStandingsWithFallback();
+  return fallback
+    .map((team) => mapFallbackTeam(team))
+    .filter((row): row is StandingsRow => Boolean(row));
+}
+
 function mapStandingRow(team: SportsDataStandingsTeam) {
   const wins = team.Wins ?? 0;
   const losses = team.Losses ?? 0;
@@ -66,6 +86,39 @@ function mapStandingRow(team: SportsDataStandingsTeam) {
     owningTeam: abbr as string,
     note: undefined as string | undefined,
   };
+}
+
+function mapFallbackTeam(team: ProcessedTeamData): StandingsRow | null {
+  const abbr = findAbbr(team.teamName);
+  const wins = team.wins ?? 0;
+  const losses = team.losses ?? 0;
+  const ties = team.ties ?? 0;
+  const games = wins + losses + ties;
+  const winPct = games > 0 ? (wins + ties * 0.5) / games : 0;
+
+  return {
+    teamAbbr: abbr,
+    wins,
+    losses,
+    ties,
+    winPct,
+    record: `${wins}-${losses}${ties ? `-${ties}` : ''}`,
+    sos: undefined,
+    owningTeam: abbr,
+    note: undefined,
+  };
+}
+
+function findAbbr(teamName: string): string {
+  const entry = Object.entries(TEAM_META).find(([, meta]) => meta.name === teamName);
+  if (entry) return entry[0];
+  // Fallback: uppercase abbreviation from team name initials if not found.
+  const initials = teamName
+    .split(/\s+/)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
+  return initials || teamName.toUpperCase();
 }
 
 function compareForDraft(a: StandingsRow, b: StandingsRow): number {

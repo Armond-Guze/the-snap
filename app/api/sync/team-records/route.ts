@@ -5,6 +5,9 @@ import { syncTeamRecords } from '@/lib/sync-team-records';
 const AUTH_HEADER = 'x-sync-secret';
 
 function verifySecret(req: NextRequest): boolean {
+  const isVercelCron = Boolean(req.headers.get('x-vercel-cron'));
+  if (isVercelCron) return true;
+
   const secret = process.env.SYNC_CRON_SECRET || process.env.REVALIDATE_SECRET;
   if (!secret) return true; // no secret configured
 

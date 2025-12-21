@@ -3,10 +3,7 @@
   "crons": [
     {
       "path": "/api/sync/team-records",
-      "schedule": "0 * * * *",
-      "headers": {
-        "x-sync-secret": "@sync-cron-secret"
-      }
+      "schedule": "0 0 * * *"
     }
   ]
 }
