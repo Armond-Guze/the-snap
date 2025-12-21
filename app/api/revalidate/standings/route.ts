@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    revalidateTag('standings');
+    revalidateTag('standings', {});
     return new Response(JSON.stringify({ revalidated: true, tag: 'standings' }), { status: 200 });
   } catch (err) {
     return new Response(JSON.stringify({ revalidated: false, error: (err as Error).message }), { status: 500 });

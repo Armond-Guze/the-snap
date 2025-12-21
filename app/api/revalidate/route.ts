@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     await Promise.all([
       ...tags.map(async (tag) => {
-        await revalidateTag(tag);
+        await revalidateTag(tag, {});
         console.log(`[${ROUTE_NAME}] revalidated tag`, tag);
         const warmCount = await maybeWarmCache(tag);
         if (typeof warmCount === 'number') {

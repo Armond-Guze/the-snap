@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     const result = await syncTeamRecords(season);
 
-    revalidateTag('standings');
+    revalidateTag('standings', {});
     revalidatePath('/standings');
     revalidatePath('/');
     revalidatePath('/schedule');

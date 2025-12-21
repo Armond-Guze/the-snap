@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const result = await computeDraftOrder(season);
 
     revalidatePath('/tankathon');
-    revalidateTag('draft-order');
+    revalidateTag('draft-order', {});
 
     return new Response(JSON.stringify({ ok: true, result }), { status: 200 });
   } catch (error) {

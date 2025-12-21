@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 // Enforce canonical host (non-www) and prepare room for future header tweaks.
 const CANONICAL_HOST = 'thegamesnap.com';
 
-export function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const { nextUrl } = req;
   const url = nextUrl.clone();
   let redirectNeeded = false;
@@ -25,6 +25,7 @@ export function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
+
 
 // Apply to all paths except assets & api routes you don't need canonicalization for
 export const config = {
