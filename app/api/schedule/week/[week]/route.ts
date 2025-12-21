@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getScheduleWeekOrCurrent } from '@/lib/schedule';
 
 export const revalidate = 300;
@@ -6,12 +6,12 @@ export const revalidate = 300;
 interface Params { week: string }
 
 export async function GET(
-  _req: Request,
-  ctx: { params: Promise<Params>; searchParams: URLSearchParams }
+  req: NextRequest,
+  ctx: { params: Promise<Params> }
 ) {
   try {
     const params = await ctx.params;
-    const url = new URL(_req.url);
+    const url = new URL(req.url);
     const team = url.searchParams.get('team')?.toUpperCase();
     const weekNum = Number(params.week);
     const { week, games } = await getScheduleWeekOrCurrent(weekNum);
