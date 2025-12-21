@@ -16,6 +16,11 @@ type SnapGraphicCardValue = {
     variant?: string
   }
   pressure?: 'clean' | 'muddy' | 'chaos' | string
+  dawgIndex?: {
+    value?: number
+    lowLabel?: string
+    highLabel?: string
+  }
   subject?: {
     primaryPlayer?: { name?: string; team?: string; position?: string }
     playerName?: string
@@ -102,6 +107,11 @@ export default function SnapGraphicCard({ value }: { value: SnapGraphicCardValue
 
   const pressure = pressureLabel(value.pressure)
 
+  const dawgValueRaw = typeof value.dawgIndex?.value === 'number' ? value.dawgIndex.value : undefined
+  const dawgValue = typeof dawgValueRaw === 'number' ? clamp(Math.round(dawgValueRaw), 0, 10) : undefined
+  const dawgLowLabel = (value.dawgIndex?.lowLabel || 'House Cat').toUpperCase()
+  const dawgHighLabel = (value.dawgIndex?.highLabel || 'Junkyard Dawg').toUpperCase()
+
   const trajectoryType = value.trajectory?.type ? titleCase(value.trajectory.type) : 'Trajectory'
   const trajectoryVariant = value.trajectory?.variant ? titleCase(value.trajectory.variant) : ''
 
@@ -161,6 +171,36 @@ export default function SnapGraphicCard({ value }: { value: SnapGraphicCardValue
               <div className="rotate-[-6deg] rounded border border-white/25 bg-black/40 px-2 py-1 text-[10px] font-extrabold tracking-[0.22em] text-white/90">
                 {pressure}
               </div>
+
+              {/* Dawg Index */}
+              {typeof dawgValue === 'number' && (
+                <div className="w-[220px] max-w-[70vw]">
+                  <div className="flex items-center justify-between text-[9px] font-extrabold tracking-[0.18em] text-white/60">
+                    <span>DAWG</span>
+                    <span>{dawgValue}/10</span>
+                  </div>
+                  <div className="mt-1 grid grid-cols-10 gap-[3px]">
+                    {Array.from({ length: 10 }).map((_, i) => {
+                      const lit = i < dawgValue
+                      return (
+                        <span
+                          key={i}
+                          className={
+                            'block h-[8px] rounded-sm border ' +
+                            (lit
+                              ? 'bg-white/70 border-white/35'
+                              : 'bg-black/30 border-white/15')
+                          }
+                        />
+                      )
+                    })}
+                  </div>
+                  <div className="mt-1 flex items-center justify-between text-[9px] font-bold tracking-[0.12em] text-white/45">
+                    <span>{dawgLowLabel}</span>
+                    <span>{dawgHighLabel}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Serial */}
               {value.serial && (

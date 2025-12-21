@@ -163,6 +163,36 @@ export const snapGraphicCard = defineType({
     }),
 
     defineField({
+      name: 'dawgIndex',
+      title: 'Dawg Index (0–10)',
+      type: 'object',
+      description: 'Measures aggression + fearless throws. Renders as a 10-segment bar.',
+      fields: [
+        defineField({
+          name: 'value',
+          title: 'Value',
+          type: 'number',
+          initialValue: 7,
+          validation: (Rule) => Rule.min(0).max(10),
+        }),
+        defineField({
+          name: 'lowLabel',
+          title: 'Low Label',
+          type: 'string',
+          initialValue: 'House Cat',
+          validation: (Rule) => Rule.max(18),
+        }),
+        defineField({
+          name: 'highLabel',
+          title: 'High Label',
+          type: 'string',
+          initialValue: 'Junkyard Dawg',
+          validation: (Rule) => Rule.max(18),
+        }),
+      ],
+    }),
+
+    defineField({
       name: 'callout',
       title: 'Callout (1 line)',
       type: 'string',
