@@ -3,6 +3,7 @@
 import { PortableTextComponents } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
+import SnapGraphicCard from '@/app/components/SnapGraphicCard'
 // NOTE: We avoid runtime fetching in portable text render to keep it static.
 // Player reference data should be GROQ-populated when querying the document.
 type SanityImageRef = { asset?: { _ref?: string, url?: string }; alt?: string }
@@ -316,6 +317,11 @@ export const portableTextComponents: PortableTextComponents = {
           </div>
         </Wrapper>
       )
+    },
+
+    // Snap-style graphic card (Aura Meter + Trajectory Sticker + Pressure Stamp)
+    snapGraphicCard: ({ value }) => {
+      return <SnapGraphicCard value={value} />
     },
 
     // Content dividers

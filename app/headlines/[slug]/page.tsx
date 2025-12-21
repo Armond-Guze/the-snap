@@ -85,8 +85,13 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   const tagList = Array.isArray(headline.tags)
     ? headline.tags
-        .map(tag => (tag?.title ? { title: tag.title, slug: tag.slug?.current } : null))
-        .filter((tag): tag is { title: string; slug?: string } => Boolean(tag?.title))
+        .map((tag) => {
+          const title = typeof tag?.title === 'string' ? tag.title.trim() : ''
+          if (!title) return null
+          const slug = tag?.slug?.current
+          return typeof slug === 'string' && slug.length > 0 ? { title, slug } : { title }
+        })
+        .filter((tag): tag is { title: string; slug?: string } => tag !== null)
     : [];
 
   const categorySlug = headline.category?.slug?.current;

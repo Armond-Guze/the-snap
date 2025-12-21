@@ -7,6 +7,18 @@ export const structure: StructureResolver = (S) => {
 
   const customOrdered = [
     S.listItem()
+      .title('Deep Ball Reports')
+      .schemaType('deepBallReport')
+      .child(
+        S.documentTypeList('deepBallReport')
+          .title('Deep Ball Reports')
+          .defaultOrdering([
+            { field: 'season', direction: 'desc' },
+            { field: 'week', direction: 'desc' },
+            { field: 'publishedAt', direction: 'desc' },
+          ])
+      ),
+    S.listItem()
       .title('Headlines')
       .schemaType('headline')
       .child(
@@ -61,7 +73,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings'])
+  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings'])
 
   return S.list()
     .title('Content')

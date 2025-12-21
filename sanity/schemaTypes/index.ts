@@ -19,6 +19,8 @@ import powerRankingWeek from './powerRankingWeek'
 import { teamRecord } from './teamRecord'
 import { topicHub } from './topicHub'
 import { gameCenterSettings } from './gameCenterSettings'
+import { snapGraphicCard } from './snapGraphicCard'
+import { deepBallReport } from './deepBallReport'
 
 
 export const schemaTypes = [
@@ -43,4 +45,6 @@ export const schemaTypes = [
   teamRecord,
   topicHub,
   gameCenterSettings,
+  snapGraphicCard,
+  deepBallReport,
 ]

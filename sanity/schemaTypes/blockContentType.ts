@@ -236,5 +236,12 @@ export const blockContentType = defineType({
         }
       }
     }),
+
+    // Snap-style graphics (Aura Meter + Trajectory Sticker + Pressure Stamp)
+    defineArrayMember({
+      type: 'snapGraphicCard',
+      name: 'snapGraphicCard',
+      title: 'Snap Graphic Card',
+    }),
   ],
 })

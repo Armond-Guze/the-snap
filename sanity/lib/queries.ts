@@ -94,6 +94,17 @@ export const headlineDetailQuery = `
         ...,
         headshot{asset->{url}, alt},
         player->{name, team, position, headshot{asset->{url}, alt}}
+      },
+      _type == 'snapGraphicCard' => {
+        ...,
+        subject{
+          ...,
+          primaryPlayer->{name, team, position, headshot{asset->{url}, alt}}
+        },
+        media{
+          ...,
+          image{alt, asset->{url}}
+        }
       }
     },
     youtubeVideoId,
