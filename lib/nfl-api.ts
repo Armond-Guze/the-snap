@@ -219,6 +219,11 @@ export async function fetchNFLStandings(): Promise<ProcessedTeamData[]> {
 }
 
 async function trySportsDataStandings(): Promise<ProcessedTeamData[] | null> {
+  // Skip SportsDataIO when the integration is disabled to avoid noisy errors.
+  if (!process.env.SPORTSDATA_ENABLED || process.env.SPORTSDATA_ENABLED.toLowerCase() === 'false') {
+    return null;
+  }
+
   try {
     const standings = await fetchSportsDataStandings();
     const processed = standings

@@ -148,10 +148,17 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
   const renderGameCard = (game: Game) => {
     const gameDate = new Date(game.gameDate);
-    const isToday = gameDate.toDateString() === new Date().toDateString();
-    // Weekday only (e.g., Sun, Mon)
-    const dateString = gameDate.toLocaleDateString('en-US', { weekday: 'short' });
-    const time = gameDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
+    const now = new Date();
+    const dateString = gameDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/New_York' });
+    const time = gameDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'America/New_York'
+    }).toUpperCase();
+    const isToday =
+      gameDate.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) ===
+      now.toLocaleDateString('en-US', { timeZone: 'America/New_York' });
     const importanceLabel = getImportanceLabel(game.gameImportance || '');
     const importanceColor = getImportanceColor(game.gameImportance || '');
     const homeLogo = resolveLogo(game.homeTeamLogo, game.homeLogoUrl);

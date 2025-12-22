@@ -10,6 +10,7 @@ import { fetchTeamRecords, shortRecord, TeamRecordDoc } from "@/lib/team-records
 import { getScheduleWeekOrCurrent, TEAM_META, bucketLabelFor, EnrichedGame } from "@/lib/schedule";
 import { fetchSportsDataCurrentWeek, fetchSportsDataScoresByWeek, SportsDataScore } from "@/lib/sportsdata-client";
 import { isSportsDataEnabled } from "@/lib/config/sportsdata";
+import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const recMap = await fetchTeamRecords(2025);
+  const recMap = await fetchFreshRecords(2025);
   const games = await buildHomepageGames(recMap);
 
   return (
@@ -140,8 +141,53 @@ function filterUpcomingGames(cards: GameScheduleCard[]): GameScheduleCard[] {
 
 function normalizeDate(value?: string): string {
   if (!value) return new Date().toISOString();
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+
+  // If the incoming string already includes a timezone/offset, trust it directly.
+  const hasExplicitOffset = /[zZ]|[+-]\d\d:?\d\d$/.test(value);
+  if (hasExplicitOffset) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+  }
+
+  // SportsDataIO supplies naive datetimes in Eastern Time (no offset). Convert them to UTC.
+  const isoFromEastern = convertEasternNaiveToUtc(value);
+  if (isoFromEastern) return isoFromEastern;
+
+  const fallback = new Date(value);
+  return Number.isNaN(fallback.getTime()) ? new Date().toISOString() : fallback.toISOString();
+}
+
+function convertEasternNaiveToUtc(value: string): string | null {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute, second] = match;
+  const baseUtcMs = Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute),
+    second ? Number(second) : 0
+  );
+
+  const baseDate = new Date(baseUtcMs);
+  const easternString = baseDate.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  const easternDate = new Date(easternString);
+  if (Number.isNaN(easternDate.getTime())) return null;
+
+  const offsetMinutes = (baseDate.getTime() - easternDate.getTime()) / 60000;
+  const adjusted = new Date(baseUtcMs + offsetMinutes * 60000);
+  return adjusted.toISOString();
 }
 
 function computePrimetimeFlag(dateUTC: string, week: number, home: string, away: string): boolean {
@@ -160,4 +206,35 @@ function computePrimetimeFlag(dateUTC: string, week: number, home: string, away:
 function formatRecord(record?: TeamRecordDoc): string | undefined {
   const value = shortRecord(record);
   return value ? value : undefined;
+}
+
+async function fetchFreshRecords(season: number): Promise<Map<string, TeamRecordDoc>> {
+  try {
+    const live = await fetchNFLStandingsWithFallback();
+    if (live?.length) {
+      const nameToAbbr = new Map<string, string>(
+        Object.entries(TEAM_META).map(([abbr, meta]) => [meta.name, abbr])
+      );
+
+      const map = new Map<string, TeamRecordDoc>();
+      for (const team of live) {
+        const abbr = nameToAbbr.get(team.teamName);
+        if (!abbr) continue;
+        map.set(abbr, {
+          _id: `live-${abbr}-${season}`,
+          teamAbbr: abbr,
+          season,
+          wins: team.wins,
+          losses: team.losses,
+          ties: team.ties,
+        });
+      }
+
+      if (map.size === 32) return map;
+    }
+  } catch (err) {
+    console.warn('[home] live standings fallback to Sanity', err);
+  }
+
+  return fetchTeamRecords(season);
 }
