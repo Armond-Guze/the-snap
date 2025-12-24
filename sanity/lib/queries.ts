@@ -242,6 +242,72 @@ export const headlinesByTagQuery = `
   }
 `;
 
+export const playOfWeekListQuery = `
+  *[_type == "playOfWeek" && published == true]
+  | order(coalesce(date, _createdAt) desc, _createdAt desc)[0...24] {
+    _id,
+    title,
+    slug,
+    playType,
+    summary,
+    callout,
+    coverImage { asset->{ url }, alt },
+    clipUrl,
+    date,
+    quarter,
+    clock,
+    downDistance,
+    yardLine,
+    yardsGained,
+    scoreBefore,
+    scoreAfter,
+    epaDelta,
+    winProbDelta,
+    skillBadges,
+    difficulty,
+    difficultyNote,
+    momentumDirection,
+    momentumMagnitude,
+    impactTags,
+    priority,
+    teams[]->{ _id, title, slug },
+    player->{ _id, name, position, team, headshot{ asset->{ url }, alt } }
+  }
+`;
+
+export const playOfWeekDetailQuery = `
+  *[_type == "playOfWeek" && slug.current == $slug && published == true][0] {
+    _id,
+    title,
+    slug,
+    playType,
+    summary,
+    callout,
+    coverImage { asset->{ url }, alt },
+    clipUrl,
+    date,
+    quarter,
+    clock,
+    downDistance,
+    yardLine,
+    yardsGained,
+    scoreBefore,
+    scoreAfter,
+    epaDelta,
+    winProbDelta,
+    skillBadges,
+    difficulty,
+    difficultyNote,
+    momentumDirection,
+    momentumMagnitude,
+    impactTags,
+    priority,
+    teams[]->{ _id, title, slug },
+    player->{ _id, name, position, team, headshot{ asset->{ url }, alt } },
+    body[]{ ... }
+  }
+`;
+
 export const powerRankingsQuery = `*[_type == "powerRanking"] | order(rank asc) {
   _id,
   rank,

@@ -119,6 +119,43 @@ export interface HeadlineListItem {
   tags?: Pick<Tag, 'title'>[];
 }
 
+export interface PlayOfWeek {
+  _id: string;
+  title: string;
+  slug: SanitySlug;
+  playType?: string;
+  summary?: string;
+  callout?: string;
+  coverImage?: { asset?: { url?: string }; alt?: string };
+  clipUrl?: string;
+  date?: string;
+  quarter?: string;
+  clock?: string;
+  downDistance?: string;
+  yardLine?: string;
+  yardsGained?: number;
+  scoreBefore?: string;
+  scoreAfter?: string;
+  epaDelta?: number;
+  winProbDelta?: number;
+  skillBadges?: string[];
+  difficulty?: number;
+  difficultyNote?: string;
+  momentumDirection?: string;
+  momentumMagnitude?: number;
+  impactTags?: string[];
+  priority?: number;
+  teams?: Array<{ _id: string; title?: string; slug?: SanitySlug }>;
+  player?: {
+    _id?: string;
+    name?: string;
+    position?: string;
+    team?: string;
+    headshot?: { asset?: { url?: string }; alt?: string };
+  };
+  body?: PortableTextContent;
+}
+
 // Category types
 export interface Category {
   _id: string;
