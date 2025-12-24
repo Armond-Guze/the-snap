@@ -6,9 +6,10 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com'
 
 // Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
 // You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).
+// Default is a recent, fixed date to avoid future-dated entries.
 const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
   ? new Date(process.env.SITEMAP_STATIC_LASTMOD)
-  : new Date('2025-08-01T00:00:00.000Z')
+  : new Date('2025-01-01T00:00:00.000Z')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [headlines, rankings, fantasy, categories, staticSchedule] = await Promise.all([

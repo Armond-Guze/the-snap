@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import StructuredData, { createWebsiteStructuredData, createOrganizationStructuredData } from "./components/StructuredData";
 import LayoutWrapper from "./components/LayoutWrapper";
@@ -25,7 +26,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "The Snap - NFL News, Power Rankings & Analysis",
   description: "Your premier destination for NFL insights, power rankings, and breaking news. Stay ahead of the game with expert analysis and comprehensive coverage.",
-  keywords: "NFL news, NFL power rankings, NFL standings, football analysis, NFL trades, NFL draft, fantasy football, NFL scores",
   authors: [{ name: "The Snap Editorial Team" }],
   creator: "The Snap",
   publisher: "The Snap",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: 'The Snap',
     images: [
   {
-    url: '/images/thesnap-logo-new copy.jpg',
+    url: 'https://thegamesnap.com/images/thesnap-logo-transparent.png',
     width: 1200,
     height: 630,
     alt: 'The Snap - NFL News and Analysis',
@@ -59,18 +59,17 @@ export const metadata: Metadata = {
     title: "The Snap - NFL News, Power Rankings & Analysis",
     description: "Your premier destination for NFL insights, power rankings, and breaking news.",
     creator: '@thesnap', // Replace with your actual Twitter handle
-  images: ['/images/thesnap-logo-new copy.jpg'],
+  images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
   },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      // PNG fallbacks (replace with true square branded assets when available)
-      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '32x32' },
-      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '192x192' },
-      { url: '/favicon.svg', type: 'image/svg+xml', sizes: '512x512' }
+      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '32x32' },
+      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '192x192' },
+      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '512x512' }
     ],
     apple: [
-      { url: '/favicon.svg', sizes: '180x180', type: 'image/svg+xml' }
+      { url: '/images/thesnap-logo-transparent.png', sizes: '180x180', type: 'image/png' }
     ],
     shortcut: ['/favicon.svg']
   },
@@ -98,7 +97,7 @@ export default function RootLayout({
   const organizationData = createOrganizationStructuredData(
     'The Snap', 
     'https://thegamesnap.com', 
-  'https://thegamesnap.com/images/thesnap-logo-new copy.jpg'
+  'https://thegamesnap.com/images/thesnap-logo-transparent.png'
   )
 
   return (
@@ -114,8 +113,8 @@ export default function RootLayout({
   <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
         {/* Google AdSense (conditionally loaded) */}
         {ADS_ENABLED && ADSENSE_CLIENT && (
-          <script
-            async
+          <Script
+            strategy="afterInteractive"
             // NOTE: AdSense requires the client param in the src query string. Keep 'ca-pub-' prefix.
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
             crossOrigin="anonymous"
