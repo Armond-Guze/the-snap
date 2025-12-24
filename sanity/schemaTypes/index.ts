@@ -21,6 +21,7 @@ import { topicHub } from './topicHub'
 import { gameCenterSettings } from './gameCenterSettings'
 import { snapGraphicCard } from './snapGraphicCard'
 import { deepBallReport } from './deepBallReport'
+import { snapCard } from './snapCard'
 
 
 export const schemaTypes = [
@@ -47,4 +48,5 @@ export const schemaTypes = [
   gameCenterSettings,
   snapGraphicCard,
   deepBallReport,
+  snapCard,
 ]

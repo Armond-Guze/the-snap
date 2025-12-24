@@ -1,5 +1,7 @@
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity'
 import { createClient, type SanityClient } from '@sanity/client'
+import { useState } from 'react'
+import { Button, Stack, Text, TextInput } from '@sanity/ui'
 import { apiVersion, dataset, projectId } from '../env'
 
 // Map of common team names/aliases to standard abbreviations
@@ -126,25 +128,69 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
       }
     }
 
+  const now = new Date()
+  const defaultSeason = String(now.getFullYear())
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [seasonInput, setSeasonInput] = useState(defaultSeason)
+  const [weekInput, setWeekInput] = useState('1')
+  const [submitting, setSubmitting] = useState(false)
+
+  const runSnapshot = async () => {
+    const season = Number(seasonInput)
+    const week = Number(weekInput)
+    if (!Number.isFinite(season) || !Number.isFinite(week) || week < 1 || week > 25) {
+      // @ts-expect-error toast may be undefined depending on Studio version
+      props?.toast?.push?.({ status: 'warning', title: 'Invalid input', description: 'Provide a valid season and week (1–25).' })
+      return
+    }
+    setSubmitting(true)
+    try {
+      await handleCreate(season, week)
+    } finally {
+      setSubmitting(false)
+      setDialogOpen(false)
+    }
+  }
+
   return {
     label: 'Snapshot from Live (All Teams)',
-    onHandle: async () => {
-      // Simple prompt-based flow to avoid React state in actions
-      const now = new Date()
-      const defaultSeason = String(now.getFullYear())
-      const seasonStr = typeof window !== 'undefined' ? window.prompt('Season (e.g., 2025):', defaultSeason) : defaultSeason
-      if (!seasonStr) return
-      const weekStr = typeof window !== 'undefined' ? window.prompt('Week number (1–25):', '1') : '1'
-      if (!weekStr) return
-      const season = Number(seasonStr)
-      const week = Number(weekStr)
-      if (!Number.isFinite(season) || !Number.isFinite(week) || week < 1 || week > 25) {
-        // @ts-expect-error toast may be undefined depending on Studio version
-        props?.toast?.push?.({ status: 'warning', title: 'Invalid input', description: 'Please provide a valid season and week (1–25).' })
-        return
-      }
-      await handleCreate(season, week)
-    },
+    onHandle: () => setDialogOpen(true),
+    disabled: submitting,
+    dialog: dialogOpen
+      ? {
+          type: 'dialog',
+          onClose: () => (!submitting ? setDialogOpen(false) : undefined),
+          header: 'Create week snapshot',
+          content: (
+            <Stack space={4} padding={4}>
+              <Text size={1} muted>
+                Choose the season and week to snapshot. This will replace any existing snapshot for that week.
+              </Text>
+              <TextInput
+                type="number"
+                value={seasonInput}
+                onChange={(e) => setSeasonInput(e.currentTarget.value)}
+                placeholder="Season (e.g., 2025)"
+              />
+              <TextInput
+                type="number"
+                value={weekInput}
+                onChange={(e) => setWeekInput(e.currentTarget.value)}
+                placeholder="Week number (1–25)"
+              />
+              <Stack space={3}>
+                <Button
+                  tone="primary"
+                  text={submitting ? 'Creating…' : 'Create snapshot'}
+                  disabled={submitting}
+                  onClick={runSnapshot}
+                />
+                <Button text="Cancel" mode="ghost" disabled={submitting} onClick={() => setDialogOpen(false)} />
+              </Stack>
+            </Stack>
+          ),
+        }
+      : undefined,
   }
 }
 

@@ -72,6 +72,18 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     S.listItem()
+      .title('Snap Cards')
+      .schemaType('snapCard')
+      .child(
+        S.documentTypeList('snapCard')
+          .title('Snap Cards')
+          .defaultOrdering([
+            { field: 'season', direction: 'desc' },
+            { field: 'week', direction: 'desc' },
+            { field: 'publishedAt', direction: 'desc' },
+          ])
+      ),
+    S.listItem()
       .title('Topic Hubs')
       .schemaType('topicHub')
       .child(
@@ -110,7 +122,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings'])
+  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings','snapCard'])
 
   return S.list()
     .title('Content')
