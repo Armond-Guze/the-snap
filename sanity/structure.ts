@@ -6,6 +6,25 @@ export const structure: StructureResolver = (S) => {
   const hiddenDocTypes = new Set(['homepageSettings','siteSettings','adPlacements','standings','gameCenterSettings'])
 
   const customOrdered = [
+    // Fast QA views
+    S.listItem()
+      .title('Headlines – Drafts / Unpublished')
+      .schemaType('headline')
+      .child(
+        S.documentTypeList('headline')
+          .title('Headlines – Drafts / Unpublished')
+          .filter('_type == "headline" && published != true')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Headlines – Missing Cover Image')
+      .schemaType('headline')
+      .child(
+        S.documentTypeList('headline')
+          .title('Headlines – Missing Cover Image')
+          .filter('_type == "headline" && !defined(coverImage)')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
     S.listItem()
       .title('Deep Ball Reports')
       .schemaType('deepBallReport')
@@ -27,11 +46,29 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     S.listItem()
+      .title('Rankings – Drafts')
+      .schemaType('rankings')
+      .child(
+        S.documentTypeList('rankings')
+          .title('Rankings – Drafts')
+          .filter('_type == "rankings" && published != true')
+          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
+      ),
+    S.listItem()
       .title('Fantasy Football')
       .schemaType('fantasyFootball')
       .child(
         S.documentTypeList('fantasyFootball')
           .title('Fantasy Football')
+          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Fantasy – Drafts')
+      .schemaType('fantasyFootball')
+      .child(
+        S.documentTypeList('fantasyFootball')
+          .title('Fantasy – Drafts')
+          .filter('_type == "fantasyFootball" && published != true')
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     S.listItem()
