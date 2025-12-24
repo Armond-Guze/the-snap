@@ -100,6 +100,15 @@ const headlineType = defineType({
       group: 'quick',
     }),
     defineField({
+      name: 'teams',
+      title: 'Teams',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      options: { layout: 'tags' },
+      description: 'Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.',
+      group: 'quick',
+    }),
+    defineField({
       name: "tags",
       title: "Tags",
       type: "array",
