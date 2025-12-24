@@ -46,6 +46,14 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     S.listItem()
+      .title('Play of the Week')
+      .schemaType('playOfWeek')
+      .child(
+        S.documentTypeList('playOfWeek')
+          .title('Play of the Week')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
       .title('Rankings – Drafts')
       .schemaType('rankings')
       .child(
@@ -122,7 +130,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings','snapCard'])
+  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek'])
 
   return S.list()
     .title('Content')

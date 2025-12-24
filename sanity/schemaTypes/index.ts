@@ -22,6 +22,7 @@ import { gameCenterSettings } from './gameCenterSettings'
 import { snapGraphicCard } from './snapGraphicCard'
 import { deepBallReport } from './deepBallReport'
 import { snapCard } from './snapCard'
+import playOfWeek from './playOfWeek'
 
 
 export const schemaTypes = [
@@ -49,4 +50,5 @@ export const schemaTypes = [
   snapGraphicCard,
   deepBallReport,
   snapCard,
+  playOfWeek,
 ]
