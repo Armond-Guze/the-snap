@@ -8,19 +8,25 @@ import SmartSearch from "./SmartSearch";
 import ProfileMenu from "./ProfileMenu";
 import { NAV_ITEMS } from "./navConfig";
 import { CgClose } from 'react-icons/cg';
-import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon } from 'lucide-react';
+import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon, ChevronDown } from 'lucide-react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [teamsOpen, setTeamsOpen] = useState(false);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
+
+  const closeAllMenus = useCallback(() => {
+    setMenuOpen(false);
+    setTeamsOpen(false);
+  }, []);
 
   const handleLinkClick = () => setMenuOpen(false);
 
   // focus management inside panel (basic trap)
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') setMenuOpen(false);
+    if (e.key === 'Escape') closeAllMenus();
     if (e.key === 'Tab' && menuOpen) {
       const panel = document.getElementById('mega-menu-panel');
       if (!panel) return;
@@ -38,26 +44,35 @@ export default function Navbar() {
         last.focus();
       }
     }
-  }, [menuOpen]);
+  }, [menuOpen, closeAllMenus]);
 
-  // Close menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
+        closeAllMenus();
       }
     };
 
-    if (menuOpen) {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeAllMenus();
+    };
+
+    if (menuOpen || teamsOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEsc);
+    }
+
+    if (menuOpen) {
       document.addEventListener('keydown', handleKeyDown);
       setTimeout(() => firstFocusable.current?.focus(), 10);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [menuOpen, handleKeyDown]);
+  }, [menuOpen, teamsOpen, handleKeyDown, closeAllMenus]);
 
   // Body scroll lock when menu is open (prevents underlying page scroll / jump)
   useEffect(() => {
@@ -86,7 +101,7 @@ export default function Navbar() {
 
   // Close menu on route change
   useEffect(() => {
-    setMenuOpen(false);
+    closeAllMenus();
   }, [pathname]);
 
   // Add Home link when not on homepage
@@ -137,7 +152,7 @@ export default function Navbar() {
 
   return (
   <nav ref={navRef} className="bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10">
-    <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 lg:h-20 flex items-center">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 lg:h-24 flex items-center overflow-visible">
       {/* Left: Hamburger */}
   <div className="flex items-center md:hidden">
   <button
@@ -159,13 +174,63 @@ export default function Navbar() {
       </div>
       {/* Center: Logo */}
       <div className="flex-1 flex justify-center md:justify-start">
-        <Link href="/" className="inline-flex items-center group">
-            <Image src="/images/thesnap-logo-transparent.png" alt="The Snap Logo" width={140} height={120} className="h-10 w-auto" />
+        {/* Keep navbar height the same; let the logo render larger (can overflow). */}
+        <Link href="/" className="inline-flex items-center group overflow-visible">
+          <span className="relative block h-[4rem] md:h-[4.5rem] w-[120px] md:w-[140px] -my-2">
+            <Image
+              src="/images/thesnap-logo-new%20copy123.png"
+              alt="The Snap Logo"
+              fill
+              priority
+              sizes="(min-width: 768px) 140px, 120px"
+              className="object-contain"
+            />
+          </span>
         </Link>
       </div>
       {/* Desktop Nav Links */}
   <div className="hidden md:flex items-center gap-6 mx-6">
         {navItems.map(({ label, href, key }) => {
+          if (key === 'schedule') return null;
+
+          if (key === 'standings') {
+            const isTeamsActive = pathname.startsWith('/standings') || pathname.startsWith('/schedule');
+            return (
+              <div key="teams" className="relative">
+                <button
+                  type="button"
+                  onClick={() => setTeamsOpen(o => !o)}
+                  className={`relative text-sm font-semibold tracking-wide transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-white after:transition-all after:duration-300 flex items-center gap-1 cursor-pointer ${isTeamsActive ? 'text-white after:w-full' : 'text-white/60 hover:text-white after:w-0 hover:after:w-full'} focus:outline-none`}
+                >
+                  Teams
+                  <ChevronDown className={`w-4 h-4 transition-transform ${teamsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                </button>
+
+                {teamsOpen && (
+                  <div
+                    id="teams-menu"
+                    className="absolute left-0 top-full mt-3 w-48 rounded-xl border border-white/10 bg-black/95 backdrop-blur-xl shadow-2xl p-1"
+                  >
+                    <Link
+                      href="/standings"
+                      onClick={() => setTeamsOpen(false)}
+                      className={`block rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${pathname.startsWith('/standings') ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                    >
+                      NFL Standings
+                    </Link>
+                    <Link
+                      href="/schedule"
+                      onClick={() => setTeamsOpen(false)}
+                      className={`block rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${pathname.startsWith('/schedule') ? 'bg-white/10 text-white' : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
+                    >
+                      Schedule
+                    </Link>
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           const isActive = pathname === href;
           return (
             <Link
@@ -204,12 +269,21 @@ export default function Navbar() {
         bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_55%)] bg-gradient-to-b from-[#0b0b0b] via-[#050505] to-[#020202] supports-[backdrop-filter]:bg-black/80 backdrop-blur-xl`}
       >
         {/* Fixed Header inside panel keeps close button position & shows logo */}
-        <div className="relative h-16 flex items-center border-b border-white/10 px-4">
+        <div className="relative h-24 flex items-center border-b border-white/10 px-4 overflow-visible">
           <button onClick={()=>setMenuOpen(false)} aria-label="Close menu" className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-white/10 focus:outline-none">
             <CgClose className="w-5 h-5 text-white" />
           </button>
-          <Link href="/" onClick={handleLinkClick} className="mx-auto flex items-center">
-            <Image src="/images/thesnap-logo-transparent.png" alt="The Snap Logo" width={180} height={180} className="h-12 w-auto" />
+          <Link href="/" onClick={handleLinkClick} className="mx-auto flex items-center overflow-visible">
+            <span className="relative block h-[4rem] w-[140px] -my-1">
+              <Image
+                src="/images/thesnap-logo-new%20copy123.png"
+                alt="The Snap Logo"
+                fill
+                priority
+                sizes="140px"
+                className="object-contain"
+              />
+            </span>
           </Link>
           {/* subtle bottom glow line */}
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
