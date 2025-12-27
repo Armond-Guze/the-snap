@@ -14,8 +14,6 @@ export const NAV_ITEMS: NavItem[] = [
   { key: 'standings', label: 'NFL Standings', href: '/standings' },
   { key: 'schedule', label: 'Schedule', href: '/schedule' },
   { key: 'power-rankings', label: 'Power Rankings', href: '/power-rankings' },
-  { key: 'fantasy', label: 'Fantasy', href: '/fantasy' },
-  { key: 'calendar', label: 'Offseason Calendar', href: '/calendar' },
-  { key: 'tankathon', label: 'Tank-a-thon', href: '/tankathon' }
+  { key: 'fantasy', label: 'Fantasy', href: '/fantasy' }
 ];
  
