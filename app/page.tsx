@@ -37,6 +37,9 @@ export const metadata: Metadata = {
   },
 }
 
+// Keep the homepage reasonably fresh during the season; adjust higher in offseason
+export const revalidate = 60;
+
 export default async function Home() {
   const recMap = await fetchFreshRecords(2025);
   const games = await buildHomepageGames(recMap);

@@ -123,19 +123,20 @@ export default function GameSchedule({ games }: GameScheduleProps) {
     };
   }, [featuredGames, checkScrollButtons]);
 
+  // Slightly wider card to accommodate longer team names/records
+  const CARD_WIDTH = 158; // px, aligns with w-[158px] below (tailwind arbitrary width)
+
   const scrollLeft = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 156; // Updated to match new w-36 (144px + spacing)
-      container.scrollBy({ left: -cardWidth * 1.5, behavior: 'smooth' });
+      container.scrollBy({ left: -CARD_WIDTH * 1.5, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     const container = document.getElementById('games-container');
     if (container) {
-      const cardWidth = 156; // Updated to match new w-36 (144px + spacing)
-      container.scrollBy({ left: cardWidth * 1.5, behavior: 'smooth' });
+      container.scrollBy({ left: CARD_WIDTH * 1.5, behavior: 'smooth' });
     }
   };
 
@@ -247,13 +248,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               ref={mobileRef}
               className={`overflow-x-auto scrollbar-hide px-4 ${styles.mobileScrollContainer}`}
             >
-              <div className="flex space-x-2 pb-2">
+              <div className="flex space-x-3 pb-2">
   {featuredGames.map((game) => (
                   <div 
                     key={game._id} 
                     data-game-card="true"
                     data-id={game._id}
-          className={`flex-shrink-0 w-[calc(40vw)] min-w-[140px] max-w-[160px] ${styles.gameCard} ${partialMobileId === game._id ? styles.partialEdge : ''}`}
+          className={`flex-shrink-0 w-[38vw] min-w-[150px] max-w-[180px] ${styles.gameCard} ${partialMobileId === game._id ? styles.partialEdge : ''}`}
                   >
                     {renderGameCard(game)}
                   </div>
@@ -303,13 +304,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
             ref={desktopRef}
             className="overflow-x-auto scrollbar-hide mx-12 lg:mx-16 xl:mx-20 px-2"
           >
-            <div className="flex space-x-2 pb-2">
+            <div className="flex space-x-3 pb-2">
   {featuredGames.map((game) => (
                 <div
                   key={game._id}
                   data-game-card="true"
                   data-id={game._id}
-          className={`flex-shrink-0 w-36 min-w-36 ${partialDesktopId === game._id ? styles.partialEdge : ''}`}
+          className={`flex-shrink-0 w-[158px] min-w-[158px] ${partialDesktopId === game._id ? styles.partialEdge : ''}`}
                 >
                   {renderGameCard(game)}
                 </div>
