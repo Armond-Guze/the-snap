@@ -39,12 +39,13 @@ const nextConfig: NextConfig = {
     // Sanity Studio needs its own CSP so the studio bridge, CDN assets, and API calls are allowed.
     const studioCsp = [
       "default-src 'self';",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://core.sanity-cdn.com https://cdn.sanity.io https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://vercel.live;",
+      // Sanity Studio injects helper iframes/scripts from *.sanity.build and *.sanity.tools (recent searches, live preview bridge, etc.), so we have to allow them explicitly.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://core.sanity-cdn.com https://cdn.sanity.io https://*.sanity.build https://*.sanity.tools https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://vercel.live;",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
       "img-src 'self' data: https://cdn.sanity.io https://img.youtube.com https://i.ytimg.com https://pagead2.googlesyndication.com;",
       "font-src 'self' https://fonts.gstatic.com;",
-      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.google-analytics.com https://*.doubleclick.net https://vercel.live wss://*.sanity.io wss://*.sanity.dev;",
-      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io;",
+      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.google-analytics.com https://*.doubleclick.net https://vercel.live wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools;",
+      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools;",
       "media-src 'self';",
       "object-src 'none';",
       "base-uri 'self';",
