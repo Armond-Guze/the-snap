@@ -22,7 +22,8 @@ html, body {
 .home-gradient {
   background:
     radial-gradient(circle at 25% 10%, rgba(25, 25, 25, 0.45), transparent 42%),
-    radial-gradient(circle at 80% -5%, rgba(12, 32, 70, 0.18), transparent 48%),
+    /* remove blue bias */
+    radial-gradient(circle at 80% -5%, rgba(12, 12, 12, 0.18), transparent 48%),
     linear-gradient(180deg, #010101 0%, #030303 40%, #070707 100%);
   background-attachment: fixed;
 }

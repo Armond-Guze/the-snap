@@ -11,7 +11,11 @@ export default function CookieConsent() {
 
   useEffect(() => {
     try {
-      const stored = typeof window !== 'undefined' ? window.localStorage.getItem('cookie_consent') : null;
+      if (typeof window === 'undefined') return;
+      // Hide banner inside Sanity Studio (/studio/*) since it's only for editors.
+      if (window.location.pathname.startsWith('/studio')) return;
+
+      const stored = window.localStorage.getItem('cookie_consent');
       if (!stored) setVisible(true);
     } catch {/* ignore */}
   }, []);
@@ -30,13 +34,28 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 max-w-xl w-[92%] bg-gray-900/95 border border-gray-700 rounded-xl p-4 backdrop-blur shadow-lg">
-      <p className="text-sm text-gray-200 mb-3">
-        We use cookies to analyze traffic, improve content, and (if enabled) serve ads. By clicking Accept you consent. See our {' '}
-  <a href="/privacy-policy" className="underline hover:text-white">Privacy Policy</a>.
-      </p>
-      <div className="flex justify-end">
-        <button onClick={accept} className="px-4 py-1.5 rounded-md bg-white text-black font-medium hover:bg-gray-200 transition">Accept</button>
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-3xl px-5 py-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[#05060a]/95 via-[#0b1020]/70 to-[#05060a]/95 shadow-2xl backdrop-blur">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1 text-center md:text-left md:items-start">
+          <p className="text-sm font-semibold text-white">Cookies & analytics</p>
+          <p className="text-sm text-gray-200 leading-relaxed">
+            We use cookies for performance, analytics, and optional ads. Continue to accept or see our{' '}
+            <a
+              href="/privacy-policy"
+              className="underline italic font-semibold whitespace-nowrap bg-gradient-to-r from-sky-300 to-cyan-200 bg-clip-text text-transparent hover:from-sky-200 hover:to-cyan-100"
+            >
+              Privacy Policy
+            </a>.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 md:flex-shrink-0 w-full md:w-auto justify-center md:justify-end">
+          <button
+            onClick={accept}
+            className="px-4 py-2 rounded-lg bg-white text-black text-sm font-semibold shadow hover:bg-gray-200 transition cursor-pointer w-full md:w-auto text-center"
+          >
+            Accept
+          </button>
+        </div>
       </div>
     </div>
   );
