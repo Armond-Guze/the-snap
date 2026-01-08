@@ -1,6 +1,13 @@
 // Lightweight schedule utilities (initial scaffold)
 // Designed to be extended later with automatic ingestion.
 
+import { isSportsDataEnabled } from '@/lib/config/sportsdata'
+import {
+  fetchSportsDataCurrentWeek,
+  fetchSportsDataScoresByWeek,
+  SportsDataScore
+} from '@/lib/sportsdata-client'
+
 export interface StaticGame {
   gameId: string; // ESPN event id if known
   week: number;
@@ -25,6 +32,34 @@ export interface EnrichedGame extends StaticGame, LiveGameUpdate {}
 let _staticSchedule: StaticGame[] | null = null;
 const _teamSeasonCache = new Map<string, Promise<EnrichedGame[]>>();
 
+function mapSportsDataStatus(score: SportsDataScore): LiveGameUpdate['status'] {
+  const raw = (score.Status || '').toUpperCase();
+  if (raw.includes('FINAL')) return 'FINAL';
+  if (raw.includes('INPROGRESS') || raw.includes('IN_PROGRESS') || raw.includes('LIVE')) return 'IN_PROGRESS';
+  return 'SCHEDULED';
+}
+
+function mapSportsDataScore(score: SportsDataScore): EnrichedGame {
+  const status = mapSportsDataStatus(score);
+  const date = score.DateTime || score.Date;
+  const dateUTC = date ? new Date(date).toISOString() : new Date().toISOString();
+  return {
+    gameId: String(score.GlobalGameID || score.GameKey || `${score.Season}-${score.Week}-${score.HomeTeam}-${score.AwayTeam}`),
+    week: score.Week,
+    dateUTC,
+    home: score.HomeTeam,
+    away: score.AwayTeam,
+    network: score.Channel,
+    venue: score.StadiumDetails?.Name || undefined,
+    status,
+    quarter: score.Quarter ? `Q${score.Quarter}` : undefined,
+    clock: score.TimeRemaining || undefined,
+    scores: (score.HomeScore != null && score.AwayScore != null)
+      ? { home: Number(score.HomeScore), away: Number(score.AwayScore) }
+      : undefined,
+  };
+}
+
 export async function loadStaticSchedule(): Promise<StaticGame[]> {
   if (_staticSchedule) return _staticSchedule;
   try {
@@ -37,6 +72,18 @@ export async function loadStaticSchedule(): Promise<StaticGame[]> {
     console.error('Failed to load static schedule json', e);
     _staticSchedule = [];
     return _staticSchedule;
+  }
+}
+
+async function loadSportsDataWeek(week: number): Promise<EnrichedGame[] | null> {
+  if (!isSportsDataEnabled()) return null;
+  try {
+    const scores = await fetchSportsDataScoresByWeek(week);
+    if (!scores || scores.length === 0) return null;
+    return scores.map(mapSportsDataScore).sort((a, b) => a.dateUTC.localeCompare(b.dateUTC));
+  } catch (e) {
+    console.warn('SportsData week fetch failed, falling back to static schedule', e);
+    return null;
   }
 }
 
@@ -85,6 +132,11 @@ export async function fetchLiveWeek(week: number, seasonYear = 2025): Promise<Li
 }
 
 export async function getEnrichedWeek(week: number): Promise<EnrichedGame[]> {
+  // Prefer SportsData API when available
+  const sportsDataWeek = await loadSportsDataWeek(week);
+  if (sportsDataWeek && sportsDataWeek.length > 0) return sportsDataWeek;
+
+  // Fallback to static schedule + ESPN live scoreboard overlay
   const [staticSchedule, live] = await Promise.all([
     loadStaticSchedule(),
     fetchLiveWeek(week)
@@ -203,12 +255,23 @@ export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): 
   return 1;
 }
 
-export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
+async function resolveCurrentWeek(): Promise<number> {
+  if (isSportsDataEnabled()) {
+    try {
+      const w = await fetchSportsDataCurrentWeek();
+      if (Number.isFinite(w) && w > 0) return w;
+    } catch (e) {
+      console.warn('SportsData current week lookup failed, falling back to static schedule', e);
+    }
+  }
   const schedule = await loadStaticSchedule();
-  const current = determineCurrentWeek(schedule);
-  const week = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : current;
-  const games = await getEnrichedWeek(week);
-  return { week, games };
+  return determineCurrentWeek(schedule);
+}
+
+export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
+  const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek();
+  const games = await getEnrichedWeek(resolvedWeek);
+  return { week: resolvedWeek, games };
 }
 
 // Return all games (enriched) for a given team across the season

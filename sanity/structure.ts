@@ -3,28 +3,16 @@ import { CogIcon } from '@sanity/icons'
 
 // Custom structure to surface the singleton settings doc & clean grouping
 export const structure: StructureResolver = (S) => {
-  const hiddenDocTypes = new Set(['homepageSettings','siteSettings','adPlacements','standings','gameCenterSettings'])
+  const hiddenDocTypes = new Set([
+    'homepageSettings',
+    'siteSettings',
+    'adPlacements',
+    'standings',
+    'gameCenterSettings',
+    'post', // not used; hide from nav
+  ])
 
   const customOrdered = [
-    // Fast QA views
-    S.listItem()
-      .title('Headlines – Drafts / Unpublished')
-      .schemaType('headline')
-      .child(
-        S.documentTypeList('headline')
-          .title('Headlines – Drafts / Unpublished')
-          .filter('_type == "headline" && published != true')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Headlines – Missing Cover Image')
-      .schemaType('headline')
-      .child(
-        S.documentTypeList('headline')
-          .title('Headlines – Missing Cover Image')
-          .filter('_type == "headline" && !defined(coverImage)')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
     S.listItem()
       .title('Deep Ball Reports')
       .schemaType('deepBallReport')
@@ -54,29 +42,11 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     S.listItem()
-      .title('Rankings – Drafts')
-      .schemaType('rankings')
-      .child(
-        S.documentTypeList('rankings')
-          .title('Rankings – Drafts')
-          .filter('_type == "rankings" && published != true')
-          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
-      ),
-    S.listItem()
       .title('Fantasy Football')
       .schemaType('fantasyFootball')
       .child(
         S.documentTypeList('fantasyFootball')
           .title('Fantasy Football')
-          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Fantasy – Drafts')
-      .schemaType('fantasyFootball')
-      .child(
-        S.documentTypeList('fantasyFootball')
-          .title('Fantasy – Drafts')
-          .filter('_type == "fantasyFootball" && published != true')
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     S.listItem()
@@ -163,14 +133,7 @@ export const structure: StructureResolver = (S) => {
             .schemaType('adPlacements')
             .documentId('adPlacements')
         ),
-      S.listItem()
-        .title('GameCenter Settings')
-        .schemaType('gameCenterSettings')
-        .child(
-          S.documentTypeList('gameCenterSettings')
-            .title('GameCenter Settings')
-            .defaultOrdering([{ field: 'gameId', direction: 'asc' }])
-        ),
+      // Removed GameCenter Settings from nav per request; type remains available if referenced elsewhere
       S.divider(),
       ...customOrdered,
       S.divider(),
