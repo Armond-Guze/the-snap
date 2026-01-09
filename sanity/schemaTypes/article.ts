@@ -7,6 +7,24 @@ export default defineType({
   type: "document",
   fields: [
     defineField({
+      name: "format",
+      title: "Article Format",
+      type: "string",
+      description: "Choose the subtype for this article (e.g., headline vs feature vs ranking).",
+      options: {
+        list: [
+          { title: "Headline", value: "headline" },
+          { title: "Feature", value: "feature" },
+          { title: "Ranking", value: "ranking" },
+          { title: "Other", value: "other" },
+        ],
+        layout: "radio",
+      },
+      validation: (Rule) => Rule.required().error("Pick an article format"),
+      initialValue: "feature",
+      group: "quick",
+    }),
+    defineField({
       name: "title",
       title: "Title",
       type: "string",

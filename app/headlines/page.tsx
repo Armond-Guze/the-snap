@@ -24,13 +24,15 @@ async function fetchHeadlines(params: URLSearchParams): Promise<HeadlineListItem
 
   if (search) {
     return client.fetch(`
-      *[(_type == "headline" || _type == "rankings") && published == true && (
-        title match "*${search}*" ||
-        summary match "*${search}*" ||
-        category->title match "*${search}*" ||
-        author->name match "*${search}*" ||
-        rankingType match "*${search}*"
-      )] | order(_createdAt desc, publishedAt desc) {
+      *[
+        (( _type == "article" && format == "headline" ) || _type == "headline" || _type == "rankings") && published == true && (
+          title match "*${search}*" ||
+          summary match "*${search}*" ||
+          category->title match "*${search}*" ||
+          author->name match "*${search}*" ||
+          rankingType match "*${search}*"
+        )
+      ] | order(_createdAt desc, publishedAt desc) {
         _id,_type,title,homepageTitle,slug,summary,coverImage{asset->{url}},date,publishedAt,rankingType,author->{name},category->{title,slug,color},tags[]->{title}
       }
     `);
@@ -91,7 +93,7 @@ export default async function HeadlinesPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {headlines.slice(0,24).map(h => (
                   <article key={h._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                    <Link href={h._type === 'rankings' ? `/articles/${h.slug.current.trim()}` : `/headlines/${h.slug.current.trim()}`}>
+                    <Link href={h._type === 'rankings' || h._type === 'article' ? `/articles/${h.slug.current.trim()}` : `/headlines/${h.slug.current.trim()}`}>
                       {h.coverImage?.asset?.url && (
                         <div className="aspect-video relative overflow-hidden bg-[#111]">
                           <Image src={h.coverImage.asset.url} alt={h.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />

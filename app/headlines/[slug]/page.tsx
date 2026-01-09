@@ -63,7 +63,9 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
       { slug: trimmedSlug }
     ),
     client.fetch<HeadlineListItem[]>(
-      `*[_type == "headline" && published == true] | order(_createdAt desc)[0...24]{
+      `*[
+        ((_type == "article" && format == "headline") || _type == "headline") && published == true
+      ] | order(_createdAt desc)[0...24]{
         _id,
         _type,
         title,

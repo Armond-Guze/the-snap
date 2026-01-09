@@ -1,7 +1,9 @@
 import { client } from "@/sanity/lib/client";
 // Custom query: fetch published headlines/rankings ordered by publishedAt desc (fallback _createdAt) up to 40 to have buffer
 const moreHeadlinesQuery = `
-  *[(_type == "headline" || _type == "rankings") && published == true]
+  *[
+    ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true
+  ]
     | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...40] {
       _type,
       _id,
@@ -55,7 +57,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
           {moreHeadlines.map((item: HeadlineItem) => {
             const author = item.author?.name;
             const href = item.slug?.current
-              ? item._type === 'rankings'
+              ? (item._type === 'rankings' || item._type === 'article')
                 ? `/articles/${item.slug.current}`
                 : `/headlines/${item.slug.current}`
               : '#';

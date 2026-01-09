@@ -19,6 +19,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/headlines/:slug',
+        destination: '/articles/:slug',
+        permanent: true,
+      },
+      {
+        source: '/headlines/:slug/',
+        destination: '/articles/:slug',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     const baseCsp = [
       "default-src 'self';",

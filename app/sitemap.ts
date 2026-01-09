@@ -13,7 +13,7 @@ const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [headlines, articles, fantasy, categories, staticSchedule] = await Promise.all([
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "headline" && published == true]{ slug, _updatedAt }`),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[((_type == "article" && format == "headline") || _type == "headline") && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "rankings" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "category"]{ slug, _updatedAt }`),

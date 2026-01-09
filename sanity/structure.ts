@@ -9,6 +9,7 @@ export const structure: StructureResolver = (S) => {
     'adPlacements',
     'standings',
     'gameCenterSettings',
+    'headline',
     'rankings',
     'post', // not used; hide from nav
   ])
@@ -71,11 +72,29 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
       ),
     S.listItem()
-      .title('Articles')
+      .title('Articles (All)')
       .schemaType('article')
       .child(
         S.documentTypeList('article')
-          .title('Articles')
+          .title('Articles (All)')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Articles → Headlines')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Headlines')
+          .filter('_type == "article" && format == "headline"')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Articles → Rankings')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Rankings')
+          .filter('_type == "article" && format == "ranking"')
           .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     // Make Power Rankings doc type explicit in the nav (live current list)

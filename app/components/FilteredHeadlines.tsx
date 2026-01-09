@@ -34,7 +34,7 @@ export default function FilteredHeadlines({
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
-    if (item._type === 'rankings') {
+    if (item._type === 'rankings' || item._type === 'article') {
       return `/articles/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
@@ -49,7 +49,8 @@ export default function FilteredHeadlines({
         if (searchQuery) {
           // Search query - fetch data using client.fetch
           data = await client.fetch(`
-            *[(_type == "headline" || _type == "rankings") && published == true && (
+            *[
+              ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true && (
               title match "*${searchQuery}*" ||
               summary match "*${searchQuery}*" ||
               category->title match "*${searchQuery}*" ||

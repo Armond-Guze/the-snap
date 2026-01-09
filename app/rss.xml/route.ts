@@ -17,7 +17,7 @@ interface FeedItem {
 
 export async function GET() {
   // Pull latest 50 published headline documents (and rankings if treated similarly)
-  const items: FeedItem[] = await client.fetch(`*[_type == "headline" && published == true] | order(date desc, _createdAt desc)[0...50]{
+    const items: FeedItem[] = await client.fetch(`*[((_type == "article" && format == "headline") || _type == "headline") && published == true] | order(date desc, _createdAt desc)[0...50]{
     _id,title,homepageTitle,slug,summary,date,_createdAt,_updatedAt,category->{title}
   }`);
 

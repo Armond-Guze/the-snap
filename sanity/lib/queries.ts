@@ -1,6 +1,9 @@
 // Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
 export const headlineQuery = `
-  *[(_type == "headline" || _type in ["article","rankings"]) && published == true]
+  *[
+    ( _type == "article" && format == "headline" && published == true ) ||
+    ( _type == "headline" && published == true )
+  ]
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     _type,
@@ -29,7 +32,10 @@ export const headlineQuery = `
 
 // Detailed headline query for individual articles
 export const headlineDetailQuery = `
-  *[_type == "headline" && slug.current == $slug && published == true][0] {
+  *[
+    (_type == "article" && format == "headline" && slug.current == $slug && published == true) ||
+    (_type == "headline" && slug.current == $slug && published == true)
+  ][0] {
     _id,
     title,
   homepageTitle,
@@ -122,8 +128,10 @@ export const headlineDetailQuery = `
 
 // Query for related articles based on category and tags
 export const relatedHeadlinesQuery = `
-  *[_type == "headline" && published == true && _id != $currentId && 
-    (category._ref == $categoryId || count((tags[]._ref)[@ in $tagIds]) > 0)] 
+  *[
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true && _id != $currentId && 
+    (category._ref == $categoryId || count((tags[]._ref)[@ in $tagIds]) > 0)
+  ] 
   | order(coalesce(publishedAt, _createdAt) desc)[0...6] {
     _id,
     title,
@@ -177,7 +185,7 @@ export const tagsQuery = `
     description,
     trending,
     // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && (_type in ["headline","article","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
+    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
@@ -188,13 +196,15 @@ export const trendingTagsQuery = `
     title,
     slug,
     // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && (_type in ["headline","article","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
+    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
 // Headlines by category - fixed to work without requiring category references
 export const headlinesByCategoryQuery = `
-  *[_type == "headline" && published == true && category->slug.current == $categorySlug] 
+  *[
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true && category->slug.current == $categorySlug
+  ] 
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     title,
@@ -219,7 +229,9 @@ export const headlinesByCategoryQuery = `
 
 // Headlines by tag - fixed to work with string tags
 export const headlinesByTagQuery = `
-  *[_type == "headline" && published == true && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))] 
+  *[
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))
+  ] 
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     title,
