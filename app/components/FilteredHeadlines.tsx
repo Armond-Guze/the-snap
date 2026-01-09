@@ -34,7 +34,8 @@ export default function FilteredHeadlines({
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
-    if (item._type === 'rankings' || item._type === 'article') {
+    const t = (item as { _type?: string })._type;
+    if (t === 'rankings' || t === 'article') {
       return `/articles/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
