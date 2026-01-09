@@ -98,7 +98,7 @@ export const gameCenterSettings = defineType({
           to: [
             { type: 'headline' },
             { type: 'fantasyFootball' },
-            { type: 'rankings' },
+            { type: 'article' },
           ],
           options: { disableNew: true },
         },

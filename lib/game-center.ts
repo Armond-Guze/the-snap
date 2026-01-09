@@ -320,6 +320,8 @@ function buildArticleHref(doc: SanityArticleDoc): string | null {
       return `/headlines/${slug}`;
     case 'fantasyFootball':
       return `/fantasy/${slug}`;
+    case 'article':
+      return `/articles/${slug}`;
     case 'rankings':
       return `/articles/${slug}`;
     default:
@@ -333,6 +335,8 @@ function articleTypeLabel(type: string): string {
       return 'Headline';
     case 'fantasyFootball':
       return 'Fantasy';
+    case 'article':
+      return 'Article';
     case 'rankings':
       return 'Article';
     default:
