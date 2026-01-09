@@ -75,7 +75,7 @@ export const structure: StructureResolver = (S) => {
       .child(
         S.documentTypeList('article')
           .title('Articles')
-          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     // Make Power Rankings doc type explicit in the nav (live current list)
     S.listItem()
