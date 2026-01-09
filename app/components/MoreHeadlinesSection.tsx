@@ -3,6 +3,7 @@ import { client } from "@/sanity/lib/client";
 const moreHeadlinesQuery = `
   *[(_type == "headline" || _type == "rankings") && published == true]
     | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...40] {
+      _type,
       _id,
       title,
       homepageTitle,
@@ -25,6 +26,7 @@ interface MoreHeadlinesSectionProps {
 interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string }; [key: string]: unknown }
 interface HeadlineItem {
   _id: string;
+  _type?: string;
   title: string;
   homepageTitle?: string;
   summary?: string;
@@ -52,10 +54,15 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
         <div className="space-y-4">
           {moreHeadlines.map((item: HeadlineItem) => {
             const author = item.author?.name;
+            const href = item.slug?.current
+              ? item._type === 'rankings'
+                ? `/articles/${item.slug.current}`
+                : `/headlines/${item.slug.current}`
+              : '#';
             return (
               <Link
                 key={item._id}
-                href={item.slug?.current ? `/headlines/${item.slug.current}` : '#'}
+                href={href}
                 className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] hover:bg-[#161616] hover:border-[#262626] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#444]"
               >
                 <div className="relative w-32 sm:w-40 lg:w-44 h-28 sm:h-32 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">

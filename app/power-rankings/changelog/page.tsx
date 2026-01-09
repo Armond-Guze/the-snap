@@ -38,7 +38,7 @@ export default async function PowerRankingsChangeLogPage() {
               <th className="p-2 text-left font-semibold">Team</th>
               {docs.slice().reverse().map((d,i) => (
                 <th key={d._id} className="p-2 font-semibold whitespace-nowrap">
-                  <Link href={`/rankings/${d.slug.current}`} className="hover:underline">Wk {i+1}</Link>
+                  <Link href={`/articles/${d.slug.current}`} className="hover:underline">Wk {i+1}</Link>
                 </th>
               ))}
             </tr>

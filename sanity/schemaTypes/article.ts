@@ -2,7 +2,7 @@ import { defineField, defineType } from "sanity";
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
-  name: "rankings",
+  name: "article",
   title: "Articles",
   type: "document",
   fields: [
@@ -96,7 +96,7 @@ export default defineType({
           options: { disableNew: false },
         },
       ],
-      description: "Associate one or more players mentioned in this feature for richer linking & filtering.",
+      description: "Associate one or more players mentioned in this article for richer linking & filtering.",
       options: { layout: "tags" },
       group: "quick",
     }),

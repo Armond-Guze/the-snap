@@ -1,18 +1,11 @@
-import RankingsGrid from "@/app/components/RankingsGrid";
-import { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'NFL Rankings | The Snap',
-  description: 'Comprehensive NFL rankings covering offense, defense, fantasy football, and more. Expert analysis and data-driven insights.',
-  openGraph: {
-    title: 'NFL Rankings | The Snap',
-    description: 'Comprehensive NFL rankings covering offense, defense, fantasy football, and more.',
-    type: 'website',
-  },
-};
+export const revalidate = 0;
 
-export const revalidate = 60;
-
-export default async function RankingsPage() {
-  return <RankingsGrid showSidebar={true} />;
+export default async function RankingsRedirectPage() {
+  const hdrs = await headers();
+  const current = new URL(hdrs.get('x-url') || 'http://localhost');
+  current.pathname = '/articles';
+  redirect(current.toString());
 }

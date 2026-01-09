@@ -19,7 +19,7 @@ export default function AdminPage() {
           >
             <h2 className="text-2xl font-bold mb-4 group-hover:text-gray-300">Content Management</h2>
             <p className="text-gray-400">
-              Manage headlines, rankings, and other content via Sanity Studio.
+              Manage headlines, articles, and other content via Sanity Studio.
             </p>
           </Link>
         </div>
@@ -34,10 +34,10 @@ export default function AdminPage() {
               View Headlines
             </Link>
             <Link 
-              href="/rankings" 
+              href="/articles" 
               className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition-colors"
             >
-              View Rankings
+              View Articles
             </Link>
             <Link 
               href="/studio" 

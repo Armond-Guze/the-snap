@@ -70,11 +70,11 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
       ),
     S.listItem()
-      .title('Rankings')
-      .schemaType('rankings')
+      .title('Articles')
+      .schemaType('article')
       .child(
-        S.documentTypeList('rankings')
-          .title('Rankings')
+        S.documentTypeList('article')
+          .title('Articles')
           .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     // Make Power Rankings doc type explicit in the nav (live current list)
@@ -100,7 +100,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','rankings','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek'])
+  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','article','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek'])
 
   return S.list()
     .title('Content')

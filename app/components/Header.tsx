@@ -8,7 +8,7 @@
             <a href="/news" className="text-sm px-2 py-1">News</a> {/* Reduced text size */}
         </li>
         <li>
-            <a href="/rankings" className="text-sm px-2 py-1">Rankings</a> {/* Reduced text size */}
+            <a href="/articles" className="text-sm px-2 py-1">Articles</a> {/* Reduced text size */}
         </li>
         {/* ...other links... */}
     </ul>

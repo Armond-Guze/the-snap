@@ -279,7 +279,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                     </span>
                     <div className="flex-1 border-b border-white/5 pb-3">
                       <Link
-                        href={article._type === 'rankings' ? `/rankings/${article.slug.current}` : `/headlines/${article.slug.current}`}
+                        href={article._type === 'rankings' ? `/articles/${article.slug.current}` : `/headlines/${article.slug.current}`}
                         className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
                       >
                         {article.homepageTitle || article.title}

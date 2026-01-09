@@ -105,7 +105,7 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
 export function getContentUrl(content: NormalizedContent): string {
   const slugValue = typeof content.slug === 'string' ? content.slug : content.slug?.current;
   if (content.contentType === 'ranking') {
-    return `/rankings/${slugValue}`;
+    return `/articles/${slugValue}`;
   }
   return `/headlines/${slugValue}`;
 }

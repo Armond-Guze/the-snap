@@ -12,7 +12,7 @@ const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
   : new Date('2025-01-01T00:00:00.000Z')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [headlines, rankings, fantasy, categories, staticSchedule] = await Promise.all([
+  const [headlines, articles, fantasy, categories, staticSchedule] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "headline" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "rankings" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`),
@@ -33,8 +33,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 0.7,
     })),
-    ...rankings.map(r => ({
-      url: `${baseUrl}/rankings/${r.slug?.current}`,
+    ...articles.map(r => ({
+      url: `${baseUrl}/articles/${r.slug?.current}`,
       lastModified: r._updatedAt ? new Date(r._updatedAt) : STATIC_LAST_MOD,
       changeFrequency: 'weekly' as const,
       priority: 0.6,
@@ -92,6 +92,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/articles`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/power-rankings`,

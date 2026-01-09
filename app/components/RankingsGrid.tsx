@@ -54,7 +54,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
     if (item._type === 'rankings') {
-      return `/rankings/${item.slug.current.trim()}`;
+      return `/articles/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
   };
@@ -81,11 +81,11 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
         {/* Section Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-extrabold text-white">
-            NFL Rankings
+            NFL Articles & Analysis
           </h1>
           <div className="w-24 h-1 bg-white mx-auto mt-6 mb-6"></div>
           <p className="text-xl text-gray-300 font-medium">
-            Comprehensive rankings covering all aspects of the NFL
+            Long-form breakdowns, lists, and deep dives across the league
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
             {/* Featured Ranking */}
             {main?.coverImage && main?.slug?.current && (
               <div className="rounded-3xl backdrop-blur-sm overflow-hidden hover:bg-black transition-all duration-300 group mb-12">
-                <Link href={`/rankings/${main.slug.current.trim()}`}>
+                <Link href={`/articles/${main.slug.current.trim()}`}>
                   <div className="relative aspect-video overflow-hidden">
                     <Image
                       src={urlFor(main.coverImage).width(800).url()}
@@ -161,12 +161,12 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
             {/* Other Rankings Grid */}
             {otherRankings.length > 0 && (
               <div>
-                <h3 className="text-2xl font-bold text-white mb-8">More Rankings</h3>
+                <h3 className="text-2xl font-bold text-white mb-8">More Articles</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {otherRankings.map((ranking) => (
                     <Link
                       key={ranking._id}
-                      href={`/rankings/${ranking.slug.current}`}
+                      href={`/articles/${ranking.slug.current}`}
                       className="group block"
                     >
                       <article className="bg-black border border-gray-800 hover:border-gray-600 transition-all duration-300 rounded-lg overflow-hidden h-full">

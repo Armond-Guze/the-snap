@@ -1,6 +1,6 @@
 // Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
 export const headlineQuery = `
-  *[(_type == "headline" || _type == "rankings") && published == true]
+  *[(_type == "headline" || _type in ["article","rankings"]) && published == true]
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     _type,
@@ -176,8 +176,8 @@ export const tagsQuery = `
     slug,
     description,
     trending,
-    // Count both headlines and rankings that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && (_type in ["headline","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
+    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
+    "articleCount": count(*[(published == true) && (_type in ["headline","article","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
@@ -187,8 +187,8 @@ export const trendingTagsQuery = `
     _id,
     title,
     slug,
-    // Count both headlines and rankings that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && (_type in ["headline","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
+    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
+    "articleCount": count(*[(published == true) && (_type in ["headline","article","rankings"]) && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
   }
 `;
 
@@ -371,8 +371,8 @@ export const upcomingGamesQuery = `
   }
 `;
 
-export const rankingsQuery = `
-  *[_type == "rankings" && published == true] | order(publishedAt desc) [0..2] {
+export const articlesQuery = `
+  *[_type in ["article","rankings"] && published == true] | order(publishedAt desc) [0..2] {
     _id,
     title,
     slug,

@@ -4,16 +4,9 @@ import Image from "next/image";
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { sanityFetch } from "@/sanity/lib/fetch";
 import { unifiedContentFields, rankingFields } from "@/sanity/lib/fragments";
-import { normalizeContent, isRankingContent } from "@/lib/content/normalize";
+import { normalizeContent } from "@/lib/content/normalize";
 import type { UnifiedContent, LegacyRanking, NormalizedContent } from "@/types/content";
 import type { Rankings as RankingsType, MovementIndicator, RankingTeam, HeadlineListItem } from "@/types";
-
-// Type guard to detect legacy ranking documents
-function isLegacyRanking(doc: unknown): doc is RankingsType {
-  if (!doc || typeof doc !== 'object') return false;
-  const rec = doc as Record<string, unknown>;
-  return rec._type === 'rankings';
-}
 import { portableTextComponents } from "@/lib/portabletext-components";
 import { urlFor } from "@/sanity/lib/image";
 import { Metadata } from 'next';
@@ -33,6 +26,13 @@ import { gradientClassForTeam } from "@/lib/team-utils";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/formatting";
 import { formatArticleDate } from "@/lib/formatting";
 
+// Type guard to detect legacy article documents (former "rankings" type)
+function isLegacyArticle(doc: unknown): doc is RankingsType {
+  if (!doc || typeof doc !== 'object') return false;
+  const rec = doc as Record<string, unknown>;
+  return rec._type === 'article' || rec._type === 'rankings';
+}
+
 interface RankingsPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -48,7 +48,7 @@ const rankingsDetailQuery = `
 
 // Legacy rankings query for backward compatibility
 const legacyRankingsDetailQuery = `
-  *[_type == "rankings" && slug.current == $slug && published == true][0]{
+  *[_type in ["article","rankings"] && slug.current == $slug && published == true][0]{
     ${rankingFields}
   }
 `;
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
       null
     );
   } catch (err) {
-    console.error('Ranking metadata fetch failed', err);
+    console.error('Article metadata fetch failed', err);
   }
 
   if (!ranking) {
@@ -80,12 +80,12 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
     
     if (!legacyRanking) {
       return {
-        title: 'Rankings Not Found | The Snap',
-        description: 'The requested rankings could not be found.',
+        title: 'Article Not Found | The Snap',
+        description: 'The requested article could not be found.',
       };
     }
     
-    return generateSEOMetadata(legacyRanking, '/rankings');
+    return generateSEOMetadata(legacyRanking, '/articles');
   }
 
   const normalizedRanking = normalizeContent(ranking);
@@ -104,13 +104,13 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
     author: normalizedRanking.author
   };
   
-  return generateSEOMetadata(contentData, '/rankings');
+  return generateSEOMetadata(contentData, '/articles');
 }
 
 export default async function RankingDetailPage({ params }: RankingsPageProps) {
   const { slug } = await params;
   
-  // Fetch ranking content and related content in parallel
+  // Fetch article content and related content in parallel
   const [ranking, legacyRanking, otherContent] = await Promise.all([
     (async () => {
       try {
@@ -132,7 +132,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
       null
     ),
     sanityFetch(
-      `*[(_type in ["unifiedContent", "headline", "powerRanking", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
+      `*[(_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
         _id,
         _type,
         title,
@@ -164,7 +164,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     notFound();
   }
 
-  if (isLegacyRanking(finalRanking)) {
+  if (isLegacyArticle(finalRanking)) {
     return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;
   }
 
@@ -175,28 +175,13 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     console.error('normalizeContent failed for ranking slug', slug, err);
     return (
       <div className="px-4 py-24 text-center text-white">
-        <h1 className="text-2xl font-bold mb-4">Ranking Load Error</h1>
-        <p className="text-white/60 mb-6">We hit an issue rendering this rankings page. It has been logged.</p>
+        <h1 className="text-2xl font-bold mb-4">Article Load Error</h1>
+        <p className="text-white/60 mb-6">We hit an issue rendering this article page. It has been logged.</p>
       </div>
     );
   }
   if (!normalizedRanking) {
     notFound();
-  }
-  
-  if (!isRankingContent(normalizedRanking) || !normalizedRanking.teams?.length) {
-    return (
-      <div className="px-4 py-16 sm:px-6 lg:px-12 bg-black text-white min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">
-            No Rankings Available
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Rankings will be published soon. Check back later!
-          </p>
-        </div>
-      </div>
-    );
   }
 
   return <UnifiedRankingRenderer ranking={normalizedRanking} slug={slug} otherContent={otherContent} />;
@@ -225,24 +210,25 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   const readingTime = calculateReadingTime(textContent);
 
   const breadcrumbItems = [
-    { label: 'Rankings', href: '/rankings' },
+    { label: 'Articles', href: '/articles' },
     { label: ranking.title }
   ];
 
   // Build JSON-LD: NewsArticle + ItemList of teams
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
-  const canonicalUrl = `${baseUrl}/rankings/${slug}`;
+  const canonicalUrl = `${baseUrl}/articles/${slug}`;
   const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.summary || `NFL rankings analysis: ${ranking.title}`,
+    description: ranking.summary || ranking.excerpt || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
     dateModified: ranking.publishedAt || new Date().toISOString(),
     author: { name: ranking.author?.name || 'The Snap' },
-    articleSection: ranking.rankingType,
+    articleSection: ranking.category || 'Articles',
   });
+
   const listLd = Array.isArray(ranking.teams) && ranking.teams.length
     ? {
         '@context': 'https://schema.org',
@@ -302,23 +288,25 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
               </div>
             </div>
           )}
-          <section className="w-full mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">The Rankings</h2>
-            <div className="space-y-4">
-              {ranking.teams.map((team: RankingTeam) => (
-                <RankingTeamCard key={`${team.rank}-${team.teamName}`} team={team} />
-              ))}
-            </div>
-          </section>
+          {Array.isArray(ranking.teams) && ranking.teams.length > 0 && (
+            <section className="w-full mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Key Highlights</h2>
+              <div className="space-y-4">
+                {ranking.teams.map((team: RankingTeam) => (
+                  <RankingTeamCard key={`${team.rank}-${team.teamName}`} team={team} />
+                ))}
+              </div>
+            </section>
+          )}
           {ranking.methodology && (
             <section className="w-full mb-8">
               <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-                <h2 className="text-2xl font-bold text-white mb-4">Methodology</h2>
+                <h2 className="text-2xl font-bold text-white mb-4">Notes</h2>
                 <PortableText value={ranking.methodology} components={portableTextComponents} />
               </div>
             </section>
           )}
-          <SocialShare url={`https://thegamesnap.com/rankings/${slug}`} title={ranking.title} description={ranking.summary || ''} variant="compact" className="mb-8" />
+          <SocialShare url={`${baseUrl}/articles/${slug}`} title={ranking.title} description={ranking.summary || ''} variant="compact" className="mb-8" />
         </article>
         <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
           {ranking.youtubeVideoId && (
@@ -336,7 +324,7 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
           <RelatedArticles currentSlug={slug} articles={otherContent as unknown as HeadlineListItem[]} />
         </aside>
       </div>
-      <ArticleViewTracker slug={slug} headlineId={ranking._id} title={ranking.title} category={ranking.rankingType} author={ranking.author?.name} readingTime={readingTime} className="hidden" />
+      <ArticleViewTracker slug={slug} headlineId={ranking._id} title={ranking.title} category={ranking.category || 'Article'} author={ranking.author?.name} readingTime={readingTime} className="hidden" />
     </main>
   );
 }
@@ -358,23 +346,23 @@ function UnifiedRankingRenderer({
 
   // Build breadcrumb items
   const breadcrumbItems = [
-    { label: 'Rankings', href: '/rankings' },
+    { label: 'Articles', href: '/articles' },
     { label: ranking.title }
   ];
 
-  // Structured data for unified ranking
+  // Structured data for unified article
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
-  const canonicalUrl = `${baseUrl}/rankings/${slug}`;
+  const canonicalUrl = `${baseUrl}/articles/${slug}`;
   const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.excerpt || `NFL rankings analysis: ${ranking.title}`,
+    description: ranking.excerpt || ranking.summary || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
     dateModified: ranking.publishedAt || new Date().toISOString(),
     author: { name: ranking.author?.name || 'The Snap' },
-    articleSection: 'Rankings',
+    articleSection: ranking.category || 'Articles',
     keywords: ranking.teams?.slice(0,5).map(t => t.teamName || '').filter(Boolean),
   });
   const listLd = Array.isArray(ranking.teams) && ranking.teams.length
@@ -469,12 +457,10 @@ function UnifiedRankingRenderer({
             </div>
           )}
 
-          {/* Rankings Display */}
+          {/* Optional highlights */}
           {ranking.teams && ranking.teams.length > 0 && (
             <section className="w-full mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
-                Week {ranking.week} Rankings
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Highlights</h2>
               <div className="space-y-4">
                 {ranking.teams.map((team, index) => (
                   <UnifiedRankingCard key={`${team.rank}-${team.teamName || 'unknown'}-${index}`} teamData={team} />
@@ -485,7 +471,7 @@ function UnifiedRankingRenderer({
 
           {/* Social Share */}
           <SocialShare 
-            url={`https://thegamesnap.com/rankings/${slug}`}
+            url={`${baseUrl}/articles/${slug}`}
             title={ranking.title}
             description={ranking.excerpt || ''}
             variant="compact"
@@ -505,7 +491,7 @@ function UnifiedRankingRenderer({
         slug={slug}
         headlineId={ranking._id}
         title={ranking.title}
-        category={`week-${ranking.week}-rankings`}
+        category={ranking.category || 'Article'}
         author={ranking.author?.name}
         readingTime={readingTime}
         className="hidden"

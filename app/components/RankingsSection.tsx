@@ -12,12 +12,12 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   const mainRanking = rankings[0];
   const sideRankings = rankings.slice(1, 6) || [];
   const topThree = [mainRanking, ...sideRankings.slice(0, 2)].filter(Boolean) as RankingItem[];
-  const getRankingUrl = (item: RankingItem) => `/rankings/${item.slug.current.trim()}`;
+  const getRankingUrl = (item: RankingItem) => `/articles/${item.slug.current.trim()}`;
   return (
     <section className="relative py-10 px-6 lg:px-8 2xl:px-10 3xl:px-12">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[80rem] 3xl:max-w-[88rem] z-10">
-        <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Rankings</h2></div></div>
+        <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Articles</h2></div></div>
         {/* Mobile: stacked cards using fantasy featured style */}
         <div className="lg:hidden space-y-6">
           {topThree.map((item) => (
