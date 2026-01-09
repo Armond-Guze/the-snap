@@ -15,6 +15,43 @@ export const structure: StructureResolver = (S) => {
   ])
 
   const customOrdered = [
+    // Articles first, with filtered views
+    S.listItem()
+      .title('Articles (All)')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Articles (All)')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Articles → Headlines')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Headlines')
+          .filter('_type == "article" && format == "headline"')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Articles → Features')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Features')
+          .filter('_type == "article" && format == "feature"')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    S.listItem()
+      .title('Articles → Rankings')
+      .schemaType('article')
+      .child(
+        S.documentTypeList('article')
+          .title('Rankings')
+          .filter('_type == "article" && format == "ranking"')
+          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+      ),
+    // Existing content groups
     S.listItem()
       .title('Deep Ball Reports')
       .schemaType('deepBallReport')
@@ -26,14 +63,6 @@ export const structure: StructureResolver = (S) => {
             { field: 'week', direction: 'desc' },
             { field: 'publishedAt', direction: 'desc' },
           ])
-      ),
-    S.listItem()
-      .title('Headlines')
-      .schemaType('headline')
-      .child(
-        S.documentTypeList('headline')
-          .title('Headlines')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
       ),
     S.listItem()
       .title('Play of the Week')
@@ -71,33 +100,7 @@ export const structure: StructureResolver = (S) => {
           .title('Topic Hubs')
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
       ),
-    S.listItem()
-      .title('Articles (All)')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Articles (All)')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Articles → Headlines')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Headlines')
-          .filter('_type == "article" && format == "headline"')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Articles → Rankings')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Rankings')
-          .filter('_type == "article" && format == "ranking"')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    // Make Power Rankings doc type explicit in the nav (live current list)
+    // Power rankings
     S.listItem()
       .title('Power Rankings (Live)')
       .schemaType('powerRanking')
@@ -106,7 +109,6 @@ export const structure: StructureResolver = (S) => {
           .title('Power Rankings (Live)')
           .defaultOrdering([{ field: 'rank', direction: 'asc' }])
       ),
-    // Weekly historical snapshots
     S.listItem()
       .title('Power Rankings (Week Snapshots)')
       .schemaType('powerRankingWeek')

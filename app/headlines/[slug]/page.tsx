@@ -117,7 +117,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
 
   // Build breadcrumb items
   const breadcrumbItems = [
-    { label: 'Headlines', href: '/headlines' },
+    { label: 'Articles', href: '/articles' },
     ...(headline.category?.title ? [{ label: headline.category.title, href: `/categories/${headline.category.slug?.current}` }] : []),
     { label: headline.title }
   ];
