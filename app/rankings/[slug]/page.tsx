@@ -220,13 +220,15 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.summary || ranking.title,
+    description: (ranking as { summary?: string; excerpt?: string }).summary || (ranking as { summary?: string; excerpt?: string }).excerpt || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
     dateModified: ranking.publishedAt || new Date().toISOString(),
     author: { name: ranking.author?.name || 'The Snap' },
-    articleSection: ranking.category || 'Articles',
+    articleSection: typeof ranking.category === 'string'
+      ? ranking.category
+      : (ranking as { category?: { title?: string } }).category?.title || 'Articles',
   });
 
   const listLd = Array.isArray(ranking.teams) && ranking.teams.length
@@ -324,7 +326,15 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
           <RelatedArticles currentSlug={slug} articles={otherContent as unknown as HeadlineListItem[]} />
         </aside>
       </div>
-      <ArticleViewTracker slug={slug} headlineId={ranking._id} title={ranking.title} category={ranking.category || 'Article'} author={ranking.author?.name} readingTime={readingTime} className="hidden" />
+      <ArticleViewTracker
+        slug={slug}
+        headlineId={ranking._id}
+        title={ranking.title}
+        category={typeof ranking.category === 'string' ? ranking.category : (ranking as { category?: { title?: string } }).category?.title || 'Article'}
+        author={ranking.author?.name}
+        readingTime={readingTime}
+        className="hidden"
+      />
     </main>
   );
 }
@@ -356,13 +366,17 @@ function UnifiedRankingRenderer({
   const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.summary || ranking.title,
+    description: (ranking as { summary?: string; excerpt?: string }).summary
+      || (ranking as { summary?: string; excerpt?: string }).excerpt
+      || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
     dateModified: ranking.publishedAt || new Date().toISOString(),
     author: { name: ranking.author?.name || 'The Snap' },
-    articleSection: ranking.category || 'Articles',
+    articleSection: typeof ranking.category === 'string'
+      ? ranking.category
+      : (ranking as { category?: { title?: string } }).category?.title || 'Articles',
     keywords: ranking.teams?.slice(0,5).map(t => t.teamName || '').filter(Boolean),
   });
   const listLd = Array.isArray(ranking.teams) && ranking.teams.length
@@ -491,7 +505,7 @@ function UnifiedRankingRenderer({
         slug={slug}
         headlineId={ranking._id}
         title={ranking.title}
-        category={ranking.category || 'Article'}
+        category={typeof ranking.category === 'string' ? ranking.category : (ranking as { category?: { title?: string } }).category?.title || 'Article'}
         author={ranking.author?.name}
         readingTime={readingTime}
         className="hidden"
