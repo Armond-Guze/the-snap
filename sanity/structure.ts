@@ -9,6 +9,7 @@ export const structure: StructureResolver = (S) => {
     'adPlacements',
     'standings',
     'gameCenterSettings',
+    'rankings',
     'post', // not used; hide from nav
   ])
 
@@ -100,7 +101,7 @@ export const structure: StructureResolver = (S) => {
       ),
   ]
 
-  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','article','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek'])
+  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','article','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek','rankings'])
 
   return S.list()
     .title('Content')
