@@ -33,7 +33,11 @@ async function fetchHeadlines(params: URLSearchParams): Promise<HeadlineListItem
           rankingType match "*${search}*"
         )
       ] | order(_createdAt desc, publishedAt desc) {
-        _id,_type,title,homepageTitle,slug,summary,coverImage{asset->{url}},date,publishedAt,rankingType,author->{name},category->{title,slug,color},tags[]->{title}
+        _id,_type,title,homepageTitle,slug,summary,
+        coverImage{asset->{url}},
+        featuredImage{asset->{url}},
+        image{asset->{url}},
+        date,publishedAt,rankingType,author->{name},category->{title,slug,color},tags[]->{title}
       }
     `);
   }
@@ -91,12 +95,17 @@ export default async function HeadlinesPage() {
               <p className="text-gray-400">No articles found.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {headlines.slice(0,24).map(h => (
+                    {headlines.slice(0,24).map(h => {
+                      const img = h.coverImage?.asset?.url || (h as any).featuredImage?.asset?.url || (h as any).image?.asset?.url;
+                      const href = (h as { _type?: string })._type === 'rankings' || (h as { _type?: string })._type === 'article'
+                        ? `/articles/${h.slug.current.trim()}`
+                        : `/headlines/${h.slug.current.trim()}`;
+                      return (
                   <article key={h._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                    <Link href={(h as { _type?: string })._type === 'rankings' || (h as { _type?: string })._type === 'article' ? `/articles/${h.slug.current.trim()}` : `/headlines/${h.slug.current.trim()}`}>
-                      {h.coverImage?.asset?.url && (
+                        <Link href={href}>
+                          {img && (
                         <div className="aspect-video relative overflow-hidden bg-[#111]">
-                          <Image src={h.coverImage.asset.url} alt={h.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
+                              <Image src={img} alt={h.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                         </div>
                       )}
                       <div className="p-4">

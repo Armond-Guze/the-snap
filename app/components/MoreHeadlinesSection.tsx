@@ -12,11 +12,12 @@ const moreHeadlinesQuery = `
       summary,
       slug,
       coverImage { asset->{ url } },
+      featuredImage { asset->{ url } },
+      image { asset->{ url } },
       author->{ name },
       publishedAt
     }
 `;
-import { urlFor } from "@/sanity/lib/image";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -56,6 +57,11 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
         <div className="space-y-4">
           {moreHeadlines.map((item: HeadlineItem) => {
             const author = item.author?.name;
+            const imgUrl =
+              item.coverImage?.asset?.url ||
+              (item as any).featuredImage?.asset?.url ||
+              (item as any).image?.asset?.url ||
+              null;
             const href = item.slug?.current
               ? (item._type === 'rankings' || item._type === 'article')
                 ? `/articles/${item.slug.current}`
@@ -68,9 +74,9 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
                 className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] hover:bg-[#161616] hover:border-[#262626] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#444]"
               >
                 <div className="relative w-32 sm:w-40 lg:w-44 h-28 sm:h-32 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
-                  {item.coverImage?.asset ? (
+                  {imgUrl ? (
                     <Image
-                      src={urlFor(item.coverImage).width(400).height(300).fit('crop').url()}
+                      src={imgUrl}
                       alt={item.title}
                       fill
                       className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.06]"

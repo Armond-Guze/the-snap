@@ -65,8 +65,9 @@ export default function FilteredHeadlines({
               slug,
               summary,
               coverImage {
-                asset->{ url }
-              },
+                coverImage { asset->{ url } },
+                featuredImage { asset->{ url } },
+                image { asset->{ url } },
               date,
               publishedAt,
               rankingType,

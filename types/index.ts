@@ -103,7 +103,7 @@ export interface Headline {
 
 export interface HeadlineListItem {
   _id: string;
-  _type: 'headline' | 'rankings';
+  _type: 'headline' | 'rankings' | 'article';
   title: string;
   homepageTitle?: string;
   slug: SanitySlug;

@@ -16,6 +16,12 @@ export const headlineQuery = `
         url
       }
     },
+    featuredImage {
+      asset->{ url }
+    },
+    image {
+      asset->{ url }
+    },
     priority,
     date,
     publishedAt,
@@ -47,6 +53,8 @@ export const headlineDetailQuery = `
       },
       alt
     },
+    featuredImage { asset->{ url }, alt },
+    image { asset->{ url }, alt },
     author->{
       name,
       image {
@@ -143,6 +151,8 @@ export const relatedHeadlinesQuery = `
         url
       }
     },
+    featuredImage { asset->{ url } },
+    image { asset->{ url } },
     category->{
       title,
       color
@@ -215,6 +225,8 @@ export const headlinesByCategoryQuery = `
         url
       }
     },
+    featuredImage { asset->{ url } },
+    image { asset->{ url } },
     author->{
       name
     },
@@ -242,6 +254,8 @@ export const headlinesByTagQuery = `
         url
       }
     },
+    featuredImage { asset->{ url } },
+    image { asset->{ url } },
     author->{
       name
     },
