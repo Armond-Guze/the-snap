@@ -15,6 +15,7 @@ export default defineType({
         list: [
           { title: "Headline", value: "headline" },
           { title: "Feature", value: "feature" },
+          { title: "Fantasy", value: "fantasy" },
           { title: "Ranking", value: "ranking" },
           { title: "Other", value: "other" },
         ],

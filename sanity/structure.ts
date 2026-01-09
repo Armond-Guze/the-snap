@@ -17,39 +17,60 @@ export const structure: StructureResolver = (S) => {
   const customOrdered = [
     // Articles first, with filtered views
     S.listItem()
-      .title('Articles (All)')
+      .title('Articles')
       .schemaType('article')
       .child(
-        S.documentTypeList('article')
-          .title('Articles (All)')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Articles → Headlines')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Headlines')
-          .filter('_type == "article" && format == "headline"')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Articles → Features')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Features')
-          .filter('_type == "article" && format == "feature"')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Articles → Rankings')
-      .schemaType('article')
-      .child(
-        S.documentTypeList('article')
-          .title('Rankings')
-          .filter('_type == "article" && format == "ranking"')
-          .defaultOrdering([{ field: 'date', direction: 'desc' }])
+        S.list()
+          .title('Articles')
+          .items([
+            S.listItem()
+              .title('All')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Articles (All)')
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
+              .title('Headlines')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Headlines')
+                  .filter('_type == "article" && format == "headline"')
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
+              .title('Features')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Features')
+                  .filter('_type == "article" && format == "feature"')
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
+              .title('Fantasy')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Fantasy')
+                  .filter('_type == "article" && format == "fantasy"')
+                  .initialValueTemplates([
+                    S.initialValueTemplateItem('article', { format: 'fantasy' })
+                  ])
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
+              .title('Rankings')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Rankings')
+                  .filter('_type == "article" && format == "ranking"')
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+          ])
       ),
     // Existing content groups
     S.listItem()
@@ -91,14 +112,6 @@ export const structure: StructureResolver = (S) => {
             { field: 'week', direction: 'desc' },
             { field: 'publishedAt', direction: 'desc' },
           ])
-      ),
-    S.listItem()
-      .title('Topic Hubs')
-      .schemaType('topicHub')
-      .child(
-        S.documentTypeList('topicHub')
-          .title('Topic Hubs')
-          .defaultOrdering([{ field: 'title', direction: 'asc' }])
       ),
     // Power rankings
     S.listItem()
