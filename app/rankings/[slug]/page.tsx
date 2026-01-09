@@ -220,7 +220,7 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.summary || ranking.excerpt || ranking.title,
+    description: ranking.summary || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
@@ -356,7 +356,7 @@ function UnifiedRankingRenderer({
   const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
-    description: ranking.excerpt || ranking.summary || ranking.title,
+    description: ranking.summary || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
     datePublished: ranking.publishedAt || new Date().toISOString(),
