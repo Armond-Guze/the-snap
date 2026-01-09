@@ -9,6 +9,7 @@ export const structure: StructureResolver = (S) => {
     'adPlacements',
     'standings',
     'gameCenterSettings',
+    'fantasyFootball',
     'headline',
     'rankings',
     'post', // not used; hide from nav
@@ -92,14 +93,6 @@ export const structure: StructureResolver = (S) => {
         S.documentTypeList('playOfWeek')
           .title('Play of the Week')
           .defaultOrdering([{ field: 'date', direction: 'desc' }])
-      ),
-    S.listItem()
-      .title('Fantasy Football')
-      .schemaType('fantasyFootball')
-      .child(
-        S.documentTypeList('fantasyFootball')
-          .title('Fantasy Football')
-          .defaultOrdering([{ field: 'publishedAt', direction: 'desc' }])
       ),
     S.listItem()
       .title('Snap Cards')
