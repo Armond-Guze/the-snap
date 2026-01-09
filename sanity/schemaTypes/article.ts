@@ -17,6 +17,7 @@ export default defineType({
           { title: "Feature", value: "feature" },
           { title: "Fantasy", value: "fantasy" },
           { title: "Ranking", value: "ranking" },
+          { title: "Analysis", value: "analysis" },
           { title: "Other", value: "other" },
         ],
         layout: "radio",

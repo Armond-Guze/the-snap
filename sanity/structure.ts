@@ -68,7 +68,16 @@ export const structure: StructureResolver = (S) => {
               .child(
                 S.documentTypeList('article')
                   .title('Rankings')
-                  .filter('_type == "article" && format == "ranking"')
+                  .filter('(_type == "article" && format == "ranking") || _type == "rankings"')
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
+              .title('Analysis')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Analysis')
+                  .filter('_type == "article" && format == "analysis"')
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
               ),
           ])
