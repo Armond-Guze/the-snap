@@ -130,8 +130,12 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 			images: [
 				...(article.coverImage?.asset?.url ? [{ url: article.coverImage.asset.url }] : []),
 			],
-			datePublished: article.date || article.publishedAt,
-			dateModified: (article as unknown as { _updatedAt?: string })._updatedAt || article.date || article.publishedAt,
+			datePublished: article.date || article.publishedAt || '',
+			dateModified:
+				(article as unknown as { _updatedAt?: string })._updatedAt ||
+				article.date ||
+				article.publishedAt ||
+				'',
 			author: { name: article.author?.name || 'Staff Writer' },
 			articleSection: article.category?.title,
 			keywords: keywordList && keywordList.length ? keywordList : undefined,

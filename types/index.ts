@@ -80,6 +80,7 @@ export interface Headline {
   slug: SanitySlug;
   summary?: string;
   date: string;
+  publishedAt?: string;
   body?: PortableTextContent;
   author?: Author;
   coverImage?: SanityImageWithUrl;
