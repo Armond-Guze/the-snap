@@ -26,7 +26,7 @@ interface MoreHeadlinesSectionProps {
   hideSummaries?: boolean;
 }
 
-interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string }; [key: string]: unknown }
+interface HeadlineImageAssetRef { asset?: { _ref?: string; _id?: string; url?: string }; [key: string]: unknown }
 interface HeadlineItem {
   _id: string;
   _type?: string;
