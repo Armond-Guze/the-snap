@@ -144,7 +144,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	const publishedDate = article.date || article.publishedAt;
 
 	return (
-		<main className="bg-black text-white min-h-screen">
+		<>
+			<main className="bg-black text-white min-h-screen">
 			{articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
 			<div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
 				<article className="lg:col-span-2 flex flex-col">
@@ -255,8 +256,40 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</div>
 						</section>
 					)}
+					{trendingArticles.length > 0 && (
+						<section className="mt-12">
+							<div className="flex items-center gap-3 mb-4">
+								<div className="h-10 w-10 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
+									🔥
+								</div>
+								<div>
+									<p className="text-xs uppercase tracking-[0.3em] text-white/40">Trending now</p>
+									<h2 className="text-2xl font-semibold text-white">What readers are clicking</h2>
+								</div>
+							</div>
+							<ol className="space-y-3">
+								{trendingArticles.map((item, index) => (
+									<li key={item._id} className="flex items-start gap-4">
+										<span className="text-3xl font-black text-white/10 leading-none">
+											{(index + 1).toString().padStart(2, '0')}
+										</span>
+										<div className="flex-1 border-b border-white/5 pb-3">
+											<Link
+												href={item._type === 'article' || item._type === 'rankings' ? `/articles/${item.slug.current}` : `/headlines/${item.slug.current}`}
+												className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
+											>
+												{item.homepageTitle || item.title}
+											</Link>
+											<div className="mt-1 text-xs uppercase tracking-wide text-white/40">
+												{item.category?.title || (item._type === 'rankings' ? `${item.rankingType?.replace('-', ' ')} rankings` : 'Article')}
+											</div>
+										</div>
+									</li>
+								))}
+							</ol>
+						</section>
+					)}
 					<div className="mt-10 flex flex-col gap-4">
-						<SocialShare url={shareUrl} title={article.title} />
 						<ArticleViewTracker slug={trimmedSlug} />
 					</div>
 				</article>
@@ -267,5 +300,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				</aside>
 			</div>
 		</main>
+		<div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
+			<SocialShare url={shareUrl} title={article.title} description={article.summary || ''} variant="compact" />
+		</div>
+		<ArticleViewTracker slug={trimmedSlug} headlineId={article._id} title={article.title} category={article.category?.title} author={article.author?.name} readingTime={readingTime} className="hidden" />
+		</>
 	);
 }

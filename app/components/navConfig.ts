@@ -10,7 +10,6 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { key: 'headlines', label: 'Headlines', href: '/headlines' },
-  { key: 'play-of-the-week', label: 'Play of the Week', href: '/play-of-the-week' },
   { key: 'standings', label: 'NFL Standings', href: '/standings' },
   { key: 'schedule', label: 'Schedule', href: '/schedule' },
   { key: 'power-rankings', label: 'Power Rankings', href: '/power-rankings' },
