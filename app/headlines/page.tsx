@@ -95,49 +95,60 @@ export default async function HeadlinesPage() {
               <p className="text-gray-400">No articles found.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {headlines.slice(0,24).map(h => {
-                      const img = h.coverImage?.asset?.url || (h as any).featuredImage?.asset?.url || (h as any).image?.asset?.url;
-                      const href = (h as { _type?: string })._type === 'rankings' || (h as { _type?: string })._type === 'article'
-                        ? `/articles/${h.slug.current.trim()}`
-                        : `/headlines/${h.slug.current.trim()}`;
-                      return (
-                  <article key={h._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                        <Link href={href}>
-                          {img && (
-                        <div className="aspect-video relative overflow-hidden bg-[#111]">
-                              <Image src={img} alt={h.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {h.category?.title && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{h.category.title}</span>
-                          )}
-                          {h._type === 'rankings' && h.rankingType && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{h.rankingType.replace('-', ' ').toUpperCase()} RANKINGS</span>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{h.homepageTitle || h.title}</h3>
-                        {h.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{h.summary}</p>}
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          {h.author?.name && <span>By {h.author.name}</span>}
-                          {h.date && <span>{formatDate(h.date)}</span>}
-                        </div>
-                        {Array.isArray(h.tags) && h.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-3">
-                            {h.tags
-                              // narrow structural type inline
-                              .filter((t: { title?: string } | null): t is { title: string } => !!t && typeof t.title === 'string')
-                              .slice(0,3)
-                              .map((t, i) => (
-                                <Link key={i} href={`/headlines?tag=${encodeURIComponent(t.title)}`} className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors">#{t.title}</Link>
-                              ))}
+                {headlines.slice(0, 24).map(h => {
+                  const img = h.coverImage?.asset?.url || (h as any).featuredImage?.asset?.url || (h as any).image?.asset?.url;
+                  const href = (h as { _type?: string })._type === 'rankings' || (h as { _type?: string })._type === 'article'
+                    ? `/articles/${h.slug.current.trim()}`
+                    : `/headlines/${h.slug.current.trim()}`;
+
+                  return (
+                    <article
+                      key={h._id}
+                      className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors"
+                    >
+                      <Link href={href}>
+                        {img && (
+                          <div className="aspect-video relative overflow-hidden bg-[#111]">
+                            <Image src={img} alt={h.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                           </div>
                         )}
-                      </div>
-                    </Link>
-                  </article>
-                ))}
+                        <div className="p-4">
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {h.category?.title && (
+                              <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{h.category.title}</span>
+                            )}
+                            {h._type === 'rankings' && h.rankingType && (
+                              <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{h.rankingType.replace('-', ' ').toUpperCase()} RANKINGS</span>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{h.homepageTitle || h.title}</h3>
+                          {h.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{h.summary}</p>}
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            {h.author?.name && <span>By {h.author.name}</span>}
+                            {h.date && <span>{formatDate(h.date)}</span>}
+                          </div>
+                          {Array.isArray(h.tags) && h.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-3">
+                              {h.tags
+                                // narrow structural type inline
+                                .filter((t: { title?: string } | null): t is { title: string } => !!t && typeof t.title === 'string')
+                                .slice(0, 3)
+                                .map((t, i) => (
+                                  <Link
+                                    key={i}
+                                    href={`/headlines?tag=${encodeURIComponent(t.title)}`}
+                                    className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors"
+                                  >
+                                    #{t.title}
+                                  </Link>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>
