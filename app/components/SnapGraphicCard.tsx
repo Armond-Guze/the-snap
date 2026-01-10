@@ -119,17 +119,13 @@ export default function SnapGraphicCard({ value }: { value: SnapGraphicCardValue
   const imageAlt = value.media?.image?.alt || value.title || 'Graphic'
 
   const needleTop = 100 - auraValue
+  const auraFillPercent = Number.isFinite(auraValue) ? auraValue : 0
+  const needlePercent = Number.isFinite(needleTop) ? needleTop : 0
 
   return (
     <div className="my-8">
       <div
-        className={
-          `relative overflow-hidden border border-white/10 ${auraBackgroundClass(auraTier)} backdrop-blur-sm ` +
-          'p-5 sm:p-6'
-        }
-        style={{
-          clipPath: 'polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%)',
-        }}
+        className={`relative overflow-hidden border border-white/10 ${auraBackgroundClass(auraTier)} backdrop-blur-sm p-5 sm:p-6 [clip-path:polygon(0_0,calc(100%_-_18px)_0,100%_18px,100%_100%,0_100%)]`}
       >
         {/* Broadcast texture overlays (no new colors: just opacity + white) */}
         <div className="pointer-events-none absolute inset-0 opacity-25">
@@ -227,21 +223,15 @@ export default function SnapGraphicCard({ value }: { value: SnapGraphicCardValue
               <div className="relative h-16 sm:h-44 w-full sm:w-12 rounded-md border border-white/15 bg-black/35 overflow-hidden">
                 {/* Fill */}
                 <div
-                  className="absolute left-0 right-0 bottom-0 bg-white/20"
-                  style={{ height: `${auraValue}%` }}
+                  className={`absolute left-0 right-0 bottom-0 bg-white/20 h-[${auraFillPercent}%]`}
                 />
                 {/* Scanline texture */}
                 <div
-                  className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage:
-                      'repeating-linear-gradient(180deg, rgba(255,255,255,0.22) 0px, rgba(255,255,255,0.22) 1px, transparent 1px, transparent 6px)',
-                  }}
+                  className="absolute inset-0 opacity-20 [background-image:repeating-linear-gradient(180deg,_rgba(255,255,255,0.22)_0px,_rgba(255,255,255,0.22)_1px,_transparent_1px,_transparent_6px)]"
                 />
                 {/* Needle */}
                 <div
-                  className="absolute left-0 right-0 h-[2px] bg-white"
-                  style={{ top: `${needleTop}%` }}
+                  className={`absolute left-0 right-0 h-[2px] bg-white top-[${needlePercent}%]`}
                 />
                 {/* Ticks */}
                 <div className="absolute inset-0 flex flex-col justify-between py-1">
