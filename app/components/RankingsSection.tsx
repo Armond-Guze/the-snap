@@ -2,7 +2,7 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
 
-interface FeatureItem {
+interface ArticleItem {
   _id: string;
   _type: string;
   title: string;
@@ -21,30 +21,30 @@ interface FeatureItem {
 interface RankingsSectionProps { textureSrc?: string; hideSummaries?: boolean; }
 
 export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
-  const featuresQuery = `*[_type == "article" && format == "feature" && published == true]
+  const articlesQuery = `*[_type == "article" && format in ["feature","ranking","analysis"] && published == true]
     | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
       _id,_type,title,homepageTitle,slug,summary,excerpt,
       coverImage{asset->{url}}, featuredImage{asset->{url}}, image{asset->{url}},
       author->{name}, date, publishedAt
     }`;
-  const features: FeatureItem[] = await sanityFetch(featuresQuery, {}, { next: { revalidate: 300 } }, []);
-  if (!features?.length) return null;
-  const mainFeature = features[0];
-  const sideFeatures = features.slice(1, 6) || [];
-  const topThree = [mainFeature, ...sideFeatures.slice(0, 2)].filter(Boolean) as FeatureItem[];
-  const getFeatureUrl = (item: FeatureItem) => `/articles/${item.slug.current.trim()}`;
+  const articles: ArticleItem[] = await sanityFetch(articlesQuery, {}, { next: { revalidate: 300 } }, []);
+  if (!articles?.length) return null;
+  const mainArticle = articles[0];
+  const sideArticles = articles.slice(1, 6) || [];
+  const topThree = [mainArticle, ...sideArticles.slice(0, 2)].filter(Boolean) as ArticleItem[];
+  const getArticleUrl = (item: ArticleItem) => `/articles/${item.slug.current.trim()}`;
   return (
     <section className="relative py-10 px-6 lg:px-8 2xl:px-10 3xl:px-12">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[80rem] 3xl:max-w-[88rem] z-10">
-        <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Features</h2></div></div>
+        <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Articles</h2></div></div>
         {/* Mobile: stacked cards using fantasy featured style */}
         <div className="lg:hidden space-y-6">
           {topThree.map((item) => {
             const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
             const displayTitle = item.homepageTitle || item.title;
             return (
-            <Link key={item._id} href={getFeatureUrl(item)} className="group relative block rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
+            <Link key={item._id} href={getArticleUrl(item)} className="group relative block rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
               <div className="absolute inset-0">
                 {img ? (
                   <Image src={img} alt={displayTitle} fill sizes="(max-width:640px) 100vw" className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500" />
@@ -73,7 +73,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
             const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
             const displayTitle = item.homepageTitle || item.title;
             return (
-            <Link key={item._id} href={getFeatureUrl(item)} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
+            <Link key={item._id} href={getArticleUrl(item)} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
               <div className="absolute inset-0">
                 {img && (
                   <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500" />
