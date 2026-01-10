@@ -47,6 +47,7 @@ export const headlineDetailQuery = `
   homepageTitle,
     slug,
     summary,
+    format,
     coverImage {
       asset->{
         url
@@ -102,6 +103,7 @@ export const headlineDetailQuery = `
       canonicalUrl
     },
     date,
+    publishedAt,
     body[]{
       ...,
       _type == 'playerHeading' => {
@@ -182,6 +184,97 @@ export const categoriesQuery = `
         }
       },
       noIndex
+    }
+  }
+`;
+
+// Detailed article query for all article formats (feature, ranking, analysis, fantasy, headline)
+export const articleDetailQuery = `
+  *[
+    (_type == "article" && slug.current == $slug && published == true) ||
+    (_type == "headline" && slug.current == $slug && published == true)
+  ][0] {
+    _id,
+    _type,
+    format,
+    title,
+    homepageTitle,
+    slug,
+    summary,
+    coverImage {
+      asset->{
+        url
+      },
+      alt
+    },
+    featuredImage { asset->{ url }, alt },
+    image { asset->{ url }, alt },
+    author->{
+      name,
+      image {
+        asset->{
+          url
+        }
+      },
+      bio
+    },
+    category->{
+      title,
+      slug,
+      color,
+      description,
+      seo {
+        metaTitle,
+        metaDescription,
+        focusKeyword,
+        additionalKeywords,
+        ogImage {
+          asset->{
+            url
+          }
+        },
+        noIndex
+      }
+    },
+    tags[]->{
+      title,
+      slug
+    },
+    seo {
+      metaTitle,
+      metaDescription,
+      focusKeyword,
+      additionalKeywords,
+      ogTitle,
+      ogDescription,
+      ogImage {
+        asset->{
+          url
+        }
+      },
+      noIndex,
+      canonicalUrl
+    },
+    date,
+    publishedAt,
+    body[]{
+      ...,
+      _type == 'playerHeading' => {
+        ...,
+        headshot{asset->{url}, alt},
+        player->{name, team, position, headshot{asset->{url}, alt}}
+      },
+      _type == 'snapGraphicCard' => {
+        ...,
+        subject{
+          ...,
+          primaryPlayer->{name, team, position, headshot{asset->{url}, alt}}
+        },
+        media{
+          ...,
+          image{alt, asset->{url}}
+        }
+      }
     }
   }
 `;
