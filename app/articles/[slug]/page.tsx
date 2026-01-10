@@ -293,9 +293,6 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</ol>
 						</section>
 					)}
-					<div className="mt-10 flex flex-col gap-4">
-						<ArticleViewTracker slug={trimmedSlug} />
-					</div>
 				</article>
 
 				<aside className="space-y-8">
