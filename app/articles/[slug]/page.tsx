@@ -69,6 +69,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				featuredImage { asset->{ url } },
 				image { asset->{ url } },
 				category->{ title, slug, color },
+				format,
 				tags[]->{ title }
 			}`
 		),
@@ -262,7 +263,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 				<aside className="space-y-8">
 					<MostRead />
-					<RelatedArticles currentSlug={trimmedSlug} tags={tagList} />
+					<RelatedArticles currentSlug={trimmedSlug} articles={otherArticles as unknown as HeadlineListItem[]} />
 				</aside>
 			</div>
 		</main>

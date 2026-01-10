@@ -7,12 +7,12 @@ import { formatCompactDate } from "@/lib/date-utils";
 
 interface RelatedArticlesProps {
   currentSlug: string;
-  articles: HeadlineListItem[];
+  articles?: HeadlineListItem[];
 }
 
 export default function RelatedArticles({ 
   currentSlug, 
-  articles
+  articles = []
 }: RelatedArticlesProps) {
   // Filter out current article and get smart recommendations
   // Unified list: filter out current article, cap to 24 for sidebar performance
@@ -22,9 +22,8 @@ export default function RelatedArticles({
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
-    if (item._type === 'rankings') {
-      return `/articles/${item.slug.current}`;
-    }
+    if (item._type === 'rankings') return `/articles/${item.slug.current}`;
+    if (item._type === 'article') return `/articles/${item.slug.current}`;
     return `/headlines/${item.slug.current}`;
   };
 
