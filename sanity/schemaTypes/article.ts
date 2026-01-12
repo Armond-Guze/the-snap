@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import TeamTagsInput from "../plugins/teamTagsInput";
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -126,6 +127,7 @@ export default defineType({
       type: "array",
       of: [{ type: "reference", to: [{ type: "tag" }] }],
       options: { layout: "tags" },
+      components: { input: TeamTagsInput },
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",
       group: "quick",
     }),
