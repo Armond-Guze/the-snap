@@ -44,7 +44,9 @@ type TeamTagDoc = {
   title: string
 }
 
-export function TeamTagsInput(props: ArrayOfObjectsInputProps<ReferenceValue>) {
+type TeamReference = ReferenceValue & {_key: string}
+
+export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
   const client = useClient({apiVersion})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +56,7 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<ReferenceValue>) {
       '*[_type == "tag" && title in $teamTitles]{_id, title} | order(title asc)',
       {teamTitles: TEAM_TITLES},
     )
-    const refs = docs.map((doc) => ({_type: 'reference', _ref: doc._id}))
+    const refs: TeamReference[] = docs.map((doc) => ({_type: 'reference', _ref: doc._id, _key: `team-${doc._id}`}))
     const missing = TEAM_TITLES.filter((name) => !docs.some((doc) => doc.title === name))
     return {refs, missing}
   }, [client])
@@ -92,7 +94,7 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<ReferenceValue>) {
           />
           <Button text="Clear teams" tone="caution" onClick={handleClear} disabled={loading} />
           {error ? (
-            <Text size={1} tone="critical" style={{whiteSpace: 'pre-wrap'}}>
+            <Text size={1} style={{whiteSpace: 'pre-wrap'}} className="text-red-400">
               {error}
             </Text>
           ) : null}
