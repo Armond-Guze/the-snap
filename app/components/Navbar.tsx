@@ -8,6 +8,7 @@ import SmartSearch from "./SmartSearch";
 import ProfileMenu from "./ProfileMenu";
 import { NAV_ITEMS } from "./navConfig";
 import { TEAM_META } from "@/lib/schedule";
+import { TEAM_COLORS } from "./teamLogos";
 import { CgClose } from "react-icons/cg";
 import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon, ChevronDown } from "lucide-react";
 
@@ -244,6 +245,8 @@ export default function Navbar() {
                             <div className="flex flex-col space-y-1">
                               {group.teams.map((code) => {
                                 const meta = TEAM_META[code];
+                                const nickname = meta?.name ? meta.name.split(" ").slice(-1).join(" ") : code;
+                                const accent = TEAM_COLORS[code] || "#9ca3af";
                                 return (
                                   <Link
                                     key={code}
@@ -251,8 +254,10 @@ export default function Navbar() {
                                     onClick={() => setTeamsOpen(false)}
                                     className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white transition-colors"
                                   >
-                                    <span>{meta?.name || code}</span>
-                                    <span className="text-[11px] text-white/50">{code}</span>
+                                    <span>{nickname}</span>
+                                    <span className="text-[11px] font-bold" style={{ color: accent }}>
+                                      {code}
+                                    </span>
                                   </Link>
                                 );
                               })}
@@ -456,6 +461,8 @@ export default function Navbar() {
                     <div className="space-y-2">
                       {group.teams.map((code) => {
                         const meta = TEAM_META[code];
+                        const nickname = meta?.name ? meta.name.split(" ").slice(-1).join(" ") : code;
+                        const accent = TEAM_COLORS[code] || "#9ca3af";
                         return (
                           <Link
                             key={code}
@@ -463,8 +470,10 @@ export default function Navbar() {
                             onClick={handleLinkClick}
                             className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[13px] font-semibold text-white/85 hover:bg-white/10 hover:border-white/20"
                           >
-                            <span className="truncate">{meta?.name || code}</span>
-                            <span className="text-[11px] text-white/50 ml-2">{code}</span>
+                            <span className="truncate">{nickname}</span>
+                            <span className="text-[11px] font-bold ml-2" style={{ color: accent }}>
+                              {code}
+                            </span>
                           </Link>
                         );
                       })}

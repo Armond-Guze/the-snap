@@ -298,7 +298,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					)}
 				</article>
 
-				<aside className="space-y-8">
+				<aside className="space-y-8 lg:sticky lg:top-24 self-start">
 					<MostRead />
 					<RelatedArticles currentSlug={trimmedSlug} articles={otherArticles as unknown as HeadlineListItem[]} />
 				</aside>
