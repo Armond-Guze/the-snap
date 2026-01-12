@@ -1,7 +1,7 @@
 import {useCallback, useState} from 'react'
 import {ArrayOfObjectsInputProps, ReferenceValue, set, useClient} from 'sanity'
 import {Button, Card, Flex, Stack, Text} from '@sanity/ui'
-import {apiVersion} from '../sanity/env'
+import {apiVersion} from '../env'
 
 // Convenience control for the Articles "teams" field: one-click select all 32 teams
 const TEAM_TITLES = [

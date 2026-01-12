@@ -25,9 +25,9 @@ const Footer = () => {
               <Image
                 src="/images/thesnap-logo-new%20copy123.png"
                 alt="The Game Snap Logo"
-                width={210}
-                height={210}
-                className="h-16 md:h-[3rem] w-auto max-w-none shrink-0 mb-2"
+                width={180}
+                height={180}
+                className="h-14 md:h-[2.75rem] w-auto max-w-none shrink-0 mb-2"
                 priority
               />
               <h3 className="text-2xl font-bold text-white leading-snug">
