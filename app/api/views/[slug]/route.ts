@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 const BOT_REGEX = /(bot|crawl|spider|slurp|wget|curl|python-requests|httpclient|scrapy|httpx|feedfetcher|monitoring|statuscake|uptimerobot|headless|phantom)/i;
@@ -43,7 +43,7 @@ async function kvSetNX(key: string, value: string, ttlSeconds: number): Promise<
   return data.result === 'OK';
 }
 
-function isBot(req: NextRequest) {
+function isBot(req: Request) {
   const ua = req.headers.get('user-agent') || '';
   if (!ua) return true;
   if (BOT_REGEX.test(ua)) return true;
@@ -52,7 +52,7 @@ function isBot(req: NextRequest) {
   return false;
 }
 
-function getClientIp(req: NextRequest): string {
+function getClientIp(req: Request): string {
   const header = req.headers.get('x-forwarded-for') || '';
   const ip = header.split(',')[0]?.trim();
   return ip || '0.0.0.0';
@@ -64,18 +64,28 @@ function hashFingerprint(parts: string[]): string {
   return h.digest('hex');
 }
 
+function extractSlug(url: string): string {
+  try {
+    const u = new URL(url);
+    const segments = u.pathname.split('/').filter(Boolean);
+    return segments[segments.length - 1] || '';
+  } catch {
+    return '';
+  }
+}
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
-  const slug = decodeURIComponent(params.slug || '').trim();
+export async function GET(req: Request) {
+  const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
   const count = await kvGet(`views:${slug}`);
   return NextResponse.json({ count });
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug: string } }) {
-  const slug = decodeURIComponent(params.slug || '').trim();
+export async function POST(req: Request) {
+  const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
 
   if (!KV_BASE || !KV_TOKEN) {
