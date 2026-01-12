@@ -10,6 +10,7 @@ import SocialShare from '@/app/components/SocialShare';
 import ReadingTime from '@/app/components/ReadingTime';
 import Breadcrumb from '@/app/components/Breadcrumb';
 import ArticleViewTracker from '@/app/components/ArticleViewTracker';
+import ArticleViewCount from '@/app/components/ArticleViewCount';
 import { generateSEOMetadata } from '@/lib/seo';
 import { articleDetailQuery } from '@/sanity/lib/queries';
 import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time';
@@ -171,6 +172,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</>
 						)}
 						<ReadingTime minutes={readingTime} />
+						<span className="text-gray-500">•</span>
+						<ArticleViewCount slug={trimmedSlug} />
 						{article.category?.slug?.current && article.category?.title && (
 							<Link
 								href={`/categories/${article.category.slug.current}`}
