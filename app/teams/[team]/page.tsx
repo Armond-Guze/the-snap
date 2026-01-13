@@ -46,16 +46,21 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
     memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
     season: '2025',
     url: `https://thegamesnap.com/teams/${abbr.toLowerCase()}`,
-    hasPart: games.slice(0,50).map(g => ({
-      '@type':'SportsEvent',
-      name: `${g.away} @ ${g.home}`,
-      startDate: g.dateUTC,
-      eventStatus: g.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled',
-      location: g.venue ? { '@type':'Place', name: g.venue } : undefined,
-      homeTeam: { '@type':'SportsTeam', name: TEAM_META[g.home]?.name || g.home },
-      awayTeam: { '@type':'SportsTeam', name: TEAM_META[g.away]?.name || g.away },
-      broadcastChannel: g.network || undefined
-    }))
+    hasPart: games.slice(0,50).map(g => {
+      const homeTeamName = TEAM_META[g.home]?.name || g.home;
+      const venueName = g.venue || `${homeTeamName} home stadium`;
+      return {
+        '@type':'SportsEvent',
+        name: `${g.away} @ ${g.home}`,
+        startDate: g.dateUTC,
+        eventStatus: g.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled',
+        // Always provide a Place name to satisfy Event structured data location requirement.
+        location: { '@type':'Place', name: venueName },
+        homeTeam: { '@type':'SportsTeam', name: homeTeamName },
+        awayTeam: { '@type':'SportsTeam', name: TEAM_META[g.away]?.name || g.away },
+        broadcastChannel: g.network || undefined
+      };
+    })
   };
 
   const totalGames = games.length;
