@@ -11,6 +11,25 @@ const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
   ? new Date(process.env.SITEMAP_STATIC_LASTMOD)
   : new Date('2025-01-01T00:00:00.000Z')
 
+// Ensure we never emit invalid sitemap URLs (spaces, punctuation)
+const safeSlug = (slug?: string | null) => {
+  if (!slug) return null;
+  const trimmed = slug.trim();
+  if (!trimmed) return null;
+  // encodeURI keeps slashes; encodeURIComponent would encode slashes too. We only expect single-segment slugs here.
+  return encodeURIComponent(trimmed.toLowerCase());
+};
+
+const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap => {
+  const byUrl = new Map<string, MetadataRoute.Sitemap[number]>();
+  for (const entry of entries) {
+    if (!entry.url) continue;
+    if (byUrl.has(entry.url)) continue;
+    byUrl.set(entry.url, entry);
+  }
+  return Array.from(byUrl.values());
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [headlines, articles, fantasy, categories, staticSchedule] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[((_type == "article" && format == "headline") || _type == "headline") && published == true]{ slug, _updatedAt }`),
@@ -26,46 +45,75 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const standingsLastMod = latestTeamRecordUpdatedAt ? new Date(latestTeamRecordUpdatedAt) : undefined;
 
-  const dynamicEntries: MetadataRoute.Sitemap = [
-    ...headlines.map(h => ({
-      url: `${baseUrl}/headlines/${h.slug?.current}`,
-      lastModified: h._updatedAt ? new Date(h._updatedAt) : STATIC_LAST_MOD,
-      changeFrequency: 'daily' as const,
-      priority: 0.7,
-    })),
-    ...articles.map(r => ({
-      url: `${baseUrl}/articles/${r.slug?.current}`,
-      lastModified: r._updatedAt ? new Date(r._updatedAt) : STATIC_LAST_MOD,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
-    ...fantasy.map(f => ({
-      url: `${baseUrl}/fantasy/${f.slug?.current}`,
-      lastModified: f._updatedAt ? new Date(f._updatedAt) : STATIC_LAST_MOD,
-      changeFrequency: 'weekly' as const,
-      priority: 0.65,
-    })),
-    ...categories.map(c => ({
-      url: `${baseUrl}/categories/${c.slug?.current}`,
-      lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
-      changeFrequency: 'weekly' as const,
-      priority: 0.5,
-    })),
-  ];
+  const dynamicEntries: MetadataRoute.Sitemap = dedupeEntries([
+    // Detail pages: always point to final articles path to avoid sitemap URLs that redirect
+    ...headlines
+      .map(h => {
+        const slug = safeSlug(h.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/articles/${slug}`,
+          lastModified: h._updatedAt ? new Date(h._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'daily' as const,
+          priority: 0.7,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...articles
+      .map(r => {
+        const slug = safeSlug(r.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/articles/${slug}`,
+          lastModified: r._updatedAt ? new Date(r._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...fantasy
+      .map(f => {
+        const slug = safeSlug(f.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/fantasy/${slug}`,
+          lastModified: f._updatedAt ? new Date(f._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'weekly' as const,
+          priority: 0.65,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...categories
+      .map(c => {
+        const slug = safeSlug(c.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/categories/${slug}`,
+          lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'weekly' as const,
+          priority: 0.5,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+  ]);
 
   // Power Rankings weekly snapshots
   const rankingWeekSlugs: { slug?: { current?: string } | null; _updatedAt?: string }[] = await client.fetch(`*[_type=="powerRankingWeek"]{ slug, _updatedAt }`);
-  const rankingWeekEntries: MetadataRoute.Sitemap = rankingWeekSlugs
-    .map((s) => {
-      const slug = s?.slug?.current || '';
-      const short = slug.replace('week-','');
-      return {
-        url: `${baseUrl}/power-rankings/week/${short}`,
-        lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
-        changeFrequency: 'weekly' as const,
-        priority: 0.6,
-      } satisfies MetadataRoute.Sitemap[number];
-    });
+  const rankingWeekEntries: MetadataRoute.Sitemap = dedupeEntries(
+    rankingWeekSlugs
+      .map((s) => {
+        const slug = safeSlug(s?.slug?.current || '');
+        const short = slug ? slug.replace('week-','') : null;
+        if (!short) return null;
+        return {
+          url: `${baseUrl}/power-rankings/week/${short}`,
+          lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'weekly' as const,
+          priority: 0.6,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap
+  );
 
   const gameCenterEntries: MetadataRoute.Sitemap = staticSchedule.map((game) => ({
     url: `${baseUrl}/game-center/${game.gameId}`,
@@ -74,7 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [
+  return dedupeEntries([
     {
       url: baseUrl,
       lastModified: STATIC_LAST_MOD,
@@ -157,5 +205,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.55,
     })),
-  ]
+  ])
 }
