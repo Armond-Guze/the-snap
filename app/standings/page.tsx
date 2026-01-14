@@ -2,6 +2,7 @@ import { client } from "@/sanity/lib/client";
 import Image from "next/image";
 import { TEAM_META } from "@/lib/schedule";
 import { getActiveSeason } from "@/lib/season";
+import { fetchNFLStandingsWithFallback, ProcessedTeamData } from "@/lib/nfl-api";
 
 export const revalidate = 3600; // allow ISR; tag-based revalidation will refresh instantly when triggered
 
@@ -91,6 +92,11 @@ export default async function StandingsPage() {
       { next: { tags: ['standings'], revalidate: 120 } }
     );
 
+  const nameToAbbr: Record<string, string> = Object.entries(TEAM_META).reduce((acc, [abbr, meta]) => {
+    acc[meta.name] = abbr;
+    return acc;
+  }, {} as Record<string, string>);
+
   const lastUpdatedISO = docs.reduce<string | null>((latest, doc) => {
     if (!doc.updatedAt) return latest;
     if (!latest) return doc.updatedAt;
@@ -128,24 +134,40 @@ export default async function StandingsPage() {
         ARI: { division: 'NFC West', conference: 'NFC' }, LAR: { division: 'NFC West', conference: 'NFC' }, SF: { division: 'NFC West', conference: 'NFC' }, SEA: { division: 'NFC West', conference: 'NFC' },
       };
 
-  const enriched: StandingsTeam[] = docs.map(d => {
-    const abbr = d.teamAbbr.toUpperCase();
-    const name = abbrToName[abbr] || abbr;
+  const mapToStandingsTeam = (abbr: string, name: string, wins: number, losses: number, ties: number, streak?: string): StandingsTeam => {
     const group = abbrToDivision[abbr];
-    const wins = d.wins || 0, losses = d.losses || 0, ties = d.ties || 0;
     const gp = wins + losses + ties;
     const winPercentage = gp > 0 ? (wins + ties * 0.5) / gp : 0;
     return {
-      _id: d._id,
+      _id: `standings-${abbr}-${season}`,
       teamName: name,
       teamAbbr: abbr,
-      wins, losses, ties,
+      wins,
+      losses,
+      ties,
       winPercentage,
       conference: group?.conference || 'AFC',
       division: group?.division || 'AFC East',
-      streak: d.streak
+      streak
     };
-  });
+  };
+
+  let enriched: StandingsTeam[];
+
+  if (docs.length > 0) {
+    enriched = docs.map(d => {
+      const abbr = d.teamAbbr.toUpperCase();
+      const name = abbrToName[abbr] || abbr;
+      return mapToStandingsTeam(abbr, name, d.wins || 0, d.losses || 0, d.ties || 0, d.streak);
+    });
+  } else {
+    // Fallback: fetch live/ESPN + hardcoded backup so the page is never empty
+    const apiData: ProcessedTeamData[] = await fetchNFLStandingsWithFallback();
+    enriched = apiData.map((t, idx) => {
+      const abbr = nameToAbbr[t.teamName] || t.teamName.slice(0,3).toUpperCase();
+      return mapToStandingsTeam(abbr, t.teamName, t.wins, t.losses, t.ties, undefined);
+    });
+  }
 
   const sortFn = (a: StandingsTeam, b: StandingsTeam) => {
     const byPct = b.winPercentage - a.winPercentage; if (byPct !== 0) return byPct;

@@ -6,6 +6,7 @@ import { HERO_SIZES } from '@/lib/image-sizes';
 interface HeadlineItem {
   _id: string;
   _type: string;
+  format?: string;
   title: string;
   homepageTitle?: string;
   slug: { current: string };
@@ -32,10 +33,13 @@ interface HeadlinesProps {
 export default async function Headlines({ hideSummaries = false }: HeadlinesProps) {
   // Simple strategy: always show newest content (headline or rankings) by publishedAt desc.
   // Fetch a buffer of 20 (main page cap) – first 9 rendered here, remainder consumed by MoreHeadlinesSection.
-  const newestHeadlinesQuery = `*[( _type == "headline" || _type == "rankings") && published == true]
+  const newestHeadlinesQuery = `*[
+    ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true
+  ]
     | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...20]{
       _id,
       _type,
+      format,
       title,
       homepageTitle,
       slug,
@@ -73,7 +77,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
-    if (item._type === 'rankings') {
+    if (item._type === 'rankings' || item._type === 'article') {
       return `/articles/${item.slug.current.trim()}`;
     }
     return `/headlines/${item.slug.current.trim()}`;
