@@ -10,12 +10,12 @@ export interface TOCHeading {
 }
 
 interface TableOfContentsProps {
-  headings: TOCHeading[];
+  headings?: TOCHeading[];
   className?: string;
   collapseAt?: number; // px breakpoint for auto-collapse on small
 }
 
-export default function TableOfContents({ headings, className = '', collapseAt = 1024 }: TableOfContentsProps) {
+export default function TableOfContents({ headings = [], className = '', collapseAt = 1024 }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isClient, setIsClient] = useState(false);

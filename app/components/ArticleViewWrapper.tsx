@@ -7,14 +7,14 @@ import TableOfContents, { TOCHeading } from './TableOfContents';
 
 interface ArticleViewWrapperProps {
   children: React.ReactNode;
-  headings: TOCHeading[];
+  headings?: TOCHeading[];
   shareUrl: string;
   title: string;
   category?: string;
   rightRailExtras?: React.ReactNode; // e.g. related articles, ads, newsletter
 }
 
-export default function ArticleViewWrapper({ children, headings, shareUrl, title, rightRailExtras }: ArticleViewWrapperProps) {
+export default function ArticleViewWrapper({ children, headings = [], shareUrl, title, rightRailExtras }: ArticleViewWrapperProps) {
   const [showFloatingShare, setShowFloatingShare] = useState(false);
 
   useEffect(() => {

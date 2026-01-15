@@ -1,5 +1,5 @@
 import { PortableText } from "@portabletext/react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { sanityFetch } from "@/sanity/lib/fetch";
@@ -49,7 +49,11 @@ const rankingsDetailQuery = `
 // Legacy rankings query for backward compatibility
 const legacyRankingsDetailQuery = `
   *[_type in ["article","rankings"] && slug.current == $slug && published == true][0]{
-    ${rankingFields}
+    ${rankingFields},
+    format,
+    seasonYear,
+    weekNumber,
+    playoffRound
   }
 `;
 
@@ -165,6 +169,27 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
   }
 
   if (isLegacyArticle(finalRanking)) {
+    const legacy = finalRanking as RankingsType & {
+      format?: string;
+      seasonYear?: number;
+      weekNumber?: number;
+      playoffRound?: string;
+      rankingType?: string;
+    };
+    if (legacy._type === 'article' && legacy.format === 'powerRankings') {
+      if (legacy.rankingType === 'live' || !legacy.rankingType) {
+        redirect('/power-rankings');
+      }
+      const season = legacy.seasonYear || new Date().getFullYear();
+      const weekPart = legacy.playoffRound
+        ? legacy.playoffRound.toLowerCase()
+        : typeof legacy.weekNumber === 'number'
+          ? `week-${legacy.weekNumber}`
+          : undefined;
+      if (weekPart) {
+        redirect(`/power-rankings/${season}/${weekPart}`);
+      }
+    }
     return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;
   }
 
