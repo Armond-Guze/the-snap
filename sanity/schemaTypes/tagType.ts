@@ -36,13 +36,6 @@ export const tagType = defineType({
       type: 'text',
       validation: (Rule) => Rule.max(150),
     }),
-    defineField({
-      name: 'trending',
-      title: 'Trending Tag',
-      type: 'boolean',
-      description: 'Mark this tag as trending to feature it prominently',
-      initialValue: false,
-    }),
   ],
   preview: {
     select: {
