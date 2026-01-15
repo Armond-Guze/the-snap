@@ -1,6 +1,41 @@
 import { defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
 
+const TEAM_TITLES = [
+  "Arizona Cardinals",
+  "Atlanta Falcons",
+  "Baltimore Ravens",
+  "Buffalo Bills",
+  "Carolina Panthers",
+  "Chicago Bears",
+  "Cincinnati Bengals",
+  "Cleveland Browns",
+  "Dallas Cowboys",
+  "Denver Broncos",
+  "Detroit Lions",
+  "Green Bay Packers",
+  "Houston Texans",
+  "Indianapolis Colts",
+  "Jacksonville Jaguars",
+  "Kansas City Chiefs",
+  "Las Vegas Raiders",
+  "Los Angeles Chargers",
+  "Los Angeles Rams",
+  "Miami Dolphins",
+  "Minnesota Vikings",
+  "New England Patriots",
+  "New Orleans Saints",
+  "New York Giants",
+  "New York Jets",
+  "Philadelphia Eagles",
+  "Pittsburgh Steelers",
+  "San Francisco 49ers",
+  "Seattle Seahawks",
+  "Tampa Bay Buccaneers",
+  "Tennessee Titans",
+  "Washington Commanders",
+];
+
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
   name: "article",
@@ -147,7 +182,12 @@ export default defineType({
       title: "Tag References (Advanced)",
       type: "array",
       of: [{ type: "reference", to: [{ type: "tag" }] }],
-      options: { layout: "tags" },
+      options: {
+        layout: "tags",
+        // Exclude the 32 team tags so advanced tags stay separate from team tags
+        filter: "!(title in $teamTitles)",
+        filterParams: { teamTitles: TEAM_TITLES },
+      },
       group: "advanced",
       description: "Canonical tag references (preferred). Migration will copy legacy string tags here. Editing a tag document changes it everywhere; add a new Tag doc for one-off labels.",
       validation: (Rule) => Rule.unique().error("Tag reference already added"),
