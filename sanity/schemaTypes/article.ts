@@ -181,13 +181,18 @@ export default defineType({
       name: "tagRefs",
       title: "Tag References (Advanced)",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "tag" }] }],
-      options: {
-        layout: "tags",
-        // Exclude the 32 team tags so advanced tags stay separate from team tags
-        filter: "!(title in $teamTitles)",
-        filterParams: { teamTitles: TEAM_TITLES },
-      },
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "tag" }],
+          options: {
+            // Exclude the 32 team tags so advanced tags stay separate from team tags
+            filter: "!(title in $teamTitles)",
+            filterParams: { teamTitles: TEAM_TITLES },
+          },
+        },
+      ],
+      options: { layout: "tags" },
       group: "advanced",
       description: "Canonical tag references (preferred). Migration will copy legacy string tags here. Editing a tag document changes it everywhere; add a new Tag doc for one-off labels.",
       validation: (Rule) => Rule.unique().error("Tag reference already added"),
