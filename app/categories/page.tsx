@@ -32,7 +32,10 @@ export default async function CategoriesIndexPage() {
         <header className="mb-12 max-w-3xl">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">NFL Coverage Categories</h1>
           <p className="text-lg text-gray-300 leading-relaxed">
-            Jump into focused topic hubs for deeper NFL analysis. Each category aggregates the latest headlines plus archives for long‑tail discovery.
+            Jump into focused topic hubs for deeper NFL analysis. Each category aggregates the latest articles and rankings, plus archives for long‑tail discovery.
+          </p>
+          <p className="mt-3 text-base text-gray-400 leading-relaxed">
+            Start with the hubs below, then keep exploring: latest news in <Link href="/articles" className="text-white underline underline-offset-4 hover:text-gray-200">Articles</Link>, updated <Link href="/power-rankings" className="text-white underline underline-offset-4 hover:text-gray-200">Power Rankings</Link>, and weekly <Link href="/schedule" className="text-white underline underline-offset-4 hover:text-gray-200">Schedule</Link> insights.
           </p>
           <div className="mt-6 flex flex-wrap gap-4 text-sm">
             <Link href="/headlines" className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition-colors">Latest Headlines</Link>
@@ -58,7 +61,7 @@ export default async function CategoriesIndexPage() {
                   <ul className="space-y-2 mb-4 text-sm">
                     {cat.topArticles.map(a => (
                       <li key={a.slug.current}>
-                        <Link href={`/headlines/${a.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-1">{a.title}</Link>
+                        <Link href={`/articles/${a.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-1">{a.title}</Link>
                       </li>
                     ))}
                   </ul>

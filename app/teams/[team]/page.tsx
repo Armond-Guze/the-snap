@@ -2,6 +2,8 @@ import { TEAM_META, TEAM_ABBRS, getTeamSeasonSchedule, computeByeWeek, primetime
 import { formatGameDateParts } from '@/lib/schedule-format';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import StructuredData from '@/app/components/StructuredData';
+import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 
 // Follow project convention: params delivered as a Promise
 interface TeamPageProps { params: Promise<{ team: string }> }
@@ -38,30 +40,22 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
   const games = await getTeamSeasonSchedule(abbr);
   const byeWeek = computeByeWeek(games);
   const prime = primetimeSummary(games);
-  const sd = {
-    '@context': 'https://schema.org',
-    '@type': 'SportsTeam',
-    name: meta.name,
-    sport: 'American Football',
-    memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
-    season: '2025',
-    url: `https://thegamesnap.com/teams/${abbr.toLowerCase()}`,
-    hasPart: games.slice(0,50).map(g => {
-      const homeTeamName = TEAM_META[g.home]?.name || g.home;
-      const venueName = g.venue || `${homeTeamName} home stadium`;
-      return {
-        '@type':'SportsEvent',
-        name: `${g.away} @ ${g.home}`,
-        startDate: g.dateUTC,
-        eventStatus: g.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled',
-        // Always provide a Place name to satisfy Event structured data location requirement.
-        location: { '@type':'Place', name: venueName },
-        homeTeam: { '@type':'SportsTeam', name: homeTeamName },
-        awayTeam: { '@type':'SportsTeam', name: TEAM_META[g.away]?.name || g.away },
-        broadcastChannel: g.network || undefined
-      };
-    })
-  };
+  const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';
+  const eventList = enableEventSchema
+    ? buildSportsEventList(games, { country: 'US' }).slice(0, 50)
+    : [];
+  const teamSchema = enableEventSchema && eventList.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SportsTeam',
+        name: meta.name,
+        sport: 'American Football',
+        memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
+        season: '2025',
+        url: `https://thegamesnap.com/teams/${abbr.toLowerCase()}`,
+        hasPart: eventList,
+      }
+    : null;
 
   const totalGames = games.length;
   const expected = 17; // ignoring postseason; regular season target
@@ -80,11 +74,11 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
     <div className="max-w-5xl mx-auto px-4 py-8 text-white">
       <h1 className="text-3xl font-bold mb-2">{meta.name} 2025 Schedule</h1>
       <p className="text-white/60 mb-4 text-sm">Kickoff times expressed in Eastern Time (ET). Live status and final scores update automatically.</p>
+      {teamSchema && <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />}
       <div className="flex flex-wrap gap-4 text-xs text-white/70 mb-6">
         {byeWeek && <span className="px-2 py-1 bg-white/5 rounded border border-white/10">Bye Week: {byeWeek}</span>}
         <span className="px-2 py-1 bg-white/5 rounded border border-white/10">Primetime Games: {prime.count}{prime.count ? ` (Weeks ${prime.weeks.join(', ')})` : ''}</span>
       </div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sd) }} />
       {partial && (
         <div className="mb-4 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-2 rounded">
           Partial schedule data – additional games will appear as the JSON file is expanded.

@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
 import { client } from '../sanity/lib/client'
-import { loadStaticSchedule } from '@/lib/schedule'
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com'
 
@@ -31,12 +30,11 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [headlines, articles, fantasy, categories, staticSchedule] = await Promise.all([
+  const [headlines, articles, fantasy, categories] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[((_type == "article" && format == "headline") || _type == "headline") && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "rankings" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "category"]{ slug, _updatedAt }`),
-    loadStaticSchedule(),
   ]);
 
   // Latest update time for standings page from teamRecord documents
@@ -115,13 +113,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(Boolean) as MetadataRoute.Sitemap
   );
 
-  const gameCenterEntries: MetadataRoute.Sitemap = staticSchedule.map((game) => ({
-    url: `${baseUrl}/game-center/${game.gameId}`,
-    lastModified: new Date(game.dateUTC),
-    changeFrequency: 'hourly' as const,
-    priority: 0.6,
-  }));
-
   return dedupeEntries([
     {
       url: baseUrl,
@@ -197,7 +188,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...dynamicEntries,
     ...rankingWeekEntries,
-    ...gameCenterEntries,
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,

@@ -28,13 +28,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: 'Game not found | The Snap',
       description: 'Unable to locate this matchup in the current schedule.',
-      robots: { index: false },
+      robots: { index: false, follow: true },
     };
   }
   const url = `${siteUrl}/game-center/${gameId}`;
   return {
     title: `${payload.meta.pageTitle} | The Snap`,
     description: payload.meta.description,
+    robots: { index: false, follow: true },
     openGraph: {
       title: payload.meta.pageTitle,
       description: payload.meta.description,

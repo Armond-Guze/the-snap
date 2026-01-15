@@ -9,6 +9,7 @@ import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../components/StructuredData';
 import WeekDropdown from './WeekDropdown';
+import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 
 // Root schedule metadata (static – week specific pages handle granular titles)
 export const metadata: Metadata = {
@@ -49,29 +50,19 @@ export default async function ScheduleLandingPage() {
   const season = await getActiveSeason();
   const recordsMap = await fetchTeamRecords(season);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
-  // Build SportsEvent list structured data (limited to first 25 to keep payload small)
-  const events = filteredGames.slice(0,25).map(g => ({
-    '@type': 'SportsEvent',
-    name: `${g.away} @ ${g.home}`,
-    startDate: g.dateUTC,
-    eventStatus: g.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled',
-    location: { '@type':'Place', name: g.venue || 'Stadium' },
-    competitor: [
-      { '@type':'SportsTeam', name: g.away },
-      { '@type':'SportsTeam', name: g.home }
-    ],
-    broadcastChannel: g.network || undefined
-  }));
-  // Use ItemList as the container for multiple events to avoid validating the container itself as an Event
-  const sd = {
-    '@context':'https://schema.org',
-    '@type':'ItemList',
-    name:`NFL Schedule Week ${week}`,
-    itemListElement: events
-  };
+  const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';
+  const events = enableEventSchema ? buildSportsEventList(filteredGames, { country: 'US' }).slice(0, 25) : [];
+  const sd = enableEventSchema && events.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: `NFL Schedule Week ${week}`,
+        itemListElement: events,
+      }
+    : null;
   return (
     <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
-      <StructuredData data={sd} id={`sd-schedule-week-${week}`} />
+      {sd && <StructuredData data={sd} id={`sd-schedule-week-${week}`} />}
       <h1 className="text-3xl font-bold mb-2">NFL Schedule</h1>
       <p className="text-sm text-white/60 mb-6">Week {week} (auto-detected). Choose another week below.</p>
   <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
@@ -106,7 +97,7 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
   // Always format in ET per request
   const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC, { timezoneCode: 'ET', includeRelative: false });
   return (
-  <div className="border border-white/10 rounded-lg p-4 sm:p-5 flex items-center justify-between bg-white/5" itemScope itemType="https://schema.org/SportsEvent">
+  <div className="border border-white/10 rounded-lg p-4 sm:p-5 flex items-center justify-between bg-white/5">
       {/* Left info + matchup */}
   <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
         {/* Kickoff info column (date on top, then time • network) */}
@@ -118,19 +109,6 @@ function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<st
             <span className="sm:hidden">{shortNetworkLabel(game.network)}</span>
             <span className="hidden sm:inline">{game.network || 'TBD'}</span>
           </div>
-          {/* Structured data (microdata) to complement JSON-LD and satisfy Search Console */}
-          <meta itemProp="startDate" content={game.dateUTC} />
-          {/* Required name field for SportsEvent microdata */}
-          <meta itemProp="name" content={`${game.away} @ ${game.home}`} />
-          {/* Recommended eventStatus field for SportsEvent microdata */}
-          <meta
-            itemProp="eventStatus"
-            content={game.status === 'FINAL' ? 'https://schema.org/EventCompleted' : 'https://schema.org/EventScheduled'}
-          />
-          {/* Provide minimal location (Place -> name) to satisfy Event rich result requirements */}
-          <span itemProp="location" itemScope itemType="https://schema.org/Place" className="hidden">
-            <meta itemProp="name" content={game.venue || 'Stadium'} />
-          </span>
         </div>
 
         {/* Teams: left-aligned on mobile; allow truncation if extremely narrow */}
