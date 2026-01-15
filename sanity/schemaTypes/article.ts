@@ -129,6 +129,7 @@ export default defineType({
       options: { layout: "tags" },
       components: { input: TeamTagsInput },
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",
+      validation: (Rule) => Rule.unique().error("Team tag already added"),
       group: "quick",
     }),
     defineField({
@@ -138,6 +139,7 @@ export default defineType({
       of: [{ type: "string" }],
       options: { layout: "tags" },
       description: "LEGACY free-form tags. Use Tag References below for new content.",
+      validation: (Rule) => Rule.unique().error("Tag already added"),
       group: "quick",
     }),
     defineField({
@@ -147,7 +149,8 @@ export default defineType({
       of: [{ type: "reference", to: [{ type: "tag" }] }],
       options: { layout: "tags" },
       group: "advanced",
-      description: "Canonical tag references (preferred). Migration will copy legacy string tags here.",
+      description: "Canonical tag references (preferred). Migration will copy legacy string tags here. Editing a tag document changes it everywhere; add a new Tag doc for one-off labels.",
+      validation: (Rule) => Rule.unique().error("Tag reference already added"),
     }),
     defineField({
       name: "published",
