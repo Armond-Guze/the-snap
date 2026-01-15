@@ -2,7 +2,7 @@ import { client } from '@/sanity/lib/client';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
-import type { PowerRankingsDoc, PowerRankingEntry } from '@/types';
+import type { PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
 
 const PLAYOFF_LABELS: Record<string, string> = {
   WC: 'Wild Card',
@@ -56,23 +56,25 @@ export async function generateStaticParams() {
     .filter(Boolean) as Array<{ season: string; week: string }>;
 }
 
-export async function generateMetadata({ params }: { params: { season: string; week: string } }): Promise<Metadata> {
-  const season = Number(params.season);
-  const parsed = parseWeekParam(params.week);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { season: seasonParam, week } = await params;
+  const season = Number(seasonParam);
+  const parsed = parseWeekParam(week);
   if (!Number.isFinite(season) || 'invalid' in parsed) {
     return { title: 'NFL Power Rankings', description: 'Weekly NFL power rankings.' };
   }
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
-  return { title, description, alternates: { canonical: `/power-rankings/${season}/${params.week}` }, openGraph: { title, description } };
+  return { title, description, alternates: { canonical: `/power-rankings/${season}/${week}` }, openGraph: { title, description } };
 }
 
 export const revalidate = 300;
 
-export default async function RankingsWeekPage({ params }: { params: { season: string; week: string } }) {
-  const season = Number(params.season);
-  const parsed = parseWeekParam(params.week);
+export default async function RankingsWeekPage({ params }: PageProps) {
+  const { season: seasonParam, week } = await params;
+  const season = Number(seasonParam);
+  const parsed = parseWeekParam(week);
   if (!Number.isFinite(season) || 'invalid' in parsed) {
     notFound();
   }
@@ -84,7 +86,7 @@ export default async function RankingsWeekPage({ params }: { params: { season: s
   });
 
   if (!data) {
-    return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot found for {params.week} — {season} yet.</div>;
+    return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot found for {week} — {season} yet.</div>;
   }
 
   const prevSnapshot: PowerRankingsDoc | null = await client.fetch(powerRankingsSnapshotByParamsQuery, {

@@ -114,7 +114,7 @@ export default defineType({
         },
       ],
       validation: (Rule) =>
-        Rule.custom((items, ctx) => {
+        Rule.custom((items: any, ctx) => {
           if (!isPowerRankings(ctx.document)) return true;
           if (!Array.isArray(items)) return "Add the ranked teams";
           if (items.length !== 32) return "Must include exactly 32 teams";
