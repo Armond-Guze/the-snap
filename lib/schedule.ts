@@ -186,6 +186,20 @@ export const TEAM_META: Record<string, { name: string; logo: string }> = {
 
 export const TEAM_ABBRS = Object.keys(TEAM_META);
 
+// Reverse lookup from full team name -> abbreviation (case-insensitive)
+const TEAM_NAME_TO_ABBR = (() => {
+  const map = new Map<string, string>();
+  Object.entries(TEAM_META).forEach(([abbr, meta]) => {
+    map.set(meta.name.toLowerCase(), abbr);
+  });
+  return map;
+})();
+
+function nameToAbbr(name?: string | null): string | undefined {
+  if (!name) return undefined;
+  return TEAM_NAME_TO_ABBR.get(name.toLowerCase()) || undefined;
+}
+
 export interface GroupedGamesBucket { label: string; games: EnrichedGame[] }
 
 export function bucketLabelFor(game: EnrichedGame): string {
@@ -268,8 +282,123 @@ async function resolveCurrentWeek(): Promise<number> {
   return determineCurrentWeek(schedule);
 }
 
+interface SanityGameDoc {
+  _id: string;
+  week?: number;
+  gameDate?: string;
+  tvNetwork?: string;
+  homeTeam?: string;
+  awayTeam?: string;
+  venue?: string;
+  season?: string;
+}
+
+function normalizeGameId(rawId: string): string {
+  return rawId.replace(/^game-/, '');
+}
+
+function mapSanityDocToGame(doc: SanityGameDoc): EnrichedGame | null {
+  const home = nameToAbbr(doc.homeTeam);
+  const away = nameToAbbr(doc.awayTeam);
+  if (!home || !away) return null;
+  const dateUTC = doc.gameDate;
+  if (!dateUTC || Number.isNaN(Date.parse(dateUTC))) return null;
+  const week = doc.week ?? 1;
+  return {
+    gameId: normalizeGameId(doc._id),
+    week,
+    dateUTC: new Date(dateUTC).toISOString(),
+    home,
+    away,
+    network: doc.tvNetwork,
+    venue: doc.venue,
+    status: 'SCHEDULED'
+  };
+}
+
+async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise<EnrichedGame[] | null> {
+  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  try {
+    const { client } = await import('../sanity/lib/client');
+    const docs = await client.fetch<SanityGameDoc[]>(
+      `*[_type == "game" && published == true && week == $week && season == $season] | order(gameDate asc) {
+        _id,
+        week,
+        gameDate,
+        tvNetwork,
+        homeTeam,
+        awayTeam,
+        venue,
+        season
+      }`,
+      { week, season: String(season) }
+    );
+    const mapped = docs.map(mapSanityDocToGame).filter((g): g is EnrichedGame => Boolean(g));
+    return mapped.length ? mapped : null;
+  } catch (e) {
+    console.warn('Sanity week games fetch failed, falling back to static schedule', e);
+    return null;
+  }
+}
+
+async function fetchSanityTeamGames(teamAbbr: string, seasonInput?: string): Promise<EnrichedGame[] | null> {
+  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const teamName = TEAM_META[teamAbbr]?.name;
+  if (!teamName) return null;
+  try {
+    const { client } = await import('../sanity/lib/client');
+    const docs = await client.fetch<SanityGameDoc[]>(
+      `*[_type == "game" && published == true && season == $season && (homeTeam == $name || awayTeam == $name)] | order(gameDate asc) {
+        _id,
+        week,
+        gameDate,
+        tvNetwork,
+        homeTeam,
+        awayTeam,
+        venue,
+        season
+      }`,
+      { season: String(season), name: teamName }
+    );
+    const mapped = docs.map(mapSanityDocToGame).filter((g): g is EnrichedGame => Boolean(g));
+    return mapped.length ? mapped : null;
+  } catch (e) {
+    console.warn('Sanity team games fetch failed, falling back to static schedule', e);
+    return null;
+  }
+}
+
+async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null> {
+  const ids = [gameId, `game-${gameId}`];
+  try {
+    const { client } = await import('../sanity/lib/client');
+    const docs = await client.fetch<SanityGameDoc[]>(
+      `*[_type == "game" && _id in $ids][0...1] {
+        _id,
+        week,
+        gameDate,
+        tvNetwork,
+        homeTeam,
+        awayTeam,
+        venue,
+        season
+      }`,
+      { ids }
+    );
+    const doc = docs[0];
+    return doc ? mapSanityDocToGame(doc) : null;
+  } catch (e) {
+    console.warn('Sanity game-by-id fetch failed, falling back to static schedule', e);
+    return null;
+  }
+}
+
 export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
   const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek();
+  const sanityGames = await fetchSanityWeekGames(resolvedWeek);
+  if (sanityGames && sanityGames.length) {
+    return { week: resolvedWeek, games: sanityGames };
+  }
   const games = await getEnrichedWeek(resolvedWeek);
   return { week: resolvedWeek, games };
 }
@@ -280,6 +409,10 @@ export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[
   let pending = _teamSeasonCache.get(key);
   if (!pending) {
     pending = (async () => {
+      const sanityGames = await fetchSanityTeamGames(key);
+      if (sanityGames && sanityGames.length) {
+        return sanityGames.sort((a, b) => a.week - b.week);
+      }
       const schedule = await loadStaticSchedule();
       const teamGames = schedule.filter(g => g.home === key || g.away === key);
       const weeks = Array.from(new Set(teamGames.map(g => g.week)));
@@ -296,6 +429,9 @@ export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[
 
 // Fetch a single game by id (enriched with possible live data)
 export async function getGameById(gameId: string): Promise<EnrichedGame | null> {
+  const sanity = await fetchSanityGameById(gameId);
+  if (sanity) return sanity;
+
   const schedule = await loadStaticSchedule();
   const base = schedule.find(g => g.gameId === gameId);
   if (!base) return null;
