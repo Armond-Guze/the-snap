@@ -70,10 +70,12 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
   // right sidebar ("Around The NFL"): up to 6 items (indexes 3-8)
   // Remaining items start at index 9 and flow into the "More Headlines" section (MoreHeadlinesSection)
   const LEFT_IMAGE_COUNT = 2;
-  const RIGHT_SIDEBAR_LIMIT = 6;
+  const RIGHT_SIDEBAR_LIMIT_DESKTOP = 6;
+  const RIGHT_SIDEBAR_LIMIT_MOBILE = 4; // mobile shows fewer items to avoid overwhelming the feed
   const main = headlines[0];
   const leftColumn = headlines.slice(1, 1 + LEFT_IMAGE_COUNT);
-  const rightSidebar = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT);
+  const rightSidebar = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT_DESKTOP);
+  const rightSidebarMobile = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT_MOBILE);
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
@@ -163,7 +165,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
             <h3 className="text-lg font-bold text-white tracking-tight">Around The NFL</h3>
           </div>
           <ul className="space-y-4">
-            {(leftColumn.concat(rightSidebar)).map((headline) => {
+            {(leftColumn.concat(rightSidebarMobile)).map((headline) => {
               const author = headline.author?.name;
               return (
                 <li key={headline._id}>
