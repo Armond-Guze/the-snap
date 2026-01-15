@@ -193,7 +193,7 @@ export default defineType({
       name: 'tagRefs',
       title: 'Tag References',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      of: [{ type: 'reference', to: [{ type: 'advancedTag' }] }],
       options: { layout: 'tags' },
       description: 'Preferred canonical tag references.',
       group: 'seo'

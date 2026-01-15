@@ -121,7 +121,7 @@ const headlineType = defineType({
       name: 'tagRefs',
       title: 'Tag References (Advanced)',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'tag' }] }],
+      of: [{ type: 'reference', to: [{ type: 'advancedTag' }] }],
       options: { layout: 'tags' },
       group: 'advanced',
       description: 'Canonical tag references (preferred). Migration will copy legacy string tags here.',

@@ -22,6 +22,7 @@ import { snapGraphicCard } from './snapGraphicCard'
 import { deepBallReport } from './deepBallReport'
 import { snapCard } from './snapCard'
 import playOfWeek from './playOfWeek'
+import advancedTagType from './advancedTagType'
 
 
 export const schemaTypes = [
@@ -29,6 +30,7 @@ export const schemaTypes = [
   authorType,
   categoryType,
   tagType,
+  advancedTagType,
   blockContentType,
   headlineType,
   powerRanking,

@@ -27,9 +27,9 @@ export const suggestPrimetimeTagAction: DocumentActionComponent = (props: Docume
         return
       }
       // Find or create the tag
-      let tag = await client.fetch(`*[_type=="tag" && title==$t][0]{_id,title}`, { t: match.title })
+      let tag = await client.fetch(`*[_type=="advancedTag" && title==$t][0]{_id,title}`, { t: match.title })
       if (!tag) {
-        tag = await client.create({ _type: 'tag', title: match.title, slug: { _type: 'slug', current: match.title.toLowerCase().replace(/\s+/g,'-') } })
+        tag = await client.create({ _type: 'advancedTag', title: match.title, slug: { _type: 'slug', current: match.title.toLowerCase().replace(/\s+/g,'-') } })
       }
   const existingRefs: string[] = (doc.tagRefs || []).map((r) => r?._ref).filter(Boolean as unknown as (v: unknown) => v is string)
       if (existingRefs.includes(tag._id)) {
