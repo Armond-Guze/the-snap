@@ -48,64 +48,58 @@ function toAbbr(name?: string | null): string | null {
 
 export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
-  const doc = (draft || published) as { _type?: string } | undefined
-  if (!doc || doc._type !== 'powerRanking') return null
+  const doc = (draft || published) as { _type?: string; format?: string; rankingType?: string; seasonYear?: number; rankings?: Array<any>; title?: string } | undefined
+  if (!doc || doc._type !== 'article' || doc.format !== 'powerRankings' || doc.rankingType !== 'live') return null
 
   // Use a Studio-authenticated client via cookie credentials
   const client: SanityClient = createClient({ projectId, dataset, apiVersion, useCdn: false, withCredentials: true })
 
   const handleCreate = async (season: number, week: number) => {
       try {
-        // Fetch all live power rankings
-        let teams: Array<{ rank: number; teamName?: string; summary?: string }> = await client.fetch(
-          `*[_type=="powerRanking" && !(_id in path('drafts.**'))]|order(rank asc){ rank, teamName, summary }`
-        )
-        if (!teams || teams.length !== 32) {
-          // Try including drafts as a fallback to help first-time setup
-          const allTeams: Array<{ rank: number; teamName?: string; summary?: string }> = await client.fetch(
-            `*[_type=="powerRanking"]|order(rank asc){ rank, teamName, summary }`
-          )
-          if (allTeams && allTeams.length === 32) {
-            teams = allTeams
-            // continue with a warning toast at the end
-          } else {
-            throw new Error(`Expected 32 teams. Found ${teams?.length ?? 0} published, ${allTeams?.length ?? 0} total. Ensure ranks 1–32 exist.`)
-          }
+        const liveRankings = Array.isArray(doc.rankings) ? doc.rankings : []
+        if (liveRankings.length !== 32) {
+          throw new Error(`Expected 32 teams on the Live Power Rankings doc. Found ${liveRankings.length}.`) 
         }
 
         // Fetch previous week's snapshot (to compute movement)
         const prevWeek = week - 1
         const prev = prevWeek >= 1
-          ? await client.fetch<{ items?: { teamAbbr: string; rank: number }[] } | null>(
-              `*[_type=="powerRankingWeek" && season==$season && week==$week][0]{ items[]{teamAbbr, rank} }`,
+          ? await client.fetch<{ rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null>(
+              `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && weekNumber==$week][0]{ rankings[]{teamAbbr, teamName, rank} }`,
               { season, week: prevWeek }
             )
           : null
 
-        const items = teams.map((t) => {
-          const abbr = toAbbr(t.teamName || '') || (t.teamName || '').slice(0, 3).toUpperCase()
-          const prevRank: number | undefined = prev?.items?.find((p: { teamAbbr: string; rank: number }) => p.teamAbbr === abbr)?.rank
-          const movement = typeof prevRank === 'number' ? prevRank - t.rank : 0
+        const items = liveRankings.map((t: any) => {
+          const name = t.teamName || t?.team?.title
+          const abbr = t.teamAbbr || toAbbr(name || '') || (name || '').slice(0, 3).toUpperCase()
+          const prevRank: number | undefined = prev?.rankings?.find((p: { teamAbbr?: string; teamName?: string; rank: number }) => (p.teamAbbr || p.teamName) === (abbr || name))?.rank
           return {
             _type: 'object',
             rank: t.rank,
+            team: t.team || undefined,
             teamAbbr: abbr,
-            teamName: t.teamName || abbr,
-            note: t.summary || '',
-            prevRank: typeof prevRank === 'number' ? prevRank : null,
-            movement,
+            teamName: name || abbr,
+            note: t.note || '',
+            analysis: t.analysis || [],
+            teamLogo: t.teamLogo || undefined,
+            prevRankOverride: typeof prevRank === 'number' ? prevRank : undefined,
           }
         })
 
         const id = `prw-${season}-w${week}`
         await client.createOrReplace({
           _id: id,
-          _type: 'powerRankingWeek',
-          season,
-          week,
-          items,
-          publishedAt: new Date().toISOString(),
-          slug: { _type: 'slug', current: `week-${week}-${season}` },
+          _type: 'article',
+          format: 'powerRankings',
+          rankingType: 'snapshot',
+          seasonYear: season,
+          weekNumber: week,
+          title: doc.title || `NFL Power Rankings ${season} — Week ${week}`,
+          slug: { _type: 'slug', current: `power-rankings-${season}-week-${week}` },
+          date: new Date().toISOString(),
+          published: true,
+          rankings: items,
         })
         // @ts-expect-error toast may be undefined depending on Studio version
         props?.toast?.push?.({ status: 'success', title: `Snapshot created: Week ${week} — ${season}` })
@@ -113,10 +107,12 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
         // We can detect this by checking for any draft IDs in the teams query above, but since we merged data,
         // just provide a general info message to publish for future runs.
         try {
-          const publishedCount: number = await client.fetch<number>(`count(*[_type=="powerRanking" && !(_id in path('drafts.**'))])`)
-          if (publishedCount < 32) {
+          const publishedCount: number = await client.fetch<number>(
+            `count(*[_type=="article" && format=="powerRankings" && rankingType=="live" && published==true])`
+          )
+          if (publishedCount < 1) {
             // @ts-expect-error toast may be undefined depending on Studio version
-            props?.toast?.push?.({ status: 'info', title: 'Using draft rankings', description: 'Some Power Rankings are drafts. Consider publishing all 32 for consistent snapshots.' })
+            props?.toast?.push?.({ status: 'info', title: 'Live doc not published', description: 'Publish the live Power Rankings article for consistent snapshots.' })
           }
         } catch {}
         props.onComplete?.()
@@ -129,7 +125,7 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
     }
 
   const now = new Date()
-  const defaultSeason = String(now.getFullYear())
+  const defaultSeason = String(doc.seasonYear || now.getFullYear())
   const [dialogOpen, setDialogOpen] = useState(false)
   const [seasonInput, setSeasonInput] = useState(defaultSeason)
   const [weekInput, setWeekInput] = useState('1')

@@ -2,30 +2,30 @@ import type { DocumentActionComponent, DocumentActionProps } from 'sanity'
 import { createClient, type SanityClient } from '@sanity/client'
 import { apiVersion, dataset, projectId } from '../env'
 
-type WeekItem = { rank: number; teamAbbr: string; teamName?: string; note?: string; prevRank?: number | null; movement?: number | null }
+type WeekItem = { rank: number; team?: any; teamAbbr?: string; teamName?: string; note?: string; analysis?: any[]; teamLogo?: any }
 
 const buildId = (season: number, week: number) => `prw-${season}-w${week}`
-const buildSlug = (season: number, week: number) => `week-${week}-${season}`
+const buildSlug = (season: number, week: number) => `power-rankings-${season}-week-${week}`
 
 export const duplicatePowerRankingWeekAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
-  const doc = (draft || published) as { _type?: string } | undefined
-  if (!doc || doc._type !== 'powerRankingWeek') return null
+  const doc = (draft || published) as { _type?: string; format?: string; rankingType?: string } | undefined
+  if (!doc || doc._type !== 'article' || doc.format !== 'powerRankings' || doc.rankingType !== 'snapshot') return null
 
   const client: SanityClient = createClient({ projectId, dataset, apiVersion, useCdn: false, withCredentials: true })
 
   const run = async () => {
     try {
-      const latest = await client.fetch<{ season: number; week: number; items: WeekItem[] } | null>(
-        `*[_type=="powerRankingWeek"]|order(season desc, week desc)[0]{ season, week, items[]{rank, teamAbbr, teamName, note, prevRank, movement} }`
+      const latest = await client.fetch<{ seasonYear: number; weekNumber: number; rankings: (WeekItem & { team?: any })[] } | null>(
+        `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && weekNumber >= 1]|order(seasonYear desc, weekNumber desc)[0]{ seasonYear, weekNumber, rankings[]{rank, team, teamAbbr, teamName, note, analysis, teamLogo} }`
       )
       if (!latest) {
         // @ts-expect-error toast may be undefined depending on Studio version
         props?.toast?.push?.({ status: 'warning', title: 'No previous snapshot found', description: 'Create the first snapshot using "Snapshot from Live" instead.' })
         return
       }
-      const defaultSeason = String(latest.season)
-      const defaultWeek = String(latest.week + 1)
+      const defaultSeason = String(latest.seasonYear)
+      const defaultWeek = String(latest.weekNumber + 1)
       const seasonStr = typeof window !== 'undefined' ? window.prompt('Season (e.g., 2025):', defaultSeason) : defaultSeason
       if (!seasonStr) return
       const weekStr = typeof window !== 'undefined' ? window.prompt('New week number:', defaultWeek) : defaultWeek
@@ -38,28 +38,33 @@ export const duplicatePowerRankingWeekAction: DocumentActionComponent = (props: 
         return
       }
 
-      const items: WeekItem[] = (latest.items || []).map((it) => ({
+      const items: WeekItem[] = (latest.rankings || []).map((it: any) => ({
         rank: it.rank,
+        team: it.team,
         teamAbbr: it.teamAbbr,
         teamName: it.teamName,
-        note: '', // start fresh notes for the new week
-        prevRank: it.rank,
-        movement: 0,
+        note: '',
+        analysis: [],
+        teamLogo: it.teamLogo,
       }))
 
       const _id = buildId(season, week)
       await client.create({
         _id,
-        _type: 'powerRankingWeek',
-        season,
-        week,
-        items,
-        publishedAt: new Date().toISOString(),
+        _type: 'article',
+        format: 'powerRankings',
+        rankingType: 'snapshot',
+        seasonYear: season,
+        weekNumber: week,
+        title: `NFL Power Rankings ${season} — Week ${week}`,
         slug: { _type: 'slug', current: buildSlug(season, week) },
+        date: new Date().toISOString(),
+        published: true,
+        rankings: items,
       })
 
       // @ts-expect-error toast may be undefined depending on Studio version
-      props?.toast?.push?.({ status: 'success', title: `Duplicated Week ${latest.week} → Week ${week}`, description: `New snapshot created for ${season}` })
+      props?.toast?.push?.({ status: 'success', title: `Duplicated Week ${latest.weekNumber} → Week ${week}`, description: `New snapshot created for ${season}` })
       props.onComplete?.()
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)

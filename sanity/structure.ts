@@ -68,7 +68,7 @@ export const structure: StructureResolver = (S) => {
               .child(
                 S.documentTypeList('article')
                   .title('Rankings')
-                  .filter('(_type == "article" && format == "ranking") || _type == "rankings"')
+                  .filter('(_type == "article" && format in ["powerRankings","ranking"]) || _type == "rankings"')
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
               ),
             S.listItem()
@@ -113,26 +113,6 @@ export const structure: StructureResolver = (S) => {
             { field: 'season', direction: 'desc' },
             { field: 'week', direction: 'desc' },
             { field: 'publishedAt', direction: 'desc' },
-          ])
-      ),
-    // Power rankings
-    S.listItem()
-      .title('Power Rankings (Live)')
-      .schemaType('powerRanking')
-      .child(
-        S.documentTypeList('powerRanking')
-          .title('Power Rankings (Live)')
-          .defaultOrdering([{ field: 'rank', direction: 'asc' }])
-      ),
-    S.listItem()
-      .title('Power Rankings (Week Snapshots)')
-      .schemaType('powerRankingWeek')
-      .child(
-        S.documentTypeList('powerRankingWeek')
-          .title('Power Rankings (Week Snapshots)')
-          .defaultOrdering([
-            { field: 'season', direction: 'desc' },
-            { field: 'week', direction: 'desc' },
           ])
       ),
   ]

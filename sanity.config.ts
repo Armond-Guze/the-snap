@@ -35,14 +35,11 @@ export default defineConfig({
       if (context.schemaType === 'rankings') {
         actions = [...actions, createRankingsSnapshotAction, publishAndSnapshotAction]
       }
-      if (context.schemaType === 'powerRanking') {
-        actions = [...actions, snapshotFromLivePowerRankingsAction]
+      if (context.schemaType === 'article') {
+        actions = [...actions, snapshotFromLivePowerRankingsAction, duplicatePowerRankingWeekAction]
       }
       if (context.schemaType === 'headline') {
         actions = [...actions, suggestPrimetimeTagAction]
-      }
-      if (context.schemaType === 'powerRankingWeek') {
-        actions = [...actions, duplicatePowerRankingWeekAction]
       }
       if (context.schemaType === 'category') {
         actions = [...actions, migrateTeamCategoryToTagAction]

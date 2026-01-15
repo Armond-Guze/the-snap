@@ -56,15 +56,29 @@ export interface Author {
 }
 
 // Power Rankings types
-export interface PowerRankingTeam {
-  _id: string;
+export interface PowerRankingEntry {
   rank: number;
-  previousRank?: number;
-  teamColor?: string;
-  teamName: string;
-  teamLogo?: SanityImage;
-  summary?: string;
-  body?: PortableTextContent;
+  team?: { _id: string; title?: string; slug?: SanitySlug };
+  teamAbbr?: string;
+  teamName?: string;
+  teamLogo?: SanityImageWithUrl;
+  note?: string;
+  analysis?: PortableTextContent;
+  prevRankOverride?: number;
+  movementOverride?: number;
+}
+
+export interface PowerRankingsDoc {
+  _id: string;
+  title?: string;
+  slug?: SanitySlug;
+  seasonYear: number;
+  rankingType: 'live' | 'snapshot';
+  weekNumber?: number;
+  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB';
+  methodology?: string;
+  rankings: PowerRankingEntry[];
+  date?: string;
 }
 
 export interface MovementIndicator {

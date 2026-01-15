@@ -1,11 +1,10 @@
 import { client } from "@/sanity/lib/client";
 import Link from 'next/link';
-import { powerRankingsQuery } from "@/sanity/lib/queries";
+import { powerRankingsLiveQuery, powerRankingsLatestSnapshotForSeasonQuery } from "@/lib/queries/power-rankings";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
-import { urlFor } from "@/sanity/lib/image";
 import { portableTextComponents } from "@/lib/portabletext-components";
-import type { PowerRankingTeam, MovementIndicator } from "@/types";
+import type { PowerRankingsDoc, PowerRankingEntry, MovementIndicator } from "@/types";
 import { gradientClassForTeam } from "@/lib/team-utils";
 import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
 import { getActiveSeason } from "@/lib/season";
@@ -13,10 +12,10 @@ import { teamCodeFromName } from "@/lib/team-utils";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '2025 NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
-  description: 'Follow the 2025 NFL Power Rankings updated each week for all 32 teams. See who is rising or falling with fresh commentary on every squad.',
+  title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
+  description: 'Follow the latest NFL Power Rankings updated each week for all 32 teams. See who is rising or falling with fresh commentary on every squad.',
   openGraph: {
-    title: '2025 NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
+    title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
     description: 'Weekly updated rankings for all 32 NFL teams with movement notes and analysis.',
     url: 'https://thegamesnap.com/power-rankings',
     type: 'website',
@@ -39,16 +38,16 @@ function getMovementIndicator(change: number): MovementIndicator {
 
 export default async function PowerRankingsPage() {
   try {
-  const rankings: PowerRankingTeam[] = await client.fetch(powerRankingsQuery);
-  const season = await getActiveSeason();
-  const records = await fetchTeamRecords(season);
-    // latest weekly snapshot slug
-    const latest = await client.fetch<{ slug: { current: string } } | null>(
-      `*[_type=="powerRankingWeek"]|order(season desc, week desc)[0]{ slug }`
-    );
+    const liveDoc: PowerRankingsDoc | null = await client.fetch(powerRankingsLiveQuery);
+    const season = liveDoc?.seasonYear ?? (await getActiveSeason());
+    const records = await fetchTeamRecords(season);
+    const latestSnapshot: { seasonYear: number; weekNumber?: number; playoffRound?: string; rankings?: { rank?: number; teamAbbr?: string; teamName?: string }[] } | null =
+      liveDoc?.seasonYear
+        ? await client.fetch(powerRankingsLatestSnapshotForSeasonQuery, { season: liveDoc.seasonYear })
+        : null;
 
     // Handle empty state
-    if (!rankings || rankings.length === 0) {
+    if (!liveDoc?.rankings || liveDoc.rankings.length === 0) {
       return (
         <div className="px-4 py-16 sm:px-6 lg:px-12 bg-black text-white min-h-screen flex items-center justify-center">
           <div className="text-center">
@@ -71,11 +70,16 @@ export default async function PowerRankingsPage() {
           </h1>
           <div className="w-24 h-1 bg-white mx-auto mt-6 mb-6"></div>
           <p className="text-xl text-gray-300 font-medium">
-            Latest rankings updated weekly • {rankings.length} teams
+            Latest rankings updated weekly • {liveDoc.rankings.length} teams
           </p>
-          {latest?.slug?.current && (
+          {(latestSnapshot?.weekNumber || latestSnapshot?.playoffRound) && (
             <div className="mt-4">
-              <Link href={`/power-rankings/week/${latest.slug.current.replace('week-','')}`} className="inline-block text-sm px-3 py-2 rounded bg-white text-black font-medium hover:bg-gray-200 transition-colors">View This Week’s Edition →</Link>
+              <Link
+                href={`/power-rankings/${season}/${latestSnapshot.playoffRound ? latestSnapshot.playoffRound.toLowerCase() : `week-${latestSnapshot.weekNumber}`}`}
+                className="inline-block text-sm px-3 py-2 rounded bg-white text-black font-medium hover:bg-gray-200 transition-colors"
+              >
+                View This Week’s Edition →
+              </Link>
             </div>
           )}
           <div className="mt-4 inline-flex items-center px-4 py-2 bg-black rounded-full">
@@ -87,20 +91,23 @@ export default async function PowerRankingsPage() {
         </header>
 
         <div className="space-y-12 max-w-3xl mx-auto">
-          {rankings.map((team) => {
-            const {
-              _id,
-              rank,
-              previousRank,
-              teamName,
-              teamLogo,
-              body,
-            } = team;
-            const change = previousRank ? previousRank - rank : 0;
+          {liveDoc.rankings
+            .slice()
+            .sort((a, b) => a.rank - b.rank)
+            .map((team: PowerRankingEntry, index: number) => {
+            const rank = team.rank;
+            const teamName = team.teamName || team.team?.title || "";
+            const teamLogo = team.teamLogo;
+            const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
+            const prevRank =
+              typeof team.prevRankOverride === "number"
+                ? team.prevRankOverride
+                : latestSnapshot?.rankings?.find((t) => (t.teamAbbr || t.teamName) === (team.teamAbbr || teamName))?.rank;
+            const change = typeof team.movementOverride === "number" ? team.movementOverride : typeof prevRank === "number" ? prevRank - rank : 0;
             const movement = getMovementIndicator(change);
 
             return (
-              <article key={_id} className="group">
+              <article key={key} className="group">
                 {/* Compact Team Header */}
                 <div className="relative bg-black p-3">
                   {/* Team Color Accent: auto from team name */}
@@ -118,10 +125,10 @@ export default async function PowerRankingsPage() {
                     </div>
 
                     {/* Team Logo */}
-                    {teamLogo?.asset && (
+                    {teamLogo?.asset?.url && (
                       <div className="flex-shrink-0">
                         <Image
-                          src={urlFor(teamLogo).width(60).height(60).url()}
+                          src={teamLogo.asset.url}
                           alt={`${teamName} logo`}
                           width={60}
                           height={60}
@@ -136,7 +143,11 @@ export default async function PowerRankingsPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col items-start">
                           <h2 className="text-xl sm:text-2xl font-bold text-white truncate">{teamName}</h2>
-                          {(() => { const abbr = teamCodeFromName(teamName); const rec = shortRecord(abbr ? records.get(abbr) : undefined); return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null; })()}
+                          {(() => {
+                            const abbr = team.teamAbbr || teamCodeFromName(teamName);
+                            const rec = shortRecord(abbr ? records.get(abbr) : undefined);
+                            return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null;
+                          })()}
                         </div>
 
                         {/* Movement Indicator */}
@@ -164,10 +175,13 @@ export default async function PowerRankingsPage() {
                 {/* Content Section */}
                 <div className="mt-3 bg-black p-6">
                   {/* Summary intentionally hidden on live page (used for SEO only) */}
-                  {Array.isArray(body) && body.length > 0 && (
+                  {Array.isArray(team.analysis) && team.analysis.length > 0 && (
                     <div className="text-2xl text-gray-200 leading-relaxed">
-                      <PortableText value={body} components={portableTextComponents} />
+                      <PortableText value={team.analysis} components={portableTextComponents} />
                     </div>
+                  )}
+                  {!team.analysis && team.note && (
+                    <p className="text-lg text-gray-200 leading-relaxed">{team.note}</p>
                   )}
                 </div>
               </article>

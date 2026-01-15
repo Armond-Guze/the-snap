@@ -96,15 +96,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   // Power Rankings weekly snapshots
-  const rankingWeekSlugs: { slug?: { current?: string } | null; _updatedAt?: string }[] = await client.fetch(`*[_type=="powerRankingWeek"]{ slug, _updatedAt }`);
+  const rankingWeekDocs: { seasonYear?: number; weekNumber?: number; playoffRound?: string; _updatedAt?: string }[] =
+    await client.fetch(`*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && published==true]{ seasonYear, weekNumber, playoffRound, _updatedAt }`);
   const rankingWeekEntries: MetadataRoute.Sitemap = dedupeEntries(
-    rankingWeekSlugs
+    rankingWeekDocs
       .map((s) => {
-        const slug = safeSlug(s?.slug?.current || '');
-        const short = slug ? slug.replace('week-','') : null;
-        if (!short) return null;
+        if (!s?.seasonYear) return null;
+        const weekPart = typeof s.weekNumber === 'number' ? `week-${s.weekNumber}` : s.playoffRound?.toLowerCase();
+        if (!weekPart) return null;
         return {
-          url: `${baseUrl}/power-rankings/week/${short}`,
+          url: `${baseUrl}/power-rankings/${s.seasonYear}/${weekPart}`,
           lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
           changeFrequency: 'weekly' as const,
           priority: 0.6,

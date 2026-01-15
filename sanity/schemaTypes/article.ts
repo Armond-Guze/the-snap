@@ -1,6 +1,8 @@
 import { defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
 
+const isPowerRankings = (document?: Record<string, unknown>) => document?.format === "powerRankings";
+
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
   name: "article",
@@ -17,8 +19,9 @@ export default defineType({
           { title: "Headline", value: "headline" },
           { title: "Feature", value: "feature" },
           { title: "Fantasy", value: "fantasy" },
-          { title: "Ranking", value: "ranking" },
           { title: "Analysis", value: "analysis" },
+          { title: "Ranking", value: "ranking" },
+          { title: "Power Rankings", value: "powerRankings" },
           { title: "Other", value: "other" },
         ],
         layout: "radio",
@@ -26,6 +29,115 @@ export default defineType({
       validation: (Rule) => Rule.required().error("Pick an article format"),
       initialValue: "feature",
       group: "quick",
+    }),
+
+    defineField({
+      name: "rankingType",
+      title: "Power Rankings Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Live", value: "live" },
+          { title: "Weekly Snapshot", value: "snapshot" },
+        ],
+        layout: "radio",
+      },
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          return val ? true : "Select live or weekly snapshot";
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "power",
+    }),
+
+    defineField({
+      name: "seasonYear",
+      title: "Season Year",
+      type: "number",
+      description: "Use the season year for this ranking (e.g., 2025).",
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          return typeof val === "number" ? true : "Season year is required for power rankings";
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "power",
+    }),
+
+    defineField({
+      name: "weekNumber",
+      title: "Week Number",
+      type: "number",
+      description: "Regular season week number (1–18). Leave empty for playoff rounds.",
+      validation: (Rule) => Rule.min(1).max(18),
+      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
+      group: "power",
+    }),
+
+    defineField({
+      name: "playoffRound",
+      title: "Playoff Round",
+      type: "string",
+      options: {
+        list: [
+          { title: "Wild Card", value: "WC" },
+          { title: "Divisional", value: "DIV" },
+          { title: "Conference", value: "CONF" },
+          { title: "Super Bowl", value: "SB" },
+        ],
+        layout: "radio",
+      },
+      description: "Only use for playoff snapshots. Leave empty for regular season weeks.",
+      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
+      group: "power",
+    }),
+
+    defineField({
+      name: "rankings",
+      title: "Ranked Teams (1–32)",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "rank", title: "Rank", type: "number", validation: (Rule) => Rule.required().min(1).max(32) }),
+            defineField({ name: "team", title: "Team", type: "reference", to: [{ type: "tag" }], description: "Use the canonical team tag" }),
+            defineField({ name: "teamAbbr", title: "Team Abbreviation", type: "string", description: "Optional (e.g., KC, SF). Used for links/labels." }),
+            defineField({ name: "teamName", title: "Team Name (override)", type: "string", description: "Optional display override" }),
+            defineField({ name: "teamLogo", title: "Team Logo", type: "image", options: { hotspot: true } }),
+            defineField({ name: "note", title: "Blurb", type: "text", rows: 2, description: "Short punchy note" }),
+            defineField({ name: "analysis", title: "Analysis (Full Write-Up)", type: "blockContent" }),
+            defineField({ name: "prevRankOverride", title: "Prev Rank (override)", type: "number" }),
+            defineField({ name: "movementOverride", title: "Movement (+/- override)", type: "number", description: "Leave empty to auto-compute" }),
+          ],
+        },
+      ],
+      validation: (Rule) =>
+        Rule.custom((items, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          if (!Array.isArray(items)) return "Add the ranked teams";
+          if (items.length !== 32) return "Must include exactly 32 teams";
+          const ranks = items.map((i) => i?.rank).filter((r) => typeof r === "number") as number[];
+          if (new Set(ranks).size !== 32) return "Ranks must be unique";
+          const missing = Array.from({ length: 32 }, (_, idx) => idx + 1).filter((n) => !ranks.includes(n));
+          if (missing.length) return "Ranks must be contiguous 1–32";
+          const teams = items.map((i) => i?.team?._ref || i?.teamName).filter(Boolean) as string[];
+          if (new Set(teams).size !== teams.length) return "Teams must be unique";
+          return true;
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "power",
+    }),
+
+    defineField({
+      name: "methodology",
+      title: "Methodology / Notes",
+      type: "text",
+      rows: 3,
+      description: "Explain how rankings are decided. Keep on live doc and reuse for snapshots.",
+      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType === "snapshot",
+      group: "power",
     }),
     defineField({
       name: "title",
@@ -59,6 +171,15 @@ export default defineType({
       },
       validation: (Rule) => Rule.required(),
       group: "quick",
+    }),
+
+    defineField({
+      name: "slugHistory",
+      title: "Slug History (for redirects)",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Keep previous slugs to power redirects if URL patterns change.",
+      group: "advanced",
     }),
 
     defineField({
@@ -282,6 +403,7 @@ export default defineType({
     { name: "media", title: "Media" },
     { name: "embeds", title: "Embeds" },
     { name: "seo", title: "SEO" },
+    { name: "power", title: "Power Rankings" },
     { name: "advanced", title: "Advanced" },
   ],
   preview: {
