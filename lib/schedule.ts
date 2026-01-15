@@ -1,12 +1,12 @@
 // Lightweight schedule utilities (initial scaffold)
 // Designed to be extended later with automatic ingestion.
 
-import { isSportsDataEnabled } from '@/lib/config/sportsdata'
+import { isSportsDataEnabled } from './config/sportsdata'
 import {
   fetchSportsDataCurrentWeek,
   fetchSportsDataScoresByWeek,
   SportsDataScore
-} from '@/lib/sportsdata-client'
+} from './sportsdata-client'
 
 export interface StaticGame {
   gameId: string; // ESPN event id if known

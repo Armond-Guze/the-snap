@@ -1,4 +1,4 @@
-import { getSportsDataApiKey, isSportsDataEnabled, sportsDataConfig } from '@/lib/config/sportsdata';
+import { getSportsDataApiKey, isSportsDataEnabled, sportsDataConfig } from './config/sportsdata';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_REVALIDATE_SECONDS = 1_800; // 30 minutes balances freshness vs. quota

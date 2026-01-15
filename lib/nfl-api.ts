@@ -1,4 +1,4 @@
-import { fetchSportsDataStandings, SportsDataStandingsTeam } from '@/lib/sportsdata-client';
+import { fetchSportsDataStandings, SportsDataStandingsTeam } from './sportsdata-client';
 
 // NFL team mapping with logo URLs for consistent naming between ESPN API and our system
 export const NFL_TEAMS_MAP = {
