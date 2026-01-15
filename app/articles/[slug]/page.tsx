@@ -157,21 +157,21 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
-					<h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{article.title}</h1>
-					<div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
+					<h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{article.title}</h1>
+					<div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
 						{article.author?.image?.asset?.url && (
 							<div className="relative w-8 h-8 rounded-full overflow-hidden">
 								<Image src={article.author.image.asset.url} alt={article.author.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
 							</div>
 						)}
-						{article.author?.name && <span className="font-medium text-white/90">By {article.author.name}</span>}
+						{article.author?.name && <span className="font-medium text-white/90">{article.author.name}</span>}
 						{publishedDate && (
 							<>
 								<span>• {formatArticleDate(publishedDate)}</span>
-								<span className="text-gray-500">•</span>
+								<span className="text-gray-500 hidden sm:inline">•</span>
 							</>
 						)}
-						<ReadingTime minutes={readingTime} />
+						<ReadingTime minutes={readingTime} className="hidden sm:flex" />
 						<span className="text-gray-500">•</span>
 						<ArticleViewCount slug={trimmedSlug} />
 						{article.category?.slug?.current && article.category?.title && (
