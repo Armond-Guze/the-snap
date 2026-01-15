@@ -49,7 +49,8 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
 
   return (
     <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
+      {/* Remove heavy tint so cards stay vibrant */}
+      <div className="pointer-events-none absolute inset-0 -z-10" />
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
         <div className="mb-6">
           <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">More Headlines</h2>
@@ -71,7 +72,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               <Link
                 key={item._id}
                 href={href}
-                className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] hover:bg-[#161616] hover:border-[#262626] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#444]"
+                className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-white/8 bg-transparent hover:bg-white/5 hover:border-white/20 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <div className="relative w-32 sm:w-40 lg:w-44 h-28 sm:h-32 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
                   {imgUrl ? (

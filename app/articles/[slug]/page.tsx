@@ -172,12 +172,14 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</>
 						)}
 						<ReadingTime minutes={readingTime} className="hidden sm:flex" />
-						<span className="text-gray-500">•</span>
-						<ArticleViewCount slug={trimmedSlug} />
+						<span className="text-gray-500 hidden sm:inline">•</span>
+						<span className="hidden sm:inline-flex items-center gap-1">
+							<ArticleViewCount slug={trimmedSlug} />
+						</span>
 						{article.category?.slug?.current && article.category?.title && (
 							<Link
 								href={`/categories/${article.category.slug.current}`}
-								className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+								className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
 							>
 								{article.category.title}
 							</Link>
