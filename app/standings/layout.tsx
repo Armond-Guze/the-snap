@@ -1,12 +1,12 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "NFL Standings 2025 - Division Standings & Playoff Picture | The Snap",
-  description: "Current NFL standings for all divisions. Track team records, win percentages, and playoff implications. Updated after every game with playoff scenarios.",
+  title: "2025 NFL Standings – Division Leaders & Playoff Picture | The Snap",
+  description: "Stay updated on the 2025 NFL standings with division-by-division records and playoff race context. Fresh after every game window.",
   keywords: "NFL standings, NFL division standings, NFL playoff picture, NFL records, AFC standings, NFC standings, NFL playoffs 2025",
   openGraph: {
-    title: "NFL Standings 2025 - Division Standings & Playoff Picture | The Snap",
-    description: "Current NFL standings for all divisions. Track team records, win percentages, and playoff implications.",
+    title: "2025 NFL Standings – Division Leaders & Playoff Picture | The Snap",
+    description: "Live 2025 NFL standings with records, division leaders, and playoff implications after every game.",
     url: 'https://thegamesnap.com/standings',
     images: [
       {

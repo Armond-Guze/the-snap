@@ -24,8 +24,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Snap - NFL News, Power Rankings & Analysis",
-  description: "Your premier destination for NFL insights, power rankings, and breaking news. Stay ahead of the game with expert analysis and comprehensive coverage.",
+  title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
+  description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
   authors: [{ name: "The Snap Editorial Team" }],
   creator: "The Snap",
   publisher: "The Snap",
@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: "The Snap - NFL News, Power Rankings & Analysis",
-    description: "Your premier destination for NFL insights, power rankings, and breaking news. Stay ahead of the game with expert analysis and comprehensive coverage.",
+    title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
+    description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
     url: 'https://thegamesnap.com',
     siteName: 'The Snap',
     images: [
@@ -56,10 +56,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Snap - NFL News, Power Rankings & Analysis",
-    description: "Your premier destination for NFL insights, power rankings, and breaking news.",
-    creator: '@thesnap', // Replace with your actual Twitter handle
-  images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
+    title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
+    description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.",
+    creator: '@thesnap',
+    images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
   },
   icons: {
     icon: [

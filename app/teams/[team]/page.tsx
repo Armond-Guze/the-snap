@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import StructuredData from '@/app/components/StructuredData';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
+import { client } from '@/sanity/lib/client';
 
 // Follow project convention: params delivered as a Promise
 interface TeamPageProps { params: Promise<{ team: string }> }
@@ -19,8 +20,8 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   if (!meta) return { title: 'Team Schedule | The Snap' };
   const year = 2025;
   const name = meta.name;
-  const title = `${name} ${year} Schedule, Matchups & TV Channels | The Snap`;
-  const description = `Full ${year} ${name} schedule: weekly opponents, dates, kickoff times (ET), TV channels plus final scores and live status updates.`;
+  const title = `2025 ${name} Schedule – Game Dates & Scores | The Snap`;
+  const description = `Full 2025 ${name} schedule with dates, opponents, kickoff times (ET), TV channels, live scores and final results.`;
   return {
     title,
     description,
@@ -40,6 +41,24 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
   const games = await getTeamSeasonSchedule(abbr);
   const byeWeek = computeByeWeek(games);
   const prime = primetimeSummary(games);
+  const latestNews = await client.fetch<{ _id: string; title: string; homepageTitle?: string; slug: { current: string }; _type?: string }[]>(`
+    *[
+      ((_type=="article" && format=="headline") || _type=="headline") && published==true && (
+        title match "*${abbr}*" || title match "*${meta.name}*" || (defined(tags) && tags match "*${meta.name}*")
+      )
+    ]|order(coalesce(publishedAt,_createdAt) desc)[0...3]{ _id,title,homepageTitle,slug,_type }
+  `);
+  const keyGames = (() => {
+    const upcoming = games
+      .filter(g => g.status !== 'FINAL')
+      .sort((a, b) => Date.parse(a.dateUTC) - Date.parse(b.dateUTC));
+    const pick = (upcoming.length ? upcoming : games).slice(0, 3);
+    return pick.map(g => ({
+      week: g.week,
+      matchup: `${g.away} @ ${g.home}`,
+      note: isPrimetimeGame(g) ? 'Primetime spotlight' : g.network ? `On ${g.network}` : 'Key matchup',
+    }));
+  })();
   const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';
   const eventList = enableEventSchema
     ? buildSportsEventList(games, { country: 'US' }).slice(0, 50)
@@ -73,7 +92,22 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 text-white">
       <h1 className="text-3xl font-bold mb-2">{meta.name} 2025 Schedule</h1>
-      <p className="text-white/60 mb-4 text-sm">Kickoff times expressed in Eastern Time (ET). Live status and final scores update automatically.</p>
+      <p className="text-white/70 mb-3 text-sm">Kickoff times in Eastern Time (ET). Live status and final scores update automatically.</p>
+      <p className="text-white/70 text-sm mb-4">{`The ${meta.name} draw ${prime.count || 0} primetime game${prime.count === 1 ? '' : 's'} and face a key Week ${keyGames[0]?.week || '?'} matchup. Powered by a fan-first view of the ${meta.name}, track every date, TV slot, and result here.`}</p>
+      {keyGames.length > 0 && (
+        <div className="mb-6 text-sm text-white/80">
+          <h2 className="font-semibold text-base mb-2">Key games</h2>
+          <ul className="space-y-1">
+            {keyGames.map((kg, idx) => (
+              <li key={`${kg.week}-${idx}`} className="flex items-center gap-2">
+                <span className="text-white/50">Week {kg.week}</span>
+                <span className="font-semibold">{kg.matchup}</span>
+                <span className="text-white/50">• {kg.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {teamSchema && <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />}
       <div className="flex flex-wrap gap-4 text-xs text-white/70 mb-6">
         {byeWeek && <span className="px-2 py-1 bg-white/5 rounded border border-white/10">Bye Week: {byeWeek}</span>}
@@ -130,6 +164,22 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
           </tbody>
         </table>
       </div>
+
+      {latestNews.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-2xl font-semibold mb-3">Latest {meta.name} News</h2>
+          <div className="space-y-2">
+            {latestNews.map(n => {
+              const href = n._type === 'article' ? `/articles/${n.slug.current}` : `/headlines/${n.slug.current}`;
+              return (
+                <Link key={n._id} href={href} className="block text-white/80 hover:text-white text-sm underline-offset-4">
+                  {n.homepageTitle || n.title}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
   <section className="mt-12 space-y-6">
         <h2 className="text-2xl font-semibold">{meta.name} Schedule FAQs</h2>

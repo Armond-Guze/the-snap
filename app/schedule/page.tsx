@@ -13,8 +13,8 @@ import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 
 // Root schedule metadata (static – week specific pages handle granular titles)
 export const metadata: Metadata = {
-  title: 'NFL Schedule 2025 – Times, TV Channels & Matchups (ET) | The Snap',
-  description: 'Comprehensive 2025 NFL schedule hub: weekly matchups, kickoff times (ET), TV channels, live score status and network info. View every week 1–18 plus primetime games.',
+  title: '2025 NFL Schedule – Matchups, Times & TV Channels | The Snap',
+  description: 'Full 2025 NFL schedule with weekly matchups, dates, kickoff times (ET) and TV channels. Live scores during games and final results after every matchup.',
   keywords: [
     'NFL schedule 2025',
     '2025 NFL schedule',
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   ].join(', '),
   alternates: { canonical: '/schedule' },
   openGraph: {
-    title: 'NFL Schedule 2025 – Times & TV Channels | The Snap',
-    description: 'Full 2025 NFL schedule hub: matchups, times (ET), networks, live status and weekly navigation.',
+    title: '2025 NFL Schedule – Matchups, Times & TV Channels | The Snap',
+    description: 'Complete 2025 NFL schedule: dates, kickoff times (ET), TV channels, live scores and weekly navigation.',
     url: 'https://thegamesnap.com/schedule',
     type: 'website'
   },

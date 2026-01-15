@@ -8,6 +8,19 @@ import Link from 'next/link';
 import TagCloud from '../components/TagCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MostRead from '../components/MostRead';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
+  description: 'Discover the latest NFL news, breaking stories, and fan-driven analysis for all 32 teams. Fast updates without the fluff.',
+  alternates: { canonical: '/headlines' },
+  openGraph: {
+    title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
+    description: 'Fresh NFL news and analysis across all 32 teams—fan-first, no corporate spin.',
+    url: 'https://thegamesnap.com/headlines',
+    type: 'website',
+  },
+};
 
 // Server-rendered headlines index for stronger initial HTML
 export const revalidate = 120; // allow caching but keep relatively fresh

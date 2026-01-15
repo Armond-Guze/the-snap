@@ -10,6 +10,19 @@ import { gradientClassForTeam } from "@/lib/team-utils";
 import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
 import { getActiveSeason } from "@/lib/season";
 import { teamCodeFromName } from "@/lib/team-utils";
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '2025 NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
+  description: 'Follow the 2025 NFL Power Rankings updated each week for all 32 teams. See who is rising or falling with fresh commentary on every squad.',
+  openGraph: {
+    title: '2025 NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
+    description: 'Weekly updated rankings for all 32 NFL teams with movement notes and analysis.',
+    url: 'https://thegamesnap.com/power-rankings',
+    type: 'website',
+  },
+  alternates: { canonical: '/power-rankings' },
+};
 
 export const revalidate = 60;
 
