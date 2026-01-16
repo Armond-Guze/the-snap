@@ -169,7 +169,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
   }
 
   if (isLegacyArticle(finalRanking)) {
-    const legacy = finalRanking as RankingsType & {
+    const legacy = finalRanking as Omit<RankingsType, 'rankingType'> & {
       format?: string;
       seasonYear?: number;
       weekNumber?: number;

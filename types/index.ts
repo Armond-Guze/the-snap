@@ -239,6 +239,7 @@ export interface RankingTeam {
 }
 
 export interface Rankings {
+  _type?: 'article' | 'rankings';
   _id: string;
   title: string;
   homepageTitle?: string;
