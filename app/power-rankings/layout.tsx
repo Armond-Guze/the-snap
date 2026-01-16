@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     images: ['/images/thesnap-logo-new copy.jpg'],
   },
   alternates: {
-    canonical: '/power-rankings',
+    canonical: 'https://thegamesnap.com/power-rankings',
   },
 }
 

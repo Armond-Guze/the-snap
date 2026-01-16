@@ -62,6 +62,7 @@ export const headlineDetailQuery = `
         asset->{
           url
         }
+        ,alt
       },
       bio
     },
@@ -215,6 +216,7 @@ export const articleDetailQuery = `
         asset->{
           url
         }
+        ,alt
       },
       bio
     },

@@ -263,6 +263,11 @@ export default defineType({
         defineField({ name: "caption", title: "Caption", type: "string" }),
         defineField({ name: "credit", title: "Photo Credit", type: "string" }),
       ],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : "Cover image is required before publishing";
+        }),
       group: "media",
     }),
     defineField({
@@ -289,7 +294,11 @@ export default defineType({
       title: "Summary",
       type: "text",
       rows: 3,
-      validation: (Rule) => Rule.max(300),
+      validation: (Rule) =>
+        Rule.max(300).custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : "Summary is required before publishing";
+        }),
       group: "quick",
     }),
     defineField({
@@ -334,7 +343,7 @@ export default defineType({
       description: "LEGACY free-form tags. Use Tag References below for new content.",
       validation: (Rule) => Rule.unique().error("Tag already added"),
       readOnly: true,
-      hidden: ({ document }) => !document?.tags?.length,
+      hidden: ({ document }) => !Array.isArray(document?.tags) || document.tags.length === 0,
       group: "quick",
     }),
     defineField({

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import StructuredData from '@/app/components/StructuredData';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { client } from '@/sanity/lib/client';
+import { getActiveSeason } from '@/lib/season';
 
 // Follow project convention: params delivered as a Promise
 interface TeamPageProps { params: Promise<{ team: string }> }
@@ -18,14 +19,14 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   const abbr = team.toUpperCase();
   const meta = TEAM_META[abbr];
   if (!meta) return { title: 'Team Schedule | The Snap' };
-  const year = 2025;
+  const year = await getActiveSeason();
   const name = meta.name;
-  const title = `2025 ${name} Schedule – Game Dates & Scores | The Snap`;
-  const description = `Full 2025 ${name} schedule with dates, opponents, kickoff times (ET), TV channels, live scores and final results.`;
+  const title = `${year} ${name} Schedule – Game Dates & Scores | The Snap`;
+  const description = `Full ${year} ${name} schedule with dates, opponents, kickoff times (ET), TV channels, live scores and final results.`;
   return {
     title,
     description,
-    alternates: { canonical: `/teams/${abbr.toLowerCase()}` },
+    alternates: { canonical: `https://thegamesnap.com/teams/${abbr.toLowerCase()}` },
     openGraph: { title, description },
     twitter: { card: 'summary_large_image', title, description }
   };
@@ -38,6 +39,7 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
   const abbr = team.toUpperCase();
   const meta = TEAM_META[abbr];
   if (!meta) return <div className="max-w-4xl mx-auto px-4 py-12 text-white">Unknown team.</div>;
+  const season = await getActiveSeason();
   const games = await getTeamSeasonSchedule(abbr);
   const byeWeek = computeByeWeek(games);
   const prime = primetimeSummary(games);
@@ -63,14 +65,14 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
   const eventList = enableEventSchema
     ? buildSportsEventList(games, { country: 'US' }).slice(0, 50)
     : [];
-  const teamSchema = enableEventSchema && eventList.length
+    const teamSchema = enableEventSchema && eventList.length
     ? {
         '@context': 'https://schema.org',
         '@type': 'SportsTeam',
         name: meta.name,
         sport: 'American Football',
         memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
-        season: '2025',
+          season: String(season),
         url: `https://thegamesnap.com/teams/${abbr.toLowerCase()}`,
         hasPart: eventList,
       }
@@ -91,7 +93,7 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 text-white">
-      <h1 className="text-3xl font-bold mb-2">{meta.name} 2025 Schedule</h1>
+        <h1 className="text-3xl font-bold mb-2">{meta.name} {season} Schedule</h1>
       <p className="text-white/70 mb-3 text-sm">Kickoff times in Eastern Time (ET). Live status and final scores update automatically.</p>
       <p className="text-white/70 text-sm mb-4">{`The ${meta.name} draw ${prime.count || 0} primetime game${prime.count === 1 ? '' : 's'} and face a key Week ${keyGames[0]?.week || '?'} matchup. Powered by a fan-first view of the ${meta.name}, track every date, TV slot, and result here.`}</p>
       {keyGames.length > 0 && (
@@ -189,7 +191,7 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
     <p className="text-white/70">{byeWeek ? `Their bye comes in Week ${byeWeek}.` : 'Bye week not yet determined in current data.'}</p>
           </div>
           <div>
-            <h3 className="font-semibold">How many primetime games do the {meta.name} have in 2025?</h3>
+            <h3 className="font-semibold">How many primetime games do the {meta.name} have in {season}?</h3>
     <p className="text-white/70">{prime.count ? `${prime.count} primetime appearance${prime.count>1?'s':''} in Weeks ${prime.weeks.join(', ')}.` : 'No primetime games in current data.'}</p>
           </div>
           <div>

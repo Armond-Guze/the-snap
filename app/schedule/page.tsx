@@ -11,33 +11,36 @@ import StructuredData from '../components/StructuredData';
 import WeekDropdown from './WeekDropdown';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 
-// Root schedule metadata (static – week specific pages handle granular titles)
-export const metadata: Metadata = {
-  title: '2025 NFL Schedule – Matchups, Times & TV Channels | The Snap',
-  description: 'Full 2025 NFL schedule with weekly matchups, dates, kickoff times (ET) and TV channels. Live scores during games and final results after every matchup.',
-  keywords: [
-    'NFL schedule 2025',
-    '2025 NFL schedule',
-    'NFL games this week',
-    'NFL kickoff times',
-    'NFL TV schedule',
-    'NFL matchups',
-    'NFL week by week schedule'
-  ].join(', '),
-  alternates: { canonical: '/schedule' },
-  openGraph: {
-    title: '2025 NFL Schedule – Matchups, Times & TV Channels | The Snap',
-    description: 'Complete 2025 NFL schedule: dates, kickoff times (ET), TV channels, live scores and weekly navigation.',
-    url: 'https://thegamesnap.com/schedule',
-    type: 'website'
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'NFL Schedule 2025 – Times & Networks',
-    description: 'Weekly NFL matchups, kickoff times (ET) and TV channels – Week 1 through 18.'
-  },
-  robots: { index: true, follow: true }
-};
+// Root schedule metadata (dynamic by season; week-specific pages handle granular titles)
+export async function generateMetadata(): Promise<Metadata> {
+  const season = await getActiveSeason();
+  return {
+    title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,
+    description: `Full ${season} NFL schedule with weekly matchups, dates, kickoff times (ET) and TV channels. Live scores during games and final results after every matchup.`,
+    keywords: [
+      `NFL schedule ${season}`,
+      `${season} NFL schedule`,
+      'NFL games this week',
+      'NFL kickoff times',
+      'NFL TV schedule',
+      'NFL matchups',
+      'NFL week by week schedule'
+    ].join(', '),
+    alternates: { canonical: 'https://thegamesnap.com/schedule' },
+    openGraph: {
+      title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,
+      description: `Complete ${season} NFL schedule: dates, kickoff times (ET), TV channels, live scores and weekly navigation.`,
+      url: 'https://thegamesnap.com/schedule',
+      type: 'website'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `NFL Schedule ${season} – Times & Networks`,
+      description: `Weekly NFL matchups, kickoff times (ET) and TV channels – Week 1 through 18.`
+    },
+    robots: { index: true, follow: true }
+  };
+}
 
 export const revalidate = 300; // updated frequently in season
 
@@ -68,7 +71,7 @@ export default async function ScheduleLandingPage() {
   <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
   <TimezoneClient />
   <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
-  <ScheduleFAQ />
+  <ScheduleFAQ season={season} />
     </div>
   );
 }
@@ -150,7 +153,7 @@ function TeamBadge({ abbr }: { abbr: string }) {
   );
 }
 
-function ScheduleFAQ() {
+function ScheduleFAQ({ season }: { season: number }) {
   const faq = [
     {
       q: 'What week of the NFL season is it right now?',
@@ -166,7 +169,7 @@ function ScheduleFAQ() {
     },
     {
       q: 'Where can I see a specific team\'s full schedule?',
-      a: 'Visit dedicated team pages like /teams/kc or /teams/sf for the full 2025 slate.'
+      a: `Visit dedicated team pages like /teams/kc or /teams/sf for the full ${season} slate.`
     }
   ];
   const faqLd = {

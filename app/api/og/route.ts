@@ -1,70 +1,44 @@
 import { ImageResponse } from 'next/og';
+import React from 'react';
 
 export const runtime = 'edge';
 
 const clamp = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+	const { searchParams } = new URL(request.url);
 
-  const title = clamp(searchParams.get('title')?.trim() || 'The Snap', 120);
-  const subtitle = clamp(searchParams.get('subtitle')?.trim() || 'NFL news, rankings, and analysis', 160);
-  const category = clamp(searchParams.get('category')?.trim() || '', 40);
-  const author = clamp(searchParams.get('author')?.trim() || '', 40);
-  const date = clamp(searchParams.get('date')?.trim() || '', 40);
+	const title = clamp(searchParams.get('title')?.trim() || 'The Snap', 120);
+	const subtitle = clamp(searchParams.get('subtitle')?.trim() || 'NFL news, rankings, and analysis', 160);
+	const category = clamp(searchParams.get('category')?.trim() || '', 40);
+	const author = clamp(searchParams.get('author')?.trim() || '', 40);
+	const date = clamp(searchParams.get('date')?.trim() || '', 40);
 
-  const metaBits = [author, date].filter(Boolean).join(' • ');
+	const metaBits = [author, date].filter(Boolean).join(' • ');
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '1200px',
-          height: '630px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '64px',
-          color: '#F8FAFC',
-          backgroundColor: '#0B1220',
-          backgroundImage:
-            'radial-gradient(1200px 630px at 0% 0%, rgba(59,130,246,0.35), transparent), radial-gradient(900px 500px at 100% 0%, rgba(14,165,233,0.25), transparent), linear-gradient(160deg, #0B1220 0%, #0F172A 60%, #111827 100%)',
-          fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ fontSize: '26px', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>
-            THE SNAP
-          </div>
-          {category ? (
-            <div
-              style={{
-                alignSelf: 'flex-start',
-                padding: '8px 16px',
-                borderRadius: '999px',
-                backgroundColor: 'rgba(59,130,246,0.15)',
-                color: '#BFDBFE',
-                fontSize: '20px',
-                fontWeight: 600,
-              }}
-            >
-              {category}
-            </div>
-          ) : null}
-          <div style={{ fontSize: '64px', fontWeight: 800, lineHeight: 1.1 }}>
-            {title}
-          </div>
-          <div style={{ fontSize: '28px', color: '#CBD5F5', lineHeight: 1.4, maxWidth: '980px' }}>
-            {subtitle}
-          </div>
-        </div>
-
-        <div style={{ fontSize: '22px', color: '#94A3B8' }}>{metaBits}</div>
-      </div>
-    ),
-    {
-      width: 1200,
-      height: 630,
-    }
-  );
+	return new ImageResponse(
+		React.createElement(
+			'div',
+			{ tw: 'flex h-[630px] w-[1200px] flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-16 text-slate-50' },
+			React.createElement(
+				'div',
+				{ tw: 'flex flex-col gap-4' },
+				React.createElement('div', { tw: 'text-[26px] font-bold uppercase tracking-[0.08em] text-slate-400' }, 'THE SNAP'),
+				category
+					? React.createElement(
+							'div',
+							{ tw: 'inline-flex items-center self-start rounded-full bg-blue-500/20 px-4 py-2 text-[20px] font-semibold text-blue-200' },
+							category
+						)
+					: null,
+				React.createElement('div', { tw: 'text-[64px] font-extrabold leading-[1.1]' }, title),
+				React.createElement('div', { tw: 'max-w-[980px] text-[28px] leading-[1.4] text-slate-300' }, subtitle)
+			),
+			React.createElement('div', { tw: 'text-[22px] text-slate-400' }, metaBits)
+		),
+		{
+			width: 1200,
+			height: 630,
+		}
+	);
 }

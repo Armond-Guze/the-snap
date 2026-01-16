@@ -21,9 +21,10 @@ export async function generateMetadata(p: { params: Promise<Params> }): Promise<
   const rawWeek = Number(params.week);
   const week = isNaN(rawWeek) || rawWeek < 1 || rawWeek > 18 ? undefined : rawWeek;
   const weekLabel = week ? `Week ${week}` : 'Week';
-  const baseTitle = `NFL Schedule ${weekLabel} 2025 – Matchups, Times (ET) & TV Channels`;
-  const desc = `Complete NFL ${weekLabel} 2025 schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
-  const canonical = week ? `/schedule/week/${week}` : '/schedule';
+  const season = await getActiveSeason();
+  const baseTitle = `NFL Schedule ${weekLabel} ${season} – Matchups, Times (ET) & TV Channels`;
+  const desc = `Complete NFL ${weekLabel} ${season} schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
+  const canonical = `https://thegamesnap.com${week ? `/schedule/week/${week}` : '/schedule'}`;
   return {
     title: baseTitle + ' | The Snap',
     description: desc,
@@ -31,7 +32,7 @@ export async function generateMetadata(p: { params: Promise<Params> }): Promise<
     openGraph: {
       title: baseTitle + ' | The Snap',
       description: desc,
-      url: `https://thegamesnap.com${canonical}`,
+      url: canonical,
       type: 'website'
     },
     twitter: {

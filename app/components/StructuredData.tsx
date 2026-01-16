@@ -105,12 +105,16 @@ export const createEnhancedArticleStructuredData = (p: EnhancedArticleParams) =>
   '@context': 'https://schema.org',
   '@type': 'NewsArticle',
   headline: p.headline,
-  description: p.description,
+  ...(p.description?.trim()
+    ? { description: p.description.trim() }
+    : {}),
   mainEntityOfPage: p.canonicalUrl,
   url: p.canonicalUrl,
-  image: p.images.map(i => i.url),
-  datePublished: p.datePublished,
-  dateModified: p.dateModified || p.datePublished,
+  ...(Array.isArray(p.images) && p.images.map(i => i?.url).filter(Boolean).length
+    ? { image: p.images.map(i => i.url).filter(Boolean) }
+    : {}),
+  ...(p.datePublished?.trim() ? { datePublished: p.datePublished.trim() } : {}),
+  ...(p.dateModified?.trim() ? { dateModified: p.dateModified.trim() } : {}),
   author: {
     '@type': 'Person',
     name: p.author.name,
@@ -124,8 +128,8 @@ export const createEnhancedArticleStructuredData = (p: EnhancedArticleParams) =>
       url: `${new URL('/images/logo--design copy.png', p.canonicalUrl)}`,
     },
   },
-  articleSection: p.articleSection,
-  keywords: p.keywords,
+  ...(p.articleSection?.trim() ? { articleSection: p.articleSection.trim() } : {}),
+  ...(p.keywords?.length ? { keywords: p.keywords.filter(Boolean) } : {}),
   speakable: p.speakableSelectors?.length
     ? {
         '@type': 'SpeakableSpecification',

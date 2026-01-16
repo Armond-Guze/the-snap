@@ -38,16 +38,16 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   if (!headline) return {};
 
-  const metadata = generateSEOMetadata(headline, '/headlines');
+  const metadata = generateSEOMetadata(headline, '/articles');
   // Safety: enforce canonical exactly once (avoid double slash issues)
-  const canonicalBase = 'https://thegamesnap.com/headlines';
+  const canonicalBase = 'https://thegamesnap.com/articles';
   const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
   return {
     ...metadata,
     // Belt-and-suspenders: headlines route is legacy; keep it non-indexable even if hit directly
     robots: {
       index: false,
-      follow: false,
+      follow: true,
     },
     alternates: {
       ...metadata.alternates,
@@ -128,7 +128,14 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   ];
 
 
-  const shareUrl = `https://thegamesnap.com/headlines/${trimmedSlug}`;
+  const shareUrl = `https://thegamesnap.com/articles/${trimmedSlug}`;
+  const ogFallback = `https://thegamesnap.com/api/og?${new URLSearchParams({
+    title: headline.title,
+    subtitle: headline.summary || headline.title,
+    category: headline.category?.title || '',
+    author: headline.author?.name || '',
+    date: headline.date || headline.publishedAt || '',
+  }).toString()}`;
 
   // Structured Data
   let articleSD; // wrap in try/catch to avoid hard crash
@@ -141,16 +148,16 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
     : undefined;
     articleSD = createEnhancedArticleStructuredData({
       headline: headline.title,
-      description: headline.summary || '',
+      description: headline.summary || headline.title,
       canonicalUrl: shareUrl,
       images: [
-        ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : []),
+        ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : [{ url: ogFallback }]),
       ],
-      datePublished: headline.date,
-      dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date,
+      datePublished: headline.date || '',
+      dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date || '',
       author: { name: headline.author?.name || 'Staff Writer' },
       articleSection: headline.category?.title,
-    keywords: keywordList && keywordList.length ? keywordList : undefined,
+      keywords: keywordList && keywordList.length ? keywordList : undefined,
       speakableSelectors: ['h1','meta[name="description"]'],
     });
   } catch (e) {
@@ -171,7 +178,13 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
             {headline.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image src={headline.author.image.asset.url} alt={headline.author.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
+                <Image
+                  src={headline.author.image.asset.url}
+                  alt={(headline.author.image as { alt?: string })?.alt || headline.author.name || 'Author'}
+                  fill
+                  sizes={AVATAR_SIZES}
+                  className="object-cover"
+                />
               </div>
             )}
             {headline.author?.name && <span className="font-medium text-white/90">By {headline.author.name}</span>}
@@ -193,7 +206,14 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           {headline.coverImage?.asset?.url && (
             <div className="w-full mb-6">
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-                <Image src={headline.coverImage.asset.url} alt={headline.title} fill sizes={ARTICLE_COVER_SIZES} className="object-cover w-full h-full" priority />
+                <Image
+                  src={headline.coverImage.asset.url}
+                  alt={(headline.coverImage as { alt?: string })?.alt || headline.title}
+                  fill
+                  sizes={ARTICLE_COVER_SIZES}
+                  className="object-cover w-full h-full"
+                  priority
+                />
               </div>
               {headline.summary && (
                 <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>
@@ -203,7 +223,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                   {tagList.map((tag) => (
                     <Link
                       key={tag.slug || tag.title}
-                      href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
+                      href={`/articles?tag=${encodeURIComponent(tag.title)}`}
                       className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
                     >
                       #{tag.title}
@@ -241,7 +261,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                   return (
                     <Link
                       key={article._id}
-                      href={`/headlines/${article.slug.current}`}
+                      href={`/articles/${article.slug.current}`}
                       className="group rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm hover:border-white/30 hover:bg-white/10 transition-colors"
                     >
                       {img && (
@@ -286,7 +306,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                     </span>
                     <div className="flex-1 border-b border-white/5 pb-3">
                       <Link
-                        href={article._type === 'rankings' ? `/articles/${article.slug.current}` : `/headlines/${article.slug.current}`}
+                        href={`/articles/${article.slug.current}`}
                         className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
                       >
                         {article.homepageTitle || article.title}

@@ -1,5 +1,7 @@
 
 /** @type {import('tailwindcss').Config} */
+import typography from '@tailwindcss/typography'
+
 const config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
@@ -16,8 +18,7 @@ const config = {
       },
     },
   },
-  // No plugins needed currently (custom line-clamp utilities added manually)
-  plugins: [],
+  plugins: [typography],
 }
 
 export default config

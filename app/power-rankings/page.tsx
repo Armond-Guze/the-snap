@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     url: 'https://thegamesnap.com/power-rankings',
     type: 'website',
   },
-  alternates: { canonical: '/power-rankings' },
+  alternates: { canonical: 'https://thegamesnap.com/power-rankings' },
 };
 
 export const revalidate = 60;

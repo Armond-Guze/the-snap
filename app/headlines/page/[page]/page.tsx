@@ -8,13 +8,13 @@ import type { Metadata } from 'next';
 export const revalidate = 120;
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
   const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
-  const canonical = pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`;
+  const canonical = `https://thegamesnap.com${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
   return {
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
     description: `Archive page ${pageNum} of NFL headlines, analysis and news articles from The Snap.`,
     alternates: { canonical },
-    robots: { index: true, follow: true },
-    openGraph: { title: `NFL Headlines Archive – Page ${pageNum}`, description: 'Browse older NFL headlines and analysis.', url: `https://thegamesnap.com${canonical}` }
+    robots: { index: false, follow: true },
+    openGraph: { title: `NFL Headlines Archive – Page ${pageNum}`, description: 'Browse older NFL headlines and analysis.', url: canonical }
   };
 }
 
