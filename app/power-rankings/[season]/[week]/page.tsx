@@ -66,7 +66,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
-  return { title, description, alternates: { canonical: `/power-rankings/${season}/${week}` }, openGraph: { title, description } };
+  const baseUrl = 'https://thegamesnap.com';
+  const canonical = `${baseUrl}/power-rankings/${season}/${week}`;
+  const ogImage = `${baseUrl}/api/og?${new URLSearchParams({
+    title,
+    subtitle: description,
+    category: 'Power Rankings',
+    date: `${season} ${weekLabel}`,
+  }).toString()}`;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    robots: { index: true, follow: true },
+    openGraph: { title, description, url: canonical, images: [{ url: ogImage }], type: 'article' },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage] },
+  };
 }
 
 export const revalidate = 300;

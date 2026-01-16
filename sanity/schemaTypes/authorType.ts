@@ -24,6 +24,10 @@ export const authorType = defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        defineField({ name: 'alt', title: 'Alt Text', type: 'string', description: 'Describe the author photo for accessibility.' }),
+        defineField({ name: 'credit', title: 'Photo Credit', type: 'string' }),
+      ],
     }),
     defineField({
       name: 'bio',

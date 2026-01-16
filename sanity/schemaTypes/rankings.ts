@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { apiVersion } from "../env";
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -36,7 +37,19 @@ export default defineType({
             .replace(/\s+/g, "-")
             .slice(0, 96),
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().custom(async (value, ctx) => {
+          if (!value?.current) return true;
+          const client = ctx.getClient({ apiVersion });
+          const rawId = typeof ctx.document?._id === "string" ? ctx.document?._id : "";
+          const cleanId = rawId.replace(/^drafts\./, "");
+          const draftId = cleanId ? `drafts.${cleanId}` : "";
+          const count = await client.fetch<number>(
+            `count(*[_type in ["article","rankings","headline"] && slug.current == $slug && !(_id in [$id,$draftId])])`,
+            { slug: value.current, id: cleanId, draftId }
+          );
+          return count > 0 ? "Slug already in use for an article/ranking" : true;
+        }),
       group: "quick",
     }),
 
@@ -54,6 +67,11 @@ export default defineType({
       title: "Cover Image",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        defineField({ name: "alt", title: "Alt Text", type: "string", description: "Describe the image for SEO/accessibility." }),
+        defineField({ name: "caption", title: "Caption", type: "string" }),
+        defineField({ name: "credit", title: "Photo Credit", type: "string" }),
+      ],
       group: "media",
     }),
     defineField({
@@ -61,6 +79,11 @@ export default defineType({
       title: "Author",
       type: "reference",
       to: [{ type: "author" }],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : "Author is required before publishing";
+        }),
       group: "quick",
     }),
     defineField({
@@ -107,6 +130,7 @@ export default defineType({
       of: [{ type: "reference", to: [{ type: "tag" }] }],
       options: { layout: "tags" },
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",
+      validation: (Rule) => Rule.unique().error("Team tag already added"),
       group: "quick",
     }),
     defineField({
@@ -116,6 +140,8 @@ export default defineType({
       of: [{ type: "string" }],
       options: { layout: "tags" },
       description: "LEGACY free-form tags. Use Tag References below for new content.",
+      readOnly: true,
+      hidden: ({ document }) => !document?.tags?.length,
       group: "quick",
     }),
     defineField({
@@ -126,6 +152,11 @@ export default defineType({
       options: { layout: "tags" },
       group: "advanced",
       description: "Canonical tag references (preferred). Migration will copy legacy string tags here.",
+      validation: (Rule) =>
+        Rule.unique()
+          .min(3)
+          .max(6)
+          .warning("Recommended: add 3–6 canonical tags for best internal linking"),
     }),
     defineField({
       name: "published",

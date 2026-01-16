@@ -129,7 +129,7 @@ export default async function PowerRankingsPage() {
                       <div className="flex-shrink-0">
                         <Image
                           src={teamLogo.asset.url}
-                          alt={`${teamName} logo`}
+                          alt={(teamLogo as { alt?: string })?.alt || `${teamName} logo`}
                           width={60}
                           height={60}
                           className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-contain"

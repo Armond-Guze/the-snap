@@ -1,7 +1,10 @@
 import { defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
+import { apiVersion } from "../env";
 
 const isPowerRankings = (document?: Record<string, unknown>) => document?.format === "powerRankings";
+const isPowerRankingsSnapshot = (document?: Record<string, unknown>) =>
+  isPowerRankings(document) && document?.rankingType === "snapshot";
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -43,9 +46,22 @@ export default defineType({
         layout: "radio",
       },
       validation: (Rule) =>
-        Rule.custom((val, ctx) => {
+        Rule.custom(async (val, ctx) => {
           if (!isPowerRankings(ctx.document)) return true;
-          return val ? true : "Select live or weekly snapshot";
+          if (!val) return "Select live or weekly snapshot";
+          if (val !== "live") return true;
+          const seasonYear = ctx.document?.seasonYear;
+          if (typeof seasonYear !== "number") return "Season year is required for live power rankings";
+          const client = ctx.getClient({ apiVersion });
+          const rawId = typeof ctx.document?._id === "string" ? ctx.document?._id : "";
+          const cleanId = rawId.replace(/^drafts\./, "");
+          const draftId = cleanId ? `drafts.${cleanId}` : "";
+          const existing = await client.fetch<number>(
+            `count(*[_type == "article" && format == "powerRankings" && rankingType == "live" && seasonYear == $season && !(_id in [$id, $draftId])])`,
+            { season: seasonYear, id: cleanId, draftId }
+          );
+          if (existing > 0) return "Only one live Power Rankings doc is allowed per season";
+          return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document),
       group: "power",
@@ -59,7 +75,9 @@ export default defineType({
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!isPowerRankings(ctx.document)) return true;
-          return typeof val === "number" ? true : "Season year is required for power rankings";
+          if (typeof val !== "number") return "Season year is required for power rankings";
+          if (val < 2000 || val > 2100) return "Season year must be between 2000 and 2100";
+          return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document),
       group: "power",
@@ -70,7 +88,15 @@ export default defineType({
       title: "Week Number",
       type: "number",
       description: "Regular season week number (1–18). Leave empty for playoff rounds.",
-      validation: (Rule) => Rule.min(1).max(18),
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!isPowerRankingsSnapshot(ctx.document)) return true;
+          const playoffRound = ctx.document?.playoffRound;
+          if (typeof val !== "number" && !playoffRound) return "Week number is required for snapshots unless a playoff round is selected";
+          if (typeof val === "number" && playoffRound) return "Use either a week number or a playoff round, not both";
+          if (typeof val === "number" && (val < 1 || val > 18)) return "Week number must be between 1 and 18";
+          return true;
+        }),
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
       group: "power",
     }),
@@ -89,6 +115,14 @@ export default defineType({
         layout: "radio",
       },
       description: "Only use for playoff snapshots. Leave empty for regular season weeks.",
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!isPowerRankingsSnapshot(ctx.document)) return true;
+          const weekNumber = ctx.document?.weekNumber;
+          if (!val && typeof weekNumber !== "number") return "Select a playoff round or enter a week number";
+          if (val && typeof weekNumber === "number") return "Use either a playoff round or a week number, not both";
+          return true;
+        }),
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
       group: "power",
     }),
@@ -102,10 +136,25 @@ export default defineType({
           type: "object",
           fields: [
             defineField({ name: "rank", title: "Rank", type: "number", validation: (Rule) => Rule.required().min(1).max(32) }),
-            defineField({ name: "team", title: "Team", type: "reference", to: [{ type: "tag" }], description: "Use the canonical team tag" }),
+            defineField({
+              name: "team",
+              title: "Team",
+              type: "reference",
+              to: [{ type: "tag" }],
+              description: "Use the canonical team tag",
+              validation: (Rule) => Rule.required().error("Team tag is required"),
+            }),
             defineField({ name: "teamAbbr", title: "Team Abbreviation", type: "string", description: "Optional (e.g., KC, SF). Used for links/labels." }),
             defineField({ name: "teamName", title: "Team Name (override)", type: "string", description: "Optional display override" }),
-            defineField({ name: "teamLogo", title: "Team Logo", type: "image", options: { hotspot: true } }),
+            defineField({
+              name: "teamLogo",
+              title: "Team Logo",
+              type: "image",
+              options: { hotspot: true },
+              fields: [
+                defineField({ name: "alt", title: "Alt Text", type: "string", description: "Team logo alt text." }),
+              ],
+            }),
             defineField({ name: "note", title: "Blurb", type: "text", rows: 2, description: "Short punchy note" }),
             defineField({ name: "analysis", title: "Analysis (Full Write-Up)", type: "blockContent" }),
             defineField({ name: "prevRankOverride", title: "Prev Rank (override)", type: "number" }),
@@ -122,8 +171,9 @@ export default defineType({
           if (new Set(ranks).size !== 32) return "Ranks must be unique";
           const missing = Array.from({ length: 32 }, (_, idx) => idx + 1).filter((n) => !ranks.includes(n));
           if (missing.length) return "Ranks must be contiguous 1–32";
-          const teams = items.map((i) => i?.team?._ref || i?.teamName).filter(Boolean) as string[];
-          if (new Set(teams).size !== teams.length) return "Teams must be unique";
+          const teamRefs = items.map((i) => i?.team?._ref).filter(Boolean) as string[];
+          if (teamRefs.length !== 32) return "Each ranking must reference a team tag";
+          if (new Set(teamRefs).size !== 32) return "Teams must be unique";
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document),
@@ -169,7 +219,19 @@ export default defineType({
             .replace(/\s+/g, "-")
             .slice(0, 96),
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().custom(async (value, ctx) => {
+          if (!value?.current) return true;
+          const client = ctx.getClient({ apiVersion });
+          const rawId = typeof ctx.document?._id === "string" ? ctx.document?._id : "";
+          const cleanId = rawId.replace(/^drafts\./, "");
+          const draftId = cleanId ? `drafts.${cleanId}` : "";
+          const count = await client.fetch<number>(
+            `count(*[_type in ["article","rankings","headline"] && slug.current == $slug && !(_id in [$id,$draftId])])`,
+            { slug: value.current, id: cleanId, draftId }
+          );
+          return count > 0 ? "Slug already in use for an article/ranking" : true;
+        }),
       group: "quick",
     }),
 
@@ -196,6 +258,11 @@ export default defineType({
       title: "Cover Image",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        defineField({ name: "alt", title: "Alt Text", type: "string", description: "Describe the image for SEO/accessibility." }),
+        defineField({ name: "caption", title: "Caption", type: "string" }),
+        defineField({ name: "credit", title: "Photo Credit", type: "string" }),
+      ],
       group: "media",
     }),
     defineField({
@@ -203,6 +270,11 @@ export default defineType({
       title: "Author",
       type: "reference",
       to: [{ type: "author" }],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : "Author is required before publishing";
+        }),
       group: "quick",
     }),
     defineField({
@@ -261,6 +333,8 @@ export default defineType({
       options: { layout: "tags" },
       description: "LEGACY free-form tags. Use Tag References below for new content.",
       validation: (Rule) => Rule.unique().error("Tag already added"),
+      readOnly: true,
+      hidden: ({ document }) => !document?.tags?.length,
       group: "quick",
     }),
     defineField({
@@ -276,7 +350,11 @@ export default defineType({
       options: { layout: "tags" },
       group: "advanced",
       description: "Canonical tag references (preferred). Migration will copy legacy string tags here. Editing a tag document changes it everywhere; add a new Tag doc for one-off labels.",
-      validation: (Rule) => Rule.unique().error("Tag reference already added"),
+      validation: (Rule) =>
+        Rule.unique()
+          .min(3)
+          .max(6)
+          .warning("Recommended: add 3–6 canonical tags for best internal linking"),
     }),
     defineField({
       name: "published",

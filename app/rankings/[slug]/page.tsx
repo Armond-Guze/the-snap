@@ -89,6 +89,28 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
       };
     }
     
+    const legacy = legacyRanking as RankingsType & {
+      format?: string;
+      seasonYear?: number;
+      weekNumber?: number;
+      playoffRound?: string;
+    };
+    if (legacy._type === 'article' && legacy.format === 'powerRankings') {
+      const season = legacy.seasonYear || new Date().getFullYear();
+      const weekPart = legacy.playoffRound
+        ? legacy.playoffRound.toLowerCase()
+        : typeof legacy.weekNumber === 'number'
+          ? `week-${legacy.weekNumber}`
+          : null;
+      const canonical = weekPart ? `/power-rankings/${season}/${weekPart}` : '/power-rankings';
+      const canonicalAbs = `https://thegamesnap.com${canonical}`;
+      return {
+        title: legacy.title || 'NFL Power Rankings',
+        description: legacy.summary || 'NFL Power Rankings and weekly snapshots.',
+        alternates: { canonical: canonicalAbs },
+        robots: { index: false, follow: false },
+      };
+    }
     return generateSEOMetadata(legacyRanking, '/articles');
   }
 
@@ -242,14 +264,20 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   // Build JSON-LD: NewsArticle + ItemList of teams
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
   const canonicalUrl = `${baseUrl}/articles/${slug}`;
-  const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
+  const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/api/og?${new URLSearchParams({
+    title: ranking.title,
+    subtitle: (ranking as { summary?: string; excerpt?: string }).summary || (ranking as { summary?: string; excerpt?: string }).excerpt || ranking.title,
+    category: typeof ranking.category === 'string' ? ranking.category : (ranking as { category?: { title?: string } }).category?.title || '',
+    author: ranking.author?.name || '',
+    date: ranking.publishedAt || '',
+  }).toString()}`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
     description: (ranking as { summary?: string; excerpt?: string }).summary || (ranking as { summary?: string; excerpt?: string }).excerpt || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
-    datePublished: ranking.publishedAt || new Date().toISOString(),
-    dateModified: ranking.publishedAt || new Date().toISOString(),
+    datePublished: ranking.publishedAt || '',
+    dateModified: ranking.publishedAt || '',
     author: { name: ranking.author?.name || 'The Snap' },
     articleSection: typeof ranking.category === 'string'
       ? ranking.category
@@ -287,7 +315,13 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
           <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
             {ranking.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image src={ranking.author.image.asset.url} alt={ranking.author?.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
+                  <Image
+                    src={ranking.author.image.asset.url}
+                    alt={(ranking.author.image as { alt?: string })?.alt || ranking.author?.name || 'Author'}
+                    fill
+                    sizes={AVATAR_SIZES}
+                    className="object-cover"
+                  />
               </div>
             )}
             <span>By {ranking.author?.name || 'Unknown'} • {ranking.publishedAt ? formatArticleDate(ranking.publishedAt) : ''}</span>
@@ -297,7 +331,14 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
           {ranking.coverImage?.asset?.url && (
             <div className="w-full mb-6">
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-                <Image src={ranking.coverImage.asset.url} alt={ranking.title} fill sizes={ARTICLE_COVER_SIZES} className="object-cover w-full h-full" priority />
+                <Image
+                  src={ranking.coverImage.asset.url}
+                  alt={(ranking.coverImage as { alt?: string })?.alt || ranking.title}
+                  fill
+                  sizes={ARTICLE_COVER_SIZES}
+                  className="object-cover w-full h-full"
+                  priority
+                />
               </div>
             </div>
           )}
@@ -388,7 +429,13 @@ function UnifiedRankingRenderer({
   // Structured data for unified article
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
   const canonicalUrl = `${baseUrl}/articles/${slug}`;
-  const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/images/thesnap-logo-new copy.jpg`;
+  const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/api/og?${new URLSearchParams({
+    title: ranking.title,
+    subtitle: (ranking as { summary?: string; excerpt?: string }).summary || (ranking as { summary?: string; excerpt?: string }).excerpt || ranking.title,
+    category: typeof ranking.category === 'string' ? ranking.category : (ranking as { category?: { title?: string } }).category?.title || '',
+    author: ranking.author?.name || '',
+    date: ranking.publishedAt || '',
+  }).toString()}`;
   const articleLd = createEnhancedArticleStructuredData({
     headline: ranking.title,
     description: (ranking as { summary?: string; excerpt?: string }).summary
@@ -396,8 +443,8 @@ function UnifiedRankingRenderer({
       || ranking.title,
     canonicalUrl,
     images: [{ url: ogImage }],
-    datePublished: ranking.publishedAt || new Date().toISOString(),
-    dateModified: ranking.publishedAt || new Date().toISOString(),
+    datePublished: ranking.publishedAt || '',
+    dateModified: ranking.publishedAt || '',
     author: { name: ranking.author?.name || 'The Snap' },
     articleSection: typeof ranking.category === 'string'
       ? ranking.category
@@ -443,7 +490,7 @@ function UnifiedRankingRenderer({
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
                 <Image
                   src={ranking.author.image.asset.url}
-                  alt={ranking.author?.name || "Author"}
+                  alt={(ranking.author.image as { alt?: string })?.alt || ranking.author?.name || "Author"}
                   fill
                   className="object-cover"
                 />
@@ -463,7 +510,7 @@ function UnifiedRankingRenderer({
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
                   src={ranking.featuredImage.asset.url}
-                  alt={ranking.title}
+                  alt={(ranking.featuredImage as { alt?: string })?.alt || ranking.title}
                   fill
                   sizes={ARTICLE_COVER_SIZES}
                   className="object-cover w-full h-full"
@@ -579,7 +626,7 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
             <div className="flex-shrink-0">
               <Image
                 src={urlFor(team.teamLogo).width(60).height(60).url()}
-                alt={`${team.teamName} logo`}
+                alt={(team.teamLogo as { alt?: string })?.alt || `${team.teamName} logo`}
                 width={60}
                 height={60}
                 className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-contain"

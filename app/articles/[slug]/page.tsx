@@ -116,6 +116,13 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	];
 
 	const shareUrl = `https://thegamesnap.com/articles/${trimmedSlug}`;
+	const ogFallback = `https://thegamesnap.com/api/og?${new URLSearchParams({
+		title: article.title,
+		subtitle: article.summary || article.title,
+		category: article.category?.title || '',
+		author: article.author?.name || '',
+		date: article.date || article.publishedAt || '',
+	}).toString()}`;
 
 	let articleSD;
 	try {
@@ -126,10 +133,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 			: undefined;
 		articleSD = createEnhancedArticleStructuredData({
 			headline: article.title,
-			description: article.summary || '',
+			description: article.summary || article.title,
 			canonicalUrl: shareUrl,
 			images: [
-				...(article.coverImage?.asset?.url ? [{ url: article.coverImage.asset.url }] : []),
+				...(article.coverImage?.asset?.url ? [{ url: article.coverImage.asset.url }] : [{ url: ogFallback }]),
 			],
 			datePublished: article.date || article.publishedAt || '',
 			dateModified:
@@ -161,7 +168,13 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					<div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
 						{article.author?.image?.asset?.url && (
 							<div className="relative w-8 h-8 rounded-full overflow-hidden">
-								<Image src={article.author.image.asset.url} alt={article.author.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
+								<Image
+									src={article.author.image.asset.url}
+									alt={(article.author.image as { alt?: string })?.alt || article.author.name || 'Author'}
+									fill
+									sizes={AVATAR_SIZES}
+									className="object-cover"
+								/>
 							</div>
 						)}
 						{article.author?.name && <span className="font-medium text-white/90">{article.author.name}</span>}
@@ -191,7 +204,14 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					{article.coverImage?.asset?.url && (
 						<div className="w-full mb-6">
 							<div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-								<Image src={article.coverImage.asset.url} alt={article.title} fill sizes={ARTICLE_COVER_SIZES} className="object-cover w-full h-full" priority />
+								<Image
+									src={article.coverImage.asset.url}
+									alt={(article.coverImage as { alt?: string })?.alt || article.title}
+									fill
+									sizes={ARTICLE_COVER_SIZES}
+									className="object-cover w-full h-full"
+									priority
+								/>
 							</div>
 							{article.summary && (
 								<p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>

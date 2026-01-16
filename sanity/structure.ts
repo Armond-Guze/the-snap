@@ -82,6 +82,46 @@ export const structure: StructureResolver = (S) => {
               ),
           ])
       ),
+    S.listItem()
+      .title('Power Rankings')
+      .schemaType('article')
+      .child(
+        S.list()
+          .title('Power Rankings')
+          .items([
+            S.listItem()
+              .title('Live (Current)')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Power Rankings — Live')
+                  .filter('_type == "article" && format == "powerRankings" && rankingType == "live"')
+                  .initialValueTemplates([
+                    S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'live' })
+                  ])
+                  .defaultOrdering([
+                    { field: 'seasonYear', direction: 'desc' },
+                    { field: 'date', direction: 'desc' },
+                  ])
+              ),
+            S.listItem()
+              .title('Weekly Snapshots')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Power Rankings — Snapshots')
+                  .filter('_type == "article" && format == "powerRankings" && rankingType == "snapshot"')
+                  .initialValueTemplates([
+                    S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'snapshot' })
+                  ])
+                  .defaultOrdering([
+                    { field: 'seasonYear', direction: 'desc' },
+                    { field: 'weekNumber', direction: 'desc' },
+                    { field: 'date', direction: 'desc' },
+                  ])
+              ),
+          ])
+      ),
     // Existing content groups
     S.listItem()
       .title('Deep Ball Reports')
@@ -115,9 +155,56 @@ export const structure: StructureResolver = (S) => {
             { field: 'publishedAt', direction: 'desc' },
           ])
       ),
+    S.listItem()
+      .title('Teams')
+      .schemaType('tag')
+      .child(
+        S.documentTypeList('tag')
+          .title('Team Tags')
+          .defaultOrdering([{ field: 'title', direction: 'asc' }])
+      ),
+    S.listItem()
+      .title('Canonical Tags')
+      .schemaType('advancedTag')
+      .child(
+        S.documentTypeList('advancedTag')
+          .title('Canonical Tags')
+          .defaultOrdering([{ field: 'title', direction: 'asc' }])
+      ),
+    S.listItem()
+      .title('Players')
+      .schemaType('player')
+      .child(
+        S.documentTypeList('player')
+          .title('Players')
+          .defaultOrdering([{ field: 'name', direction: 'asc' }])
+      ),
+    S.listItem()
+      .title('Authors')
+      .schemaType('author')
+      .child(
+        S.documentTypeList('author')
+          .title('Authors')
+          .defaultOrdering([{ field: 'name', direction: 'asc' }])
+      ),
   ]
 
-  const alreadyHandled = new Set(['deepBallReport','headline','fantasyFootball','article','powerRanking','powerRankingWeek','gameCenterSettings','snapCard','playOfWeek','rankings'])
+  const alreadyHandled = new Set([
+    'deepBallReport',
+    'headline',
+    'fantasyFootball',
+    'article',
+    'powerRanking',
+    'powerRankingWeek',
+    'gameCenterSettings',
+    'snapCard',
+    'playOfWeek',
+    'rankings',
+    'tag',
+    'advancedTag',
+    'player',
+    'author',
+  ])
 
   return S.list()
     .title('Content')

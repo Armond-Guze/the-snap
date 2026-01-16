@@ -30,11 +30,18 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [headlines, articles, fantasy, categories] = await Promise.all([
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[((_type == "article" && format == "headline") || _type == "headline") && published == true]{ slug, _updatedAt }`),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "rankings" && published == true]{ slug, _updatedAt }`),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(`*[_type == "category"]{ slug, _updatedAt }`),
+  const [articles, fantasy, categories] = await Promise.all([
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+      `*[
+        (_type in ["article","headline","rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
+      ]{ slug, _updatedAt }`
+    ),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+      `*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`
+    ),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+      `*[_type == "category"]{ slug, _updatedAt }`
+    ),
   ]);
 
   // Latest update time for standings page from teamRecord documents
@@ -45,18 +52,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const dynamicEntries: MetadataRoute.Sitemap = dedupeEntries([
     // Detail pages: always point to final articles path to avoid sitemap URLs that redirect
-    ...headlines
-      .map(h => {
-        const slug = safeSlug(h.slug?.current);
-        if (!slug) return null;
-        return {
-          url: `${baseUrl}/articles/${slug}`,
-          lastModified: h._updatedAt ? new Date(h._updatedAt) : STATIC_LAST_MOD,
-          changeFrequency: 'daily' as const,
-          priority: 0.7,
-        } satisfies MetadataRoute.Sitemap[number];
-      })
-      .filter(Boolean) as MetadataRoute.Sitemap,
     ...articles
       .map(r => {
         const slug = safeSlug(r.slug?.current);
