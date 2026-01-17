@@ -240,7 +240,12 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
           </div>
         )}
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-white">{team.teamName}</h3>
+          <h3
+            className="text-xl font-bold text-white"
+            style={team.teamColor ? { color: team.teamColor } : undefined}
+          >
+            {team.teamName}
+          </h3>
           {team.previousRank && (
             <div className="flex items-center gap-2 text-sm">
               <span className="text-gray-400">Previous: #{team.previousRank}</span>
@@ -285,10 +290,6 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
     <article className="group">
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
-        {/* Team Color Accent */}
-        {team.teamColor && (
-          <div className="absolute left-0 top-0 bottom-0 w-1" data-color={team.teamColor} />
-        )}
         
         <div className="flex items-center gap-4">
           {/* Rank Display */}
@@ -318,7 +319,10 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
           {/* Team Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
+              <h2
+                className="text-xl sm:text-2xl font-bold text-white truncate"
+                style={team.teamColor ? { color: team.teamColor } : undefined}
+              >
                 {team.teamName}
               </h2>
 

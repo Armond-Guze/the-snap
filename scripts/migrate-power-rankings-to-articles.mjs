@@ -3,6 +3,7 @@
 // Usage:
 //   node scripts/migrate-power-rankings-to-articles.mjs --dry-run
 //   node scripts/migrate-power-rankings-to-articles.mjs           (requires SANITY_WRITE_TOKEN)
+//   node scripts/migrate-power-rankings-to-articles.mjs --force   (recreate/replace migrated docs)
 
 import sanityClient from '@sanity/client';
 import dotenv from 'dotenv';
@@ -20,10 +21,11 @@ if (!projectId || !dataset) {
 }
 
 const DRY_RUN = process.argv.includes('--dry-run') || !token;
+const FORCE_REPLACE = process.argv.includes('--force') || process.argv.includes('--replace');
 if (DRY_RUN) {
   console.log('Running in DRY-RUN (or read-only) mode; no writes will be made.');
 } else {
-  console.log('Write mode enabled.');
+  console.log(`Write mode enabled.${FORCE_REPLACE ? ' Force replace is ON.' : ''}`);
 }
 
 const client = sanityClient({ projectId, dataset, apiVersion, token, useCdn: false });
@@ -89,12 +91,31 @@ async function main() {
   const existingLive = existing.find((d) => d.rankingType === 'live');
   const existingSnapshots = new Set(existing.filter((d) => d.rankingType === 'snapshot').map((d) => `${d.seasonYear}-${d.weekNumber}`));
 
+  if (FORCE_REPLACE) {
+    const ids = [
+      ...existing.map((d) => d._id),
+      ...snapshots.map((s) => `prw-${s.season}-w${s.week}`),
+      'power-rankings-live',
+    ];
+    const idsToDelete = new Set(ids.flatMap((id) => [id, `drafts.${id}`]));
+    console.log(`Force replace: deleting ${idsToDelete.size} power rankings docs (existing + targets + drafts)...`);
+    const deleteIds = Array.from(idsToDelete);
+    const deleteChunkSize = 50;
+    for (let i = 0; i < deleteIds.length; i += deleteChunkSize) {
+      const chunk = deleteIds.slice(i, i + deleteChunkSize);
+      const tx = client.transaction();
+      chunk.forEach((id) => tx.delete(id));
+      await tx.commit();
+    }
+    console.log('Force replace: deletion complete.');
+  }
+
   const seasonFromSnapshots = snapshots.reduce((max, s) => Math.max(max, s.season || 0), 0);
   const seasonYear = seasonFromSnapshots || new Date().getFullYear();
 
   const toCreate = [];
 
-  if (!existingLive && teams?.length) {
+  if ((FORCE_REPLACE || !existingLive) && teams?.length) {
     const rankings = teams.map((t) => ({
       _type: 'object',
       rank: t.rank,
@@ -105,13 +126,15 @@ async function main() {
       prevRankOverride: t.previousRank ?? undefined,
     }));
     toCreate.push(buildLiveDoc({ seasonYear, rankings }));
-  } else {
+  } else if (!FORCE_REPLACE) {
     console.log('Live power rankings article already exists; skipping live doc creation.');
+  } else {
+    console.log('No live power rankings teams found; nothing to migrate for live doc.');
   }
 
   for (const snap of snapshots) {
     const key = `${snap.season}-${snap.week}`;
-    if (existingSnapshots.has(key)) {
+    if (!FORCE_REPLACE && existingSnapshots.has(key)) {
       continue;
     }
     toCreate.push(buildSnapshotDoc({ season: snap.season, week: snap.week, items: snap.items || [], publishedAt: snap.publishedAt }));
@@ -130,7 +153,13 @@ async function main() {
   for (let i = 0; i < toCreate.length; i += chunkSize) {
     const chunk = toCreate.slice(i, i + chunkSize);
     const tx = client.transaction();
-    chunk.forEach((doc) => tx.createIfNotExists(doc));
+    chunk.forEach((doc) => {
+      if (FORCE_REPLACE) {
+        tx.create(doc);
+      } else {
+        tx.createIfNotExists(doc);
+      }
+    });
     await tx.commit();
     created += chunk.length;
     console.log(`Committed ${created}/${toCreate.length}...`);

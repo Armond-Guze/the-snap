@@ -138,7 +138,13 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                 <div className="w-8 text-right font-bold">{entry.rank}</div>
                 <div className="flex-1">
                   <div className="font-semibold">
-                    <a className="hover:underline" href={`/teams/${(entry.teamAbbr || entry.teamName || '').toLowerCase()}`}>{entry.teamName || entry.team?.title || entry.teamAbbr}</a>
+                    <a
+                      className="hover:underline"
+                      href={`/teams/${(entry.teamAbbr || entry.teamName || '').toLowerCase()}`}
+                      style={entry.teamColor ? { color: entry.teamColor } : undefined}
+                    >
+                      {entry.teamName || entry.team?.title || entry.teamAbbr}
+                    </a>
                     {typeof movement === 'number' && (
                       <span className={`ml-2 text-xs ${movement > 0 ? 'text-green-400' : movement < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                         {movement > 0 ? `▲ ${movement}` : movement < 0 ? `▼ ${Math.abs(movement)}` : '—'}

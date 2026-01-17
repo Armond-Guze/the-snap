@@ -61,6 +61,7 @@ export interface PowerRankingEntry {
   team?: { _id: string; title?: string; slug?: SanitySlug };
   teamAbbr?: string;
   teamName?: string;
+  teamColor?: string;
   teamLogo?: SanityImageWithUrl;
   note?: string;
   analysis?: PortableTextContent;

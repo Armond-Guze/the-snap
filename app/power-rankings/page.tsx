@@ -117,6 +117,7 @@ export default async function PowerRankingsPage() {
                   const rank = team.rank;
                   const teamName = team.teamName || team.team?.title || "";
                   const teamLogo = team.teamLogo;
+                  const teamNameStyle = team.teamColor ? { color: team.teamColor } : undefined;
                   const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
                   const prevRank =
                     typeof team.prevRankOverride === "number"
@@ -152,7 +153,7 @@ export default async function PowerRankingsPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <div className="flex flex-col items-start">
-                                <h2 className="text-xl sm:text-2xl font-bold text-white truncate">{teamName}</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold text-white truncate" style={teamNameStyle}>{teamName}</h2>
                                 {(() => {
                                   const abbr = team.teamAbbr || teamCodeFromName(teamName);
                                   const rec = shortRecord(abbr ? records.get(abbr) : undefined);

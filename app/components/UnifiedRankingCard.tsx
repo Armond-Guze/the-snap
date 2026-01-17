@@ -34,13 +34,6 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
     <article className="group">
       {/* Compact Team Header */}
       <div className="relative bg-black p-3">
-        {/* Team Color Accent */}
-        {teamData.teamColor && (
-          <div 
-            className="absolute left-0 top-0 bottom-0 w-1"
-            style={{ backgroundColor: teamData.teamColor }}
-          />
-        )}
         
         <div className="flex items-center gap-4">
           {/* Rank Display */}
@@ -70,7 +63,10 @@ export default function UnifiedRankingCard({ teamData }: UnifiedRankingCardProps
           {/* Team Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
+              <h2
+                className="text-xl sm:text-2xl font-bold text-white truncate"
+                style={teamData.teamColor ? { color: teamData.teamColor } : undefined}
+              >
                 {teamData.teamName || 'Unknown Team'}
               </h2>
 
