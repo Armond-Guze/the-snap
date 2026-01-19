@@ -49,7 +49,16 @@ function toAbbr(name?: string | null): string | null {
 export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
   const doc = (draft || published) as { _type?: string; format?: string; rankingType?: string; seasonYear?: number; rankings?: Array<any>; title?: string } | undefined
-  if (!doc || doc._type !== 'article' || doc.format !== 'powerRankings' || doc.rankingType !== 'live') return null
+  const isLivePowerRankings = !!doc && doc._type === 'article' && doc.format === 'powerRankings' && doc.rankingType === 'live'
+
+  const now = new Date()
+  const defaultSeason = String(doc?.seasonYear || now.getFullYear())
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [seasonInput, setSeasonInput] = useState(defaultSeason)
+  const [weekInput, setWeekInput] = useState('1')
+  const [submitting, setSubmitting] = useState(false)
+
+  if (!isLivePowerRankings) return null
 
   // Use a Studio-authenticated client via cookie credentials
   const client: SanityClient = createClient({ projectId, dataset, apiVersion, useCdn: false, withCredentials: true })
@@ -123,13 +132,6 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
       } finally {
       }
     }
-
-  const now = new Date()
-  const defaultSeason = String(doc.seasonYear || now.getFullYear())
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [seasonInput, setSeasonInput] = useState(defaultSeason)
-  const [weekInput, setWeekInput] = useState('1')
-  const [submitting, setSubmitting] = useState(false)
 
   const runSnapshot = async () => {
     const season = Number(seasonInput)
