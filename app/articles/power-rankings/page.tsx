@@ -71,6 +71,14 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
+const normalizePowerRankingsTitle = (title?: string | null) => {
+  if (!title) return 'NFL Power Rankings';
+  return title
+    .replace(/\s*\(live\)\s*/gi, '')
+    .replace(/\s*-\s*live\s*/gi, '')
+    .trim() || 'NFL Power Rankings';
+};
+
 // Helper function to calculate team movement
 function getMovementIndicator(change: number): MovementIndicator {
   if (change > 0) {
@@ -137,6 +145,7 @@ export default async function PowerRankingsArticlePage() {
     }
 
     const shareUrl = 'https://thegamesnap.com/articles/power-rankings';
+    const displayTitle = normalizePowerRankingsTitle(liveDoc.title);
     const breadcrumbItems = [
       { label: 'Articles', href: '/articles' },
       { label: 'Power Rankings' }
@@ -151,7 +160,7 @@ export default async function PowerRankingsArticlePage() {
               <Breadcrumb items={breadcrumbItems} className="mb-4" />
             </div>
             <header className="mb-10">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{liveDoc.title || 'NFL Power Rankings'}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{displayTitle}</h1>
               <div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
                 {liveDoc.author?.image?.asset?.url && (
                   <div className="relative w-8 h-8 rounded-full overflow-hidden">
@@ -188,8 +197,8 @@ export default async function PowerRankingsArticlePage() {
                 </div>
               )}
               <div className="mt-4 inline-flex items-center px-4 py-2 bg-black rounded-full">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse" />
-                <span className="text-sm text-green-400 font-semibold">Live Rankings</span>
+                <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2" />
+                <span className="text-sm text-emerald-300 font-semibold">Power Rankings</span>
               </div>
             </header>
 

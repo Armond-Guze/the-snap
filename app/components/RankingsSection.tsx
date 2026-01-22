@@ -12,6 +12,9 @@ interface ArticleItem {
   excerpt?: string;
   format?: string;
   rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
   coverImage?: { asset?: { url?: string } };
   featuredImage?: { asset?: { url?: string } };
   image?: { asset?: { url?: string } };
@@ -34,6 +37,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   ]
     | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
       _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
+      seasonYear, weekNumber, playoffRound,
       coverImage{asset->{url}}, featuredImage{asset->{url}}, image{asset->{url}},
       author->{name}, date, publishedAt
     }`;
@@ -44,6 +48,16 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   const topThree = [mainArticle, ...sideArticles.slice(0, 2)].filter(Boolean) as ArticleItem[];
   const getArticleUrl = (item: ArticleItem) => {
     if (item._type === 'article' && item.format === 'powerRankings') {
+      if (item.rankingType === 'snapshot' && item.seasonYear) {
+        const weekPart = item.playoffRound
+          ? item.playoffRound.toLowerCase()
+          : typeof item.weekNumber === 'number'
+            ? `week-${item.weekNumber}`
+            : null;
+        if (weekPart) {
+          return `/articles/power-rankings/${item.seasonYear}/${weekPart}`;
+        }
+      }
       return '/articles/power-rankings';
     }
     return `/articles/${item.slug.current.trim()}`;
