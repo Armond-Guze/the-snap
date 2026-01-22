@@ -135,6 +135,8 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
 
 export default async function RankingDetailPage({ params }: RankingsPageProps) {
   const { slug } = await params;
+
+  redirect(`/articles/${slug}`);
   
   // Fetch article content and related content in parallel
   const [ranking, legacyRanking, otherContent] = await Promise.all([
