@@ -94,6 +94,12 @@ export interface MovementIndicator {
 // Headlines types
 export interface Headline {
   _id: string;
+  _type?: 'headline' | 'rankings' | 'article' | string;
+  format?: string;
+  rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB' | string;
   title: string;
   homepageTitle?: string;
   slug: SanitySlug;
