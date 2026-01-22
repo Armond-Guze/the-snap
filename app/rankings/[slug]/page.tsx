@@ -217,7 +217,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     return <LegacyRankingsRenderer ranking={finalRanking as RankingsWithOptionalBody} slug={slug} otherContent={otherContent} />;
   }
 
-  let normalizedRanking: NormalizedContent | null = null;
+  let normalizedRanking: NormalizedContent;
   try {
     normalizedRanking = normalizeContent(finalRanking as UnifiedContent | LegacyRanking);
   } catch (err) {
