@@ -214,7 +214,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         redirect(`/articles/power-rankings/${season}/${weekPart}`);
       }
     }
-    return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;
+    return <LegacyRankingsRenderer ranking={finalRanking as RankingsWithOptionalBody} slug={slug} otherContent={otherContent} />;
   }
 
   let normalizedRanking: NormalizedContent | null = null;
