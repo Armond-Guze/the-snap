@@ -163,7 +163,7 @@ export default function Navbar() {
 
   return (
     <nav ref={navRef} className="bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 lg:h-24 flex items-center overflow-visible">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 lg:h-16 flex items-center overflow-visible">
         {/* Left: Hamburger */}
         <div className="flex items-center md:hidden">
           <button
@@ -192,7 +192,7 @@ export default function Navbar() {
         {/* Center: Logo */}
         <div className="flex-1 flex justify-center md:justify-start">
           <Link href="/" className="inline-flex items-center group overflow-visible">
-            <span className="relative block h-[4rem] md:h-[4.5rem] w-[120px] md:w-[140px] -my-2">
+            <span className="relative block h-[3rem] md:h-[3.25rem] w-[110px] md:w-[120px] -my-1">
               <Image
                 src="/images/thesnap-logo-new%20copy123.png"
                 alt="The Snap Logo"

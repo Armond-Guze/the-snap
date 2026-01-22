@@ -40,12 +40,11 @@ export default function Navbar() {
     ...(pathname !== "/" ? [{ label: "Home", href: "/" }] : []),
     { label: "Headlines", href: "/headlines" },
     { label: "NFL Standings", href: "/standings" },
-    { label: "Fantasy", href: "/fantasy" },
   ];
 
   return (
   <nav ref={navRef} className="bg-black/95 backdrop-blur-xl sticky top-0 z-50 shadow-2xl">
-  <div className="max-w-7xl mx-auto px-6 md:px-12 h-16 lg:h-20 py-3 lg:py-4">
+  <div className="max-w-7xl mx-auto px-6 md:px-12 h-14 lg:h-16 py-2 lg:py-3">
         {/* Mobile Layout */}
         <div className="md:hidden flex items-center justify-between h-full relative">
           {/* Left spacer for mobile */}
@@ -60,7 +59,7 @@ export default function Navbar() {
               alt="FootballNews Logo"
               width={160}
               height={160}
-              className="h-14 w-auto md:h-16 lg:h-18 transition-transform group-hover:scale-105"
+              className="h-10 w-auto md:h-12 lg:h-14 transition-transform group-hover:scale-105"
               priority
             />
           </Link>
@@ -100,7 +99,7 @@ export default function Navbar() {
               alt="FootballNews Logo"
               width={220}
               height={220}
-              className="h-20 md:h-24 lg:h-28 w-auto transition-transform group-hover:scale-105"
+              className="h-12 md:h-14 lg:h-16 w-auto transition-transform group-hover:scale-105"
               priority
             />
           </Link>

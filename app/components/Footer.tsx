@@ -27,7 +27,7 @@ const Footer = () => {
                 alt="The Game Snap Logo"
                 width={180}
                 height={180}
-                className="h-14 md:h-[2.75rem] w-auto max-w-none shrink-0 mb-2"
+                className="h-8 md:h-9 w-auto max-w-none shrink-0 mb-2"
                 priority
               />
               <h3 className="text-2xl font-bold text-white leading-snug">
@@ -53,62 +53,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Connect + Legal condensed */}
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Connect</h4>
-              <div className="space-y-3">
-                <a
-                  href="mailto:TheGameSnap@yahoo.com"
-                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                  aria-label="Email The Game Snap"
-                >
-                  <Mail size={16} />
-                  <span>Contact Us</span>
-                </a>
-                <a
-                  href="https://www.instagram.com/thesnapfootball"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                  aria-label="Visit The Game Snap on Instagram"
-                >
-                  <Instagram size={16} />
-                  <span>Instagram</span>
-                </a>
-                <a
-                  href="https://www.youtube.com/@thesnapfootball"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors text-sm"
-                  aria-label="Visit The Game Snap on YouTube"
-                >
-                  <Youtube size={16} />
-                  <span>YouTube</span>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wide">Legal</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/privacy-policy" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Terms of Use
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-sm">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <div />
         </div>
 
         {/* Mobile stack */}
@@ -124,16 +69,6 @@ const Footer = () => {
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Connect</h4>
-            <div className="space-y-3">
-              <FooterLink href="mailto:TheGameSnap@yahoo.com" label="Contact Us" icon={<Mail size={16} />} />
-              <FooterLink href="https://www.instagram.com/thesnapfootball" label="Instagram" icon={<Instagram size={16} />} external />
-              <FooterLink href="https://www.youtube.com/@thesnapfootball" label="YouTube" icon={<Youtube size={16} />} external />
-              <FooterLink href="https://twitter.com/thesnapfootball" label="Twitter / X" icon={<Twitter size={16} />} external />
-              <FooterLink href="https://www.tiktok.com/@thesnapfootball" label="TikTok" icon={<Music2 size={16} />} external />
-            </div>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Legal</h4>
@@ -155,18 +90,15 @@ const Footer = () => {
             <a href="https://www.tiktok.com/@thesnapfootball" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 size={18} /></a>
             <a href="mailto:TheGameSnap@yahoo.com" aria-label="Email" className="hover:text-white transition-colors"><Mail size={18} /></a>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-            <div className="text-xs text-gray-500 text-center md:text-left">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div className="text-xs text-gray-500 text-center sm:text-left">
               &copy; {currentYear} The Game Snap. All rights reserved.
             </div>
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-1 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-xs text-gray-500">
               <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
-              <span>•</span>
               <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
-              <span>•</span>
               <Link href="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
-              <span className="hidden sm:inline">•</span>
-              <span className="text-gray-600">Not affiliated with the NFL.</span>
+              <span className="basis-full text-center sm:basis-auto sm:text-left text-gray-600">Not affiliated with the NFL.</span>
             </div>
           </div>
         </div>
