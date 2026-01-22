@@ -70,14 +70,7 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Legal</h4>
-            <ul className="space-y-2">
-              <li><Link href="/privacy-policy" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Terms of Use</Link></li>
-              <li><Link href="/contact" className="block py-1 text-gray-400 hover:text-white transition-colors text-sm">Contact</Link></li>
-            </ul>
-          </div>
+          <div />
         </div>
 
         {/* Bottom Bar */}
@@ -90,15 +83,18 @@ const Footer = () => {
             <a href="https://www.tiktok.com/@thesnapfootball" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 size={18} /></a>
             <a href="mailto:TheGameSnap@yahoo.com" aria-label="Email" className="hover:text-white transition-colors"><Mail size={18} /></a>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div className="text-xs text-gray-500 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div className="text-xs text-gray-500 text-center md:text-left">
               &copy; {currentYear} The Game Snap. All rights reserved.
             </div>
-            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 gap-y-1 text-xs text-gray-500">
               <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
+              <span>•</span>
               <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
+              <span>•</span>
               <Link href="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
-              <span className="basis-full text-center sm:basis-auto sm:text-left text-gray-600">Not affiliated with the NFL.</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="text-gray-600">Not affiliated with the NFL.</span>
             </div>
           </div>
         </div>

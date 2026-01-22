@@ -24,8 +24,13 @@ interface RankingsSectionProps { textureSrc?: string; hideSummaries?: boolean; }
 
 export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
   const articlesQuery = `*[
-    ( _type == "article" && format in ["feature","ranking","analysis","powerRankings"] && published == true ) ||
-    ( _type == "rankings" && published == true )
+    (
+      _type == "article" && published == true && (
+        format in ["feature","ranking","analysis"] ||
+        (format == "powerRankings" && rankingType == "snapshot")
+      )
+    ) ||
+    ( _type == "rankings" && published == true && coalesce(rankingType, "snapshot") != "live" )
   ]
     | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
       _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
