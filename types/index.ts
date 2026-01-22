@@ -133,6 +133,7 @@ export interface HeadlineListItem {
   title: string;
   homepageTitle?: string;
   slug: SanitySlug;
+  format?: string;
   coverImage?: SanityImageWithUrl;
   featuredImage?: SanityImageWithUrl; // added for unified content support
   image?: SanityImageWithUrl; // generic fallback image field
@@ -140,6 +141,9 @@ export interface HeadlineListItem {
   date?: string;
   publishedAt?: string;
   rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
   author?: Pick<Author, 'name'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
   tags?: Pick<Tag, 'title'>[];

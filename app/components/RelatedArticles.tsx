@@ -18,12 +18,25 @@ export default function RelatedArticles({
   // Unified list: filter out current article, cap to 24 for sidebar performance
   const relatedArticles = articles
     .filter((article) => article.slug.current !== currentSlug)
+    .filter((article) => !(article._type === 'article' && article.format === 'powerRankings'))
     .slice(0, 6); // limit to 6 recommended articles
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineListItem) => {
     if (item._type === 'rankings') return `/articles/${item.slug.current}`;
-    if (item._type === 'article') return `/articles/${item.slug.current}`;
+    if (item._type === 'article') {
+      if (item.format === 'powerRankings' && item.seasonYear) {
+        const weekPart = item.playoffRound
+          ? item.playoffRound.toLowerCase()
+          : typeof item.weekNumber === 'number'
+            ? `week-${item.weekNumber}`
+            : null;
+        if (weekPart) {
+          return `/articles/power-rankings/${item.seasonYear}/${weekPart}`;
+        }
+      }
+      return `/articles/${item.slug.current}`;
+    }
     return `/headlines/${item.slug.current}`;
   };
 
