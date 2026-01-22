@@ -39,7 +39,6 @@ export default function Navbar() {
   const navItems = [
     ...(pathname !== "/" ? [{ label: "Home", href: "/" }] : []),
     { label: "Headlines", href: "/headlines" },
-    { label: "Power Rankings", href: "/articles/power-rankings" },
     { label: "NFL Standings", href: "/standings" },
     { label: "Fantasy", href: "/fantasy" },
   ];

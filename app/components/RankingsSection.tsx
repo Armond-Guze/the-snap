@@ -10,6 +10,8 @@ interface ArticleItem {
   slug: { current: string };
   summary?: string;
   excerpt?: string;
+  format?: string;
+  rankingType?: string;
   coverImage?: { asset?: { url?: string } };
   featuredImage?: { asset?: { url?: string } };
   image?: { asset?: { url?: string } };
@@ -21,9 +23,12 @@ interface ArticleItem {
 interface RankingsSectionProps { textureSrc?: string; hideSummaries?: boolean; }
 
 export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
-  const articlesQuery = `*[_type == "article" && format in ["feature","ranking","analysis"] && published == true]
+  const articlesQuery = `*[
+    ( _type == "article" && format in ["feature","ranking","analysis","powerRankings"] && published == true ) ||
+    ( _type == "rankings" && published == true )
+  ]
     | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
-      _id,_type,title,homepageTitle,slug,summary,excerpt,
+      _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
       coverImage{asset->{url}}, featuredImage{asset->{url}}, image{asset->{url}},
       author->{name}, date, publishedAt
     }`;
@@ -32,7 +37,12 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   const mainArticle = articles[0];
   const sideArticles = articles.slice(1, 6) || [];
   const topThree = [mainArticle, ...sideArticles.slice(0, 2)].filter(Boolean) as ArticleItem[];
-  const getArticleUrl = (item: ArticleItem) => `/articles/${item.slug.current.trim()}`;
+  const getArticleUrl = (item: ArticleItem) => {
+    if (item._type === 'article' && item.format === 'powerRankings') {
+      return '/articles/power-rankings';
+    }
+    return `/articles/${item.slug.current.trim()}`;
+  };
   return (
     <section className="relative py-10 px-6 lg:px-8 2xl:px-10 3xl:px-12">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />

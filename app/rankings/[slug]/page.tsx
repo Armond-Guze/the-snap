@@ -204,7 +204,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
       }
       const season = legacy.seasonYear || new Date().getFullYear();
       const weekPart = legacy.playoffRound
-        ? legacy.playoffRound.toLowerCase()
+        ? legacy.playoffRound.toLowerCase() 
         : typeof legacy.weekNumber === 'number'
           ? `week-${legacy.weekNumber}`
           : undefined;

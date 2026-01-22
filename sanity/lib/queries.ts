@@ -48,6 +48,10 @@ export const headlineDetailQuery = `
     slug,
     summary,
     format,
+    rankingType,
+    seasonYear,
+    weekNumber,
+    playoffRound,
     coverImage {
       asset->{
         url
@@ -192,7 +196,7 @@ export const categoriesQuery = `
 // Detailed article query for all article formats (feature, ranking, analysis, fantasy, headline)
 export const articleDetailQuery = `
   *[
-    (_type == "article" && slug.current == $slug && published == true) ||
+    ((_type in ["article","rankings"] && slug.current == $slug && published == true)) ||
     (_type == "headline" && slug.current == $slug && published == true)
   ][0] {
     _id,

@@ -1,5 +1,5 @@
 import { PortableText } from '@portabletext/react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
@@ -33,6 +33,26 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 		.catch(() => null);
 
 	if (!article) return {};
+
+	if (article._type === 'article' && article.format === 'powerRankings') {
+		const season = (article as unknown as { seasonYear?: number }).seasonYear;
+		const weekNumber = (article as unknown as { weekNumber?: number }).weekNumber;
+		const playoffRound = (article as unknown as { playoffRound?: string }).playoffRound;
+		const weekPart = playoffRound
+			? playoffRound.toLowerCase()
+			: typeof weekNumber === 'number'
+				? `week-${weekNumber}`
+				: null;
+		const canonical = weekPart && season
+			? `https://thegamesnap.com/articles/power-rankings/${season}/${weekPart}`
+			: 'https://thegamesnap.com/articles/power-rankings';
+		return {
+			...generateSEOMetadata(article, '/articles'),
+			alternates: {
+				canonical,
+			},
+		};
+	}
 
 	const metadata = generateSEOMetadata(article, '/articles');
 	const canonicalBase = 'https://thegamesnap.com/articles';
@@ -76,7 +96,32 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		),
 	]);
 
-	if (!article) notFound();
+	if (!article) {
+		const aliasDoc = await client.fetch<{ slug?: { current?: string } } | null>(
+			`*[_type == "article" && published == true && $slug in slugHistory][0]{ slug }`,
+			{ slug: trimmedSlug }
+		);
+		const targetSlug = aliasDoc?.slug?.current?.trim();
+		if (targetSlug) {
+			redirect(`/articles/${targetSlug}`);
+		}
+		notFound();
+	}
+
+	if (article._type === 'article' && article.format === 'powerRankings') {
+		const season = (article as unknown as { seasonYear?: number }).seasonYear;
+		const weekNumber = (article as unknown as { weekNumber?: number }).weekNumber;
+		const playoffRound = (article as unknown as { playoffRound?: string }).playoffRound;
+		const weekPart = playoffRound
+			? playoffRound.toLowerCase()
+			: typeof weekNumber === 'number'
+				? `week-${weekNumber}`
+				: null;
+		if (weekPart && season) {
+			redirect(`/articles/power-rankings/${season}/${weekPart}`);
+		}
+		redirect('/articles/power-rankings');
+	}
 
 	const tagList = Array.isArray(article.tags)
 		? article.tags
