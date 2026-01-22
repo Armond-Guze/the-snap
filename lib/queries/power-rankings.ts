@@ -34,12 +34,15 @@ export const powerRankingsSnapshotByParamsQuery = `
     )][0]{
       _id,
       title,
+      summary,
       slug,
       seasonYear,
       weekNumber,
       playoffRound,
       publishedAt,
       date,
+      author->{ name, image { asset->{ url }, alt } },
+      coverImage{ asset->{ url }, alt },
       rankings[]{
         rank,
         teamAbbr,

@@ -1,8 +1,21 @@
 import { client } from '@/sanity/lib/client';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
-import type { PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
+import { powerRankingsLiveQuery, powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
+import type { HeadlineListItem, MovementIndicator, PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
+import Image from 'next/image';
+import Link from 'next/link';
+import { PortableText } from '@portabletext/react';
+import { portableTextComponents } from '@/lib/portabletext-components';
+import Breadcrumb from '@/app/components/Breadcrumb';
+import RelatedArticles from '@/app/components/RelatedArticles';
+import SocialShare from '@/app/components/SocialShare';
+import MostRead from '@/app/components/MostRead';
+import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
+import { formatArticleDate } from '@/lib/date-utils';
+import { gradientClassForTeam } from '@/lib/team-utils';
+import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
+import { teamCodeFromName } from '@/lib/team-utils';
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
   '#97233F': 'text-[#97233F]',
@@ -79,6 +92,15 @@ function getPrevPlayoffRound(round?: string | null) {
   return PLAYOFF_ORDER[index - 1];
 }
 
+function getMovementIndicator(change: number): MovementIndicator {
+  if (change > 0) {
+    return { symbol: "▲", color: "text-green-400" };
+  } else if (change < 0) {
+    return { symbol: "▼", color: "text-red-500" };
+  }
+  return { symbol: "–", color: "text-gray-400" };
+}
+
 export async function generateStaticParams() {
   const slugs: { seasonYear?: number; weekNumber?: number; playoffRound?: string }[] = await client.fetch(powerRankingsSnapshotSlugsQuery);
   return slugs
@@ -133,15 +155,38 @@ export default async function RankingsWeekPage({ params }: PageProps) {
     notFound();
   }
 
-  const data: PowerRankingsDoc | null = await client.fetch(powerRankingsSnapshotByParamsQuery, {
-    season,
-    week: parsed.weekNumber ?? null,
-    playoffRound: parsed.playoffRound ?? null,
-  });
+  const [data, liveDoc, otherContent] = await Promise.all([
+    client.fetch<PowerRankingsDoc | null>(powerRankingsSnapshotByParamsQuery, {
+      season,
+      week: parsed.weekNumber ?? null,
+      playoffRound: parsed.playoffRound ?? null,
+    }),
+    client.fetch<PowerRankingsDoc | null>(powerRankingsLiveQuery),
+    client.fetch<HeadlineListItem[]>(
+      `*[(_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
+        _id,
+        _type,
+        title,
+        homepageTitle,
+        slug,
+        excerpt,
+        date,
+        publishedAt,
+        contentType,
+        week,
+        author-> { name },
+        featuredImage { asset->{ url } },
+        coverImage { asset->{ url } },
+        image { asset->{ url } }
+      }`
+    )
+  ]);
 
   if (!data) {
     return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot found for {week} — {season} yet.</div>;
   }
+
+  const records = await fetchTeamRecords(season);
 
   const prevSnapshot: PowerRankingsDoc | null = await client.fetch(powerRankingsSnapshotByParamsQuery, {
     season,
@@ -154,57 +199,177 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   );
 
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[data.playoffRound || ''] || 'Playoffs';
-  const published = data.date;
+  const published = data.publishedAt || data.date || liveDoc?.publishedAt || liveDoc?.date;
+  const displayTitle = data.title || liveDoc?.title || `NFL Power Rankings ${season} — ${weekLabel}`;
+  const displaySummary = data.summary || liveDoc?.summary;
+  const displayCover = data.coverImage || liveDoc?.coverImage;
+  const displayAuthor = data.author || liveDoc?.author;
+  const shareUrl = `https://thegamesnap.com/articles/power-rankings/${season}/${week}`;
+  const breadcrumbItems = [
+    { label: 'Articles', href: '/articles' },
+    { label: 'Power Rankings', href: '/articles/power-rankings' },
+    { label: `${season} ${weekLabel}` }
+  ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 text-white">
-      <h1 className="text-3xl md:text-4xl font-bold mb-2">NFL Power Rankings {season} — {weekLabel}</h1>
-      <p className="text-gray-400 mb-6">Published {published ? new Date(published).toLocaleDateString() : '—'}</p>
-      <ol className="space-y-3">
-        {(data.rankings || [])
-          .slice()
-          .sort((a: PowerRankingEntry, b: PowerRankingEntry) => a.rank - b.rank)
-          .map((entry: PowerRankingEntry, idx: number) => {
-            const key = entry.teamAbbr || entry.teamName || entry.team?.title || `team-${idx}`;
-            const prevRank = typeof entry.prevRankOverride === 'number' ? entry.prevRankOverride : prevMap.get(key);
-            const movement = typeof entry.movementOverride === 'number'
-              ? entry.movementOverride
-              : typeof prevRank === 'number'
-                ? prevRank - entry.rank
-                : 0;
-            return (
-              <li key={`${key}-${entry.rank}`} className="flex items-start gap-3 bg-[#0d0d0d] border border-[#1e1e1e] rounded p-3">
-                <div className="w-8 text-right font-bold">{entry.rank}</div>
-                <div className="flex-1">
-                  <div className="font-semibold">
-                    <a
-                      className={`hover:underline ${getTeamColorClass(entry.teamColor)}`}
-                      href={`/teams/${(entry.teamAbbr || entry.teamName || '').toLowerCase()}`}
-                    >
-                      {entry.teamName || entry.team?.title || entry.teamAbbr}
-                    </a>
-                    {typeof movement === 'number' && (
-                      <span className={`ml-2 text-xs ${movement > 0 ? 'text-green-400' : movement < 0 ? 'text-red-400' : 'text-gray-400'}`}>
-                        {movement > 0 ? `▲ ${movement}` : movement < 0 ? `▼ ${Math.abs(movement)}` : '—'}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-300 mt-1">
-                    {typeof movement === 'number' && movement !== 0
-                      ? (movement > 0
-                          ? `Up +${movement} to #${entry.rank}. `
-                          : `Down −${Math.abs(movement)} to #${entry.rank}. `)
-                      : `Hold at #${entry.rank}. `}
-                    {entry.note || ''}
-                  </p>
+    <>
+    <main className="bg-black text-white min-h-screen">
+      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <article className="lg:col-span-2 flex flex-col">
+          <div className="hidden sm:block">
+            <Breadcrumb items={breadcrumbItems} className="mb-4" />
+          </div>
+          <header className="mb-10">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{displayTitle}</h1>
+            <div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
+              {displayAuthor?.image?.asset?.url && (
+                <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                  <Image
+                    src={displayAuthor.image.asset.url}
+                    alt={(displayAuthor.image as { alt?: string })?.alt || displayAuthor?.name || 'Author'}
+                    fill
+                    sizes={AVATAR_SIZES}
+                    className="object-cover"
+                  />
                 </div>
-                {typeof prevRank === 'number' && (
-                  <div className="text-xs text-gray-400">Prev: {prevRank}</div>
-                )}
-              </li>
-            );
-          })}
-      </ol>
+              )}
+              <span className="font-medium text-white/90">
+                {displayAuthor?.name || 'The Snap'}
+              </span>
+              {published && (
+                <>
+                  <span>• {formatArticleDate(published)}</span>
+                  <span className="text-gray-500 hidden sm:inline">•</span>
+                </>
+              )}
+              <span className="hidden sm:inline">{weekLabel} snapshot • {data.rankings.length} teams</span>
+              <span className="text-gray-500 hidden sm:inline">•</span>
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white">Power Rankings</span>
+            </div>
+            <div className="mt-4 inline-flex items-center px-4 py-2 bg-black rounded-full">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2" />
+              <span className="text-sm text-emerald-300 font-semibold">Weekly Snapshot</span>
+            </div>
+          </header>
+
+          {displayCover?.asset?.url && (
+            <div className="w-full mb-6">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                <Image
+                  src={displayCover.asset.url}
+                  alt={(displayCover as { alt?: string })?.alt || displayTitle}
+                  fill
+                  sizes={ARTICLE_COVER_SIZES}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </div>
+              {displaySummary && (
+                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">
+                  {displaySummary}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-12">
+            {(data.rankings || [])
+              .slice()
+              .sort((a, b) => a.rank - b.rank)
+              .map((team: PowerRankingEntry, index: number) => {
+                const rank = team.rank;
+                const teamName = team.teamName || team.team?.title || '';
+                const teamLogo = team.teamLogo;
+                const teamNameClass = getTeamColorClass(team.teamColor);
+                const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
+                const prevRank =
+                  typeof team.prevRankOverride === 'number'
+                    ? team.prevRankOverride
+                    : prevMap.get(team.teamAbbr || teamName || team.team?.title || '');
+                const change = typeof team.movementOverride === 'number'
+                  ? team.movementOverride
+                  : typeof prevRank === 'number'
+                    ? prevRank - rank
+                    : 0;
+                const movement = getMovementIndicator(change);
+
+                return (
+                  <article key={key} className="group">
+                    <div className="relative bg-black p-3">
+                      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${gradientClassForTeam(teamName)}`} />
+
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-center min-w-[60px] bg-black rounded-lg p-2">
+                          <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Rank</span>
+                          <span className="text-2xl font-black text-white">{rank}</span>
+                        </div>
+
+                        {teamLogo?.asset?.url && (
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={teamLogo.asset.url}
+                              alt={(teamLogo as { alt?: string })?.alt || `${teamName} logo`}
+                              width={60}
+                              height={60}
+                              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-contain"
+                              priority={rank <= 5}
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <div className="flex flex-col items-start">
+                              <h2 className={`text-xl sm:text-2xl font-bold truncate ${teamNameClass}`}>{teamName}</h2>
+                              {(() => {
+                                const abbr = team.teamAbbr || teamCodeFromName(teamName);
+                                const rec = shortRecord(abbr ? records.get(abbr) : undefined);
+                                return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null;
+                              })()}
+                            </div>
+
+                            <div className="flex flex-col items-center min-w-[50px] rounded-lg p-2">
+                              <span className={`text-lg font-bold ${movement.color}`}>
+                                {movement.symbol}
+                              </span>
+                              {change !== 0 ? (
+                                <span className={`text-xs font-semibold ${movement.color}`}>
+                                  {Math.abs(change)}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-gray-400">—</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 bg-black p-6">
+                      {Array.isArray(team.analysis) && team.analysis.length > 0 && (
+                        <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+                          <PortableText value={team.analysis} components={portableTextComponents} />
+                        </div>
+                      )}
+                      {!team.analysis && team.note && (
+                        <p className="text-lg text-gray-300 leading-relaxed max-w-4xl text-left">{team.note}</p>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+          </div>
+        </article>
+
+        <aside className="space-y-8 lg:sticky lg:top-24 self-start">
+          <MostRead />
+          <RelatedArticles currentSlug={data.slug?.current || 'power-rankings'} articles={otherContent} />
+        </aside>
+      </div>
+    </main>
+    <div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
+      <SocialShare url={shareUrl} title={displayTitle} description={displaySummary || ''} variant="compact" />
     </div>
+    </>
   );
 }

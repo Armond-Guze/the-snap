@@ -10,7 +10,11 @@ import { fetchTeamRecords, shortRecord } from "@/lib/team-records";
 import { getActiveSeason } from "@/lib/season";
 import { teamCodeFromName } from "@/lib/team-utils";
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import RelatedArticles from '@/app/components/RelatedArticles';
+import Breadcrumb from '@/app/components/Breadcrumb';
+import SocialShare from '@/app/components/SocialShare';
+import MostRead from '@/app/components/MostRead';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { formatArticleDate } from '@/lib/date-utils';
 
@@ -109,6 +113,13 @@ export default async function PowerRankingsArticlePage() {
         ? await client.fetch(powerRankingsLatestSnapshotForSeasonQuery, { season: liveDoc.seasonYear })
         : null;
 
+    if (latestSnapshot?.seasonYear && (latestSnapshot.weekNumber || latestSnapshot.playoffRound)) {
+      const weekPart = latestSnapshot.playoffRound
+        ? latestSnapshot.playoffRound.toLowerCase()
+        : `week-${latestSnapshot.weekNumber}`;
+      redirect(`/articles/power-rankings/${latestSnapshot.seasonYear}/${weekPart}`);
+    }
+
     // Handle empty state
     if (!liveDoc?.rankings || liveDoc.rankings.length === 0) {
       return (
@@ -125,13 +136,23 @@ export default async function PowerRankingsArticlePage() {
       );
     }
 
+    const shareUrl = 'https://thegamesnap.com/articles/power-rankings';
+    const breadcrumbItems = [
+      { label: 'Articles', href: '/articles' },
+      { label: 'Power Rankings' }
+    ];
+
     return (
+      <>
       <main className="bg-black text-white min-h-screen">
         <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
           <article className="lg:col-span-2 flex flex-col">
+            <div className="hidden sm:block">
+              <Breadcrumb items={breadcrumbItems} className="mb-4" />
+            </div>
             <header className="mb-10">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">{liveDoc.title || 'NFL Power Rankings'}</h1>
-              <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{liveDoc.title || 'NFL Power Rankings'}</h1>
+              <div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
                 {liveDoc.author?.image?.asset?.url && (
                   <div className="relative w-8 h-8 rounded-full overflow-hidden">
                     <Image
@@ -143,12 +164,18 @@ export default async function PowerRankingsArticlePage() {
                     />
                   </div>
                 )}
-                <span>
-                  By {liveDoc.author?.name || 'The Snap'} •{' '}
-                  {formatArticleDate(liveDoc.publishedAt || liveDoc.date)}
+                <span className="font-medium text-white/90">
+                  {liveDoc.author?.name || 'The Snap'}
                 </span>
-                <span className="text-gray-500">•</span>
-                <span>Latest rankings updated weekly • {liveDoc.rankings.length} teams</span>
+                {(liveDoc.publishedAt || liveDoc.date) && (
+                  <>
+                    <span>• {formatArticleDate(liveDoc.publishedAt || liveDoc.date)}</span>
+                    <span className="text-gray-500 hidden sm:inline">•</span>
+                  </>
+                )}
+                <span className="hidden sm:inline">Latest rankings updated weekly • {liveDoc.rankings.length} teams</span>
+                <span className="text-gray-500 hidden sm:inline">•</span>
+                <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white">Power Rankings</span>
               </div>
               {(latestSnapshot?.weekNumber || latestSnapshot?.playoffRound) && (
                 <div className="mt-4">
@@ -257,12 +284,12 @@ export default async function PowerRankingsArticlePage() {
 
                       <div className="mt-3 bg-black p-6">
                         {Array.isArray(team.analysis) && team.analysis.length > 0 && (
-                          <div className="text-2xl text-gray-200 leading-relaxed">
+                          <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
                             <PortableText value={team.analysis} components={portableTextComponents} />
                           </div>
                         )}
                         {!team.analysis && team.note && (
-                          <p className="text-lg text-gray-200 leading-relaxed">{team.note}</p>
+                          <p className="text-lg text-gray-300 leading-relaxed max-w-4xl text-left">{team.note}</p>
                         )}
                       </div>
                     </article>
@@ -271,11 +298,16 @@ export default async function PowerRankingsArticlePage() {
             </div>
           </article>
 
-          <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
+          <aside className="space-y-8 lg:sticky lg:top-24 self-start">
+            <MostRead />
             <RelatedArticles currentSlug="power-rankings" articles={otherContent} />
           </aside>
         </div>
       </main>
+      <div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
+        <SocialShare url={shareUrl} title={liveDoc.title || 'NFL Power Rankings'} description={liveDoc.summary || ''} variant="compact" />
+      </div>
+      </>
     );
   } catch (error) {
     console.error('Power Rankings error:', error);

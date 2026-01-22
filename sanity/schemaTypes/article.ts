@@ -311,6 +311,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!ctx.document?.published) return true;
+          if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Cover image is required before publishing";
         }),
       group: "media",
@@ -323,6 +324,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!ctx.document?.published) return true;
+          if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Author is required before publishing";
         }),
       group: "quick",
@@ -342,6 +344,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.max(300).custom((val, ctx) => {
           if (!ctx.document?.published) return true;
+          if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Summary is required before publishing";
         }),
       group: "quick",
