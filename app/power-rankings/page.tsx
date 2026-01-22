@@ -11,6 +11,8 @@ import { getActiveSeason } from "@/lib/season";
 import { teamCodeFromName } from "@/lib/team-utils";
 import type { Metadata } from 'next';
 import RelatedArticles from '@/app/components/RelatedArticles';
+import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
+import { formatArticleDate } from '@/lib/date-utils';
 
 export const metadata: Metadata = {
   title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
@@ -89,10 +91,26 @@ export default async function PowerRankingsPage() {
         <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
           <article className="lg:col-span-2 flex flex-col">
             <header className="mb-10">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3">NFL Power Rankings</h1>
-              <p className="text-gray-400 text-sm md:text-base">
-                Latest rankings updated weekly • {liveDoc.rankings.length} teams
-              </p>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">{liveDoc.title || 'NFL Power Rankings'}</h1>
+              <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
+                {liveDoc.author?.image?.asset?.url && (
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                    <Image
+                      src={liveDoc.author.image.asset.url}
+                      alt={(liveDoc.author.image as { alt?: string })?.alt || liveDoc.author?.name || 'Author'}
+                      fill
+                      sizes={AVATAR_SIZES}
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <span>
+                  By {liveDoc.author?.name || 'The Snap'} •{' '}
+                  {formatArticleDate(liveDoc.publishedAt || liveDoc.date)}
+                </span>
+                <span className="text-gray-500">•</span>
+                <span>Latest rankings updated weekly • {liveDoc.rankings.length} teams</span>
+              </div>
               {(latestSnapshot?.weekNumber || latestSnapshot?.playoffRound) && (
                 <div className="mt-4">
                   <Link
@@ -108,6 +126,26 @@ export default async function PowerRankingsPage() {
                 <span className="text-sm text-green-400 font-semibold">Live Rankings</span>
               </div>
             </header>
+
+            {liveDoc.coverImage?.asset?.url && (
+              <div className="w-full mb-6">
+                <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                  <Image
+                    src={liveDoc.coverImage.asset.url}
+                    alt={(liveDoc.coverImage as { alt?: string })?.alt || liveDoc.title || 'NFL Power Rankings'}
+                    fill
+                    sizes={ARTICLE_COVER_SIZES}
+                    className="object-cover w-full h-full"
+                    priority
+                  />
+                </div>
+                {liveDoc.summary && (
+                  <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">
+                    {liveDoc.summary}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="space-y-12">
               {liveDoc.rankings

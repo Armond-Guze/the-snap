@@ -3,11 +3,15 @@ export const powerRankingsLiveQuery = `
     | order(seasonYear desc, date desc)[0]{
       _id,
       title,
+      summary,
       slug,
       seasonYear,
       rankingType,
       methodology,
       date,
+      publishedAt,
+      author->{ name, image { asset->{ url }, alt } },
+      coverImage{ asset->{ url }, alt },
       rankings[]{
         rank,
         teamAbbr,

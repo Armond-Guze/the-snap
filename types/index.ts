@@ -72,6 +72,7 @@ export interface PowerRankingEntry {
 export interface PowerRankingsDoc {
   _id: string;
   title?: string;
+  summary?: string;
   slug?: SanitySlug;
   seasonYear: number;
   rankingType: 'live' | 'snapshot';
@@ -80,6 +81,9 @@ export interface PowerRankingsDoc {
   methodology?: string;
   rankings: PowerRankingEntry[];
   date?: string;
+  publishedAt?: string;
+  author?: Author;
+  coverImage?: SanityImageWithUrl;
 }
 
 export interface MovementIndicator {

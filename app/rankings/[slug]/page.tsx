@@ -340,6 +340,11 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
                   priority
                 />
               </div>
+              {(ranking.summary || (ranking as { summary?: string; excerpt?: string }).excerpt) && (
+                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">
+                  {ranking.summary || (ranking as { summary?: string; excerpt?: string }).excerpt}
+                </p>
+              )}
             </div>
           )}
       {textBlocks.length > 0 && (
@@ -517,6 +522,11 @@ function UnifiedRankingRenderer({
                   priority
                 />
               </div>
+              {(ranking.excerpt || (ranking as { summary?: string; excerpt?: string }).summary) && (
+                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">
+                  {ranking.excerpt || (ranking as { summary?: string; excerpt?: string }).summary}
+                </p>
+              )}
             </div>
           )}
 
