@@ -70,11 +70,11 @@ export const structure: StructureResolver = (S) => {
                   .title('Power Rankings')
                   .items([
                     S.listItem()
-                      .title('Live (Current)')
+                      .title('Template')
                       .schemaType('article')
                       .child(
                         S.documentTypeList('article')
-                          .title('Power Rankings — Live')
+                          .title('Power Rankings — Template')
                           .filter('_type == "article" && format == "powerRankings" && rankingType == "live"')
                           .initialValueTemplates([
                             S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'live' })
