@@ -38,7 +38,7 @@ export const leagueMilestones: LeagueMilestone[] = [
         answer: 'Teams can tag a player in consecutive seasons, but the cost escalates by 120% of the previous salary, making repeat tags pricey.'
       }
     ],
-    relatedPaths: ['/headlines/tags', '/power-rankings']
+    relatedPaths: ['/headlines/tags', '/articles/power-rankings']
   },
   {
     id: 'league-year-2026',
@@ -48,7 +48,7 @@ export const leagueMilestones: LeagueMilestone[] = [
     type: 'event',
     description: 'Contracts can become official, trades process, and the negotiating frenzy goes public.',
     tags: ['free agency', 'transactions'],
-    relatedPaths: ['/headlines/free-agency', '/power-rankings']
+    relatedPaths: ['/headlines/free-agency', '/articles/power-rankings']
   },
   {
     id: 'draft-round1-2026',
@@ -59,7 +59,7 @@ export const leagueMilestones: LeagueMilestone[] = [
     location: 'Detroit Draft Theater',
     description: 'Night one sets the tone with quarterback dominos and blue-chip defenders flying off the board.',
     tags: ['draft', 'round 1'],
-    relatedPaths: ['/draft-board', '/power-rankings']
+    relatedPaths: ['/draft-board', '/articles/power-rankings']
   },
   {
     id: 'draft-weekend-2026',
@@ -109,7 +109,7 @@ export const leagueMilestones: LeagueMilestone[] = [
     type: 'window',
     description: 'Physical practices begin, depth charts harden, and Hard Knocks cameras roll.',
     tags: ['training camp', 'position battles'],
-    relatedPaths: ['/power-rankings', '/headlines']
+    relatedPaths: ['/articles/power-rankings', '/headlines']
   },
   {
     id: 'preseason-kickoff-2026',
@@ -129,6 +129,6 @@ export const leagueMilestones: LeagueMilestone[] = [
     type: 'event',
     description: 'Banner-raising Thursday night showcase launches another 18-week sprint.',
     tags: ['regular season', 'kickoff'],
-    relatedPaths: ['/schedule', '/power-rankings']
+    relatedPaths: ['/schedule', '/articles/power-rankings']
   }
 ];

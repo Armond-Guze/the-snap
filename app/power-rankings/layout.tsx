@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NFL Power Rankings - Week by Week Team Rankings | The Snap",
     description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up with expert analysis.",
-    url: 'https://thegamesnap.com/power-rankings',
+    url: 'https://thegamesnap.com/articles/power-rankings',
     images: [
       {
         url: '/images/thesnap-logo-new copy.jpg',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     images: ['/images/thesnap-logo-new copy.jpg'],
   },
   alternates: {
-    canonical: 'https://thegamesnap.com/power-rankings',
+    canonical: 'https://thegamesnap.com/articles/power-rankings',
   },
 }
 

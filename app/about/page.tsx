@@ -176,7 +176,7 @@ export default function AboutPage() {
                     Read Headlines
                   </Link>
                   <Link
-                    href="/power-rankings"
+                    href="/articles/power-rankings"
                     className="border-2 border-white hover:bg-white hover:text-black text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
                   >
                     View Rankings

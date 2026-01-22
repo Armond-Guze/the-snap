@@ -187,15 +187,15 @@ export default async function ArticlesPage() {
 
 function getArticleHref(item: ArticleListItem) {
   if (item._type === 'article' && item.format === 'powerRankings') {
-    if (item.rankingType === 'live') return '/power-rankings';
+    if (item.rankingType === 'live') return '/articles/power-rankings';
     const season = item.seasonYear;
     const weekPart = item.playoffRound
       ? item.playoffRound.toLowerCase()
       : typeof item.weekNumber === 'number'
         ? `week-${item.weekNumber}`
         : null;
-    if (season && weekPart) return `/power-rankings/${season}/${weekPart}`;
-    return '/power-rankings';
+    if (season && weekPart) return `/articles/power-rankings/${season}/${weekPart}`;
+    return '/articles/power-rankings';
   }
   return `/articles/${item.slug.current.trim()}`;
 }

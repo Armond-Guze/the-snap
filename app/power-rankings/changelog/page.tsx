@@ -56,7 +56,7 @@ export default async function PowerRankingsChangeLogPage() {
                 const label = typeof d.weekNumber === 'number' ? `Wk ${d.weekNumber}` : (d.playoffRound || '').toUpperCase();
                 return (
                   <th key={d._id} className="p-2 font-semibold whitespace-nowrap">
-                    <Link href={`/power-rankings/${d.seasonYear}/${weekPart}`} className="hover:underline">{label}</Link>
+                    <Link href={`/articles/power-rankings/${d.seasonYear}/${weekPart}`} className="hover:underline">{label}</Link>
                   </th>
                 );
               })}

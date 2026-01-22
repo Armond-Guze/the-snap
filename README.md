@@ -282,7 +282,7 @@ Use the shared endpoint to force ISR revalidation or warm SportsDataIO data:
 curl -X POST "https://your-site.com/api/revalidate?tag=standings&secret=REVALIDATE_SECRET"
 ```
 
-- Accepts multiple `tag` or `path` query params as well as JSON bodies, e.g. `{"tags":["standings","rankings"],"paths":["/","/power-rankings"]}`.
+- Accepts multiple `tag` or `path` query params as well as JSON bodies, e.g. `{"tags":["standings","rankings"],"paths":["/","/articles/power-rankings"]}`.
 - Authenticates via `REVALIDATE_SECRET` (falls back to `SANITY_WEBHOOK_SECRET`).
 - When the `standings` tag is included the route calls `fetchNFLStandingsWithFallback()` immediately, so you’ll see the SportsDataIO logging without waiting for a page view.
 - If the request comes from Vercel Cron (`x-vercel-cron` header) the route trusts it automatically—manual requests must still provide the secret.

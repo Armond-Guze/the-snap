@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
         : typeof legacy.weekNumber === 'number'
           ? `week-${legacy.weekNumber}`
           : null;
-      const canonical = weekPart ? `/power-rankings/${season}/${weekPart}` : '/power-rankings';
+      const canonical = weekPart ? `/articles/power-rankings/${season}/${weekPart}` : '/articles/power-rankings';
       const canonicalAbs = `https://thegamesnap.com${canonical}`;
       return {
         title: legacy.title || 'NFL Power Rankings',
@@ -200,7 +200,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
     };
     if (legacy._type === 'article' && legacy.format === 'powerRankings') {
       if (legacy.rankingType === 'live' || !legacy.rankingType) {
-        redirect('/power-rankings');
+        redirect('/articles/power-rankings');
       }
       const season = legacy.seasonYear || new Date().getFullYear();
       const weekPart = legacy.playoffRound
@@ -209,7 +209,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
           ? `week-${legacy.weekNumber}`
           : undefined;
       if (weekPart) {
-        redirect(`/power-rankings/${season}/${weekPart}`);
+        redirect(`/articles/power-rankings/${season}/${weekPart}`);
       }
     }
     return <LegacyRankingsRenderer ranking={finalRanking} slug={slug} otherContent={otherContent} />;

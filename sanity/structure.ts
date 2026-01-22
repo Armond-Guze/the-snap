@@ -63,12 +63,52 @@ export const structure: StructureResolver = (S) => {
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
               ),
             S.listItem()
+              .title('Power Rankings')
+              .schemaType('article')
+              .child(
+                S.list()
+                  .title('Power Rankings')
+                  .items([
+                    S.listItem()
+                      .title('Live (Current)')
+                      .schemaType('article')
+                      .child(
+                        S.documentTypeList('article')
+                          .title('Power Rankings — Live')
+                          .filter('_type == "article" && format == "powerRankings" && rankingType == "live"')
+                          .initialValueTemplates([
+                            S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'live' })
+                          ])
+                          .defaultOrdering([
+                            { field: 'seasonYear', direction: 'desc' },
+                            { field: 'date', direction: 'desc' },
+                          ])
+                      ),
+                    S.listItem()
+                      .title('Weekly Snapshots')
+                      .schemaType('article')
+                      .child(
+                        S.documentTypeList('article')
+                          .title('Power Rankings — Snapshots')
+                          .filter('_type == "article" && format == "powerRankings" && rankingType == "snapshot"')
+                          .initialValueTemplates([
+                            S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'snapshot' })
+                          ])
+                          .defaultOrdering([
+                            { field: 'seasonYear', direction: 'desc' },
+                            { field: 'weekNumber', direction: 'desc' },
+                            { field: 'date', direction: 'desc' },
+                          ])
+                      ),
+                  ])
+              ),
+            S.listItem()
               .title('Rankings')
               .schemaType('article')
               .child(
                 S.documentTypeList('article')
                   .title('Rankings')
-                  .filter('(_type == "article" && format in ["powerRankings","ranking"]) || _type == "rankings"')
+                  .filter('(_type == "article" && format == "ranking") || _type == "rankings"')
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
               ),
             S.listItem()
@@ -79,46 +119,6 @@ export const structure: StructureResolver = (S) => {
                   .title('Analysis')
                   .filter('_type == "article" && format == "analysis"')
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
-              ),
-          ])
-      ),
-    S.listItem()
-      .title('Power Rankings')
-      .schemaType('article')
-      .child(
-        S.list()
-          .title('Power Rankings')
-          .items([
-            S.listItem()
-              .title('Live (Current)')
-              .schemaType('article')
-              .child(
-                S.documentTypeList('article')
-                  .title('Power Rankings — Live')
-                  .filter('_type == "article" && format == "powerRankings" && rankingType == "live"')
-                  .initialValueTemplates([
-                    S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'live' })
-                  ])
-                  .defaultOrdering([
-                    { field: 'seasonYear', direction: 'desc' },
-                    { field: 'date', direction: 'desc' },
-                  ])
-              ),
-            S.listItem()
-              .title('Weekly Snapshots')
-              .schemaType('article')
-              .child(
-                S.documentTypeList('article')
-                  .title('Power Rankings — Snapshots')
-                  .filter('_type == "article" && format == "powerRankings" && rankingType == "snapshot"')
-                  .initialValueTemplates([
-                    S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'snapshot' })
-                  ])
-                  .defaultOrdering([
-                    { field: 'seasonYear', direction: 'desc' },
-                    { field: 'weekNumber', direction: 'desc' },
-                    { field: 'date', direction: 'desc' },
-                  ])
               ),
           ])
       ),

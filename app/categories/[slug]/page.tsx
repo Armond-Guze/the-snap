@@ -111,7 +111,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           <div className="flex flex-wrap gap-3 text-xs">
             <Link href="/categories" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">All Categories</Link>
             <Link href="/headlines" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Latest Headlines</Link>
-            <Link href="/power-rankings" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Power Rankings</Link>
+            <Link href="/articles/power-rankings" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Power Rankings</Link>
             <Link href="/standings" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Standings</Link>
             <Link href="/schedule" className="px-3 py-1 rounded-md bg-white/10 border border-white/10 hover:bg-white/20 transition-colors">Schedule</Link>
           </div>

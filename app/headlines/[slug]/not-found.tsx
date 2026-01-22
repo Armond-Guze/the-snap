@@ -73,7 +73,7 @@ export default function NotFound() {
             While you&apos;re here, check out some of our trending NFL content:
           </p>
           <div className="flex flex-wrap gap-2">
-            <Link href="/power-rankings" className="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white rounded-full transition-colors">
+            <Link href="/articles/power-rankings" className="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white rounded-full transition-colors">
               Power Rankings
             </Link>
             <Link href="/standings" className="text-xs px-3 py-1 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white rounded-full transition-colors">

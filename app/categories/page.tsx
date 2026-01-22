@@ -35,11 +35,11 @@ export default async function CategoriesIndexPage() {
             Jump into focused topic hubs for deeper NFL analysis. Each category aggregates the latest articles and rankings, plus archives for long‑tail discovery.
           </p>
           <p className="mt-3 text-base text-gray-400 leading-relaxed">
-            Start with the hubs below, then keep exploring: latest news in <Link href="/articles" className="text-white underline underline-offset-4 hover:text-gray-200">Articles</Link>, updated <Link href="/power-rankings" className="text-white underline underline-offset-4 hover:text-gray-200">Power Rankings</Link>, and weekly <Link href="/schedule" className="text-white underline underline-offset-4 hover:text-gray-200">Schedule</Link> insights.
+            Start with the hubs below, then keep exploring: latest news in <Link href="/articles" className="text-white underline underline-offset-4 hover:text-gray-200">Articles</Link>, updated <Link href="/articles/power-rankings" className="text-white underline underline-offset-4 hover:text-gray-200">Power Rankings</Link>, and weekly <Link href="/schedule" className="text-white underline underline-offset-4 hover:text-gray-200">Schedule</Link> insights.
           </p>
           <div className="mt-6 flex flex-wrap gap-4 text-sm">
             <Link href="/headlines" className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition-colors">Latest Headlines</Link>
-            <Link href="/power-rankings" className="px-4 py-2 bg-white/10 border border-white/20 rounded-md hover:bg-white/20 transition-colors">Power Rankings</Link>
+            <Link href="/articles/power-rankings" className="px-4 py-2 bg-white/10 border border-white/20 rounded-md hover:bg-white/20 transition-colors">Power Rankings</Link>
             <Link href="/standings" className="px-4 py-2 bg-white/10 border border-white/20 rounded-md hover:bg-white/20 transition-colors">Standings</Link>
             <Link href="/schedule" className="px-4 py-2 bg-white/10 border border-white/20 rounded-md hover:bg-white/20 transition-colors">Schedule</Link>
           </div>

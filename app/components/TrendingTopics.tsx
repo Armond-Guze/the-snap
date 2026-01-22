@@ -146,7 +146,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
               </Link>
               
               <Link
-                href="/power-rankings"
+                href="/articles/power-rankings"
                 className="group block p-4 bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
               >
                 <div className="text-sm mb-1">Power Rankings</div>

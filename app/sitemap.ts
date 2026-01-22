@@ -100,7 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const weekPart = typeof s.weekNumber === 'number' ? `week-${s.weekNumber}` : s.playoffRound?.toLowerCase();
         if (!weekPart) return null;
         return {
-          url: `${baseUrl}/power-rankings/${s.seasonYear}/${weekPart}`,
+          url: `${baseUrl}/articles/power-rankings/${s.seasonYear}/${weekPart}`,
           lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
           changeFrequency: 'weekly' as const,
           priority: 0.6,
@@ -135,7 +135,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/power-rankings`,
+      url: `${baseUrl}/articles/power-rankings`,
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.8,
