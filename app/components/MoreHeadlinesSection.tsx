@@ -1,16 +1,46 @@
 import { client } from "@/sanity/lib/client";
-// Custom query: fetch published headlines/rankings ordered by publishedAt desc (fallback _createdAt) up to 40 to have buffer
-const moreHeadlinesQuery = `
+// Fetch newest headlines/rankings for the hero section (used to skip duplicates below)
+const homepageHeadlinesQuery = `
   *[
     ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true
   ]
-    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...40] {
+    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...20] {
+      _id
+    }
+`;
+// Fetch newest articles for Latest Articles (used to skip duplicates below)
+const latestArticlesQuery = `
+  *[
+    _type == "article" && published == true && (
+      format in ["feature","ranking","analysis"] || (format == "powerRankings" && rankingType == "snapshot")
+    )
+  ]
+    | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc)[0...6] {
+      _id
+    }
+`;
+// Combined feed for More Headlines (headlines + rankings + articles)
+const moreHeadlinesQuery = `
+  *[
+    (
+      _type == "article" && published == true && (
+        format in ["feature","ranking","analysis","headline"] || (format == "powerRankings" && rankingType == "snapshot")
+      )
+    ) || _type == "headline" || _type == "rankings"
+  ]
+    | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...40] {
       _type,
       _id,
       title,
       homepageTitle,
       summary,
       slug,
+      format,
+      rankingType,
+      seasonYear,
+      weekNumber,
+      playoffRound,
+      date,
       coverImage { asset->{ url } },
       featuredImage { asset->{ url } },
       image { asset->{ url } },
@@ -34,18 +64,57 @@ interface HeadlineItem {
   homepageTitle?: string;
   summary?: string;
   slug?: { current?: string };
+  format?: string;
+  rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
+  date?: string;
   coverImage?: HeadlineImageAssetRef;
   author?: { name?: string };
   publishedAt?: string;
 }
 
 export default async function MoreHeadlinesSection({ hideSummaries = false }: MoreHeadlinesSectionProps) {
-  const headlines: HeadlineItem[] = await client.fetch(moreHeadlinesQuery);
-  // First 9 assumed consumed by the top Headlines component. Show next newest items up to a cap (20 max total, so 11 here if 9 used above).
-  const START_INDEX = 9; // skip ones already displayed
+  const [headlineIds, articleIds, combinedFeed] = await Promise.all([
+    client.fetch<{ _id: string }[]>(homepageHeadlinesQuery),
+    client.fetch<{ _id: string }[]>(latestArticlesQuery),
+    client.fetch<HeadlineItem[]>(moreHeadlinesQuery),
+  ]);
+
+  // Skip items already displayed above (first 9 headlines + first 3 latest articles)
+  const skipIds = new Set([
+    ...(headlineIds || []).slice(0, 9).map((item) => item._id),
+    ...(articleIds || []).slice(0, 3).map((item) => item._id),
+  ]);
+
+  // Keep section size consistent with prior layout (20 total with 9 already used in Headlines)
+  const START_INDEX = 9;
   const MAX_TOTAL = 20;
   const remainingSlots = Math.max(0, MAX_TOTAL - START_INDEX);
-  const moreHeadlines = (headlines || []).slice(START_INDEX, START_INDEX + remainingSlots);
+  const moreHeadlines = (combinedFeed || [])
+    .filter((item) => !skipIds.has(item._id))
+    .slice(0, remainingSlots);
+
+  const getItemUrl = (item: HeadlineItem) => {
+    if (item._type === 'article') {
+      if (item.format === 'powerRankings') {
+        if (item.rankingType === 'snapshot' && item.seasonYear) {
+          const weekPart = item.playoffRound
+            ? item.playoffRound.toLowerCase()
+            : typeof item.weekNumber === 'number'
+              ? `week-${item.weekNumber}`
+              : null;
+          if (weekPart) {
+            return `/articles/power-rankings/${item.seasonYear}/${weekPart}`;
+          }
+        }
+        return '/articles/power-rankings';
+      }
+      return item.slug?.current ? `/articles/${item.slug.current.trim()}` : '#';
+    }
+    return item.slug?.current ? `/headlines/${item.slug.current.trim()}` : '#';
+  };
 
   return (
     <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
@@ -63,11 +132,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               (item as any).featuredImage?.asset?.url ||
               (item as any).image?.asset?.url ||
               null;
-            const href = item.slug?.current
-              ? (item._type === 'rankings' || item._type === 'article')
-                ? `/articles/${item.slug.current}`
-                : `/headlines/${item.slug.current}`
-              : '#';
+            const href = getItemUrl(item);
             return (
               <Link
                 key={item._id}

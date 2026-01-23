@@ -247,13 +247,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                   <span className="text-gray-500 hidden sm:inline">•</span>
                 </>
               )}
-              <span className="hidden sm:inline">{weekLabel} snapshot • {data.rankings.length} teams</span>
-              <span className="text-gray-500 hidden sm:inline">•</span>
               <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white">Power Rankings</span>
-            </div>
-            <div className="mt-4 inline-flex items-center px-4 py-2 bg-black rounded-full">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full mr-2" />
-              <span className="text-sm text-emerald-300 font-semibold">Weekly Snapshot</span>
             </div>
           </header>
 
