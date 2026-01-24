@@ -19,5 +19,7 @@
     "**/out/**": true,
     "**/.vercel/**": true,
     "**/sanity/.cache/**": true
-  }
+  },
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.disableAutomaticTypeAcquisition": true
 }
