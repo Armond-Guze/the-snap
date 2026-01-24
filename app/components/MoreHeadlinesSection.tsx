@@ -92,8 +92,15 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
   const START_INDEX = 9;
   const MAX_TOTAL = 20;
   const remainingSlots = Math.max(0, MAX_TOTAL - START_INDEX);
+  const seenKeys = new Set<string>();
   const moreHeadlines = (combinedFeed || [])
     .filter((item) => !skipIds.has(item._id))
+    .filter((item) => {
+      const key = item.slug?.current?.trim() || item._id;
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
+      return true;
+    })
     .slice(0, remainingSlots);
 
   const getItemUrl = (item: HeadlineItem) => {
