@@ -94,7 +94,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
       <div className="lg:hidden">
         {main?.coverImage?.asset?.url && main?.slug?.current ? (
           <Link href={getArticleUrl(main)} className="group block">
-            <div className="relative w-full h-[60vh] min-h-[400px] bg-gray-900 sm:hover:bg-gray-800 transition-all duration-500">
+            <div className="relative w-full h-[45vh] min-h-[280px] sm:h-[55vh] sm:min-h-[360px] bg-gray-900 sm:hover:bg-gray-800 transition-all duration-500">
               <Image
                 src={main.coverImage.asset.url}
                 alt={main.title}
@@ -135,7 +135,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
             </div>
           </Link>
         ) : (
-          <div className="relative w-full h-[60vh] min-h-[400px] bg-gray-900">
+          <div className="relative w-full h-[45vh] min-h-[280px] sm:h-[55vh] sm:min-h-[360px] bg-gray-900">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             

@@ -10,6 +10,7 @@ import { NAV_ITEMS } from "./navConfig";
 import { TEAM_META } from "@/lib/schedule";
 import { TEAM_COLORS } from "./teamLogos";
 import { CgClose } from "react-icons/cg";
+import { TfiLayoutGrid2 } from "react-icons/tfi";
 import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon, ChevronDown } from "lucide-react";
 
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
@@ -175,16 +176,11 @@ export default function Navbar() {
           >
             <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
             <div className="w-6 h-6 relative" aria-hidden="true">
-              <span
-                className={`absolute left-0 top-1 w-6 h-[2px] rounded-full bg-current transition-all duration-300 ease-out ${menuOpen ? "rotate-45 translate-y-[11px]" : ""}`}
-              ></span>
-              <span
-                className={`absolute left-0 top-[11px] w-6 h-[2px] rounded-full bg-current transition-all duration-300 ease-out ${menuOpen ? "opacity-0 scale-x-0" : "opacity-70 group-hover:opacity-100"}`}
-              ></span>
-              <span
-                className={`absolute left-0 bottom-1 w-6 h-[2px] rounded-full bg-current transition-all duration-300 ease-out ${menuOpen ? "-rotate-45 -translate-y-[11px]" : ""}`}
-              ></span>
-              {menuOpen && <CgClose className="absolute inset-0 m-auto w-5 h-5 opacity-0" />}
+              {menuOpen ? (
+                <CgClose className="w-6 h-6" />
+              ) : (
+                <TfiLayoutGrid2 className="w-6 h-6" />
+              )}
             </div>
           </button>
         </div>
