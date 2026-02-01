@@ -44,9 +44,8 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
   const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
   return {
     ...metadata,
-    // Belt-and-suspenders: headlines route is legacy; keep it non-indexable even if hit directly
     robots: {
-      index: false,
+      index: true,
       follow: true,
     },
     alternates: {

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
     description: `Archive page ${pageNum} of NFL headlines, analysis and news articles from The Snap.`,
     alternates: { canonical },
-    robots: { index: false, follow: true },
+    robots: { index: true, follow: true },
     openGraph: { title: `NFL Headlines Archive – Page ${pageNum}`, description: 'Browse older NFL headlines and analysis.', url: canonical }
   };
 }

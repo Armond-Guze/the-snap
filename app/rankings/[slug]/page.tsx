@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
         title: legacy.title || 'NFL Power Rankings',
         description: legacy.summary || 'NFL Power Rankings and weekly snapshots.',
         alternates: { canonical: canonicalAbs },
-        robots: { index: false, follow: false },
+        robots: { index: true, follow: true },
       };
     }
     return generateSEOMetadata(legacyRanking, '/articles');
