@@ -1,10 +1,10 @@
-import type { NextRequest } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 // Enforce canonical host (non-www) and prepare room for future header tweaks.
 const CANONICAL_HOST = 'thegamesnap.com';
 
-export default function proxy(req: NextRequest) {
+export default clerkMiddleware((_, req) => {
   const { nextUrl } = req;
   const url = nextUrl.clone();
   let redirectNeeded = false;
@@ -24,10 +24,12 @@ export default function proxy(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
-
-// Apply to all paths except assets & api routes you don't need canonicalization for
+// Apply to all paths except assets
 export const config = {
-  matcher: ['/((?!_next/|favicon.ico|images/|api/).*)'],
+  matcher: [
+    '/((?!_next|.*\.(?:css|js|json|png|jpg|jpeg|gif|svg|ico|webp|txt|xml)).*)',
+    '/(api|trpc)(.*)',
+  ],
 };

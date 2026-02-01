@@ -6,7 +6,7 @@ import { GameCenterInsights } from '@/app/components/game-center/GameCenterInsig
 import { GameCenterCuratedArticles } from '@/app/components/game-center/GameCenterCuratedArticles';
 import { GameCenterTimeline } from '@/app/components/game-center/GameCenterTimeline';
 import { buildGameCenterPayload } from '@/lib/game-center';
-import { loadStaticSchedule } from '@/lib/schedule';
+import { fetchSanitySeasonGames } from '@/lib/schedule';
 
 export const revalidate = 300;
 
@@ -17,7 +17,7 @@ interface PageProps {
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
 
 export async function generateStaticParams() {
-  const schedule = await loadStaticSchedule();
+  const schedule = await fetchSanitySeasonGames();
   return schedule.map((game) => ({ gameId: game.gameId }));
 }
 

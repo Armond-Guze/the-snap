@@ -1,12 +1,7 @@
 // Lightweight schedule utilities (initial scaffold)
 // Designed to be extended later with automatic ingestion.
 
-import { isSportsDataEnabled } from './config/sportsdata'
-import {
-  fetchSportsDataCurrentWeek,
-  fetchSportsDataScoresByWeek,
-  SportsDataScore
-} from './sportsdata-client'
+// Schedule data now sourced from Sanity only.
 
 export interface StaticGame {
   gameId: string; // ESPN event id if known
@@ -28,37 +23,9 @@ export interface LiveGameUpdate {
 
 export interface EnrichedGame extends StaticGame, LiveGameUpdate {}
 
-// Lazy loaded cache for static schedule
+// Lazy loaded cache for static schedule (legacy; kept for tooling/scripts)
 let _staticSchedule: StaticGame[] | null = null;
 const _teamSeasonCache = new Map<string, Promise<EnrichedGame[]>>();
-
-function mapSportsDataStatus(score: SportsDataScore): LiveGameUpdate['status'] {
-  const raw = (score.Status || '').toUpperCase();
-  if (raw.includes('FINAL')) return 'FINAL';
-  if (raw.includes('INPROGRESS') || raw.includes('IN_PROGRESS') || raw.includes('LIVE')) return 'IN_PROGRESS';
-  return 'SCHEDULED';
-}
-
-function mapSportsDataScore(score: SportsDataScore): EnrichedGame {
-  const status = mapSportsDataStatus(score);
-  const date = score.DateTime || score.Date;
-  const dateUTC = date ? new Date(date).toISOString() : new Date().toISOString();
-  return {
-    gameId: String(score.GlobalGameID || score.GameKey || `${score.Season}-${score.Week}-${score.HomeTeam}-${score.AwayTeam}`),
-    week: score.Week,
-    dateUTC,
-    home: score.HomeTeam,
-    away: score.AwayTeam,
-    network: score.Channel,
-    venue: score.StadiumDetails?.Name || undefined,
-    status,
-    quarter: score.Quarter ? `Q${score.Quarter}` : undefined,
-    clock: score.TimeRemaining || undefined,
-    scores: (score.HomeScore != null && score.AwayScore != null)
-      ? { home: Number(score.HomeScore), away: Number(score.AwayScore) }
-      : undefined,
-  };
-}
 
 export async function loadStaticSchedule(): Promise<StaticGame[]> {
   if (_staticSchedule) return _staticSchedule;
@@ -75,17 +42,6 @@ export async function loadStaticSchedule(): Promise<StaticGame[]> {
   }
 }
 
-async function loadSportsDataWeek(week: number): Promise<EnrichedGame[] | null> {
-  if (!isSportsDataEnabled()) return null;
-  try {
-    const scores = await fetchSportsDataScoresByWeek(week);
-    if (!scores || scores.length === 0) return null;
-    return scores.map(mapSportsDataScore).sort((a, b) => a.dateUTC.localeCompare(b.dateUTC));
-  } catch (e) {
-    console.warn('SportsData week fetch failed, falling back to static schedule', e);
-    return null;
-  }
-}
 
 // Determine smart revalidate seconds (shorter during Thu-Mon game windows)
 export function computeRevalidate(now = new Date()): number {
@@ -132,20 +88,8 @@ export async function fetchLiveWeek(week: number, seasonYear = 2025): Promise<Li
 }
 
 export async function getEnrichedWeek(week: number): Promise<EnrichedGame[]> {
-  // Prefer SportsData API when available
-  const sportsDataWeek = await loadSportsDataWeek(week);
-  if (sportsDataWeek && sportsDataWeek.length > 0) return sportsDataWeek;
-
-  // Fallback to static schedule + ESPN live scoreboard overlay
-  const [staticSchedule, live] = await Promise.all([
-    loadStaticSchedule(),
-    fetchLiveWeek(week)
-  ]);
-  const liveMap = new Map(live.map(g => [g.gameId, g]));
-  return staticSchedule.filter(g => g.week === week).map(g => ({
-    ...g,
-    ...(liveMap.get(g.gameId) || { status: 'SCHEDULED' as const })
-  }));
+  const sanityGames = await fetchSanityWeekGames(week);
+  return sanityGames || [];
 }
 
 // Team abbreviation metadata (paths for logos supplied by user later)
@@ -270,15 +214,8 @@ export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): 
 }
 
 async function resolveCurrentWeek(): Promise<number> {
-  if (isSportsDataEnabled()) {
-    try {
-      const w = await fetchSportsDataCurrentWeek();
-      if (Number.isFinite(w) && w > 0) return w;
-    } catch (e) {
-      console.warn('SportsData current week lookup failed, falling back to static schedule', e);
-    }
-  }
-  const schedule = await loadStaticSchedule();
+  const schedule = await fetchSanitySeasonGames();
+  if (schedule.length === 0) return 1;
   return determineCurrentWeek(schedule);
 }
 
@@ -336,7 +273,7 @@ async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise
     const mapped = docs.map(mapSanityDocToGame).filter((g): g is EnrichedGame => Boolean(g));
     return mapped.length ? mapped : null;
   } catch (e) {
-    console.warn('Sanity week games fetch failed, falling back to static schedule', e);
+    console.warn('Sanity week games fetch failed', e);
     return null;
   }
 }
@@ -363,7 +300,7 @@ async function fetchSanityTeamGames(teamAbbr: string, seasonInput?: string): Pro
     const mapped = docs.map(mapSanityDocToGame).filter((g): g is EnrichedGame => Boolean(g));
     return mapped.length ? mapped : null;
   } catch (e) {
-    console.warn('Sanity team games fetch failed, falling back to static schedule', e);
+    console.warn('Sanity team games fetch failed', e);
     return null;
   }
 }
@@ -388,19 +325,39 @@ async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null>
     const doc = docs[0];
     return doc ? mapSanityDocToGame(doc) : null;
   } catch (e) {
-    console.warn('Sanity game-by-id fetch failed, falling back to static schedule', e);
+    console.warn('Sanity game-by-id fetch failed', e);
     return null;
+  }
+}
+
+export async function fetchSanitySeasonGames(seasonInput?: string): Promise<EnrichedGame[]> {
+  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  try {
+    const { client } = await import('../sanity/lib/client');
+    const docs = await client.fetch<SanityGameDoc[]>(
+      `*[_type == "game" && published == true && season == $season] | order(gameDate asc) {
+        _id,
+        week,
+        gameDate,
+        tvNetwork,
+        homeTeam,
+        awayTeam,
+        venue,
+        season
+      }`,
+      { season: String(season) }
+    );
+    return docs.map(mapSanityDocToGame).filter((g): g is EnrichedGame => Boolean(g));
+  } catch (e) {
+    console.warn('Sanity season games fetch failed', e);
+    return [];
   }
 }
 
 export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
   const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek();
   const sanityGames = await fetchSanityWeekGames(resolvedWeek);
-  if (sanityGames && sanityGames.length) {
-    return { week: resolvedWeek, games: sanityGames };
-  }
-  const games = await getEnrichedWeek(resolvedWeek);
-  return { week: resolvedWeek, games };
+  return { week: resolvedWeek, games: sanityGames ?? [] };
 }
 
 // Return all games (enriched) for a given team across the season
@@ -413,14 +370,7 @@ export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[
       if (sanityGames && sanityGames.length) {
         return sanityGames.sort((a, b) => a.week - b.week);
       }
-      const schedule = await loadStaticSchedule();
-      const teamGames = schedule.filter(g => g.home === key || g.away === key);
-      const weeks = Array.from(new Set(teamGames.map(g => g.week)));
-      const enrichedWeeks = await Promise.all(weeks.map(w => getEnrichedWeek(w)));
-      const merged = enrichedWeeks.flat().filter(g => g.home === key || g.away === key);
-      const map = new Map<string, EnrichedGame>();
-      merged.forEach(g => map.set(g.gameId, g));
-      return Array.from(map.values()).sort((a,b) => a.week - b.week);
+      return [];
     })();
     _teamSeasonCache.set(key, pending);
   }
@@ -430,13 +380,7 @@ export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[
 // Fetch a single game by id (enriched with possible live data)
 export async function getGameById(gameId: string): Promise<EnrichedGame | null> {
   const sanity = await fetchSanityGameById(gameId);
-  if (sanity) return sanity;
-
-  const schedule = await loadStaticSchedule();
-  const base = schedule.find(g => g.gameId === gameId);
-  if (!base) return null;
-  const enrichedWeek = await getEnrichedWeek(base.week);
-  return enrichedWeek.find(g => g.gameId === gameId) || null;
+  return sanity || null;
 }
 
 // Determine if a game is a commonly recognized national primetime window (rough heuristic)
