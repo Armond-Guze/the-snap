@@ -10,6 +10,7 @@ import { fetchTeamRecords, shortRecord, TeamRecordDoc } from "@/lib/team-records
 import { getScheduleWeekOrCurrent, TEAM_META, bucketLabelFor, EnrichedGame } from "@/lib/schedule";
 import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
 import { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: "The Snap - NFL News, Power Rankings, Standings & Analysis",
@@ -50,6 +51,19 @@ export default async function Home() {
   <RankingsSection hideSummaries />
   <FantasySection hideSummaries />
   <MoreHeadlinesSection hideSummaries />
+  <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-14">
+    <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem]">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-white/60">
+        <span className="uppercase tracking-wide text-[11px] text-white/40">More</span>
+        <span className="text-white/20">/</span>
+        <Link href="/headlines" className="hover:text-white transition-colors">Latest Headlines</Link>
+        <span className="text-white/20">/</span>
+        <Link href="/headlines/page/2" className="hover:text-white transition-colors">More Headlines</Link>
+        <span className="text-white/20">/</span>
+        <Link href="/rss.xml" className="hover:text-white transition-colors">RSS Feed</Link>
+      </div>
+    </div>
+  </section>
       {/* <VideoOfTheWeek textureSrc="/images/texture-image.jpg" /> */}
       {/* <TrendingTopics textureSrc="/images/texture-image.jpg" /> */}
   {/* Analytics now handled globally via AnalyticsGate in layout */}
