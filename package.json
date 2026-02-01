@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:local": "env-cmd -f .env.local next build",
     "start": "next start",
     "lint": "next lint",
     "sync:games": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/sync-games.ts",
