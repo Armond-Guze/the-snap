@@ -13,7 +13,7 @@
     "seed:primetime": "node scripts/seed-primetime-tags.mjs"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.37.0",
+    "@clerk/nextjs": "^6.37.1",
     "@formspree/react": "^3.0.0",
     "@portabletext/react": "^3.2.1",
     "@sanity/client": "^7.13.2",

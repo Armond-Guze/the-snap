@@ -80,7 +80,7 @@ export default function ProfileMenu() {
     'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LV','LAC','LAR','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SF','SEA','TB','TEN','WAS'
   ];
 
-  const clerkMeta = (user?.publicMetadata || {}) as { favoriteTeam?: string; teamLogoUrl?: string };
+  const clerkMeta = (user?.unsafeMetadata || {}) as { favoriteTeam?: string; teamLogoUrl?: string };
   const effectiveFavorite = clerkMeta.favoriteTeam || profile?.favoriteTeam;
   const effectiveLogo = clerkMeta.teamLogoUrl || profile?.teamLogoUrl;
   const derivedLogo = effectiveFavorite ? TEAM_LOGOS[effectiveFavorite] : undefined;
@@ -89,11 +89,11 @@ export default function ProfileMenu() {
   useEffect(() => {
     if (!isSignedIn || !user) return;
     const localFav = profile?.favoriteTeam;
-    const metaFav = (user.publicMetadata as { favoriteTeam?: string } | undefined)?.favoriteTeam;
+    const metaFav = (user.unsafeMetadata as { favoriteTeam?: string } | undefined)?.favoriteTeam;
     if (!metaFav && localFav) {
       user.update({
-        publicMetadata: {
-          ...(user.publicMetadata || {}),
+        unsafeMetadata: {
+          ...(user.unsafeMetadata || {}),
           favoriteTeam: localFav,
           teamLogoUrl: profile?.teamLogoUrl || TEAM_LOGOS[localFav],
         },
@@ -109,7 +109,7 @@ export default function ProfileMenu() {
     }
 
     if (!isSignedIn || !user) return;
-    const nextMeta: Record<string, unknown> = { ...(user.publicMetadata || {}) };
+    const nextMeta: Record<string, unknown> = { ...(user.unsafeMetadata || {}) };
     if (code) {
       nextMeta.favoriteTeam = code;
       nextMeta.teamLogoUrl = TEAM_LOGOS[code];
@@ -118,7 +118,7 @@ export default function ProfileMenu() {
       delete nextMeta.teamLogoUrl;
     }
     try {
-      await user.update({ publicMetadata: nextMeta });
+      await user.update({ unsafeMetadata: nextMeta });
     } catch {}
   };
 
