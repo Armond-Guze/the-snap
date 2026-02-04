@@ -29,6 +29,18 @@ export default function Navbar() {
   const [teamsOpen, setTeamsOpen] = useState(false);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
+  const teamMatch = pathname.match(/^\/teams\/([a-z0-9-]+)/i);
+  const teamSlug = teamMatch?.[1]?.toLowerCase();
+  const slugifyTeamName = (name: string) => name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+  const teamCode = teamSlug && TEAM_META[teamSlug.toUpperCase()]
+    ? teamSlug.toUpperCase()
+    : teamSlug
+      ? Object.entries(TEAM_META).find(([, meta]) => slugifyTeamName(meta.name) === teamSlug)?.[0]
+      : undefined;
+  const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
 
   const closeAllMenus = useCallback(() => {
     setMenuOpen(false);
@@ -163,7 +175,15 @@ export default function Navbar() {
   };
 
   return (
-    <nav ref={navRef} className="bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10">
+    <nav
+      ref={navRef}
+      className="relative bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10"
+      style={teamAccent ? {
+        borderBottomColor: teamAccent,
+        boxShadow: `0 8px 30px -12px ${teamAccent}66`,
+        backgroundImage: `linear-gradient(90deg, ${teamAccent}66 0%, ${teamAccent}55 55%, ${teamAccent}44 100%)`
+      } : undefined}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 lg:h-16 flex items-center overflow-visible">
         {/* Left: Hamburger */}
         <div className="flex items-center md:hidden">
@@ -232,7 +252,7 @@ export default function Navbar() {
                   {teamsOpen && (
                     <div
                       id="teams-menu"
-                      className="absolute left-0 top-full mt-3 w-[860px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl shadow-2xl p-5"
+                      className="absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl shadow-2xl p-5"
                     >
                       <div className="grid grid-cols-4 gap-6">
                         {DIVISION_GROUPS.map((group) => (
@@ -246,12 +266,13 @@ export default function Navbar() {
                                 return (
                                   <Link
                                     key={code}
-                                    href={`/teams/${code.toLowerCase()}`}
+                                    href={`/teams/${slugifyTeamName(meta?.name || code)}`}
                                     onClick={() => setTeamsOpen(false)}
-                                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white transition-colors"
+                                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 hover:text-white transition-colors"
+                                    style={{ backgroundColor: `${accent}33` }}
                                   >
                                     <span>{nickname}</span>
-                                    <span className="text-[11px] font-bold" style={{ color: accent }}>
+                                    <span className="text-[11px] font-bold text-white">
                                       {code}
                                     </span>
                                   </Link>
@@ -462,7 +483,7 @@ export default function Navbar() {
                         return (
                           <Link
                             key={code}
-                            href={`/teams/${code.toLowerCase()}`}
+                            href={`/teams/${slugifyTeamName(meta?.name || code)}`}
                             onClick={handleLinkClick}
                             className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[13px] font-semibold text-white/85 hover:bg-white/10 hover:border-white/20"
                           >

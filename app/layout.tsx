@@ -103,7 +103,7 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content="dark only" />

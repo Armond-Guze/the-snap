@@ -1,32 +1,50 @@
-import { TEAM_META, TEAM_ABBRS, getTeamSeasonSchedule, computeByeWeek, primetimeSummary, isPrimetimeGame } from '@/lib/schedule';
-import { formatGameDateParts } from '@/lib/schedule-format';
+import { TEAM_META, TEAM_ABBRS, getTeamSeasonSchedule } from '@/lib/schedule';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
+import { redirect } from 'next/navigation';
 import StructuredData from '@/app/components/StructuredData';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { client } from '@/sanity/lib/client';
 import { getActiveSeason } from '@/lib/season';
+import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
+import { TEAM_COLORS } from '@/app/components/teamLogos';
 
 // Follow project convention: params delivered as a Promise
 interface TeamPageProps { params: Promise<{ team: string }> }
 
+function slugifyTeamName(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
 export async function generateStaticParams() {
-  return TEAM_ABBRS.map(t => ({ team: t.toLowerCase() }));
+  return TEAM_ABBRS.flatMap((t) => {
+    const meta = TEAM_META[t];
+    const slug = meta?.name ? slugifyTeamName(meta.name) : null;
+    return [
+      { team: t.toLowerCase() },
+      ...(slug ? [{ team: slug }] : []),
+    ];
+  });
 }
 
 export async function generateMetadata({ params }: TeamPageProps): Promise<Metadata> {
   const { team } = await params;
   const abbr = team.toUpperCase();
-  const meta = TEAM_META[abbr];
+  const meta = TEAM_META[abbr] || Object.entries(TEAM_META).find(([, m]) => slugifyTeamName(m.name) === team.toLowerCase())?.[1];
   if (!meta) return { title: 'Team Schedule | The Snap' };
   const year = await getActiveSeason();
   const name = meta.name;
+  const slug = slugifyTeamName(name);
   const title = `${year} ${name} Schedule – Game Dates & Scores | The Snap`;
   const description = `Full ${year} ${name} schedule with dates, opponents, kickoff times (ET), TV channels, live scores and final results.`;
   return {
     title,
     description,
-    alternates: { canonical: `https://thegamesnap.com/teams/${abbr.toLowerCase()}` },
+    alternates: { canonical: `https://thegamesnap.com/teams/${slug}` },
     openGraph: { title, description },
     twitter: { card: 'summary_large_image', title, description }
   };
@@ -34,32 +52,77 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
 
 export const revalidate = 300;
 
+function ordinal(n: number) {
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  switch (n % 10) {
+    case 1: return `${n}st`;
+    case 2: return `${n}nd`;
+    case 3: return `${n}rd`;
+    default: return `${n}th`;
+  }
+}
+
 export default async function TeamSchedulePage({ params }: TeamPageProps) {
   const { team } = await params;
-  const abbr = team.toUpperCase();
-  const meta = TEAM_META[abbr];
+  const raw = team.toLowerCase();
+  const directAbbr = raw.toUpperCase();
+  const directMeta = TEAM_META[directAbbr];
+  const slugMatch = Object.entries(TEAM_META).find(([, m]) => slugifyTeamName(m.name) === raw);
+  const abbr = directMeta ? directAbbr : slugMatch?.[0];
+  const meta = abbr ? TEAM_META[abbr] : undefined;
+  if (meta) {
+    const slug = slugifyTeamName(meta.name);
+    if (raw !== slug) {
+      redirect(`/teams/${slug}`);
+    }
+  }
   if (!meta) return <div className="max-w-4xl mx-auto px-4 py-12 text-white">Unknown team.</div>;
   const season = await getActiveSeason();
   const games = await getTeamSeasonSchedule(abbr);
-  const byeWeek = computeByeWeek(games);
-  const prime = primetimeSummary(games);
-  const latestNews = await client.fetch<{ _id: string; title: string; homepageTitle?: string; slug: { current: string }; _type?: string }[]>(`
-    *[
-      ((_type=="article" && format=="headline") || _type=="headline") && published==true && (
-        title match "*${abbr}*" || title match "*${meta.name}*" || (defined(tags) && tags match "*${meta.name}*")
+  const standings = await fetchNFLStandingsWithFallback();
+  const teamStanding = standings.find((t) => t.teamName.toLowerCase() === meta.name.toLowerCase());
+  const divisionTeams = teamStanding
+    ? standings
+        .filter((t) => t.division === teamStanding.division)
+        .slice()
+        .sort((a, b) => {
+          if (b.winPercentage !== a.winPercentage) return b.winPercentage - a.winPercentage;
+          if (b.wins !== a.wins) return b.wins - a.wins;
+          if (a.losses !== b.losses) return a.losses - b.losses;
+          return a.teamName.localeCompare(b.teamName);
+        })
+    : [];
+  const divisionRank = teamStanding
+    ? divisionTeams.findIndex((t) => t.teamName === teamStanding.teamName) + 1
+    : null;
+  const recordLabel = teamStanding
+    ? `${teamStanding.wins}-${teamStanding.losses}${teamStanding.ties ? `-${teamStanding.ties}` : ''}`
+    : null;
+  const teamTag = await client.fetch<{ _id: string } | null>(
+    `*[_type == "tag" && title == $title][0]{ _id }`,
+    { title: meta.name }
+  );
+  const latestNews = teamTag?._id
+    ? await client.fetch<{ _id: string; title: string; homepageTitle?: string; summary?: string; slug: { current: string }; _type?: string; coverImage?: { asset?: { url?: string } }; featuredImage?: { asset?: { url?: string } }; image?: { asset?: { url?: string } } }[]>(
+        `*[
+          ((_type=="article" && format=="headline") || _type=="headline") && published==true &&
+          defined(teams) && $tagId in teams[]._ref
+        ]|order(coalesce(publishedAt,_createdAt) desc)[0...20]{ _id,title,homepageTitle,summary,slug,_type,coverImage{asset->{url}},featuredImage{asset->{url}},image{asset->{url}} }`,
+        { tagId: teamTag._id }
       )
-    ]|order(coalesce(publishedAt,_createdAt) desc)[0...3]{ _id,title,homepageTitle,slug,_type }
-  `);
-  const keyGames = (() => {
-    const upcoming = games
-      .filter(g => g.status !== 'FINAL')
-      .sort((a, b) => Date.parse(a.dateUTC) - Date.parse(b.dateUTC));
-    const pick = (upcoming.length ? upcoming : games).slice(0, 3);
-    return pick.map(g => ({
-      week: g.week,
-      matchup: `${g.away} @ ${g.home}`,
-      note: isPrimetimeGame(g) ? 'Primetime spotlight' : g.network ? `On ${g.network}` : 'Key matchup',
-    }));
+    : [];
+  const dedupedNews = (() => {
+    const seen = new Set<string>();
+    const items: typeof latestNews = [];
+    for (const item of latestNews) {
+      const slug = item.slug?.current?.trim();
+      if (!slug || seen.has(slug)) continue;
+      seen.add(slug);
+      items.push(item);
+      if (items.length >= 8) break;
+    }
+    return items;
   })();
   const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';
   const eventList = enableEventSchema
@@ -73,109 +136,69 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
         sport: 'American Football',
         memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
           season: String(season),
-        url: `https://thegamesnap.com/teams/${abbr.toLowerCase()}`,
+        url: `https://thegamesnap.com/teams/${slugifyTeamName(meta.name)}`,
         hasPart: eventList,
       }
     : null;
 
-  const totalGames = games.length;
-  const expected = 17; // ignoring postseason; regular season target
-  const partial = totalGames < expected;
 
-  // Simple filter states (server-side via query later; placeholder static for now)
-  const dynamicFilter: string = 'ALL'; // placeholder; later read from query params for filtering
-  const filtered = games.filter(g => {
-    if (dynamicFilter === 'COMPLETED') return g.status === 'FINAL';
-    if (dynamicFilter === 'UPCOMING') return g.status !== 'FINAL';
-    if (dynamicFilter === 'PRIMETIME') return isPrimetimeGame(g);
-    return true; // ALL
-  });
+
+  const teamAccent = TEAM_COLORS[abbr] || '#ffffff';
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 text-white">
-        <h1 className="text-3xl font-bold mb-2">{meta.name} {season} Schedule</h1>
-      <p className="text-white/70 mb-3 text-sm">Kickoff times in Eastern Time (ET). Live status and final scores update automatically.</p>
-      <p className="text-white/70 text-sm mb-4">{`The ${meta.name} draw ${prime.count || 0} primetime game${prime.count === 1 ? '' : 's'} and face a key Week ${keyGames[0]?.week || '?'} matchup. Powered by a fan-first view of the ${meta.name}, track every date, TV slot, and result here.`}</p>
-      {keyGames.length > 0 && (
-        <div className="mb-6 text-sm text-white/80">
-          <h2 className="font-semibold text-base mb-2">Key games</h2>
-          <ul className="space-y-1">
-            {keyGames.map((kg, idx) => (
-              <li key={`${kg.week}-${idx}`} className="flex items-center gap-2">
-                <span className="text-white/50">Week {kg.week}</span>
-                <span className="font-semibold">{kg.matchup}</span>
-                <span className="text-white/50">• {kg.note}</span>
-              </li>
-            ))}
-          </ul>
+      <section
+        className="relative mb-6 rounded-2xl border border-white/10 p-5"
+        style={{
+          borderColor: `${teamAccent}55`,
+          boxShadow: `0 12px 30px -20px ${teamAccent}88`,
+          backgroundImage: `linear-gradient(120deg, ${teamAccent}66 0%, ${teamAccent}55 60%, ${teamAccent}44 100%)`
+        }}
+      >
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4">
+          {meta.logo && (
+            <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl bg-white/10 border border-white/10 p-2">
+              <Image src={meta.logo} alt={`${meta.name} logo`} fill sizes="80px" className="object-contain" />
+            </div>
+          )}
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-3 text-xs text-white/70 mb-2">
+              <span className="px-2 py-1 bg-white/10 rounded border border-white/10">
+                Record: {recordLabel || '—'}
+              </span>
+              <span className="px-2 py-1 bg-white/10 rounded border border-white/10">
+                {teamStanding?.division ? `${teamStanding.division} • ${divisionRank ? ordinal(divisionRank) : '—'}` : 'Division: —'}
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold">{meta.name}</h1>
+          </div>
         </div>
-      )}
+      </section>
       {teamSchema && <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />}
-      <div className="flex flex-wrap gap-4 text-xs text-white/70 mb-6">
-        {byeWeek && <span className="px-2 py-1 bg-white/5 rounded border border-white/10">Bye Week: {byeWeek}</span>}
-        <span className="px-2 py-1 bg-white/5 rounded border border-white/10">Primetime Games: {prime.count}{prime.count ? ` (Weeks ${prime.weeks.join(', ')})` : ''}</span>
-      </div>
-      {partial && (
-        <div className="mb-4 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-2 rounded">
-          Partial schedule data – additional games will appear as the JSON file is expanded.
-        </div>
-      )}
-      <div className="flex gap-2 mb-4 text-xs">
-        {['ALL','COMPLETED','UPCOMING','PRIMETIME'].map(f => (
-          <span key={f} className={`px-2 py-1 rounded border ${f===dynamicFilter ? 'bg-white text-black border-white' : 'border-white/20 text-white/60'}`}>{f}</span>
-        ))}
-      </div>
-      <div className="border border-white/10 rounded-lg overflow-hidden">
-        <table className="w-full text-sm">    
-          <thead className="bg-white/10 text-left">
-            <tr>
-              <th className="p-2 font-semibold">Week</th>
-              <th className="p-2 font-semibold">Matchup</th>
-              <th className="p-2 font-semibold">Date</th>
-              <th className="p-2 font-semibold">Time (ET)</th>
-              <th className="p-2 font-semibold">Network</th>
-              <th className="p-2 font-semibold">Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(g => {
-              const { dateLabel, timeLabel } = formatGameDateParts(g.dateUTC, { timezoneCode: 'ET' });
-              const matchup = `${g.away} @ ${g.home}`;
-              let result: string | null = null;
-              if (g.status === 'FINAL' && g.scores) result = `${g.scores.away}-${g.scores.home} Final`;
-              else if (g.status === 'IN_PROGRESS') result = `Live ${g.quarter || ''} ${g.clock || ''}`.trim();
-              return (
-                <tr key={g.gameId} className="border-t border-white/5">
-                  <td className="p-2">{g.week}</td>
-                  <td className="p-2">
-                    <Link href={`/matchup/${g.gameId}`} className="hover:underline">{matchup}</Link>
-                    <div className="text-[10px] text-white/40 mt-0.5 space-x-1">
-                      <Link href={`/teams/${g.away.toLowerCase()}`} className="hover:text-white">{g.away}</Link>
-                      <span>@</span>
-                      <Link href={`/teams/${g.home.toLowerCase()}`} className="hover:text-white">{g.home}</Link>
-                      {isPrimetimeGame(g) && <span className="text-amber-400">• Primetime</span>}
-                    </div>
-                  </td>
-                  <td className="p-2 whitespace-nowrap">{dateLabel}</td>
-                  <td className="p-2">{timeLabel}</td>
-                  <td className="p-2">{g.network || 'TBD'}</td>
-                  <td className="p-2 text-xs text-white/70">{result || '—'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      
 
-      {latestNews.length > 0 && (
+      {dedupedNews.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-2xl font-semibold mb-3">Latest {meta.name} News</h2>
-          <div className="space-y-2">
-            {latestNews.map(n => {
+          <h2 className="text-2xl font-semibold mb-4">Latest {meta.name} News</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {dedupedNews.map(n => {
               const href = n._type === 'article' ? `/articles/${n.slug.current}` : `/headlines/${n.slug.current}`;
+              const img = n.coverImage?.asset?.url || n.featuredImage?.asset?.url || n.image?.asset?.url;
               return (
-                <Link key={n._id} href={href} className="block text-white/80 hover:text-white text-sm underline-offset-4">
-                  {n.homepageTitle || n.title}
+                <Link key={n._id} href={href} className="group rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors overflow-hidden">
+                  <div className="aspect-video bg-black/40">
+                    {img && (
+                      <Image src={img} alt={n.title} width={640} height={360} className="h-full w-full object-cover" />
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-white line-clamp-2">
+                      {n.homepageTitle || n.title}
+                    </h3>
+                    {n.summary && (
+                      <p className="text-xs text-white/60 mt-2 line-clamp-2">{n.summary}</p>
+                    )}
+                  </div>
                 </Link>
               );
             })}
@@ -183,23 +206,6 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
         </section>
       )}
 
-  <section className="mt-12 space-y-6">
-        <h2 className="text-2xl font-semibold">{meta.name} Schedule FAQs</h2>
-        <div className="space-y-4 text-sm leading-relaxed">
-          <div>
-            <h3 className="font-semibold">When is the {meta.name} bye week?</h3>
-    <p className="text-white/70">{byeWeek ? `Their bye comes in Week ${byeWeek}.` : 'Bye week not yet determined in current data.'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">How many primetime games do the {meta.name} have in {season}?</h3>
-    <p className="text-white/70">{prime.count ? `${prime.count} primetime appearance${prime.count>1?'s':''} in Weeks ${prime.weeks.join(', ')}.` : 'No primetime games in current data.'}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Who do the {meta.name} play in Week 1?</h3>
-    <p className="text-white/70">{(() => { const w1 = games.find(g => g.week === 1); return w1 ? `${w1.away} @ ${w1.home}` : 'Week 1 matchup not listed.'; })()}</p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

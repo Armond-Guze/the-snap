@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaRegCircleUser } from 'react-icons/fa6';
 import { TEAM_LOGOS, TEAM_COLORS } from './teamLogos';
-import { SignedIn, SignedOut, SignInButton, SignUpButton, SignOutButton, useUser } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignIn, SignUp, SignOutButton, useUser } from '@clerk/nextjs';
 
 // Very lightweight user profile stored in localStorage
 interface UserProfile {
@@ -55,8 +56,9 @@ function useUserProfile(): [UserProfile | null, (p: Partial<UserProfile>) => voi
 export default function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [profile, update] = useUserProfile();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close on outside click / Escape
@@ -168,24 +170,57 @@ export default function ProfileMenu() {
       {open && (
         <div
           id="profile-menu-panel"
-          className="absolute right-0 mt-3 w-64 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl z-50 animate-fade-in"
+          className="absolute right-0 mt-3 w-[360px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl z-50 animate-fade-in"
           role="dialog" aria-label="Profile menu" aria-modal="false"
         >
           <div className="mb-3">
             <SignedOut>
-              <div className="space-y-2">
-                <SignInButton mode="modal">
-                  <button className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10">
-                    Sign in
+              <div className="space-y-3">
+                {isLoaded ? (
+                  authMode === 'sign-in' ? (
+                    <SignIn
+                      routing="path"
+                      path="/sign-in"
+                      appearance={{ elements: { card: 'shadow-none border border-white/10 bg-[#0b0b0b] w-full' } }}
+                    />
+                  ) : (
+                    <SignUp
+                      routing="path"
+                      path="/sign-up"
+                      appearance={{ elements: { card: 'shadow-none border border-white/10 bg-[#0b0b0b] w-full' } }}
+                    />
+                  )
+                ) : (
+                  <div className="text-xs text-white/70">Loading sign-in…</div>
+                )}
+                <div className="flex items-center justify-between text-xs text-white/70">
+                  <span>{authMode === 'sign-in' ? 'New here?' : 'Already have an account?'}</span>
+                  <button
+                    type="button"
+                    className="text-white/90 hover:text-white underline-offset-4 hover:underline"
+                    onClick={() => setAuthMode(authMode === 'sign-in' ? 'sign-up' : 'sign-in')}
+                  >
+                    {authMode === 'sign-in' ? 'Create account' : 'Sign in'}
                   </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10">
-                    Sign up
-                  </button>
-                </SignUpButton>
+                </div>
               </div>
             </SignedOut>
+            {(!isLoaded || !isSignedIn) && (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Link
+                  href="/sign-in"
+                  className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10 text-center"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10 text-center"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
             <SignedIn>
               <div className="flex items-center justify-between text-xs text-white/60">
                 <span className="truncate">{user?.primaryEmailAddress?.emailAddress}</span>

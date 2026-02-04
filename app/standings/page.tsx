@@ -1,5 +1,6 @@
 import { client } from "@/sanity/lib/client";
 import Image from "next/image";
+import Link from "next/link";
 import { TEAM_META } from "@/lib/schedule";
 import { getActiveSeason } from "@/lib/season";
 import { fetchNFLStandingsWithFallback, ProcessedTeamData } from "@/lib/nfl-api";
@@ -23,6 +24,13 @@ const divisions = [
   'AFC East', 'AFC North', 'AFC South', 'AFC West',
   'NFC East', 'NFC North', 'NFC South', 'NFC West'
 ];
+
+function slugifyTeamName(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
 
 // Lightweight in-file component (not exported) to keep file cohesive
 function DivisionTable({
@@ -62,7 +70,12 @@ function DivisionTable({
                         className="object-contain"
                       />
                     </div>
-                    <span className="text-white font-medium text-[13px] sm:text-sm truncate max-w-[110px] md:max-w-[160px]">{team.teamName}</span>
+                    <Link
+                      href={`/teams/${slugifyTeamName(team.teamName)}`}
+                      className="text-white font-medium text-[13px] sm:text-sm truncate max-w-[110px] md:max-w-[160px] hover:text-white/90"
+                    >
+                      {team.teamName}
+                    </Link>
                   </div>
                 </td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.wins}</td>

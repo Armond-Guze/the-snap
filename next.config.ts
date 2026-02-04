@@ -37,12 +37,12 @@ const nextConfig: NextConfig = {
     const baseCsp = [
       "default-src 'self';",
       // Allow Sanity + Vercel analytics scripts everywhere to avoid blocks if headers fall back to baseCsp.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://core.sanity-cdn.com https://cdn.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://va.vercel-scripts.com;",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://core.sanity-cdn.com https://cdn.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://va.vercel-scripts.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com;",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
       "img-src 'self' data: blob: https://cdn.sanity.io https://img.youtube.com https://i.ytimg.com https://pagead2.googlesyndication.com;",
       "font-src 'self' https://fonts.gstatic.com;",
-      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
-      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio;",
+      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
+      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com;",
       "worker-src 'self' blob:;",
       "media-src 'self';",
       "object-src 'none';",
@@ -56,12 +56,12 @@ const nextConfig: NextConfig = {
     const studioCsp = [
       "default-src 'self';",
       // Sanity Studio injects helper iframes/scripts from *.sanity.build/.tools/.studio and uses blob workers.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://core.sanity-cdn.com https://cdn.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://vercel.live;",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://core.sanity-cdn.com https://cdn.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://pagead2.googlesyndication.com https://www.googletagmanager.com https://www.googlesyndication.com https://securepubads.g.doubleclick.net https://vercel.live https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com;",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
       "img-src 'self' data: blob: https://cdn.sanity.io https://img.youtube.com https://i.ytimg.com https://pagead2.googlesyndication.com;",
       "font-src 'self' https://fonts.gstatic.com;",
-      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
-      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio;",
+      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
+      "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com;",
       "worker-src 'self' blob:;",
       "media-src 'self';",
       "object-src 'none';",
