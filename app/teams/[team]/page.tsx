@@ -77,7 +77,7 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
       redirect(`/teams/${slug}`);
     }
   }
-  if (!meta) return <div className="max-w-4xl mx-auto px-4 py-12 text-white">Unknown team.</div>;
+  if (!abbr || !meta) return <div className="max-w-4xl mx-auto px-4 py-12 text-white">Unknown team.</div>;
   const season = await getActiveSeason();
   const games = await getTeamSeasonSchedule(abbr);
   const standings = await fetchNFLStandingsWithFallback();
