@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
-import { client } from '@/sanity/lib/client';
+import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import SocialShare from '@/app/components/SocialShare';
@@ -20,7 +20,7 @@ import { Metadata } from 'next';
 import StructuredData, { createEnhancedArticleStructuredData } from '@/app/components/StructuredData';
 import MostRead from '@/app/components/MostRead';
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
 	const params = await props.params;
@@ -29,7 +29,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 	const trimmedSlug = decodeURIComponent(params.slug).trim();
 
 	// Prefer full article query, fall back to headline-only for legacy docs
-	const article = await client.fetch<Headline>(articleDetailQuery, { slug: trimmedSlug })
+	const article = await sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline)
 		.catch(() => null);
 
 	if (!article) return {};
@@ -74,8 +74,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 	// Fetch article (any format) and a small feed for sidebar/related
 	const [article, otherArticles] = await Promise.all([
-		client.fetch<Headline>(articleDetailQuery, { slug: trimmedSlug }),
-		client.fetch<HeadlineListItem[]>(
+		sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline),
+		sanityFetchDynamic<HeadlineListItem[]>(
 			`*[_type == "article" && published == true] | order(coalesce(date, publishedAt, _createdAt) desc)[0...24]{
 				_id,
 				_type,
@@ -97,14 +97,19 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				category->{ title, slug, color },
 				format,
 				tags[]->{ title }
-			}`
+			}`,
+			{},
+			300,
+			[]
 		),
 	]);
 
 	if (!article) {
-		const aliasDoc = await client.fetch<{ slug?: { current?: string } } | null>(
+		const aliasDoc = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
 			`*[_type == "article" && published == true && $slug in slugHistory][0]{ slug }`,
-			{ slug: trimmedSlug }
+			{ slug: trimmedSlug },
+			300,
+			null
 		);
 		const targetSlug = aliasDoc?.slug?.current?.trim();
 		if (targetSlug) {

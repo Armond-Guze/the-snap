@@ -81,7 +81,14 @@ export async function GET(req: Request) {
   const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
   const count = await kvGet(`views:${slug}`);
-  return NextResponse.json({ count });
+  return NextResponse.json(
+    { count },
+    {
+      headers: {
+        'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
+      }
+    }
+  );
 }
 
 export async function POST(req: Request) {
@@ -94,7 +101,14 @@ export async function POST(req: Request) {
 
   if (isBot(req)) {
     const count = await kvGet(`views:${slug}`);
-    return NextResponse.json({ count, skipped: 'bot' });
+    return NextResponse.json(
+      { count, skipped: 'bot' },
+      {
+        headers: {
+          'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
+        }
+      }
+    );
   }
 
   const ua = req.headers.get('user-agent') || '';
@@ -111,5 +125,12 @@ export async function POST(req: Request) {
   }
 
   const count = await kvGet(counterKey);
-  return NextResponse.json({ count, deduped: !isNew });
+  return NextResponse.json(
+    { count, deduped: !isNew },
+    {
+      headers: {
+        'Cache-Control': 'no-store'
+      }
+    }
+  );
 }

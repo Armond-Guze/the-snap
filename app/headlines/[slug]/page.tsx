@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
-import { client } from '@/sanity/lib/client';
+import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import SocialShare from '@/app/components/SocialShare';
@@ -23,7 +23,7 @@ import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
 import MostRead from '@/app/components/MostRead';
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
   const params = await props.params;
@@ -31,9 +31,11 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   const trimmedSlug = decodeURIComponent(params.slug).trim();
 
-  const headline = await client.fetch<Headline>(
+  const headline = await sanityFetchDynamic<Headline>(
     headlineDetailQuery,
-    { slug: trimmedSlug }
+    { slug: trimmedSlug },
+    300,
+    null as unknown as Headline
   );
 
   if (!headline) return {};
@@ -62,11 +64,13 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   const trimmedSlug = decodeURIComponent(params.slug).trim();
 
   const [headline, otherHeadlines] = await Promise.all([
-    client.fetch<Headline>(
+    sanityFetchDynamic<Headline>(
       headlineDetailQuery,
-      { slug: trimmedSlug }
+      { slug: trimmedSlug },
+      300,
+      null as unknown as Headline
     ),
-    client.fetch<HeadlineListItem[]>(
+    sanityFetchDynamic<HeadlineListItem[]>(
       `*[
         ((_type == "article" && format == "headline") || _type == "headline") && published == true
       ] | order(_createdAt desc)[0...24]{
@@ -88,7 +92,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         image { asset->{ url } },
         category->{ title, slug, color },
         tags[]->{ title }
-      }`
+      }`,
+      {},
+      300,
+      []
     ),
   ]);
 

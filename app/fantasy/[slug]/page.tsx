@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
-import { client } from '@/sanity/lib/client';
+import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
@@ -41,17 +41,19 @@ interface FantasyDetail {
 
 interface PageProps { params: Promise<{ slug: string }> }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata(props: PageProps) {
   const params = await props.params;
   if (!params?.slug) return {};
   const slug = decodeURIComponent(params.slug).trim();
-  const article = await client.fetch<FantasyDetail>(
+  const article = await sanityFetchDynamic<FantasyDetail>(
     `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       _id, title, summary, coverImage{asset->{url}}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`,
-    { slug }
+    { slug },
+    300,
+    null as unknown as FantasyDetail
   );
   if (!article) return {};
   return {
@@ -66,7 +68,7 @@ export default async function FantasyArticlePage(props: PageProps) {
   const slug = decodeURIComponent(params.slug).trim();
 
   const [article, otherContent] = await Promise.all([
-  client.fetch<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
+  sanityFetchDynamic<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       _id, title, slug, summary,
       // Expand both body & content arrays (support legacy / new)
       content[]{
@@ -93,10 +95,10 @@ export default async function FantasyArticlePage(props: PageProps) {
       publishedAt, date,
       category->{title, slug},
   youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
-    }`, { slug }),
-    client.fetch<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
+    }`, { slug }, 300, null as unknown as FantasyDetail),
+    sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
       _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
-    }`)
+    }`, {}, 300, [])
   ]);
 
   if (!article) notFound();
