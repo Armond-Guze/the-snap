@@ -99,3 +99,14 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const secretFromQuery = searchParams.get('secret') ?? '';
+
+  if (SECRET && secretFromQuery !== SECRET) {
+    return NextResponse.json({ ok: false, message: 'Invalid secret.' }, { status: 401 });
+  }
+
+  return NextResponse.json({ ok: true, route: ROUTE_NAME }, { status: 200 });
+}
