@@ -25,11 +25,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
-  description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
-  authors: [{ name: "The Snap Editorial Team" }],
-  creator: "The Snap",
-  publisher: "The Snap",
+  title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
+  description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
+  authors: [{ name: "The Game Snap Editorial Team" }],
+  creator: "The Game Snap",
+  publisher: "The Game Snap",
   formatDetection: {
     email: false,
     address: false,
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
-    description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
+    title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
+    description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
     url: 'https://thegamesnap.com',
-    siteName: 'The Snap',
+    siteName: 'The Game Snap',
     images: [
   {
     url: 'https://thegamesnap.com/images/thesnap-logo-transparent.png',
@@ -57,8 +57,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Snap – NFL News, Rankings & Analysis (By Fans, For Fans)",
-    description: "Fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.",
+    title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
+    description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.",
     creator: '@thesnap',
     images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
   },
@@ -94,11 +94,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const websiteData = createWebsiteStructuredData('The Snap', 'https://thegamesnap.com')
+  const websiteData = createWebsiteStructuredData('The Game Snap', 'https://thegamesnap.com', 'The Snap')
   const organizationData = createOrganizationStructuredData(
-    'The Snap', 
-    'https://thegamesnap.com', 
-  'https://thegamesnap.com/images/thesnap-logo-transparent.png'
+    'The Game Snap',
+    'https://thegamesnap.com',
+    'https://thegamesnap.com/images/thesnap-logo-transparent.png',
+    'The Snap'
   )
 
   return (

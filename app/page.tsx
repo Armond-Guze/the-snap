@@ -13,11 +13,11 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: "The Snap - NFL News, Power Rankings, Standings & Analysis",
-  description: "Get the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.",
+  title: "The Game Snap (The Snap) - NFL News, Power Rankings, Standings & Analysis",
+  description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.",
   openGraph: {
-    title: "The Snap - NFL News, Power Rankings & Analysis",
-    description: "Get the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.",
+    title: "The Game Snap (The Snap) - NFL News, Power Rankings & Analysis",
+    description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.",
     url: 'https://thegamesnap.com',
     images: [
   {
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Snap - NFL News, Power Rankings & Analysis",
-    description: "Get the latest NFL news, power rankings, standings, and game schedules.",
+    title: "The Game Snap (The Snap) - NFL News, Power Rankings & Analysis",
+    description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules.",
   images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
   },
 }

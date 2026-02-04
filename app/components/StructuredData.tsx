@@ -32,10 +32,11 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
 }
 
 // Helper functions for common structured data
-export const createWebsiteStructuredData = (siteName: string, url: string) => ({
+export const createWebsiteStructuredData = (siteName: string, url: string, alternateName?: string) => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: siteName,
+  ...(alternateName ? { alternateName } : {}),
   url: url,
   potentialAction: {
     '@type': 'SearchAction',
@@ -44,10 +45,11 @@ export const createWebsiteStructuredData = (siteName: string, url: string) => ({
   },
 })
 
-export const createOrganizationStructuredData = (name: string, url: string, logo: string) => ({
+export const createOrganizationStructuredData = (name: string, url: string, logo: string, alternateName?: string) => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: name,
+  ...(alternateName ? { alternateName } : {}),
   url: url,
   logo: logo,
   sameAs: [
