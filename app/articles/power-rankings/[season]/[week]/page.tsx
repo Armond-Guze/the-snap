@@ -218,7 +218,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
 
   return (
     <>
-    <main className="bg-black text-white min-h-screen">
+    <main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         <article className="lg:col-span-2 flex flex-col">
           <div className="hidden sm:block">
@@ -294,11 +294,11 @@ export default async function RankingsWeekPage({ params }: PageProps) {
 
                 return (
                   <article key={key} className="group">
-                    <div className="relative bg-black p-3">
+                    <div className="relative bg-[hsl(0_0%_3.9%)] p-3">
                       <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${gradientClassForTeam(teamName)}`} />
 
                       <div className="flex items-center gap-4">
-                        <div className="flex flex-col items-center min-w-[60px] bg-black rounded-lg p-2">
+                        <div className="flex flex-col items-center min-w-[60px] bg-[hsl(0_0%_3.9%)] rounded-lg p-2">
                           <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Rank</span>
                           <span className="text-2xl font-black text-white">{rank}</span>
                         </div>
@@ -344,7 +344,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <div className="mt-3 bg-black p-6">
+                    <div className="mt-3 bg-[hsl(0_0%_3.9%)] p-6">
                       {Array.isArray(team.analysis) && team.analysis.length > 0 && (
                         <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
                           <PortableText value={team.analysis} components={portableTextComponents} />

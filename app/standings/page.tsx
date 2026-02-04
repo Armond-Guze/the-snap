@@ -38,14 +38,14 @@ function DivisionTable({
   teams
 }: { division: string; teams: StandingsTeam[] }) {
   return (
-    <div className="bg-black border border-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-      <div className="bg-black px-4 py-2.5 border-b border-gray-800 flex items-center gap-2">
+    <div className="bg-[hsl(0_0%_3.9%)] border border-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+      <div className="bg-[hsl(0_0%_3.9%)] px-4 py-2.5 border-b border-gray-800 flex items-center gap-2">
         <h3 className="text-base font-semibold text-white tracking-wide">{division}</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-black/80">
+            <tr className="bg-[hsl(0_0%_3.9%)/0.8]">
               <th className="px-2.5 py-1.5 text-left text-[10px] font-bold text-gray-300 uppercase tracking-wider">Team</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">W</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">L</th>
@@ -57,7 +57,7 @@ function DivisionTable({
             {teams.map(team => (
               <tr
                 key={team._id}
-                className="border-b border-gray-800 hover:bg-gray-900/70 transition-colors bg-black"
+                className="border-b border-gray-800 hover:bg-[hsl(0_0%_5%)] transition-colors bg-[hsl(0_0%_3.9%)]"
               >
                 <td className="px-2.5 py-2.5">
                   <div className="flex items-center gap-2">
@@ -199,9 +199,9 @@ export default async function StandingsPage() {
   const nfcDivisions = divisions.slice(4, 8);
 
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="bg-[hsl(0_0%_3.9%)] min-h-screen text-white">
       {/* Compact Header / Tagline */}
-      <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-gray-800/60 bg-black/90 backdrop-blur-sm">
+      <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-gray-800/60 bg-[hsl(0_0%_3.9%)/0.9] backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
             NFL STANDINGS
@@ -221,7 +221,7 @@ export default async function StandingsPage() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-14 xl:gap-16 2xl:gap-20">
             {/* AFC */}
             <div>
-              <div className="sticky top-0 z-10 bg-black/95 py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
+              <div className="sticky top-0 z-10 bg-[hsl(0_0%_3.9%)/0.95] py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
                 <h2 className="text-xl md:text-2xl font-bold text-white text-center tracking-wide">American Football Conference (AFC)</h2>
               </div>
               <div className="space-y-6 md:space-y-8">
@@ -232,7 +232,7 @@ export default async function StandingsPage() {
             </div>
             {/* NFC */}
             <div>
-              <div className="sticky top-0 z-10 bg-black/95 py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
+              <div className="sticky top-0 z-10 bg-[hsl(0_0%_3.9%)/0.95] py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
                 <h2 className="text-xl md:text-2xl font-bold text-white text-center tracking-wide">National Football Conference (NFC)</h2>
               </div>
               <div className="space-y-6 md:space-y-8">

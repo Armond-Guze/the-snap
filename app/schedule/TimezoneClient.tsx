@@ -32,7 +32,7 @@ export default function TimezoneClient() {
   return (
     <label className="text-xs text-white/60 flex items-center gap-2 mb-4">
       <span>Timezone:</span>
-      <select value={value} onChange={onChange} className="bg-black/40 border border-white/20 rounded px-2 py-1 text-white text-xs">
+      <select value={value} onChange={onChange} className="bg-[hsl(0_0%_3.9%)/0.4] border border-white/20 rounded px-2 py-1 text-white text-xs">
         {TIMEZONE_CODES.map(code => <option key={code} value={code}>{code}</option>)}
       </select>
     </label>

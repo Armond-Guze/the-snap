@@ -177,7 +177,7 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className="relative bg-black sticky top-0 z-[60] shadow-2xl border-b border-white/10"
+      className="relative bg-[hsl(0_0%_3.9%)] sticky top-0 z-[60] shadow-2xl border-b border-white/10"
       style={teamAccent ? {
         borderBottomColor: teamAccent,
         boxShadow: `0 8px 30px -12px ${teamAccent}66`,
@@ -252,7 +252,7 @@ export default function Navbar() {
                   {teamsOpen && (
                     <div
                       id="teams-menu"
-                      className="absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl shadow-2xl p-5"
+                      className="absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-[hsl(0_0%_3.9%)] backdrop-blur-xl shadow-2xl p-5"
                     >
                       <div className="grid grid-cols-4 gap-6">
                         {DIVISION_GROUPS.map((group) => (
@@ -351,7 +351,7 @@ export default function Navbar() {
         }`}
       >
         <div
-          className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity ${
+          className={`absolute inset-0 bg-[hsl(0_0%_3.9%)/0.7] backdrop-blur-sm transition-opacity ${
             menuOpen ? "opacity-100" : "opacity-0"
           }`}
           onClick={() => setMenuOpen(false)}
@@ -363,7 +363,7 @@ export default function Navbar() {
           className={`absolute top-0 left-0 h-full w-[330px] max-w-[85%] border-r border-white/10 shadow-2xl flex flex-col transform transition-transform duration-300 ${
             menuOpen ? "translate-x-0" : "-translate-x-full"
           } 
-        bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_55%)] bg-gradient-to-b from-[#0b0b0b] via-[#050505] to-[#020202] supports-[backdrop-filter]:bg-black/80 backdrop-blur-xl`}
+        bg-[hsl(0_0%_3.9%)] supports-[backdrop-filter]:bg-[hsl(0_0%_3.9%)/0.8] backdrop-blur-xl`}
         >
           <div className="relative h-24 flex items-center border-b border-white/10 px-4 overflow-visible">
             <button
@@ -413,7 +413,7 @@ export default function Navbar() {
                         } opacity-0 group-hover:opacity-100 transition duration-500`}
                         aria-hidden="true"
                       />
-                      <span className="absolute inset-px rounded-[18px] bg-black/70 border border-white/5" aria-hidden="true" />
+                      <span className="absolute inset-px rounded-[18px] bg-[hsl(0_0%_3.9%)/0.7] border border-white/5" aria-hidden="true" />
                       <div className="relative z-10 flex flex-col items-center justify-between h-full">
                         <div
                           className={`flex items-center justify-center w-10 h-10 rounded-xl border border-white/[0.08] backdrop-blur-sm transition-colors ${

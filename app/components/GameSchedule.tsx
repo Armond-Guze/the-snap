@@ -221,7 +221,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
 
   if (!featuredGames?.length) {
     return (
-      <section className="relative py-4 px-6 lg:px-8 border-b border-gray-800 bg-black">
+      <section className="relative py-4 px-6 lg:px-8 border-b border-gray-800 bg-[hsl(0_0%_3.9%)]">
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <h2 className="text-lg font-bold text-white mb-2">This Week&apos;s Games</h2>
           <p className="text-gray-400">No featured games scheduled</p>
@@ -231,8 +231,8 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   }
 
   return (
-    <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-black">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
+    <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-[hsl(0_0%_3.9%)]">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[hsl(0_0%_3.9%)/0.3] via-[hsl(0_0%_3.9%)/0.5] to-[hsl(0_0%_3.9%)/0.8]" />
       <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px] 3xl:max-w-[1800px] mx-auto relative z-10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
@@ -275,7 +275,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {canScrollLeft && (
             <button
               onClick={scrollLeft}
-              className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg hover:bg-gray-800 transition-colors duration-300"
+              className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-[hsl(0_0%_3.9%)] rounded-full p-3 text-white shadow-lg hover:bg-[hsl(0_0%_5%)] transition-colors duration-300"
               title="Scroll left"
               aria-label="Scroll to previous games"
             >
@@ -288,7 +288,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {canScrollRight && (
             <button
               onClick={scrollRight}
-              className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-black rounded-full p-3 text-white shadow-lg hover:bg-gray-800 transition-colors duration-300"
+              className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-[hsl(0_0%_3.9%)] rounded-full p-3 text-white shadow-lg hover:bg-[hsl(0_0%_5%)] transition-colors duration-300"
               title="Scroll right"
               aria-label="Scroll to next games"
             >

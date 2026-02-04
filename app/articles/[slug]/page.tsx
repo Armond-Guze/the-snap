@@ -212,7 +212,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 	return (
 		<>
-			<main className="bg-black text-white min-h-screen">
+			<main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
 			{articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
 			<div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
 				<article className="lg:col-span-2 flex flex-col">

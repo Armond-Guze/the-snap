@@ -2,7 +2,7 @@
 @import "./professional-styles.css";
 
 :root {
-  --background: #0a0a0a;
+  --background: hsl(0 0% 3.9%);
   --foreground: #ededed;
 }
 
@@ -15,23 +15,18 @@ body {
 
 /* Force dark theme on all devices */
 html, body {
-  background-color: #000000 !important;
+  background-color: var(--background) !important;
   color: #ffffff !important;
 }
 
 .home-gradient {
-  background:
-    radial-gradient(circle at 25% 10%, rgba(25, 25, 25, 0.45), transparent 42%),
-    /* remove blue bias */
-    radial-gradient(circle at 80% -5%, rgba(12, 12, 12, 0.18), transparent 48%),
-    linear-gradient(180deg, #010101 0%, #030303 40%, #070707 100%);
-  background-attachment: fixed;
+  background-color: hsl(0 0% 3.9%);
 }
 
 /* Ensure mobile devices respect dark theme */
 @media screen and (max-width: 768px) {
   html, body {
-    background-color: #000000 !important;
+    background-color: var(--background) !important;
     color: #ffffff !important;
   }
   
