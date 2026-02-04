@@ -27,6 +27,7 @@ const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [teamsOpen, setTeamsOpen] = useState(false);
+  const teamsCloseTimeout = useRef<number | null>(null);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
   const teamMatch = pathname.match(/^\/teams\/([a-z0-9-]+)/i);
@@ -177,7 +178,7 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className="relative bg-[hsl(0_0%_3.9%)] sticky top-0 z-[60] shadow-2xl border-b border-white/10"
+      className="relative bg-[hsl(0_0%_3.9%)] sticky top-0 z-[60] shadow-2xl"
       style={teamAccent ? {
         borderBottomColor: teamAccent,
         boxShadow: `0 8px 30px -12px ${teamAccent}66`,
@@ -208,7 +209,7 @@ export default function Navbar() {
         {/* Center: Logo */}
         <div className="flex-1 flex justify-center md:justify-start">
           <Link href="/" className="inline-flex items-center group overflow-visible">
-            <span className="relative block h-[3rem] md:h-[3.25rem] w-[110px] md:w-[120px] -my-1">
+            <span className="relative block h-[2.4rem] md:h-[2.6rem] w-[92px] md:w-[100px] -my-0.5">
               <Image
                 src="/images/thesnap-logo-new%20copy123.png"
                 alt="The Snap Logo"
@@ -232,7 +233,23 @@ export default function Navbar() {
                 pathname.startsWith("/schedule") ||
                 pathname.startsWith("/teams");
               return (
-                <div key="teams" className="relative">
+                <div
+                  key="teams"
+                  className="relative"
+                  onMouseEnter={() => {
+                    if (teamsCloseTimeout.current) {
+                      window.clearTimeout(teamsCloseTimeout.current);
+                      teamsCloseTimeout.current = null;
+                    }
+                    setTeamsOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    teamsCloseTimeout.current = window.setTimeout(() => {
+                      setTeamsOpen(false);
+                      teamsCloseTimeout.current = null;
+                    }, 180);
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setTeamsOpen((o) => !o)}
@@ -249,66 +266,66 @@ export default function Navbar() {
                     />
                   </button>
 
-                  {teamsOpen && (
-                    <div
-                      id="teams-menu"
-                      className="absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-[hsl(0_0%_3.9%)] backdrop-blur-xl shadow-2xl p-5"
-                    >
-                      <div className="grid grid-cols-4 gap-6">
-                        {DIVISION_GROUPS.map((group) => (
-                          <div key={group.title} className="space-y-2">
-                            <p className="text-xs uppercase tracking-[0.2em] text-white/50 font-semibold">{group.title}</p>
-                            <div className="flex flex-col space-y-1">
-                              {group.teams.map((code) => {
-                                const meta = TEAM_META[code];
-                                const nickname = meta?.name ? meta.name.split(" ").slice(-1).join(" ") : code;
-                                const accent = TEAM_COLORS[code] || "#9ca3af";
-                                return (
-                                  <Link
-                                    key={code}
-                                    href={`/teams/${slugifyTeamName(meta?.name || code)}`}
-                                    onClick={() => setTeamsOpen(false)}
-                                    className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 hover:text-white transition-colors"
-                                    style={{ backgroundColor: `${accent}33` }}
-                                  >
-                                    <span>{nickname}</span>
-                                    <span className="text-[11px] font-bold text-white">
-                                      {code}
-                                    </span>
-                                  </Link>
-                                );
-                              })}
-                            </div>
+                  <div
+                    id="teams-menu"
+                    className={`absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-[hsl(0_0%_3.9%)] backdrop-blur-xl shadow-2xl p-5 transition-all duration-200 ease-out ${
+                      teamsOpen
+                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-y-2 pointer-events-none"
+                    }`}
+                  >
+                    <div className="grid grid-cols-4 gap-6">
+                      {DIVISION_GROUPS.map((group) => (
+                        <div key={group.title} className="space-y-2">
+                          <p className="text-xs uppercase tracking-[0.2em] text-white/50 font-semibold">{group.title}</p>
+                          <div className="flex flex-col space-y-1">
+                            {group.teams.map((code) => {
+                              const meta = TEAM_META[code];
+                              const nickname = meta?.name ? meta.name.split(" ").slice(-1).join(" ") : code;
+                              const accent = TEAM_COLORS[code] || "#9ca3af";
+                              return (
+                                <Link
+                                  key={code}
+                                  href={`/teams/${slugifyTeamName(meta?.name || code)}`}
+                                  onClick={() => setTeamsOpen(false)}
+                                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 hover:text-white transition-colors"
+                                  style={{ backgroundColor: `${accent}33` }}
+                                >
+                                  <span>{nickname}</span>
+                                  <span className="text-[11px] font-bold text-white">{code}</span>
+                                </Link>
+                              );
+                            })}
                           </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
-                        <Link
-                          href="/standings"
-                          onClick={() => setTeamsOpen(false)}
-                          className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors border ${
-                            pathname.startsWith("/standings")
-                              ? "border-white/30 bg-white/10 text-white"
-                              : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          NFL Standings
-                        </Link>
-                        <Link
-                          href="/schedule"
-                          onClick={() => setTeamsOpen(false)}
-                          className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors border ${
-                            pathname.startsWith("/schedule")
-                              ? "border-white/30 bg-white/10 text-white"
-                              : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          Schedule
-                        </Link>
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  )}
+
+                    <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
+                      <Link
+                        href="/standings"
+                        onClick={() => setTeamsOpen(false)}
+                        className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors border ${
+                          pathname.startsWith("/standings")
+                            ? "border-white/30 bg-white/10 text-white"
+                            : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        NFL Standings
+                      </Link>
+                      <Link
+                        href="/schedule"
+                        onClick={() => setTeamsOpen(false)}
+                        className={`rounded-xl px-4 py-3 text-sm font-semibold transition-colors border ${
+                          pathname.startsWith("/schedule")
+                            ? "border-white/30 bg-white/10 text-white"
+                            : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        Schedule
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               );
             }
