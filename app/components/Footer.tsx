@@ -16,7 +16,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[hsl(0_0%_3.9%)] border-t border-gray-800 py-8 md:py-10 text-gray-200">
+    <footer className="bg-[hsl(0_0%_3.9%)] py-8 md:py-10 text-gray-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
 	<div className="hidden md:grid md:grid-cols-3 gap-8">
           {/* Brand Section */}
@@ -57,7 +57,7 @@ const Footer = () => {
         </div>
 
         {/* Mobile stack */}
-        <div className="md:hidden border-t border-gray-800 mt-6 pt-6 space-y-6">
+        <div className="md:hidden mt-6 pt-6 space-y-6">
           <div>
             <h4 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide">Explore</h4>
             <ul className="space-y-2">
@@ -74,7 +74,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 md:mt-12 pt-6 border-t border-gray-800">
+        <div className="mt-8 md:mt-12 pt-6">
           {/* Quick social icon row */}
           <div className="flex items-center justify-center mb-4 gap-5 text-gray-400">
             <a href="https://www.instagram.com/thesnapfootball" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram size={18} /></a>

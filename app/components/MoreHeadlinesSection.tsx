@@ -144,7 +144,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               <Link
                 key={item._id}
                 href={href}
-                className="group flex gap-5 p-3 sm:p-4 rounded-xl border border-white/8 bg-transparent hover:bg-white/5 hover:border-white/20 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                className="group flex gap-5 p-3 sm:p-4 rounded-xl bg-transparent hover:bg-white/5 transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <div className="relative w-32 sm:w-40 lg:w-44 h-28 sm:h-32 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
                   {imgUrl ? (

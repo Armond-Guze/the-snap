@@ -72,54 +72,46 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
             const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
             const displayTitle = item.homepageTitle || item.title;
             return (
-            <Link key={item._id} href={getArticleUrl(item)} className="group relative block rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
-              <div className="absolute inset-0">
-                {img ? (
-                  <Image src={img} alt={displayTitle} fill sizes="(max-width:640px) 100vw" className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500" />
-                ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              </div>
-              <div className="relative h-72 sm:h-80 flex flex-col justify-end p-6">
-                <h3 className="text-2xl font-extrabold leading-tight mb-3 max-w-3xl drop-shadow-lg text-white">{displayTitle}</h3>
-                {(item.summary || item.excerpt) && !hideSummaries && (
-                  <p className="max-w-2xl text-gray-300 text-sm leading-relaxed line-clamp-3">{item.summary || item.excerpt}</p>
-                )}
-                <div className="mt-4 flex items-center text-[11px] text-gray-300/80">
-                  <span>{item.author?.name || 'Staff Writer'}</span>
-                  {(item.publishedAt || item.date) && <span className="mx-2">•</span>}
-                  {(item.publishedAt || item.date) && (
-                    <time dateTime={item.publishedAt || item.date}>{new Date(item.publishedAt || item.date || '').toLocaleDateString()}</time>
-                  )}
+            <Link key={item._id} href={getArticleUrl(item)} className="group block">
+              <div className="relative rounded-3xl overflow-hidden bg-white/[0.02] transition-all shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
+                <div className="absolute inset-0">
+                  {img ? (
+                    <Image src={img} alt={displayTitle} fill sizes="(max-width:640px) 100vw" className="object-contain object-center scale-[1.04] bg-black/35 opacity-70 group-hover:opacity-80 transition-opacity duration-500" />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 </div>
+                <div className="relative h-56 sm:h-60" />
+              </div>
+              <div className="pt-4">
+                <h3 className="text-lg font-extrabold leading-tight text-white group-hover:text-gray-200 transition-colors">{displayTitle}</h3>
+                {(item.summary || item.excerpt) && !hideSummaries && (
+                  <p className="mt-2 max-w-2xl text-gray-300 text-sm leading-relaxed line-clamp-3">{item.summary || item.excerpt}</p>
+                )}
               </div>
             </Link>
           );})}
         </div>
         {/* Desktop: three uniform cards using fantasy featured style */}
-        <div className="hidden lg:grid grid-cols-3 gap-6 2xl:gap-7 3xl:gap-8">
+        <div className="hidden lg:grid grid-cols-3 gap-3 2xl:gap-4 3xl:gap-5">
           {topThree.map((item) => {
             const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
             const displayTitle = item.homepageTitle || item.title;
             return (
-            <Link key={item._id} href={getArticleUrl(item)} className="group relative flex-1 rounded-3xl overflow-hidden bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all shadow-[0_0_0_1px_rgba(255,255,255,0.08)] hover:shadow-white/10">
-              <div className="absolute inset-0">
-                {img && (
-                  <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-cover opacity-35 group-hover:opacity-45 transition-opacity duration-500" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              </div>
-              <div className="relative h-[360px] 2xl:h-[420px] 3xl:h-[460px] flex flex-col justify-end p-8">
-                <h3 className="text-2xl 2xl:text-3xl font-extrabold leading-tight mb-4 max-w-3xl drop-shadow-lg text-white">{displayTitle}</h3>
-                {(item.summary || item.excerpt) && !hideSummaries && (
-                  <p className="max-w-2xl text-gray-300 text-sm 2xl:text-base leading-relaxed line-clamp-3">{item.summary || item.excerpt}</p>
-                )}
-                <div className="mt-5 flex items-center text-xs text-gray-300/80">
-                  <span>{item.author?.name || 'Staff Writer'}</span>
-                  {(item.publishedAt || item.date) && <span className="mx-2">•</span>}
-                  {(item.publishedAt || item.date) && (
-                    <time dateTime={item.publishedAt || item.date}>{new Date(item.publishedAt || item.date || '').toLocaleDateString()}</time>
+            <Link key={item._id} href={getArticleUrl(item)} className="group flex flex-col">
+              <div className="relative rounded-3xl overflow-hidden bg-white/[0.02] transition-all shadow-[0_22px_70px_rgba(0,0,0,0.4)]">
+                <div className="absolute inset-0">
+                  {img && (
+                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-contain object-center scale-[1.04] bg-black/35 opacity-70 group-hover:opacity-80 transition-opacity duration-500" />
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 </div>
+                <div className="relative h-[250px] 2xl:h-[280px] 3xl:h-[320px]" />
+              </div>
+              <div className="pt-5">
+                <h3 className="text-xl 2xl:text-2xl font-extrabold leading-tight text-white group-hover:text-gray-200 transition-colors">{displayTitle}</h3>
+                {(item.summary || item.excerpt) && !hideSummaries && (
+                  <p className="mt-3 max-w-2xl text-gray-300 text-sm 2xl:text-base leading-relaxed line-clamp-3">{item.summary || item.excerpt}</p>
+                )}
               </div>
             </Link>
           );})}
