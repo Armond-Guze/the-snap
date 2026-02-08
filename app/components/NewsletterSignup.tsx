@@ -198,7 +198,7 @@ export default function NewsletterSignup({
   if (variant === 'footer') {
     return (
       <div className={`text-center ${className}`}>
-        <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-widest">
+        <h3 className="text-xl md:text-2xl font-extrabold text-white mb-4 uppercase tracking-widest">
           Never miss a snap
         </h3>
         <p className="text-gray-400 mb-6">
@@ -220,7 +220,7 @@ export default function NewsletterSignup({
                 if (status !== 'idle') resetStatus();
               }}
               placeholder="Enter your email"
-              className="flex-1 min-w-[220px] px-4 py-3 bg-gray-700/70 text-white rounded-lg focus:outline-none transition-colors"
+              className="flex-1 min-w-[220px] px-4 py-3 bg-gray-800/80 text-white rounded-lg focus:outline-none transition-colors"
               disabled={status === 'loading'}
             />
             

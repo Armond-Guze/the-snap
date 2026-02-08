@@ -268,7 +268,7 @@ export default function Navbar() {
 
                   <div
                     id="teams-menu"
-                    className={`absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-[hsl(0_0%_3.9%)] backdrop-blur-xl shadow-2xl p-5 transition-all duration-200 ease-out ${
+                    className={`absolute left-1/2 top-full mt-3 w-[860px] max-w-[90vw] -translate-x-1/2 rounded-2xl border border-white/10 bg-[#1f1f1f] shadow-2xl p-5 transition-all duration-200 ease-out ${
                       teamsOpen
                         ? "opacity-100 translate-y-0 pointer-events-auto"
                         : "opacity-0 -translate-y-2 pointer-events-none"
