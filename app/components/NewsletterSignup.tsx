@@ -197,9 +197,9 @@ export default function NewsletterSignup({
   // Footer variant
   if (variant === 'footer') {
     return (
-      <div className={className}>
-        <h3 className="text-lg font-semibold text-white mb-4">
-          Never miss a Snap
+      <div className={`text-center ${className}`}>
+        <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-widest">
+          Never miss a snap
         </h3>
         <p className="text-gray-400 mb-6">
           Get weekly NFL insights and breaking news delivered to your inbox.
@@ -211,7 +211,7 @@ export default function NewsletterSignup({
             <span className="font-semibold">{message}</span>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row sm:justify-center gap-3 max-w-xl mx-auto">
             <input
               type="email"
               value={email}
@@ -220,7 +220,7 @@ export default function NewsletterSignup({
                 if (status !== 'idle') resetStatus();
               }}
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-white focus:outline-none transition-colors"
+              className="flex-1 min-w-[220px] px-4 py-3 bg-gray-700/70 text-white rounded-lg focus:outline-none transition-colors"
               disabled={status === 'loading'}
             />
             
