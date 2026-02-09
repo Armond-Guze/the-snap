@@ -53,14 +53,31 @@ export default async function Home() {
   <MoreHeadlinesSection hideSummaries />
   <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-14">
     <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem]">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-white/60">
-        <span className="uppercase tracking-wide text-[11px] text-white/40">More</span>
-        <span className="text-white/20">/</span>
-        <Link href="/headlines" className="hover:text-white transition-colors">Latest Headlines</Link>
-        <span className="text-white/20">/</span>
-        <Link href="/headlines/page/2" className="hover:text-white transition-colors">More Headlines</Link>
-        <span className="text-white/20">/</span>
-        <Link href="/rss.xml" className="hover:text-white transition-colors">RSS Feed</Link>
+      <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">More Headlines</p>
+            <p className="text-sm text-white/70">Browse additional pages</p>
+          </div>
+          <Link href="/headlines" className="text-xs text-white/60 hover:text-white transition-colors">
+            View all
+          </Link>
+        </div>
+        <nav aria-label="Homepage headlines pagination" className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="rounded-lg bg-white/10 px-2.5 py-1.5 text-white/70">Page</span>
+          <Link
+            href="/headlines"
+            aria-current="page"
+            className="rounded-lg bg-white text-black px-3 py-1.5 font-semibold"
+          >
+            1
+          </Link>
+          <Link href="/headlines/page/2" className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 hover:bg-white/20 transition-colors">2</Link>
+          <Link href="/headlines/page/3" className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 hover:bg-white/20 transition-colors">3</Link>
+          <span className="px-1 text-white/30">...</span>
+          <Link href="/headlines/page/2" className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 hover:bg-white/20 transition-colors">Next</Link>
+          <Link href="/headlines/page/3" className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 hover:bg-white/20 transition-colors">Last</Link>
+        </nav>
       </div>
     </div>
   </section>

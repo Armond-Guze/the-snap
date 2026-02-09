@@ -9,36 +9,53 @@ interface FantasyArticle { _id: string; title: string; slug: { current: string }
 export default async function FantasySection({ hideSummaries = false }: FantasySectionProps) {
   const fantasyQuery = `*[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc)[0...4]{ _id, title, slug, summary, coverImage { asset->{ url } }, author->{ name }, fantasyType }`;
   const fantasyArticles: FantasyArticle[] = await client.fetch(fantasyQuery);
+  const mobileFantasy = fantasyArticles?.slice(0, 3) || [];
   return (
-    <section className="relative py-16 px-6 lg:px-8 2xl:px-12 3xl:px-16">
+    <section className="relative py-16 px-4 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
       <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
         <div className="mb-4 2xl:mb-6 3xl:mb-8"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">Fantasy Football</h2></div></div>
-        <div className="md:hidden overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-          <div className="flex gap-4 pl-16 pr-10">
-            <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
-            {fantasyArticles?.slice(0,4).map((article: FantasyArticle, index: number) => (
-              <div key={article._id || index} className="snap-start shrink-0 w-[88%]">
-                {article.slug?.current ? (
-                  <Link href={`/fantasy/${article.slug.current}`} className="group block">
-                    <div className="space-y-3">
-                      <div className="relative h-48 rounded-xl overflow-hidden bg-gray-900 shadow-lg">
-                        {article.coverImage?.asset ? (<Image src={urlFor(article.coverImage).width(800).height(600).fit('crop').url()} alt={article.title} fill className="object-cover object-left-top group-hover:scale-[1.03] transition-transform duration-500" sizes="(max-width:640px) 88vw" />) : (<div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center"><span className="text-gray-400 text-xs">No Image</span></div>)}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                        <div className="absolute top-3 right-3"><svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg></div>
-                      </div>
-                      <div className="px-0">
-                        <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-1 group-hover:text-gray-300">{article.title}</h3>
-                        {article.summary && !hideSummaries && (<p className="text-[11px] text-gray-400 line-clamp-2 leading-snug">{article.summary}</p>)}
-                        {article.author?.name && (<p className="text-[10px] text-gray-500 mt-1 font-medium uppercase tracking-wide">By {article.author.name}</p>)}
-                      </div>
-                    </div>
-                  </Link>
-                ) : (<div className="h-48 rounded-xl bg-gray-900 flex items-center justify-center text-gray-500 text-sm">No content</div>)}
-              </div>
-            ))}
-            <div className="shrink-0 w-2 sm:w-4" aria-hidden="true" />
-          </div>
+        <div className="md:hidden space-y-3">
+          {mobileFantasy.map((article: FantasyArticle, index: number) => (
+            <div key={article._id || index}>
+              {article.slug?.current ? (
+                <Link
+                  href={`/fantasy/${article.slug.current}`}
+                  className="group flex gap-3 rounded-2xl bg-white/[0.03] p-3 transition-all duration-300 hover:bg-white/[0.07]"
+                >
+                  <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-900">
+                    {article.coverImage?.asset ? (
+                      <Image
+                        src={urlFor(article.coverImage).width(600).height(450).fit("crop").url()}
+                        alt={article.title}
+                        fill
+                        sizes="112px"
+                        className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <span className="mb-1 inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                      Fantasy
+                    </span>
+                    <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-white group-hover:text-gray-200">
+                      {article.title}
+                    </h3>
+                    {article.summary && !hideSummaries && (
+                      <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-gray-400">{article.summary}</p>
+                    )}
+                    {article.author?.name && (
+                      <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">By {article.author.name}</p>
+                    )}
+                  </div>
+                </Link>
+              ) : (
+                <div className="rounded-2xl bg-white/[0.03] p-3 text-sm text-gray-500">No content</div>
+              )}
+            </div>
+          ))}
         </div>
         <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 2xl:gap-6 3xl:gap-8">
           {fantasyArticles?.slice(0, 4).map((article: FantasyArticle, index: number) => (

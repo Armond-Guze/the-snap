@@ -220,14 +220,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   };
 
   if (!featuredGames?.length) {
-    return (
-      <section className="relative py-4 px-6 lg:px-8 border-b border-gray-800 bg-[hsl(0_0%_3.9%)]">
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h2 className="text-lg font-bold text-white mb-2">This Week&apos;s Games</h2>
-          <p className="text-gray-400">No featured games scheduled</p>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   return (

@@ -84,30 +84,39 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     }
     return `/headlines/${item.slug.current.trim()}`;
   };
+  const formatShortDate = (value?: string) => {
+    if (!value) return null;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed);
+  };
+  const mobileSidebarItems = leftColumn.concat(rightSidebarMobile);
 
   return (
     <section className="relative">
       {/* Clean gradient background (top lighter, bottom darker) */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/35 via-black/55 to-black/85" />
 
-      {/* Mobile: Full-width main headline */}
-      <div className="lg:hidden">
+      {/* Mobile: Feature hero + compact list */}
+      <div className="lg:hidden px-4 pb-8 pt-3">
         {main?.coverImage?.asset?.url && main?.slug?.current ? (
           <Link href={getArticleUrl(main)} className="group block">
-            <div className="relative w-full h-[45vh] min-h-[280px] sm:h-[55vh] sm:min-h-[360px] bg-gray-900 sm:hover:bg-gray-800 transition-all duration-500">
+            <div className="relative h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden rounded-2xl bg-gray-900 shadow-[0_22px_70px_rgba(0,0,0,0.45)]">
               <Image
                 src={main.coverImage.asset.url}
                 alt={main.title}
                 fill
                 sizes={HERO_SIZES}
-                className="object-cover opacity-85 lg:group-hover:opacity-95 transition-all duration-700"
+                className="object-cover opacity-80 transition-all duration-700 group-hover:scale-[1.02] group-hover:opacity-95"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-              <div className="relative h-full flex flex-col justify-between p-6">
-                <div className="flex items-start justify-end">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
+              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+                <span className="inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+                  Top Story
+                </span>
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40">
                   <svg
-                    className="w-6 h-6 text-white/60 group-hover:text-white transition-colors duration-300"
+                    className="h-4 w-4 text-white/80 group-hover:text-white transition-colors duration-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -119,81 +128,79 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       d="M9 5l7 7-7 7"
                     />
                   </svg>
-                </div>
+                </span>
+              </div>
 
-                <div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
-                    {main.homepageTitle || main.title || "Untitled"}
-                  </h2>
-                  {main.summary && !hideSummaries && (
-                    <p className="text-gray-300 text-base line-clamp-3 leading-relaxed">
-                      {main.summary}
-                    </p>
-                  )}
-                </div>
+              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white line-clamp-3 group-hover:text-gray-200 transition-colors duration-300 sm:text-3xl">
+                  {main.homepageTitle || main.title || "Untitled"}
+                </h2>
+                {main.summary && !hideSummaries && (
+                  <p className="text-sm leading-relaxed text-gray-200/95 line-clamp-2 sm:text-base">
+                    {main.summary}
+                  </p>
+                )}
               </div>
             </div>
           </Link>
         ) : (
-          <div className="relative w-full h-[45vh] min-h-[280px] sm:h-[55vh] sm:min-h-[360px] bg-gray-900">
+          <div className="relative h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden rounded-2xl bg-gray-900 shadow-[0_22px_70px_rgba(0,0,0,0.45)]">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-            
-            <div className="relative h-full flex flex-col justify-between p-6">
-              <div className="flex items-start justify-end">
-                <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                  No Headlines Available
-                </h2>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  Check back soon for the latest NFL news and updates.
-                </p>
-              </div>
+
+            <div className="absolute inset-x-0 bottom-0 p-5">
+              <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white sm:text-3xl">No Headlines Available</h2>
+              <p className="text-sm leading-relaxed text-gray-300 sm:text-base">
+                Check back soon for the latest NFL news and updates.
+              </p>
             </div>
           </div>
         )}
 
-        {/* Mobile Sidebar - Below main story */}
-        <div className="px-6 py-8">
-          <div className="flex items-center mb-5">
-            <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
-            <h3 className="text-lg font-bold text-white tracking-tight">Around The NFL</h3>
+        {/* Mobile Sidebar - below hero */}
+        <div className="mt-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-bold tracking-tight text-white">Around The NFL</h3>
+            <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+              {mobileSidebarItems.length} Stories
+            </span>
           </div>
-          <ul className="space-y-4">
-            {(leftColumn.concat(rightSidebarMobile)).map((headline) => {
+          <ul className="space-y-3">
+            {mobileSidebarItems.map((headline) => {
               const author = headline.author?.name;
+              const published = formatShortDate(headline.publishedAt);
               return (
                 <li key={headline._id}>
                   {headline.slug?.current ? (
                     <Link
                       href={getArticleUrl(headline)}
-                      className="group flex gap-4 p-3 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] hover:bg-[#161616] hover:border-[#262626] transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#444]"
+                      className="group flex gap-3.5 rounded-2xl bg-white/[0.03] p-3 transition-all duration-300 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                     >
-                      <div className="relative w-28 h-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40">
+                      <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800/40">
                         {headline.coverImage?.asset?.url ? (
                           <Image
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
                             fill
-                            className="object-cover object-left-top transition-transform duration-500"
+                            className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.04]"
                             sizes="112px"
                             priority={false}
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-gray-600">
+                          <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8z"/></svg>
                           </div>
                         )}
                       </div>
-                      <div className="flex flex-col flex-1 min-w-0 pt-1">
-                        <h4 className="text-sm font-semibold leading-snug text-gray-100 group-hover:text-white line-clamp-2 mb-1">{headline.homepageTitle || headline.title}</h4>
+                      <div className="flex min-w-0 flex-1 flex-col pt-0.5">
+                        <div className="mb-1 flex items-center gap-2">
+                          {published && <span className="text-[10px] font-medium uppercase tracking-wide text-white/45">{published}</span>}
+                        </div>
+                        <h4 className="mb-1 text-sm font-semibold leading-snug text-gray-100 line-clamp-2 group-hover:text-white">
+                          {headline.homepageTitle || headline.title}
+                        </h4>
                         {!hideSummaries && headline.summary && (
-                          <p className="text-[11px] text-gray-400 line-clamp-2 mb-1.5">{headline.summary}</p>
+                          <p className="mb-1.5 line-clamp-2 text-[11px] leading-snug text-gray-400">{headline.summary}</p>
                         )}
                         {author && (
                           <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 group-hover:text-gray-300">{author}</p>
@@ -201,10 +208,12 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       </div>
                     </Link>
                   ) : (
-                    <div className="flex gap-4 p-3 rounded-xl border border-[#1e1e1e] bg-[#0d0d0d]">
-                      <div className="relative w-28 h-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-800/40" />
-                      <div className="flex flex-col flex-1 min-w-0 pt-1">
-                        <h4 className="text-gray-500 font-semibold text-sm leading-snug mb-1 line-clamp-2">{headline.title || 'Untitled'}</h4>
+                    <div className="flex gap-3.5 rounded-2xl bg-white/[0.03] p-3">
+                      <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800/40" />
+                      <div className="flex min-w-0 flex-1 flex-col pt-0.5">
+                        <h4 className="mb-1 line-clamp-2 text-sm font-semibold leading-snug text-gray-500">
+                          {headline.title || "Untitled"}
+                        </h4>
                       </div>
                     </div>
                   )}
