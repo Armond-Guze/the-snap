@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 const BOT_REGEX = /(bot|crawl|spider|slurp|wget|curl|python-requests|httpclient|scrapy|httpx|feedfetcher|monitoring|statuscake|uptimerobot|headless|phantom)/i;
@@ -52,6 +52,10 @@ function isBot(req: Request) {
   return false;
 }
 
+function isExcludedByCookie(req: NextRequest) {
+  return req.cookies.get('va-exclude')?.value === '1';
+}
+
 function getClientIp(req: Request): string {
   const header = req.headers.get('x-forwarded-for') || '';
   const ip = header.split(',')[0]?.trim();
@@ -77,7 +81,7 @@ function extractSlug(url: string): string {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
   const count = await kvGet(`views:${slug}`);
@@ -91,7 +95,7 @@ export async function GET(req: Request) {
   );
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
 
@@ -106,6 +110,18 @@ export async function POST(req: Request) {
       {
         headers: {
           'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
+        }
+      }
+    );
+  }
+
+  if (isExcludedByCookie(req)) {
+    const count = await kvGet(`views:${slug}`);
+    return NextResponse.json(
+      { count, skipped: 'excluded_visitor' },
+      {
+        headers: {
+          'Cache-Control': 'no-store'
         }
       }
     );

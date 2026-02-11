@@ -20,8 +20,10 @@ const isExcludedEnvironment = () => {
   const isDev = process.env.NODE_ENV === 'development';
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
   const isPrivateIP = hostname.includes('192.168.') || hostname.includes('10.');
+  const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
+  const lsExcluded = window.localStorage.getItem('va-exclude') === '1';
   
-  return isDev || isLocalhost || isPrivateIP;
+  return isDev || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded;
 };
 
 export const useArticleTracking = () => {

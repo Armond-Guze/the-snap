@@ -29,8 +29,10 @@ const isExcludedEnvironment = () => {
   const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
   const isPrivateIP = EXCLUDED_ENVIRONMENTS.some(ip => hostname.includes(ip));
+  const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
+  const lsExcluded = window.localStorage.getItem('va-exclude') === '1';
   
-  return isDevelopment || isLocalhost || isPrivateIP;
+  return isDevelopment || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded;
 };
 
 export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_ID: string }) {
