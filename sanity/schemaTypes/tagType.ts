@@ -36,11 +36,27 @@ export const tagType = defineType({
       type: 'text',
       validation: (Rule) => Rule.max(150),
     }),
+    defineField({
+      name: 'teamLogo',
+      title: 'Team Logo',
+      type: 'image',
+      options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Accessible label for the team logo.',
+          validation: (Rule) => Rule.max(100),
+        }),
+      ],
+    }),
   ],
   preview: {
     select: {
       title: 'title',
       subtitle: 'description',
+      media: 'teamLogo',
     },
   },
 })
