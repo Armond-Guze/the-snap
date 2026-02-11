@@ -22,15 +22,41 @@ export default defineType({
             { name: 'prevRank', type: 'number', title: 'Prev Rank' },
             { name: 'movement', type: 'number', title: 'Movement (+/-)' },
           ],
+          preview: {
+            select: { rank: 'rank', teamAbbr: 'teamAbbr', teamName: 'teamName' },
+            prepare(selection: { rank?: number; teamAbbr?: string; teamName?: string }) {
+              const { rank, teamAbbr, teamName } = selection
+              const label = (teamAbbr || teamName || 'Team').toString().trim().toUpperCase()
+              return { title: `${typeof rank === 'number' ? rank : '?'} - ${label}` }
+            },
+          },
         },
       ],
       // Sanity ArrayRule uses .min on arrays
       validation: (Rule) =>
-        Rule.required().custom((items: Array<{ rank?: number; teamAbbr?: string }> | undefined) => {
+        Rule.required().custom((items: Array<{ _key?: string; rank?: number; teamAbbr?: string }> | undefined) => {
           if (!Array.isArray(items)) return 'Add the ranked teams';
           if (items.length !== 32) return 'Must include exactly 32 teams';
+          const rankToIndexes = new Map<number, number[]>();
+          items.forEach((item, index) => {
+            const rank = item?.rank;
+            if (typeof rank !== 'number') return;
+            const existing = rankToIndexes.get(rank) || [];
+            existing.push(index);
+            rankToIndexes.set(rank, existing);
+          });
+          const duplicateRankGroups = Array.from(rankToIndexes.entries()).filter(([, indexes]) => indexes.length > 1);
+          if (duplicateRankGroups.length) {
+            const duplicateRanks = duplicateRankGroups.map(([rank]) => rank).sort((a, b) => a - b);
+            const paths = duplicateRankGroups.flatMap(([, indexes]) =>
+              indexes.map((index) => (items[index]?._key ? [{ _key: items[index]._key }, 'rank'] : [index, 'rank']))
+            );
+            return {
+              message: `Duplicate rank(s): ${duplicateRanks.join(', ')}. Each team must have a unique rank.`,
+              paths,
+            };
+          }
           const ranks = items.map(i => i?.rank).filter((r): r is number => typeof r === 'number');
-          if (new Set(ranks).size !== 32) return 'Ranks must be unique';
           const missing = Array.from({ length: 32 }, (_, idx) => idx + 1).filter(n => !ranks.includes(n));
           if (missing.length) return 'Ranks must be contiguous 1–32';
           const teams = items.map(i => (i?.teamAbbr || '').toUpperCase()).filter(Boolean);

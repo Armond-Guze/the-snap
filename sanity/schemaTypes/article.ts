@@ -205,6 +205,22 @@ export default defineType({
             defineField({ name: "prevRankOverride", title: "Prev Rank (override)", type: "number" }),
             defineField({ name: "movementOverride", title: "Movement (+/- override)", type: "number", description: "Leave empty to auto-compute" }),
           ],
+          preview: {
+            select: {
+              rank: "rank",
+              teamAbbr: "teamAbbr",
+              teamName: "teamName",
+              teamTag: "team.title",
+            },
+            prepare(selection: { rank?: number; teamAbbr?: string; teamName?: string; teamTag?: string }) {
+              const { rank, teamAbbr, teamName, teamTag } = selection;
+              const label = (teamAbbr || teamName || teamTag || "Team").toString().trim().toUpperCase();
+              return {
+                title: `${typeof rank === "number" ? rank : "?"} - ${label}`,
+                subtitle: teamTag && teamTag !== label ? teamTag : undefined,
+              };
+            },
+          },
         },
       ],
       validation: (Rule) =>
@@ -212,8 +228,26 @@ export default defineType({
           if (!isPowerRankings(ctx.document)) return true;
           if (!Array.isArray(items)) return "Add the ranked teams";
           if (items.length !== 32) return "Must include exactly 32 teams";
+          const rankToIndexes = new Map<number, number[]>();
+          items.forEach((item, index) => {
+            const rank = item?.rank;
+            if (typeof rank !== "number") return;
+            const existing = rankToIndexes.get(rank) || [];
+            existing.push(index);
+            rankToIndexes.set(rank, existing);
+          });
+          const duplicateRankGroups = Array.from(rankToIndexes.entries()).filter(([, indexes]) => indexes.length > 1);
+          if (duplicateRankGroups.length) {
+            const duplicateRanks = duplicateRankGroups.map(([rank]) => rank).sort((a, b) => a - b);
+            const paths = duplicateRankGroups.flatMap(([, indexes]) =>
+              indexes.map((index) => (items[index]?._key ? [{ _key: items[index]._key }, "rank"] : [index, "rank"]))
+            );
+            return {
+              message: `Duplicate rank(s): ${duplicateRanks.join(", ")}. Each team must have a unique rank.`,
+              paths,
+            };
+          }
           const ranks = items.map((i) => i?.rank).filter((r) => typeof r === "number") as number[];
-          if (new Set(ranks).size !== 32) return "Ranks must be unique";
           const missing = Array.from({ length: 32 }, (_, idx) => idx + 1).filter((n) => !ranks.includes(n));
           if (missing.length) return "Ranks must be contiguous 1–32";
           const teamRefs = items.map((i) => i?.team?._ref).filter(Boolean) as string[];
