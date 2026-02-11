@@ -114,7 +114,8 @@ export default defineType({
           }
         } catch {}
         return 'Enter a valid YouTube ID or URL';
-      })
+      }),
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'videoTitle',
@@ -122,6 +123,7 @@ export default defineType({
       type: 'string',
       description: 'Optional custom title for the video embed',
       hidden: ({ document }) => !document?.youtubeVideoId,
+      fieldset: 'socialMedia',
     }),
     // Twitter/X embed
     defineField({
@@ -132,13 +134,15 @@ export default defineType({
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
         return /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/.test(url) || 'Must be a valid Twitter/X status URL';
-      })
+      }),
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'twitterTitle',
       title: 'Twitter Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.twitterUrl,
+      fieldset: 'socialMedia',
     }),
     // Instagram embed
     defineField({
@@ -149,13 +153,15 @@ export default defineType({
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
         return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post/reel URL';
-      })
+      }),
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'instagramTitle',
       title: 'Instagram Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.instagramUrl,
+      fieldset: 'socialMedia',
     }),
     // TikTok embed
     defineField({
@@ -166,13 +172,15 @@ export default defineType({
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
         return /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url) || 'Must be a valid TikTok video URL';
-      })
+      }),
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'tiktokTitle',
       title: 'TikTok Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.tiktokUrl,
+      fieldset: 'socialMedia',
     }),
     // Category reference for category hub routing and archive pages
     defineField({
@@ -220,6 +228,14 @@ export default defineType({
       initialValue: { autoGenerate: true },
       options: { collapsible: true, collapsed: false },
     }),
+  ],
+
+  fieldsets: [
+    {
+      name: 'socialMedia',
+      title: 'Social Media & Video',
+      options: { collapsible: true, collapsed: true },
+    },
   ],
 
   groups: [

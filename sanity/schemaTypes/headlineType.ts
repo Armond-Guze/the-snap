@@ -216,7 +216,8 @@ const headlineType = defineType({
         } catch {}
         return 'Enter a valid YouTube ID or URL';
       }),
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: "videoTitle",
@@ -224,7 +225,8 @@ const headlineType = defineType({
       type: "string",
       description: "Optional: Custom title for the video embed",
       hidden: ({ document }) => !document?.youtubeVideoId,
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     // Twitter/X Embed Fields
     defineField({
@@ -240,7 +242,8 @@ const headlineType = defineType({
         const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
         return isValidTwitterUrl || 'Must be a valid Twitter/X post URL';
       }),
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: "twitterTitle",
@@ -248,7 +251,8 @@ const headlineType = defineType({
       type: "string",
       description: "Optional: Custom title for the Twitter embed",
       hidden: ({ document }) => !document?.twitterUrl,
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     // Instagram Embed Fields
     defineField({
@@ -261,14 +265,16 @@ const headlineType = defineType({
         const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
         return ok || 'Must be a valid Instagram post, reel, or IGTV URL';
       }),
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'instagramTitle',
       title: 'Instagram Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.instagramUrl,
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     // TikTok Embed Fields
     defineField({
@@ -281,14 +287,16 @@ const headlineType = defineType({
         const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
         return ok || 'Must be a valid TikTok video URL';
       }),
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: 'tiktokTitle',
       title: 'TikTok Embed Title',
       type: 'string',
       hidden: ({ document }) => !document?.tiktokUrl,
-      group: 'embeds',
+      group: 'quick',
+      fieldset: 'socialMedia',
     }),
     defineField({
       name: "priority",
@@ -299,10 +307,16 @@ const headlineType = defineType({
       group: 'advanced',
     }),
   ],
+  fieldsets: [
+    {
+      name: 'socialMedia',
+      title: 'Social Media & Video',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   groups: [
     { name: 'quick', title: 'Quick Publish' },
     { name: 'media', title: 'Media' },
-    { name: 'embeds', title: 'Embeds' },
     { name: 'seo', title: 'SEO' },
     { name: 'advanced', title: 'Advanced' },
   ],

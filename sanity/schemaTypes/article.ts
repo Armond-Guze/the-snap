@@ -519,7 +519,8 @@ export default defineType({
           return "Enter a valid YouTube ID or URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "videoTitle",
@@ -527,7 +528,8 @@ export default defineType({
       type: "string",
       description: "Optional: Custom title for the video embed",
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.youtubeVideoId,
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "twitterUrl",
@@ -541,7 +543,8 @@ export default defineType({
           return isValidTwitterUrl || "Must be a valid Twitter/X post URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "twitterTitle",
@@ -549,7 +552,8 @@ export default defineType({
       type: "string",
       description: "Optional: Custom title for the Twitter embed",
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.twitterUrl,
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "instagramUrl",
@@ -564,14 +568,16 @@ export default defineType({
           return ok || "Must be a valid Instagram post, reel, or IGTV URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "instagramTitle",
       title: "Instagram Embed Title",
       type: "string",
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.instagramUrl,
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "tiktokUrl",
@@ -585,14 +591,16 @@ export default defineType({
           return ok || "Must be a valid TikTok video URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "tiktokTitle",
       title: "TikTok Embed Title",
       type: "string",
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.tiktokUrl,
-      group: "embeds",
+      group: "quick",
+      fieldset: "socialMedia",
     }),
     defineField({
       name: "priority",
@@ -605,10 +613,16 @@ export default defineType({
       group: "advanced",
     }),
   ],
+  fieldsets: [
+    {
+      name: "socialMedia",
+      title: "Social Media & Video",
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   groups: [
     { name: "quick", title: "Quick Publish" },
     { name: "media", title: "Media" },
-    { name: "embeds", title: "Embeds" },
     { name: "seo", title: "SEO" },
     { name: "power", title: "Power Rankings" },
     { name: "advanced", title: "Advanced" },
