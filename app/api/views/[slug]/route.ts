@@ -100,25 +100,31 @@ export async function POST(req: NextRequest) {
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
 
   if (!KV_BASE || !KV_TOKEN) {
-    return NextResponse.json({ error: 'KV is not configured', count: 0 }, { status: 500 });
+    return NextResponse.json(
+      { skipped: 'kv_unconfigured' },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store'
+        }
+      }
+    );
   }
 
   if (isBot(req)) {
-    const count = await kvGet(`views:${slug}`);
     return NextResponse.json(
-      { count, skipped: 'bot' },
+      { skipped: 'bot' },
       {
         headers: {
-          'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
+          'Cache-Control': 'no-store'
         }
       }
     );
   }
 
   if (isExcludedByCookie(req)) {
-    const count = await kvGet(`views:${slug}`);
     return NextResponse.json(
-      { count, skipped: 'excluded_visitor' },
+      { skipped: 'excluded_visitor' },
       {
         headers: {
           'Cache-Control': 'no-store'
@@ -137,12 +143,19 @@ export async function POST(req: NextRequest) {
 
   const isNew = await kvSetNX(dedupeKey, '1', DEDUPE_TTL_SECONDS);
   if (isNew) {
-    await kvIncr(counterKey);
+    const count = await kvIncr(counterKey);
+    return NextResponse.json(
+      { count, deduped: false },
+      {
+        headers: {
+          'Cache-Control': 'no-store'
+        }
+      }
+    );
   }
 
-  const count = await kvGet(counterKey);
   return NextResponse.json(
-    { count, deduped: !isNew },
+    { deduped: true },
     {
       headers: {
         'Cache-Control': 'no-store'

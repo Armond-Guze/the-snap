@@ -24,23 +24,38 @@ export type AnalyticsEvent = ArticleViewEvent | ArticleClickEvent | ReadingProgr
 const DATA_DIR = path.join(process.cwd(), 'data', 'analytics');
 const EVENTS_FILE = path.join(DATA_DIR, 'events.ndjson');
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB rotate threshold
+const ROTATION_CHECK_EVERY_WRITES = 25;
 
-function ensureDir() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const fsPromises = fs.promises;
+let writesSinceRotationCheck = 0;
+let ensuredDir = false;
+
+async function ensureDir() {
+  if (ensuredDir) return;
+  await fsPromises.mkdir(DATA_DIR, { recursive: true });
+  ensuredDir = true;
 }
 
 export async function appendEvent(event: AnalyticsEvent) {
   try {
-    ensureDir();
-    // Lightweight rotation
-    if (fs.existsSync(EVENTS_FILE)) {
-      const stats = fs.statSync(EVENTS_FILE);
-      if (stats.size > MAX_FILE_BYTES) {
-        const rotated = path.join(DATA_DIR, `events-${Date.now()}.ndjson`);
-        fs.renameSync(EVENTS_FILE, rotated);
+    await ensureDir();
+
+    writesSinceRotationCheck += 1;
+    if (writesSinceRotationCheck >= ROTATION_CHECK_EVERY_WRITES) {
+      writesSinceRotationCheck = 0;
+      try {
+        const stats = await fsPromises.stat(EVENTS_FILE);
+        if (stats.size > MAX_FILE_BYTES) {
+          const rotated = path.join(DATA_DIR, `events-${Date.now()}.ndjson`);
+          await fsPromises.rename(EVENTS_FILE, rotated);
+        }
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code !== 'ENOENT') throw error;
       }
     }
-    fs.appendFileSync(EVENTS_FILE, JSON.stringify(event) + '\n');
+
+    await fsPromises.appendFile(EVENTS_FILE, JSON.stringify(event) + '\n');
   } catch (err) {
     console.error('appendEvent failed', err);
   }
