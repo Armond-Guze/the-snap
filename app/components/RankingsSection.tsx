@@ -18,6 +18,7 @@ interface ArticleItem {
   coverImage?: { asset?: { url?: string } };
   featuredImage?: { asset?: { url?: string } };
   image?: { asset?: { url?: string } };
+  fallbackCoverImage?: { asset?: { url?: string } };
   author?: { name: string };
   date?: string;
   publishedAt?: string;
@@ -37,6 +38,11 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
     | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
       _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
       seasonYear, weekNumber, playoffRound,
+      "fallbackCoverImage": select(
+        format == "powerRankings" && rankingType == "snapshot" && defined(seasonYear) =>
+          *[_type == "article" && format == "powerRankings" && rankingType == "live" && seasonYear == ^.seasonYear][0].coverImage{asset->{url}},
+        null
+      ),
       coverImage{asset->{url}}, featuredImage{asset->{url}}, image{asset->{url}},
       author->{name}, date, publishedAt
     }`;
@@ -81,7 +87,12 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
         {/* Mobile: one featured + compact follow-up cards */}
         <div className="lg:hidden space-y-3">
           {featuredArticle && (() => {
-            const img = featuredArticle.coverImage?.asset?.url || featuredArticle.featuredImage?.asset?.url || featuredArticle.image?.asset?.url || null;
+            const img =
+              featuredArticle.coverImage?.asset?.url ||
+              featuredArticle.featuredImage?.asset?.url ||
+              featuredArticle.image?.asset?.url ||
+              featuredArticle.fallbackCoverImage?.asset?.url ||
+              null;
             const displayTitle = featuredArticle.homepageTitle || featuredArticle.title;
             const kicker = getItemKicker(featuredArticle);
             const published = formatShortDate(featuredArticle.publishedAt || featuredArticle.date);
@@ -122,7 +133,12 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
           })()}
 
           {compactArticles.map((item) => {
-            const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
+            const img =
+              item.coverImage?.asset?.url ||
+              item.featuredImage?.asset?.url ||
+              item.image?.asset?.url ||
+              item.fallbackCoverImage?.asset?.url ||
+              null;
             const displayTitle = item.homepageTitle || item.title;
             const kicker = getItemKicker(item);
             const published = formatShortDate(item.publishedAt || item.date);
@@ -168,7 +184,12 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
         {/* Desktop: three uniform cards using fantasy featured style */}
         <div className="hidden lg:grid grid-cols-3 gap-3 2xl:gap-4 3xl:gap-5">
           {topThree.map((item) => {
-            const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
+            const img =
+              item.coverImage?.asset?.url ||
+              item.featuredImage?.asset?.url ||
+              item.image?.asset?.url ||
+              item.fallbackCoverImage?.asset?.url ||
+              null;
             const displayTitle = item.homepageTitle || item.title;
             return (
             <Link key={item._id} href={getArticleUrl(item)} className="group flex flex-col">

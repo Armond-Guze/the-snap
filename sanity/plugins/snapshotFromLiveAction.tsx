@@ -86,7 +86,23 @@ function targetLabel(target: SnapshotTarget): string {
 
 export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
-  const doc = (draft || published) as { _type?: string; format?: string; rankingType?: string; seasonYear?: number; rankings?: Array<any>; title?: string } | undefined
+  const doc = (draft || published) as {
+    _type?: string
+    format?: string
+    rankingType?: string
+    seasonYear?: number
+    rankings?: Array<any>
+    title?: string
+    homepageTitle?: string
+    summary?: string
+    coverImage?: any
+    author?: any
+    category?: any
+    methodology?: string
+    teams?: any[]
+    tagRefs?: any[]
+    seo?: any
+  } | undefined
   const isLivePowerRankings = !!doc && doc._type === 'article' && doc.format === 'powerRankings' && doc.rankingType === 'live'
 
   const now = new Date()
@@ -169,6 +185,15 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
           playoffRound,
           title: generatedTitle,
           slug: { _type: 'slug', current: generatedSlug },
+          homepageTitle: doc.homepageTitle || undefined,
+          summary: doc.summary || undefined,
+          coverImage: doc.coverImage || undefined,
+          author: doc.author || undefined,
+          category: doc.category || undefined,
+          methodology: doc.methodology || undefined,
+          teams: Array.isArray(doc.teams) ? doc.teams : undefined,
+          tagRefs: Array.isArray(doc.tagRefs) ? doc.tagRefs : undefined,
+          seo: doc.seo || undefined,
           date: new Date().toISOString(),
           published: true,
           rankings: items,

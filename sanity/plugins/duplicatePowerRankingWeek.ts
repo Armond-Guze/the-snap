@@ -16,8 +16,21 @@ export const duplicatePowerRankingWeekAction: DocumentActionComponent = (props: 
 
   const run = async () => {
     try {
-      const latest = await client.fetch<{ seasonYear: number; weekNumber: number; rankings: (WeekItem & { team?: any })[] } | null>(
-        `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && weekNumber >= 1]|order(seasonYear desc, weekNumber desc)[0]{ seasonYear, weekNumber, rankings[]{rank, team, teamAbbr, teamName, note, analysis, teamLogo} }`
+      const latest = await client.fetch<{
+        seasonYear: number
+        weekNumber: number
+        rankings: (WeekItem & { team?: any })[]
+        homepageTitle?: string
+        summary?: string
+        coverImage?: any
+        author?: any
+        category?: any
+        methodology?: string
+        teams?: any[]
+        tagRefs?: any[]
+        seo?: any
+      } | null>(
+        `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && weekNumber >= 1]|order(seasonYear desc, weekNumber desc)[0]{ seasonYear, weekNumber, homepageTitle, summary, coverImage, author, category, methodology, teams, tagRefs, seo, rankings[]{rank, team, teamAbbr, teamName, note, analysis, teamLogo} }`
       )
       if (!latest) {
         // @ts-expect-error toast may be undefined depending on Studio version
@@ -58,6 +71,15 @@ export const duplicatePowerRankingWeekAction: DocumentActionComponent = (props: 
         weekNumber: week,
         title: `NFL Power Rankings ${season} — Week ${week}`,
         slug: { _type: 'slug', current: buildSlug(season, week) },
+        homepageTitle: latest.homepageTitle || undefined,
+        summary: latest.summary || undefined,
+        coverImage: latest.coverImage || undefined,
+        author: latest.author || undefined,
+        category: latest.category || undefined,
+        methodology: latest.methodology || undefined,
+        teams: Array.isArray(latest.teams) ? latest.teams : undefined,
+        tagRefs: Array.isArray(latest.tagRefs) ? latest.tagRefs : undefined,
+        seo: latest.seo || undefined,
         date: new Date().toISOString(),
         published: true,
         rankings: items,

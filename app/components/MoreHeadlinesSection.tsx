@@ -41,6 +41,11 @@ const moreHeadlinesQuery = `
       weekNumber,
       playoffRound,
       date,
+      "fallbackCoverImage": select(
+        format == "powerRankings" && rankingType == "snapshot" && defined(seasonYear) =>
+          *[_type == "article" && format == "powerRankings" && rankingType == "live" && seasonYear == ^.seasonYear][0].coverImage{asset->{url}},
+        null
+      ),
       coverImage { asset->{ url } },
       featuredImage { asset->{ url } },
       image { asset->{ url } },
@@ -70,6 +75,7 @@ interface HeadlineItem {
   weekNumber?: number;
   playoffRound?: string;
   date?: string;
+  fallbackCoverImage?: HeadlineImageAssetRef;
   coverImage?: HeadlineImageAssetRef;
   featuredImage?: HeadlineImageAssetRef;
   image?: HeadlineImageAssetRef;
@@ -161,6 +167,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               item.coverImage?.asset?.url ||
               item.featuredImage?.asset?.url ||
               item.image?.asset?.url ||
+              item.fallbackCoverImage?.asset?.url ||
               null;
             const href = getItemUrl(item);
             const kicker = getItemKicker(item);
