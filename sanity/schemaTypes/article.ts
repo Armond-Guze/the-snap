@@ -5,6 +5,7 @@ import { apiVersion } from "../env";
 const isPowerRankings = (document?: Record<string, unknown>) => document?.format === "powerRankings";
 const isPowerRankingsSnapshot = (document?: Record<string, unknown>) =>
   isPowerRankings(document) && document?.rankingType === "snapshot";
+const isSimplifiedPowerSnapshot = (document?: Record<string, unknown>) => isPowerRankingsSnapshot(document);
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -31,6 +32,7 @@ export default defineType({
       },
       validation: (Rule) => Rule.required().error("Pick an article format"),
       initialValue: "feature",
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
 
@@ -63,7 +65,7 @@ export default defineType({
           if (existing > 0) return "Only one live Power Rankings doc is allowed per season";
           return true;
         }),
-      hidden: ({ document }) => !isPowerRankings(document),
+      hidden: ({ document }) => !isPowerRankings(document) || isSimplifiedPowerSnapshot(document),
       group: "power",
     }),
 
@@ -87,14 +89,14 @@ export default defineType({
       name: "weekNumber",
       title: "Week Number",
       type: "number",
-      description: "Regular season week number (1–18). Leave empty for playoff rounds.",
+      description: "Regular season week number (1–17). Leave empty for playoff rounds.",
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!isPowerRankingsSnapshot(ctx.document)) return true;
           const playoffRound = ctx.document?.playoffRound;
           if (typeof val !== "number" && !playoffRound) return "Week number is required for snapshots unless a playoff round is selected";
           if (typeof val === "number" && playoffRound) return "Use either a week number or a playoff round, not both";
-          if (typeof val === "number" && (val < 1 || val > 18)) return "Week number must be between 1 and 18";
+          if (typeof val === "number" && (val < 1 || val > 17)) return "Week number must be between 1 and 17";
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
@@ -123,7 +125,7 @@ export default defineType({
           if (val && typeof weekNumber === "number") return "Use either a playoff round or a week number, not both";
           return true;
         }),
-      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
+      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot" || isSimplifiedPowerSnapshot(document),
       group: "power",
     }),
 
@@ -255,7 +257,7 @@ export default defineType({
           if (new Set(teamRefs).size !== 32) return "Teams must be unique";
           return true;
         }),
-      hidden: ({ document }) => !isPowerRankings(document),
+      hidden: ({ document }) => !isPowerRankings(document) || isSimplifiedPowerSnapshot(document),
       group: "power",
     }),
 
@@ -282,6 +284,7 @@ export default defineType({
       description:
         "Optional shorter / cleaner title just for homepage modules. Leaves full Title for article page & SEO.",
       validation: (Rule) => Rule.max(70).error("Homepage Display Title must be 70 characters or fewer"),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -320,6 +323,7 @@ export default defineType({
       type: "array",
       of: [{ type: "string" }],
       description: "Keep previous slugs to power redirects if URL patterns change.",
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "advanced",
     }),
 
@@ -330,6 +334,7 @@ export default defineType({
       group: "seo",
       initialValue: { autoGenerate: true },
       options: { collapsible: true, collapsed: true },
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
     }),
 
     defineField({
@@ -348,6 +353,7 @@ export default defineType({
           if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Cover image is required before publishing";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "media",
     }),
     defineField({
@@ -361,6 +367,7 @@ export default defineType({
           if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Author is required before publishing";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -368,6 +375,7 @@ export default defineType({
       title: "Published Date",
       type: "datetime",
       initialValue: () => new Date().toISOString(),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -381,6 +389,7 @@ export default defineType({
           if (isPowerRankingsSnapshot(ctx.document)) return true;
           return val ? true : "Summary is required before publishing";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -388,6 +397,7 @@ export default defineType({
       title: "Category",
       type: "reference",
       to: [{ type: "category" }],
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -403,6 +413,7 @@ export default defineType({
       ],
       description: "Associate one or more players mentioned in this article for richer linking & filtering.",
       options: { layout: "tags" },
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -414,6 +425,7 @@ export default defineType({
       components: { input: TeamTagsInput },
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",
       validation: (Rule) => Rule.unique().error("Team tag already added"),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -425,7 +437,8 @@ export default defineType({
       description: "LEGACY free-form tags. Use Tag References below for new content.",
       validation: (Rule) => Rule.unique().error("Tag already added"),
       readOnly: true,
-      hidden: ({ document }) => !Array.isArray(document?.tags) || document.tags.length === 0,
+      hidden: ({ document }) =>
+        isSimplifiedPowerSnapshot(document) || !Array.isArray(document?.tags) || document.tags.length === 0,
       group: "quick",
     }),
     defineField({
@@ -446,18 +459,21 @@ export default defineType({
           .min(3)
           .max(6)
           .warning("Recommended: add 3–6 canonical tags for best internal linking"),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
     }),
     defineField({
       name: "published",
       title: "Published",
       type: "boolean",
       initialValue: false,
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
       name: "body",
       title: "Body Content",
       type: "blockContent",
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
     defineField({
@@ -485,6 +501,7 @@ export default defineType({
           }
           return "Enter a valid YouTube ID or URL";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "embeds",
     }),
     defineField({
@@ -492,7 +509,7 @@ export default defineType({
       title: "Video Title",
       type: "string",
       description: "Optional: Custom title for the video embed",
-      hidden: ({ document }) => !document?.youtubeVideoId,
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.youtubeVideoId,
       group: "embeds",
     }),
     defineField({
@@ -506,6 +523,7 @@ export default defineType({
           const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
           return isValidTwitterUrl || "Must be a valid Twitter/X post URL";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "embeds",
     }),
     defineField({
@@ -513,7 +531,7 @@ export default defineType({
       title: "Twitter Embed Title",
       type: "string",
       description: "Optional: Custom title for the Twitter embed",
-      hidden: ({ document }) => !document?.twitterUrl,
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.twitterUrl,
       group: "embeds",
     }),
     defineField({
@@ -528,13 +546,14 @@ export default defineType({
           const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
           return ok || "Must be a valid Instagram post, reel, or IGTV URL";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "embeds",
     }),
     defineField({
       name: "instagramTitle",
       title: "Instagram Embed Title",
       type: "string",
-      hidden: ({ document }) => !document?.instagramUrl,
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.instagramUrl,
       group: "embeds",
     }),
     defineField({
@@ -548,13 +567,14 @@ export default defineType({
           const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
           return ok || "Must be a valid TikTok video URL";
         }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "embeds",
     }),
     defineField({
       name: "tiktokTitle",
       title: "TikTok Embed Title",
       type: "string",
-      hidden: ({ document }) => !document?.tiktokUrl,
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.tiktokUrl,
       group: "embeds",
     }),
     defineField({
@@ -564,6 +584,7 @@ export default defineType({
       description:
         "(Legacy - optional) Lower numbers show first. NEW: Use 'Homepage Settings' > 'Pinned Headlines' to control homepage ordering without renumbering.",
       validation: (Rule) => Rule.min(1).max(100),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "advanced",
     }),
   ],
