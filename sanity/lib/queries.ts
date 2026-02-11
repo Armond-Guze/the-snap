@@ -318,7 +318,15 @@ export const articleDetailQuery = `
           image{alt, asset->{url}}
         }
       }
-    }
+    },
+    youtubeVideoId,
+    videoTitle,
+    twitterUrl,
+    twitterTitle,
+    instagramUrl,
+    instagramTitle,
+    tiktokUrl,
+    tiktokTitle
   }
 `;
 

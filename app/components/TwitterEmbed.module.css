@@ -1,50 +1,22 @@
-/* Twitter Embed Styling */
 .twitterEmbedWrapper {
-  padding: 0;
+  width: 100%;
+  min-height: 320px;
   background-color: transparent;
+  overflow: visible;
 }
 
 .twitterEmbedContainer {
+  width: 100%;
+  min-height: 320px;
   background-color: transparent;
 }
 
-.twitterEmbedContainer iframe {
+.twitterEmbedContainer :global(twitter-widget),
+.twitterEmbedContainer :global(iframe) {
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 300px !important;
+  min-height: 320px !important;
   border: none !important;
   border-radius: 8px !important;
-  background-color: transparent !important;
-}
-
-/* Remove Twitter's default blue background and borders */
-.twitterEmbedContainer :global(.twitter-tweet) {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Hide conversation thread and related tweets */
-.twitterEmbedContainer :global(.twitter-tweet[data-conversation="none"]) {
-  margin-bottom: 0 !important;
-}
-
-/* Ensure proper image display in tweets */
-.twitterEmbedContainer :global(.twitter-tweet img) {
-  max-width: 100% !important;
-  height: auto !important;
-  border-radius: 8px !important;
-}
-
-/* Remove any default padding/margins from Twitter content */
-.twitterEmbedContainer :global(.twitter-tweet-rendered) {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Dark theme adjustments */
-.twitterEmbedContainer :global(.twitter-tweet[data-theme="dark"]) {
-  background-color: transparent !important;
-  border: none !important;
-  color: #ffffff !important;
+  background: transparent !important;
 }

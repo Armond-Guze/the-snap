@@ -18,7 +18,6 @@ import { formatArticleDate } from '@/lib/date-utils';
 import { portableTextComponents } from '@/lib/portabletext-components';
 import { Metadata } from 'next';
 import StructuredData, { createEnhancedArticleStructuredData } from '@/app/components/StructuredData';
-import MostRead from '@/app/components/MostRead';
 import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
@@ -404,7 +403,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				<aside className="space-y-8 lg:sticky lg:top-24 self-start">
 					{/* Media embeds */}
 					{article.youtubeVideoId && (
-						<div className="mb-4">
+						<div className="w-full">
 							<YouTubeEmbed
 								videoId={article.youtubeVideoId}
 								title={article.videoTitle || `Video: ${article.title}`}
@@ -413,21 +412,20 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 						</div>
 					)}
 					{!article.youtubeVideoId && article.twitterUrl && (
-						<div className="mb-4 w-full">
+						<div className="w-full">
 							<TwitterEmbed twitterUrl={article.twitterUrl} />
 						</div>
 					)}
 					{!article.youtubeVideoId && !article.twitterUrl && article.instagramUrl && (
-						<div className="mb-4 w-full">
+						<div className="w-full">
 							<InstagramEmbed url={article.instagramUrl} title={article.instagramTitle} />
 						</div>
 					)}
 					{!article.youtubeVideoId && !article.twitterUrl && !article.instagramUrl && article.tiktokUrl && (
-						<div className="mb-4 w-full">
+						<div className="w-full">
 							<TikTokEmbed url={article.tiktokUrl} title={article.tiktokTitle} />
 						</div>
 					)}
-					<MostRead />
 					<RelatedArticles currentSlug={trimmedSlug} articles={otherArticles as unknown as HeadlineListItem[]} />
 				</aside>
 			</div>
