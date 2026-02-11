@@ -172,6 +172,28 @@ export const structure: StructureResolver = (S) => {
           .defaultOrdering([{ field: 'title', direction: 'asc' }])
       ),
     S.listItem()
+      .title('Categories')
+      .schemaType('category')
+      .child(
+        S.documentTypeList('category')
+          .title('Categories')
+          .defaultOrdering([
+            { field: 'priority', direction: 'asc' },
+            { field: 'title', direction: 'asc' },
+          ])
+      ),
+    S.listItem()
+      .title('Topic Hubs')
+      .schemaType('topicHub')
+      .child(
+        S.documentTypeList('topicHub')
+          .title('Topic Hubs')
+          .defaultOrdering([
+            { field: 'priority', direction: 'asc' },
+            { field: 'title', direction: 'asc' },
+          ])
+      ),
+    S.listItem()
       .title('Players')
       .schemaType('player')
       .child(
@@ -202,6 +224,8 @@ export const structure: StructureResolver = (S) => {
     'rankings',
     'tag',
     'advancedTag',
+    'category',
+    'topicHub',
     'player',
     'author',
   ])

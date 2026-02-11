@@ -11,7 +11,8 @@
     "sync:games": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/sync-games.ts",
     "backfill:tagRefs": "node scripts/backfill-tag-refs.mjs",
     "backfill:tagRefs:dry": "node scripts/backfill-tag-refs.mjs --dry-run",
-    "seed:primetime": "node scripts/seed-primetime-tags.mjs"
+    "seed:primetime": "node scripts/seed-primetime-tags.mjs",
+    "seed:topic-hubs": "node scripts/seed-topic-hubs.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.37.2",

@@ -112,6 +112,18 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         .filter((tag): tag is { title: string; slug?: string } => tag !== null)
     : [];
 
+  const topicHubLinks = Array.isArray(headline.topicHubs)
+    ? headline.topicHubs
+        .map((hub) => {
+          const title = typeof hub?.title === 'string' ? hub.title.trim() : '';
+          const slug = hub?.slug?.current?.trim();
+          if (!title || !slug) return null;
+          return { title, slug };
+        })
+        .filter((hub): hub is { title: string; slug: string } => hub !== null)
+    : [];
+  const primaryTopicHub = topicHubLinks[0];
+
   const categorySlug = headline.category?.slug?.current;
   const categoryMatches = categorySlug
     ? otherHeadlines
@@ -135,6 +147,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   const breadcrumbItems = [
     { label: 'Articles', href: '/articles' },
     ...(headline.category?.title ? [{ label: headline.category.title, href: `/categories/${headline.category.slug?.current}` }] : []),
+    ...(primaryTopicHub ? [{ label: primaryTopicHub.title, href: `/${primaryTopicHub.slug}` }] : []),
     { label: headline.title }
   ];
 
@@ -167,7 +180,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
       datePublished: headline.date || '',
       dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date || '',
       author: { name: headline.author?.name || 'Staff Writer' },
-      articleSection: headline.category?.title,
+      articleSection: headline.category?.title || primaryTopicHub?.title,
       keywords: keywordList && keywordList.length ? keywordList : undefined,
       speakableSelectors: ['h1','meta[name="description"]'],
     });
@@ -210,6 +223,15 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                 {headline.category.title}
               </Link>
             )}
+            {topicHubLinks.map((hub) => (
+              <Link
+                key={hub.slug}
+                href={`/${hub.slug}`}
+                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+              >
+                {hub.title}
+              </Link>
+            ))}
             {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
               <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
             )}

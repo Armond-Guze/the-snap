@@ -30,7 +30,7 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, fantasy, categories] = await Promise.all([
+  const [articles, fantasy, categories, topicHubs] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[
         (_type in ["article","headline","rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
@@ -41,6 +41,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[_type == "category"]{ slug, _updatedAt }`
+    ),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+      `*[_type == "topicHub" && coalesce(active, true) == true]{ slug, _updatedAt }`
     ),
   ]);
 
@@ -85,6 +88,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
           changeFrequency: 'weekly' as const,
           priority: 0.5,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...topicHubs
+      .map(hub => {
+        const slug = safeSlug(hub.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/${slug}`,
+          lastModified: hub._updatedAt ? new Date(hub._updatedAt) : STATIC_LAST_MOD,
+          changeFrequency: 'daily' as const,
+          priority: 0.7,
         } satisfies MetadataRoute.Sitemap[number];
       })
       .filter(Boolean) as MetadataRoute.Sitemap,

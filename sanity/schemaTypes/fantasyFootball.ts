@@ -174,12 +174,26 @@ export default defineType({
       type: 'string',
       hidden: ({ document }) => !document?.tiktokUrl,
     }),
-    // Category reference (optional to group fantasy articles similarly to headlines)
+    // Category reference for category hub routing and archive pages
     defineField({
       name: 'category',
       title: 'Category',
       type: 'reference',
       to: [{ type: 'category' }],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : 'Category is required before publishing';
+        }),
+    }),
+    defineField({
+      name: 'topicHubs',
+      title: 'Topic Hubs',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'topicHub' }] }],
+      options: { layout: 'tags' },
+      description: 'Assign this fantasy article to one or more hub pages (example: Draft).',
+      validation: (Rule) => Rule.unique().error('Topic hub already added'),
     }),
     defineField({
       name: 'tags',

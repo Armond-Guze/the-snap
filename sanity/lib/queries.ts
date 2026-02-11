@@ -88,6 +88,10 @@ export const headlineDetailQuery = `
         noIndex
       }
     },
+    topicHubs[]->{
+      title,
+      slug
+    },
     tags[]->{
       title,
       slug
@@ -173,7 +177,6 @@ export const categoriesQuery = `
   *[_type == "category"] | order(priority asc, title asc) {
     _id,
     title,
-  homepageTitle,
     slug,
     description,
     color,
@@ -190,6 +193,36 @@ export const categoriesQuery = `
       },
       noIndex
     }
+  }
+`;
+
+// Mixed content by category for category hub pages
+export const categoryContentQuery = `
+  *[
+    _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+    published == true &&
+    category->slug.current == $categorySlug
+  ]
+  | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc) {
+    _id,
+    _type,
+    format,
+    rankingType,
+    seasonYear,
+    weekNumber,
+    playoffRound,
+    title,
+    homepageTitle,
+    slug,
+    summary,
+    coverImage { asset->{ url } },
+    featuredImage { asset->{ url } },
+    image { asset->{ url } },
+    author->{ name },
+    category->{ title, slug, color },
+    tags[]->{ title },
+    date,
+    publishedAt
   }
 `;
 
@@ -241,6 +274,10 @@ export const articleDetailQuery = `
         },
         noIndex
       }
+    },
+    topicHubs[]->{
+      title,
+      slug
     },
     tags[]->{
       title,

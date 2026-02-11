@@ -1,5 +1,6 @@
 import {TagIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
+import { apiVersion } from '../env'
 
 export const categoryType = defineType({
   name: 'category',
@@ -19,7 +20,21 @@ export const categoryType = defineType({
       options: {
         source: 'title',
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().custom(async (value, ctx) => {
+          const slug = typeof value?.current === 'string' ? value.current.trim().toLowerCase() : ''
+          if (!slug) return true
+          const rawId = typeof ctx.document?._id === 'string' ? ctx.document?._id : ''
+          const cleanId = rawId.replace(/^drafts\./, '')
+          const draftId = cleanId ? `drafts.${cleanId}` : ''
+          const count = await ctx
+            .getClient({ apiVersion })
+            .fetch<number>(
+              `count(*[_type == "category" && slug.current == $slug && !(_id in [$id,$draftId])])`,
+              { slug, id: cleanId, draftId }
+            )
+          return count > 0 ? 'Category slug already in use' : true
+        }),
     }),
     defineField({
       name: 'description',

@@ -9,7 +9,7 @@ import ProfileMenu from "./ProfileMenu";
 import { NAV_ITEMS } from "./navConfig";
 import { TEAM_META } from "@/lib/schedule";
 import { TEAM_COLORS } from "./teamLogos";
-import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, Home as HomeIcon, ChevronDown, Menu, X } from "lucide-react";
+import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, BookOpen, Home as HomeIcon, ChevronDown, Menu, X } from "lucide-react";
 
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
   { title: "AFC East", teams: ["BUF", "MIA", "NE", "NYJ"] },
@@ -138,6 +138,7 @@ export default function Navbar() {
     home: <HomeIcon className="w-4 h-4" />,
     headlines: <Newspaper className="w-4 h-4" />,
     standings: <BarChart3 className="w-4 h-4" />,
+    draft: <BookOpen className="w-4 h-4" />,
     "power-rankings": <TrendingUp className="w-4 h-4" />,
     fantasy: <Sparkles className="w-4 h-4" />,
     calendar: <CalendarDays className="w-4 h-4" />,

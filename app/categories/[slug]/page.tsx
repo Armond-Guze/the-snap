@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { client } from '@/sanity/lib/client';
-import { headlinesByCategoryQuery, categoriesQuery } from '@/sanity/lib/queries';
-import { HeadlineListItem, Category } from '@/types';
+import { categoryContentQuery, categoriesQuery } from '@/sanity/lib/queries';
+import { Category } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import NewsletterSignup from '@/app/components/NewsletterSignup';
@@ -12,6 +12,52 @@ export const revalidate = 300;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
+}
+
+interface CategoryContentItem {
+  _id: string;
+  _type: 'article' | 'headline' | 'rankings' | 'fantasyFootball' | string;
+  format?: string;
+  rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
+  title: string;
+  homepageTitle?: string;
+  slug: { current: string };
+  summary?: string;
+  coverImage?: { asset?: { url?: string } };
+  featuredImage?: { asset?: { url?: string } };
+  image?: { asset?: { url?: string } };
+  author?: { name?: string };
+  category?: { title?: string; color?: string };
+  date?: string;
+  publishedAt?: string;
+}
+
+function getContentUrl(item: CategoryContentItem): string {
+  const slug = item.slug?.current?.trim();
+  if (!slug) return '#';
+  if (item._type === 'headline') return `/headlines/${slug}`;
+  if (item._type === 'rankings') return `/rankings/${slug}`;
+  if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
+  if (item._type === 'article' && item.format === 'powerRankings') {
+    if (item.rankingType === 'snapshot' && item.seasonYear) {
+      const weekPart = item.playoffRound
+        ? item.playoffRound.toLowerCase()
+        : typeof item.weekNumber === 'number'
+          ? `week-${item.weekNumber}`
+          : null;
+      if (weekPart) return `/articles/power-rankings/${item.seasonYear}/${weekPart}`;
+    }
+    return '/articles/power-rankings';
+  }
+  return `/articles/${slug}`;
+}
+
+function getCardImage(item: CategoryContentItem): string | null {
+  return item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
 }
 
 export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {
@@ -29,11 +75,12 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
 const PAGE_SIZE = 24;
 
 export default async function CategoryPage(props: CategoryPageProps) {
-  const params = await props.params;
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const categorySlug = params.slug;
+  const requestedPage = Number.parseInt(searchParams?.page || '1', 10);
 
-  const [headlines, categoriesData] = await Promise.all([
-    client.fetch<HeadlineListItem[]>(headlinesByCategoryQuery, { categorySlug }),
+  const [items, categoriesData] = await Promise.all([
+    client.fetch<CategoryContentItem[]>(categoryContentQuery, { categorySlug }),
     client.fetch<Category[]>(categoriesQuery)
   ]);
 
@@ -42,6 +89,15 @@ export default async function CategoryPage(props: CategoryPageProps) {
   if (!category) {
     notFound();
   }
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pageNumber = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const currentPage = Math.min(pageNumber, totalPages);
+  const offset = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = items.slice(offset, offset + PAGE_SIZE);
+  const previousPageHref = `/categories/${categorySlug}?page=${currentPage - 1}`;
+  const nextPageHref = `/categories/${categorySlug}?page=${currentPage + 1}`;
+
   // Build JSON-LD ItemList for SEO
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
   const listLd = {
@@ -49,10 +105,10 @@ export default async function CategoryPage(props: CategoryPageProps) {
     '@type': 'ItemList',
     name: `${category.title} Articles`,
     itemListOrder: 'http://schema.org/ItemListOrderDescending',
-    itemListElement: headlines.slice(0, PAGE_SIZE).map((h, idx) => ({
+    itemListElement: pageItems.map((h, idx) => ({
       '@type': 'ListItem',
-      position: idx + 1,
-      url: `${baseUrl}/headlines/${h.slug.current}`,
+      position: offset + idx + 1,
+      url: `${baseUrl}${getContentUrl(h)}`,
       name: h.title
     }))
   };
@@ -92,7 +148,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
               {category.title}
             </span>
             <span className="text-gray-400">
-              {headlines.length} article{headlines.length !== 1 ? 's' : ''}
+              {items.length} article{items.length !== 1 ? 's' : ''}
             </span>
           </div>
           
@@ -127,8 +183,8 @@ export default async function CategoryPage(props: CategoryPageProps) {
             </li>
             <li className="text-gray-600">/</li>
             <li>
-              <Link href="/headlines" className="text-gray-400 hover:text-white transition-colors">
-                Headlines
+              <Link href="/categories" className="text-gray-400 hover:text-white transition-colors">
+                Categories
               </Link>
             </li>
             <li className="text-gray-600">/</li>
@@ -142,18 +198,18 @@ export default async function CategoryPage(props: CategoryPageProps) {
         </div>
 
   {/* Headlines Grid (first page only – future: accept ?page= ) */}
-        {headlines.length > 0 ? (
+        {items.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {headlines.map((headline) => (
-              <article key={headline._id} className="group">
-                <Link href={`/headlines/${headline.slug.current}`}>
+            {pageItems.map((item) => (
+              <article key={item._id} className="group">
+                <Link href={getContentUrl(item)}>
                   <div className="space-y-4">
                     {/* Image */}
                     <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                      {headline.coverImage?.asset?.url ? (
+                      {getCardImage(item) ? (
                         <Image
-                          src={headline.coverImage.asset.url}
-                          alt={headline.title}
+                          src={getCardImage(item) || ''}
+                          alt={item.title}
                           width={400}
                           height={225}
                           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
@@ -169,27 +225,27 @@ export default async function CategoryPage(props: CategoryPageProps) {
                     <div className="space-y-3">
                       {/* Category Badge */}
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getCategoryColorClasses(headline.category?.color)}`}>
-                          {headline.category?.title || 'NFL'}
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getCategoryColorClasses(item.category?.color)}`}>
+                          {item.category?.title || 'NFL'}
                         </span>
-                        {headline.date && (
+                        {(item.date || item.publishedAt) && (
                           <span className="text-xs text-gray-500">
-                            {formatDate(headline.date)}
+                            {formatDate(item.date || item.publishedAt || '')}
                           </span>
                         )}
                       </div>
 
                       {/* Title */}
                       <h2 className="text-xl font-bold text-white group-hover:text-gray-300 transition-colors line-clamp-2">
-                        {headline.title}
+                        {item.homepageTitle || item.title}
                       </h2>
 
                       {/* Summary intentionally hidden site-wide per design request */}
 
                       {/* Author */}
-                      {headline.author && (
+                      {item.author?.name && (
                         <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span>By {headline.author.name}</span>
+                          <span>By {item.author.name}</span>
                         </div>
                       )}
                     </div>
@@ -205,19 +261,41 @@ export default async function CategoryPage(props: CategoryPageProps) {
               There are no articles in the {category.title} category yet.
             </p>
             <Link 
-              href="/headlines"
+              href="/categories"
               className="inline-block px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors"
             >
-              Browse All Headlines
+              Browse All Categories
             </Link>
           </div>
         )}
 
-        {/* Archive Link */}
-        {headlines.length >= PAGE_SIZE && (
-          <div className="text-center mt-12">
-            <Link href="/headlines/page/2" className="px-8 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors">
-              View Older Articles
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-3 text-sm">
+            <Link
+              href={previousPageHref}
+              aria-disabled={currentPage <= 1}
+              className={`rounded-md px-4 py-2 transition-colors ${
+                currentPage <= 1
+                  ? 'pointer-events-none bg-white/5 text-white/30'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              Previous
+            </Link>
+            <span className="text-gray-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Link
+              href={nextPageHref}
+              aria-disabled={currentPage >= totalPages}
+              className={`rounded-md px-4 py-2 transition-colors ${
+                currentPage >= totalPages
+                  ? 'pointer-events-none bg-white/5 text-white/30'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              Next
             </Link>
           </div>
         )}

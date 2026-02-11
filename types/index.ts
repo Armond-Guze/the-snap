@@ -110,6 +110,7 @@ export interface Headline {
   author?: Author;
   coverImage?: SanityImageWithUrl;
   category?: Category;
+  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title' | 'slug'>[];
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;
@@ -146,6 +147,7 @@ export interface HeadlineListItem {
   playoffRound?: string;
   author?: Pick<Author, 'name'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
+  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title'>[];
 }
 
@@ -195,6 +197,11 @@ export interface Category {
   color?: string;
   priority?: number;
   seo?: SEOData;
+}
+
+export interface TopicHubRef {
+  title?: string;
+  slug?: SanitySlug;
 }
 
 // Tag types
@@ -280,6 +287,7 @@ export interface Rankings {
   teams: RankingTeam[];
   methodology?: PortableTextContent;
   category?: Category;
+  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title' | 'slug'>[];
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;

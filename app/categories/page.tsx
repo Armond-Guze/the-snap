@@ -17,13 +17,56 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true }
 };
 
-interface CategoryLite { _id: string; title: string; slug: { current: string }; description?: string; color?: string; articleCount: number; topArticles: { title: string; slug: { current: string } }[] }
+interface CategoryTopItem {
+  _id: string;
+  _type: 'article' | 'headline' | 'rankings' | 'fantasyFootball' | string;
+  title: string;
+  slug: { current: string };
+  format?: string;
+  rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
+}
+
+interface CategoryLite {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  description?: string;
+  color?: string;
+  articleCount: number;
+  topArticles: CategoryTopItem[];
+}
+
+function getContentUrl(item: CategoryTopItem): string {
+  const slug = item.slug?.current?.trim();
+  if (!slug) return '#';
+
+  if (item._type === 'headline') return `/headlines/${slug}`;
+  if (item._type === 'rankings') return `/rankings/${slug}`;
+  if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
+
+  if (item._type === 'article' && item.format === 'powerRankings') {
+    if (item.rankingType === 'snapshot' && item.seasonYear) {
+      const weekPart = item.playoffRound
+        ? item.playoffRound.toLowerCase()
+        : typeof item.weekNumber === 'number'
+          ? `week-${item.weekNumber}`
+          : null;
+      if (weekPart) return `/articles/power-rankings/${item.seasonYear}/${weekPart}`;
+    }
+    return '/articles/power-rankings';
+  }
+
+  return `/articles/${slug}`;
+}
 
 export default async function CategoriesIndexPage() {
   const categories: CategoryLite[] = await client.fetch(`*[_type=='category']|order(priority asc, title asc){
     _id,title,slug,description,color,
-    "articleCount": count(*[_type=='headline' && published==true && category._ref == ^._id]),
-    "topArticles": *[_type=='headline' && published==true && category._ref == ^._id]|order(_createdAt desc)[0...3]{title,slug}
+    "articleCount": count(*[_type in ["article","headline","rankings","fantasyFootball"] && published==true && category._ref == ^._id]),
+    "topArticles": *[_type in ["article","headline","rankings","fantasyFootball"] && published==true && category._ref == ^._id]|order(coalesce(date,publishedAt,_createdAt) desc)[0...3]{_id,_type,title,slug,format,rankingType,seasonYear,weekNumber,playoffRound}
   }`);
 
   return (
@@ -60,8 +103,8 @@ export default async function CategoriesIndexPage() {
                 {cat.topArticles.length > 0 && (
                   <ul className="space-y-2 mb-4 text-sm">
                     {cat.topArticles.map(a => (
-                      <li key={a.slug.current}>
-                        <Link href={`/articles/${a.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-1">{a.title}</Link>
+                      <li key={`${a._type}-${a.slug.current}`}>
+                        <Link href={getContentUrl(a)} className="text-gray-300 hover:text-white transition-colors line-clamp-1">{a.title}</Link>
                       </li>
                     ))}
                   </ul>

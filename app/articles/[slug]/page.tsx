@@ -144,6 +144,18 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				.filter((tag): tag is { title: string; slug?: string } => tag !== null)
 		: [];
 
+	const topicHubLinks = Array.isArray(article.topicHubs)
+		? article.topicHubs
+				.map((hub) => {
+					const title = typeof hub?.title === 'string' ? hub.title.trim() : '';
+					const slug = hub?.slug?.current?.trim();
+					if (!title || !slug) return null;
+					return { title, slug };
+				})
+				.filter((hub): hub is { title: string; slug: string } => hub !== null)
+		: [];
+	const primaryTopicHub = topicHubLinks[0];
+
 	const categorySlug = article.category?.slug?.current;
 	const categoryMatches = categorySlug
 		? otherArticles
@@ -167,6 +179,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		...(article.category?.title
 			? [{ label: article.category.title, href: `/categories/${article.category.slug?.current}` }]
 			: []),
+		...(primaryTopicHub ? [{ label: primaryTopicHub.title, href: `/${primaryTopicHub.slug}` }] : []),
 		{ label: article.title }
 	];
 
@@ -200,7 +213,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				article.publishedAt ||
 				'',
 			author: { name: article.author?.name || 'Staff Writer' },
-			articleSection: article.category?.title,
+			articleSection: article.category?.title || primaryTopicHub?.title,
 			keywords: keywordList && keywordList.length ? keywordList : undefined,
 			speakableSelectors: ['h1', 'meta[name="description"]'],
 		});
@@ -252,6 +265,15 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 								{article.category.title}
 							</Link>
 						)}
+						{topicHubLinks.map((hub) => (
+							<Link
+								key={hub.slug}
+								href={`/${hub.slug}`}
+								className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+							>
+								{hub.title}
+							</Link>
+						))}
 						{(article as unknown as { _updatedAt?: string })._updatedAt && (article as unknown as { _updatedAt?: string })._updatedAt !== article.date && (
 							<span className="text-xs text-gray-500">Updated {formatArticleDate((article as unknown as { _updatedAt?: string })._updatedAt! )}</span>
 						)}

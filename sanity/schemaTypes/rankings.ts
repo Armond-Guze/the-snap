@@ -115,6 +115,11 @@ export default defineType({
       title: "Category",
       type: "reference",
       to: [{ type: "category" }],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          return val ? true : "Category is required before publishing";
+        }),
       group: "quick",
     }),
     defineField({
@@ -141,6 +146,16 @@ export default defineType({
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",
       validation: (Rule) => Rule.unique().error("Team tag already added"),
       group: "quick",
+    }),
+    defineField({
+      name: 'topicHubs',
+      title: 'Topic Hubs',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'topicHub' }] }],
+      options: { layout: 'tags' },
+      description: 'Assign this ranking to one or more hub pages (example: Draft).',
+      validation: (Rule) => Rule.unique().error('Topic hub already added'),
+      group: 'quick',
     }),
     defineField({
       name: "tags",

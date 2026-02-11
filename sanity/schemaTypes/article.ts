@@ -397,6 +397,12 @@ export default defineType({
       title: "Category",
       type: "reference",
       to: [{ type: "category" }],
+      validation: (Rule) =>
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published) return true;
+          if (isPowerRankingsSnapshot(ctx.document)) return true;
+          return val ? true : "Category is required before publishing";
+        }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
@@ -427,6 +433,17 @@ export default defineType({
       validation: (Rule) => Rule.unique().error("Team tag already added"),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
+    }),
+    defineField({
+      name: 'topicHubs',
+      title: 'Topic Hubs',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'topicHub' }] }],
+      options: { layout: 'tags' },
+      description: 'Assign this article to one or more hub pages (example: Draft).',
+      validation: (Rule) => Rule.unique().error('Topic hub already added'),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
+      group: 'quick',
     }),
     defineField({
       name: "tags",
