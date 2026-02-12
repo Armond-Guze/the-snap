@@ -98,13 +98,41 @@ export default function TwitterEmbed({
         if (cancelled || !containerRef.current || !window.twttr?.widgets?.createTweet) return;
 
         containerRef.current.innerHTML = '';
-        await window.twttr.widgets.createTweet(tweetId, containerRef.current, {
+        const widget = await window.twttr.widgets.createTweet(tweetId, containerRef.current, {
           theme: 'dark',
           dnt: true,
           cards: 'visible',
           conversation: 'all',
           align: 'center',
         });
+
+        const applySizing = () => {
+          const desiredHeight = window.innerWidth < 640 ? 560 : 640;
+
+          containerRef.current?.style.setProperty('min-height', `${desiredHeight}px`, 'important');
+
+          widget.style.setProperty('width', '100%', 'important');
+          widget.style.setProperty('max-width', '100%', 'important');
+          widget.style.setProperty('height', `${desiredHeight}px`, 'important');
+          widget.style.setProperty('min-height', `${desiredHeight}px`, 'important');
+          widget.style.setProperty('max-height', 'none', 'important');
+          widget.style.setProperty('overflow', 'visible', 'important');
+
+          const iframe = widget.querySelector('iframe') as HTMLIFrameElement | null;
+          if (iframe) {
+            iframe.style.setProperty('width', '100%', 'important');
+            iframe.style.setProperty('max-width', '100%', 'important');
+            iframe.style.setProperty('height', `${desiredHeight}px`, 'important');
+            iframe.style.setProperty('min-height', `${desiredHeight}px`, 'important');
+            iframe.style.setProperty('max-height', 'none', 'important');
+            iframe.style.setProperty('border', 'none', 'important');
+            iframe.style.setProperty('border-radius', '8px', 'important');
+          }
+        };
+
+        applySizing();
+        setTimeout(applySizing, 500);
+        setTimeout(applySizing, 1500);
 
         if (!cancelled) setIsLoading(false);
       } catch (error) {

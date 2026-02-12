@@ -1,13 +1,13 @@
 .twitterEmbedWrapper {
   width: 100%;
-  min-height: 320px;
+  min-height: 560px;
   background-color: transparent;
   overflow: visible;
 }
 
 .twitterEmbedContainer {
   width: 100%;
-  min-height: 320px;
+  min-height: 560px;
   background-color: transparent;
 }
 
@@ -15,7 +15,7 @@
 .twitterEmbedContainer :global(iframe) {
   width: 100% !important;
   max-width: 100% !important;
-  min-height: 320px !important;
+  min-height: 560px !important;
   border: none !important;
   border-radius: 8px !important;
   background: transparent !important;

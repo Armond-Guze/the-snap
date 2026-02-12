@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SmartSearch from "./SmartSearch";
 import ProfileMenu from "./ProfileMenu";
-import { NAV_ITEMS } from "./navConfig";
+import { NAV_ITEMS, type NavItem } from "./navConfig";
 import { TEAM_META } from "@/lib/schedule";
 import { TEAM_COLORS } from "./teamLogos";
 import { Newspaper, BarChart3, TrendingUp, Sparkles, CalendarDays, Target, BookOpen, Home as HomeIcon, ChevronDown, Menu, X } from "lucide-react";
@@ -22,11 +22,36 @@ const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = 
   { title: "NFC West", teams: ["ARI", "LAR", "SEA", "SF"] },
 ];
 const MOBILE_TEAM_CODES: (keyof typeof TEAM_META)[] = ["KC", "BUF", "PHI", "DAL", "SF", "DET", "BAL", "MIA"];
+const FANTASY_NAV_ITEM: NavItem = { key: "fantasy", label: "Fantasy", href: "/fantasy" };
+
+function shouldKeepFantasyInMainNav(now = new Date()): boolean {
+  const override = process.env.NEXT_PUBLIC_FANTASY_NAV_MODE?.trim().toLowerCase();
+  if (override === "main") return true;
+  if (override === "more") return false;
+
+  // Default auto-window: Aug-Jan is "in season", Feb-Jul is offseason.
+  const month = now.getUTCMonth(); // 0=Jan ... 11=Dec
+  return month >= 7 || month <= 0;
+}
+
+function insertAfterKey(items: NavItem[], key: string, item: NavItem): NavItem[] {
+  if (items.some((entry) => entry.key === item.key)) return items;
+  const idx = items.findIndex((entry) => entry.key === key);
+  if (idx === -1) return [...items, item];
+  return [...items.slice(0, idx + 1), item, ...items.slice(idx + 1)];
+}
+
+function isPathActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [teamsOpen, setTeamsOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const teamsCloseTimeout = useRef<number | null>(null);
+  const moreCloseTimeout = useRef<number | null>(null);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
   const teamMatch = pathname.match(/^\/teams\/([a-z0-9-]+)/i);
@@ -43,11 +68,20 @@ export default function Navbar() {
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
 
   const closeAllMenus = useCallback(() => {
+    if (teamsCloseTimeout.current) {
+      window.clearTimeout(teamsCloseTimeout.current);
+      teamsCloseTimeout.current = null;
+    }
+    if (moreCloseTimeout.current) {
+      window.clearTimeout(moreCloseTimeout.current);
+      moreCloseTimeout.current = null;
+    }
     setMenuOpen(false);
     setTeamsOpen(false);
+    setMoreOpen(false);
   }, []);
 
-  const handleLinkClick = () => setMenuOpen(false);
+  const handleLinkClick = closeAllMenus;
 
   const firstFocusable = useRef<HTMLButtonElement | null>(null);
   const handleKeyDown = useCallback(
@@ -85,7 +119,7 @@ export default function Navbar() {
       if (e.key === "Escape") closeAllMenus();
     };
 
-    if (menuOpen || teamsOpen) {
+    if (menuOpen || teamsOpen || moreOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("keydown", handleEsc);
     }
@@ -99,7 +133,7 @@ export default function Navbar() {
       document.removeEventListener("keydown", handleEsc);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [menuOpen, teamsOpen, handleKeyDown, closeAllMenus]);
+  }, [menuOpen, teamsOpen, moreOpen, handleKeyDown, closeAllMenus]);
 
   useEffect(() => {
     if (menuOpen) {
@@ -129,10 +163,13 @@ export default function Navbar() {
     closeAllMenus();
   }, [pathname, closeAllMenus]);
 
-  const navItems = [
+  const baseNavItems: NavItem[] = [
     ...(pathname !== "/" ? [{ key: "home", label: "Home", href: "/" }] : []),
     ...NAV_ITEMS,
   ];
+  const showFantasyInMainNav = shouldKeepFantasyInMainNav();
+  const navItems = showFantasyInMainNav ? insertAfterKey(baseNavItems, "headlines", FANTASY_NAV_ITEM) : baseNavItems;
+  const moreItems = showFantasyInMainNav ? [] : [FANTASY_NAV_ITEM];
 
   const navIcons: Record<string, ReactNode> = {
     home: <HomeIcon className="w-4 h-4" />,
@@ -300,7 +337,7 @@ export default function Navbar() {
               );
             }
 
-            const isActive = pathname === href;
+            const isActive = isPathActive(pathname, href);
             return (
               <Link
                 key={key || label}
@@ -313,6 +350,62 @@ export default function Navbar() {
               </Link>
             );
           })}
+          {moreItems.length > 0 && (
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                if (moreCloseTimeout.current) {
+                  window.clearTimeout(moreCloseTimeout.current);
+                  moreCloseTimeout.current = null;
+                }
+                setMoreOpen(true);
+              }}
+              onMouseLeave={() => {
+                moreCloseTimeout.current = window.setTimeout(() => {
+                  setMoreOpen(false);
+                  moreCloseTimeout.current = null;
+                }, 180);
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setMoreOpen((open) => !open)}
+                className={`relative text-sm font-semibold tracking-wide transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-white after:transition-all after:duration-300 flex items-center gap-1 cursor-pointer ${
+                  moreItems.some((item) => isPathActive(pathname, item.href))
+                    ? "text-white after:w-full"
+                    : "text-white/60 hover:text-white after:w-0 hover:after:w-full"
+                } focus:outline-none`}
+                aria-expanded={moreOpen}
+                aria-controls="more-menu"
+              >
+                More
+                <ChevronDown className={`w-4 h-4 transition-transform ${moreOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+              </button>
+              <div
+                id="more-menu"
+                className={`absolute left-1/2 top-full mt-3 w-44 -translate-x-1/2 rounded-xl border border-white/10 bg-[#1f1f1f] shadow-2xl p-2 transition-all duration-200 ease-out ${
+                  moreOpen
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 -translate-y-2 pointer-events-none"
+                }`}
+              >
+                {moreItems.map((item) => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    onClick={closeAllMenus}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+                      isPathActive(pathname, item.href)
+                        ? "bg-white/10 text-white"
+                        : "text-white/75 hover:bg-white/[0.08] hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: Search + Profile */}
@@ -377,7 +470,7 @@ export default function Navbar() {
             <div className="space-y-1.5">
               <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Menu</p>
               {navItems.map(({ label, href, key }) => {
-                const isActive = pathname === href;
+                const isActive = isPathActive(pathname, href);
                 const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                 return (
                   <Link
@@ -398,6 +491,33 @@ export default function Navbar() {
                 );
               })}
             </div>
+
+            {moreItems.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">More</p>
+                {moreItems.map(({ key, label, href }) => {
+                  const isActive = isPathActive(pathname, href);
+                  const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
+                  return (
+                    <Link
+                      key={key || label}
+                      href={href}
+                      onClick={handleLinkClick}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
+                        isActive
+                          ? "bg-white/[0.12] text-white"
+                          : "text-white/75 hover:bg-white/[0.08] hover:text-white"
+                      }`}
+                    >
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white/85">
+                        {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
+                      </span>
+                      <span>{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="rounded-xl bg-white/[0.04] p-3">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Search</p>
