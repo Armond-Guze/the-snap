@@ -60,6 +60,8 @@ export default function YouTubeEmbed({
   };
 
   useEffect(() => {
+    const previousOverflowY = document.body.style.overflowY;
+
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isFullscreen) {
         setIsFullscreen(false);
@@ -68,14 +70,13 @@ export default function YouTubeEmbed({
 
     if (isFullscreen) {
       document.addEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+      // Lock only vertical page scroll while fullscreen overlay is active.
+      document.body.style.overflowY = 'hidden';
     }
     
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflowY = previousOverflowY;
     };
   }, [isFullscreen]);
 

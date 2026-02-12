@@ -52,6 +52,8 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
 
   // Close search on outside click or escape key
   useEffect(() => {
+    const previousOverflowY = document.body.style.overflowY;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -69,13 +71,14 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEscKey);
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      // Lock vertical scroll for the modal while preserving global horizontal overflow rules.
+      document.body.style.overflowY = 'hidden';
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscKey);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflowY = previousOverflowY;
     };
   }, [isOpen]);
 

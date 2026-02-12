@@ -17,6 +17,10 @@ body {
 html, body {
   background-color: var(--background) !important;
   color: #ffffff !important;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overflow-x: clip !important;
 }
 
 .home-gradient {
