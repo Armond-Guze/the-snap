@@ -170,6 +170,9 @@ export default function Navbar() {
   const showFantasyInMainNav = shouldKeepFantasyInMainNav();
   const navItems = showFantasyInMainNav ? insertAfterKey(baseNavItems, "headlines", FANTASY_NAV_ITEM) : baseNavItems;
   const moreItems = showFantasyInMainNav ? [] : [FANTASY_NAV_ITEM];
+  const singleMoreItem = moreItems.length === 1 ? moreItems[0] : null;
+  const hasDropdownMore = moreItems.length > 1;
+  const mobileMenuItems = singleMoreItem ? [...navItems, singleMoreItem] : navItems;
 
   const navIcons: Record<string, ReactNode> = {
     home: <HomeIcon className="w-4 h-4" />,
@@ -350,7 +353,19 @@ export default function Navbar() {
               </Link>
             );
           })}
-          {moreItems.length > 0 && (
+          {singleMoreItem && (
+            <Link
+              href={singleMoreItem.href}
+              className={`relative text-sm font-semibold tracking-wide transition-colors after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-white after:transition-all after:duration-300 ${
+                isPathActive(pathname, singleMoreItem.href)
+                  ? "text-white after:w-full"
+                  : "text-white/60 hover:text-white after:w-0 hover:after:w-full"
+              } focus:outline-none`}
+            >
+              {singleMoreItem.label}
+            </Link>
+          )}
+          {hasDropdownMore && (
             <div
               className="relative"
               onMouseEnter={() => {
@@ -410,13 +425,6 @@ export default function Navbar() {
 
         {/* Right: Search + Profile */}
         <div className="flex items-center gap-4">
-          <Link
-            href="/headlines"
-            className="hidden lg:inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white hover:text-black transition-colors"
-          >
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-            Latest Headlines
-          </Link>
           <div className="hidden sm:block">
             <SmartSearch />
           </div>
@@ -469,7 +477,7 @@ export default function Navbar() {
           <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4 text-white">
             <div className="space-y-1.5">
               <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Menu</p>
-              {navItems.map(({ label, href, key }) => {
+              {mobileMenuItems.map(({ label, href, key }) => {
                 const isActive = isPathActive(pathname, href);
                 const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                 return (
@@ -492,7 +500,7 @@ export default function Navbar() {
               })}
             </div>
 
-            {moreItems.length > 0 && (
+            {hasDropdownMore && (
               <div className="space-y-1.5">
                 <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">More</p>
                 {moreItems.map(({ key, label, href }) => {
