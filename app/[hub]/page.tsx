@@ -289,6 +289,7 @@ export const revalidate = 300
 export default async function TopicHubPage({ params }: TopicHubPageProps) {
   const { hub } = await params
   const slug = decodeURIComponent(hub).trim().toLowerCase()
+  const isDraftHub = slug === 'draft'
 
   const topicHub = await fetchTopicHubBySlug(slug)
   if (!topicHub) notFound()
@@ -305,6 +306,7 @@ export default async function TopicHubPage({ params }: TopicHubPageProps) {
   const merged = [...featured, ...feed]
   const topStory = merged[0]
   const moreStories = merged.slice(1, 13)
+  const heroTitle = isDraftHub ? 'Draft Latest' : topicHub.title
 
   const accent = topicHub.accentColor || '#1D9BF0'
 
@@ -346,37 +348,43 @@ export default async function TopicHubPage({ params }: TopicHubPageProps) {
         )}
 
         <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-16">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/55">The Snap Hub</p>
+          {!isDraftHub && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/55">The Snap Hub</p>}
           <h1 className="text-4xl font-black leading-tight sm:text-5xl" style={{ textShadow: `0 0 32px ${accent}55` }}>
-            {topicHub.title}
+            {heroTitle}
           </h1>
-          {topicHub.description && <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/85">{topicHub.description}</p>}
-          {topicHub.intro && <p className="mt-3 max-w-4xl text-sm leading-relaxed text-white/70">{topicHub.intro}</p>}
+          {!isDraftHub && topicHub.description && (
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/85">{topicHub.description}</p>
+          )}
+          {!isDraftHub && topicHub.intro && (
+            <p className="mt-3 max-w-4xl text-sm leading-relaxed text-white/70">{topicHub.intro}</p>
+          )}
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {(topicHub.relatedCategories || []).map((category) => {
-              const categorySlug = category.slug?.current?.trim()
-              if (!categorySlug) return null
-              return (
+          {!isDraftHub && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(topicHub.relatedCategories || []).map((category) => {
+                const categorySlug = category.slug?.current?.trim()
+                if (!categorySlug) return null
+                return (
+                  <Link
+                    key={`cat-${category._id}`}
+                    href={`/categories/${categorySlug}`}
+                    className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-semibold text-white/85 hover:bg-white/12"
+                  >
+                    {category.title}
+                  </Link>
+                )
+              })}
+              {(topicHub.relatedTags || []).map((tag) => (
                 <Link
-                  key={`cat-${category._id}`}
-                  href={`/categories/${categorySlug}`}
-                  className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-semibold text-white/85 hover:bg-white/12"
+                  key={`tag-${tag._id}`}
+                  href={`/articles?tag=${encodeURIComponent(tag.title || '')}`}
+                  className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/75 hover:bg-white/12"
                 >
-                  {category.title}
+                  #{tag.title}
                 </Link>
-              )
-            })}
-            {(topicHub.relatedTags || []).map((tag) => (
-              <Link
-                key={`tag-${tag._id}`}
-                href={`/articles?tag=${encodeURIComponent(tag.title || '')}`}
-                className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/75 hover:bg-white/12"
-              >
-                #{tag.title}
-              </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
