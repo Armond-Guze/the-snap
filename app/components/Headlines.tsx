@@ -107,9 +107,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                 alt={main.title}
                 fill
                 sizes={HERO_SIZES}
-                className="object-cover opacity-80 transition-all duration-700 group-hover:scale-[1.02] group-hover:opacity-95"
+                className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
               <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
                 <span className="inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
                   Top Story
@@ -242,7 +242,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                             alt={headline.title}
                             fill
                             sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
-                            className="object-cover opacity-85 group-hover:opacity-95 transition-opacity duration-300"
+                            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
@@ -251,7 +251,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                             </svg>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                         <div className="absolute bottom-0 left-0 right-0 p-2">
                           <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
                             {headline.homepageTitle || headline.title}
@@ -267,7 +267,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                           alt={headline.title || "Untitled"}
                           fill
                           sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
-                          className="object-cover opacity-85"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
@@ -276,7 +276,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                           </svg>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-2">
                         <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
                           {headline.homepageTitle || headline.title || "Untitled"}
@@ -298,9 +298,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       alt={main.title}
                       fill
                       sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
-                      className="object-cover opacity-85 group-hover:opacity-95 transition-all duration-700"
+                      className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
 
                     <div className="relative h-full flex flex-col justify-between p-6">
                       <div className="flex items-start justify-end">

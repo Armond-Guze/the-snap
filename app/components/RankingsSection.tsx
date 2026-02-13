@@ -106,11 +106,11 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                       width={1200}
                       height={675}
                       sizes="(max-width:1024px) 100vw, 50vw"
-                      className="h-52 w-full object-cover opacity-80 transition-all duration-500 group-hover:scale-[1.02] group-hover:opacity-95"
+                      className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                     />
                   )}
                   {!img && <div className="h-52 w-full bg-gradient-to-br from-gray-700/80 to-gray-900/80" />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <span className="inline-flex rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
@@ -196,7 +196,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               <div className="relative rounded-3xl overflow-hidden bg-white/[0.02] transition-all shadow-[0_22px_70px_rgba(0,0,0,0.4)]">
                 <div className="absolute inset-0">
                   {img && (
-                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-contain object-center scale-[1.04] bg-black/35 opacity-70 group-hover:opacity-80 transition-opacity duration-500" />
+                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-contain object-center scale-[1.04] transition-transform duration-500 group-hover:scale-[1.06]" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 </div>
