@@ -6,6 +6,15 @@ const isPowerRankings = (document?: Record<string, unknown>) => document?.format
 const isPowerRankingsSnapshot = (document?: Record<string, unknown>) =>
   isPowerRankings(document) && document?.rankingType === "snapshot";
 const isSimplifiedPowerSnapshot = (document?: Record<string, unknown>) => isPowerRankingsSnapshot(document);
+const articleFormatOptions = [
+  { title: "Headline", value: "headline" },
+  { title: "Feature", value: "feature" },
+  { title: "Fantasy", value: "fantasy" },
+  { title: "Analysis", value: "analysis" },
+  { title: "Ranking", value: "ranking" },
+  { title: "Power Rankings", value: "powerRankings" },
+  { title: "Other", value: "other" },
+];
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -19,19 +28,34 @@ export default defineType({
       type: "string",
       description: "Choose the subtype for this article (e.g., headline vs feature vs ranking).",
       options: {
-        list: [
-          { title: "Headline", value: "headline" },
-          { title: "Feature", value: "feature" },
-          { title: "Fantasy", value: "fantasy" },
-          { title: "Analysis", value: "analysis" },
-          { title: "Ranking", value: "ranking" },
-          { title: "Power Rankings", value: "powerRankings" },
-          { title: "Other", value: "other" },
-        ],
+        list: articleFormatOptions,
         layout: "radio",
       },
       validation: (Rule) => Rule.required().error("Pick an article format"),
       initialValue: "feature",
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
+      group: "quick",
+    }),
+    defineField({
+      name: "additionalFormats",
+      title: "Additional Article Types",
+      type: "array",
+      description:
+        "Optional secondary article types so one post can appear in multiple sections (for example: Feature + Fantasy).",
+      of: [{ type: "string" }],
+      options: {
+        list: articleFormatOptions,
+        layout: "tags",
+      },
+      validation: (Rule) =>
+        Rule.unique().custom((value, ctx) => {
+          if (!Array.isArray(value) || value.length === 0) return true;
+          const primaryFormat = typeof ctx.document?.format === "string" ? ctx.document.format : undefined;
+          if (primaryFormat && value.includes(primaryFormat)) {
+            return `Remove "${primaryFormat}" from Additional Article Types; it's already selected as the primary format.`;
+          }
+          return true;
+        }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),

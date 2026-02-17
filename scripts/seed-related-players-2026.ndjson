@@ -1,0 +1,11 @@
+{"_id":"player-malik-willis","_type":"player","name":"Malik Willis","slug":{"_type":"slug","current":"malik-willis"},"team":"FA","position":"QB","active":true}
+{"_id":"player-travis-etienne-jr","_type":"player","name":"Travis Etienne Jr.","slug":{"_type":"slug","current":"travis-etienne-jr"},"team":"FA","position":"RB","active":true}
+{"_id":"player-javonte-williams","_type":"player","name":"Javonte Williams","slug":{"_type":"slug","current":"javonte-williams"},"team":"FA","position":"RB","active":true}
+{"_id":"player-kenneth-gainwell","_type":"player","name":"Kenneth Gainwell","slug":{"_type":"slug","current":"kenneth-gainwell"},"team":"FA","position":"RB","active":true}
+{"_id":"player-tyler-allgeier","_type":"player","name":"Tyler Allgeier","slug":{"_type":"slug","current":"tyler-allgeier"},"team":"FA","position":"RB","active":true}
+{"_id":"player-deebo-samuel","_type":"player","name":"Deebo Samuel","slug":{"_type":"slug","current":"deebo-samuel"},"team":"FA","position":"WR","active":true}
+{"_id":"player-mike-evans","_type":"player","name":"Mike Evans","slug":{"_type":"slug","current":"mike-evans"},"team":"FA","position":"WR","active":true}
+{"_id":"player-rashid-shaheed","_type":"player","name":"Rashid Shaheed","slug":{"_type":"slug","current":"rashid-shaheed"},"team":"FA","position":"WR","active":true}
+{"_id":"player-wandale-robinson","_type":"player","name":"Wan'Dale Robinson","slug":{"_type":"slug","current":"wandale-robinson"},"team":"FA","position":"WR","active":true}
+{"_id":"player-romeo-doubs","_type":"player","name":"Romeo Doubs","slug":{"_type":"slug","current":"romeo-doubs"},"team":"FA","position":"WR","active":true}
+{"_id":"player-dallas-goedert","_type":"player","name":"Dallas Goedert","slug":{"_type":"slug","current":"dallas-goedert"},"team":"FA","position":"TE","active":true}

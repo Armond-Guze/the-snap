@@ -4,10 +4,32 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface FantasySectionProps { textureSrc?: string; hideSummaries?: boolean; }
-interface FantasyArticle { _id: string; title: string; slug: { current: string }; summary?: string; coverImage?: { asset?: { url: string } }; fantasyType?: string; author?: { name: string }; }
+interface FantasyArticle { _type: "fantasyFootball" | "article"; _id: string; title: string; slug?: { current?: string }; summary?: string; coverImage?: { asset?: { url: string } }; fantasyType?: string; format?: string; author?: { name: string }; }
+
+function toFantasyUrl(article: FantasyArticle): string {
+  const slug = article.slug?.current?.trim();
+  if (!slug) return "#";
+  return article._type === "article" ? `/articles/${slug}` : `/fantasy/${slug}`;
+}
 
 export default async function FantasySection({ hideSummaries = false }: FantasySectionProps) {
-  const fantasyQuery = `*[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc)[0...4]{ _id, title, slug, summary, coverImage { asset->{ url } }, author->{ name }, fantasyType }`;
+  const fantasyQuery = `*[
+    published == true &&
+    (
+      _type == "fantasyFootball" ||
+      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+    )
+  ] | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc)[0...4]{
+    _type,
+    _id,
+    title,
+    slug,
+    summary,
+    coverImage { asset->{ url } },
+    author->{ name },
+    fantasyType,
+    format
+  }`;
   const fantasyArticles: FantasyArticle[] = await client.fetch(fantasyQuery);
   const mobileFantasy = fantasyArticles?.slice(0, 3) || [];
   return (
@@ -20,7 +42,7 @@ export default async function FantasySection({ hideSummaries = false }: FantasyS
             <div key={article._id || index}>
               {article.slug?.current ? (
                 <Link
-                  href={`/fantasy/${article.slug.current}`}
+                  href={toFantasyUrl(article)}
                   className="group flex gap-3 rounded-2xl bg-white/[0.03] p-3 transition-all duration-300 hover:bg-white/[0.07]"
                 >
                   <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-900">
@@ -61,7 +83,7 @@ export default async function FantasySection({ hideSummaries = false }: FantasyS
           {fantasyArticles?.slice(0, 4).map((article: FantasyArticle, index: number) => (
             <div key={article._id || index}>
               {article && article.slug?.current ? (
-                <Link href={`/fantasy/${article.slug.current}`} className="group">
+                <Link href={toFantasyUrl(article)} className="group">
                   <div className="space-y-3">
                     <div className="relative h-[200px] 2xl:h-[220px] 3xl:h-[250px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.01] shadow-xl hover:shadow-2xl">
                       {article.coverImage?.asset ? (<Image src={urlFor(article.coverImage).width(800).height(600).fit('crop').url()} alt={article.title} fill className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.02]" sizes="(max-width:1024px) 50vw, 25vw" />) : (<div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800"><div className="absolute inset-0 flex items-center justify-center"><div className="text-center"><div className="w-16 h-16 mx-auto mb-3 bg-gray-600 rounded-full flex items-center justify-center"><svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg></div><p className="text-gray-400 text-xs font-medium">Fantasy Football</p></div></div></div>)}

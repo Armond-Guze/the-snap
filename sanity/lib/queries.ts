@@ -583,7 +583,15 @@ export const articlesQuery = `
 
 // Fantasy Football Query
 export const fantasyFootballQuery = `
-  *[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc) {
+  *[
+    published == true &&
+    (
+      _type == "fantasyFootball" ||
+      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+    )
+  ]
+  | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc) {
+    _type,
     _id,
     title,
     slug,
@@ -598,6 +606,7 @@ export const fantasyFootballQuery = `
     },
     publishedAt,
     fantasyType,
+    format,
     priority,
     tags
   }

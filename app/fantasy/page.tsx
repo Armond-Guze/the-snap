@@ -4,6 +4,7 @@ import Image from "next/image";
 import { formatArticleDate } from "@/lib/date-utils";
 
 interface FantasyArticle {
+  _type: "fantasyFootball" | "article";
   _id: string;
   title: string;
   homepageTitle?: string;
@@ -11,6 +12,7 @@ interface FantasyArticle {
   summary?: string;
   coverImage?: { asset?: { url?: string } };
   fantasyType?: string;
+  format?: string;
   author?: { name?: string };
   publishedAt?: string;
   priority?: number;
@@ -18,7 +20,8 @@ interface FantasyArticle {
 
 function toFantasyUrl(item: FantasyArticle): string {
   const slug = item.slug?.current?.trim();
-  return slug ? `/fantasy/${slug}` : "#";
+  if (!slug) return "#";
+  return item._type === "article" ? `/articles/${slug}` : `/fantasy/${slug}`;
 }
 
 function formatFantasyType(type?: string): string {
@@ -39,16 +42,25 @@ function getPublishedDate(value?: string): string | null {
 
 export default async function FantasyFootballPage() {
   const fantasyArticles: FantasyArticle[] = await sanityFetch(
-    `*[_type == "fantasyFootball" && published == true] | order(priority asc, publishedAt desc) {
+    `*[
+      published == true &&
+      (
+        _type == "fantasyFootball" ||
+        (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+      )
+    ]
+    | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc) {
+      _type,
       _id,
       title,
-  homepageTitle,
+      homepageTitle,
       slug,
       summary,
       coverImage { asset->{ url } },
       author->{ name },
       fantasyType,
-      publishedAt,
+      format,
+      "publishedAt": coalesce(publishedAt, date, _createdAt),
       priority
     }`,
     {},
