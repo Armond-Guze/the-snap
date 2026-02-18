@@ -456,22 +456,22 @@ export const portableTextComponents: PortableTextComponents = {
           className={`my-8 overflow-hidden rounded-2xl border shadow-xl ${teamColors ? '' : 'border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black'}`}
           style={cardStyle}
         >
-          <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-6 sm:py-6">
-            <div className="flex min-w-0 items-start gap-4">
-              <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-black text-white">
+          <div className="px-5 py-5 sm:px-6 sm:py-6">
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+              <div className="text-4xl font-black leading-none text-white">
                 {rank !== null ? rank : '?'}
               </div>
-              <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
                 <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
                   {fallbackName}
                 </h3>
+                {position && (
+                  <span className="text-sm font-bold uppercase tracking-wide text-white/85">
+                    {position.toUpperCase()}
+                  </span>
+                )}
               </div>
             </div>
-            {position && (
-              <div className="shrink-0 rounded-lg border border-white/25 bg-black/25 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white">
-                {position.toUpperCase()}
-              </div>
-            )}
           </div>
         </article>
       )

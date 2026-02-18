@@ -197,48 +197,48 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
           </div>
-          {/* Extend headline title width similar to fantasy article (remove strict 20ch max) */}
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{headline.title}</h1>
-          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
-            {headline.author?.image?.asset?.url && (
-              <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                <Image
-                  src={headline.author.image.asset.url}
-                  alt={(headline.author.image as { alt?: string })?.alt || headline.author.name || 'Author'}
-                  fill
-                  sizes={AVATAR_SIZES}
-                  className="object-cover"
-                />
-              </div>
-            )}
-            {headline.author?.name && <span className="font-medium text-white/90">By {headline.author.name}</span>}
-            <span>• {formatArticleDate(headline.date)}</span>
-            <span className="text-gray-500">•</span>
-            <ReadingTime minutes={readingTime} />
-            {headline.category?.slug?.current && headline.category?.title && (
-              <Link
-                href={`/categories/${headline.category.slug.current}`}
-                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
-              >
-                {headline.category.title}
-              </Link>
-            )}
-            {topicHubLinks.map((hub) => (
-              <Link
-                key={hub.slug}
-                href={`/${hub.slug}`}
-                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
-              >
-                {hub.title}
-              </Link>
-            ))}
-            {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
-              <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
-            )}
-          </div>
-          {headline.coverImage?.asset?.url && (
-            <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+          <section className="mb-8 rounded-2xl border border-white/10 bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
+            {/* Extend headline title width similar to fantasy article (remove strict 20ch max) */}
+            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{headline.title}</h1>
+            <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
+              {headline.author?.image?.asset?.url && (
+                <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                  <Image
+                    src={headline.author.image.asset.url}
+                    alt={(headline.author.image as { alt?: string })?.alt || headline.author.name || 'Author'}
+                    fill
+                    sizes={AVATAR_SIZES}
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              {headline.author?.name && <span className="font-medium text-white/90">By {headline.author.name}</span>}
+              <span>• {formatArticleDate(headline.date)}</span>
+              <span className="text-gray-500">•</span>
+              <ReadingTime minutes={readingTime} />
+              {headline.category?.slug?.current && headline.category?.title && (
+                <Link
+                  href={`/categories/${headline.category.slug.current}`}
+                  className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+                >
+                  {headline.category.title}
+                </Link>
+              )}
+              {topicHubLinks.map((hub) => (
+                <Link
+                  key={hub.slug}
+                  href={`/${hub.slug}`}
+                  className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+                >
+                  {hub.title}
+                </Link>
+              ))}
+              {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
+                <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
+              )}
+            </div>
+            {headline.coverImage?.asset?.url && (
+              <div className="relative h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-xl shadow-sm">
                 <Image
                   src={headline.coverImage.asset.url}
                   alt={(headline.coverImage as { alt?: string })?.alt || headline.title}
@@ -248,24 +248,24 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                   priority
                 />
               </div>
-              {headline.summary && (
-                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>
-              )}
-              {tagList.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {tagList.map((tag) => (
-                    <Link
-                      key={tag.slug || tag.title}
-                      href={`/articles?tag=${encodeURIComponent(tag.title)}`}
-                      className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
-                    >
-                      #{tag.title}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            )}
+            {headline.summary && (
+              <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>
+            )}
+            {tagList.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {tagList.map((tag) => (
+                  <Link
+                    key={tag.slug || tag.title}
+                    href={`/articles?tag=${encodeURIComponent(tag.title)}`}
+                    className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
+                  >
+                    #{tag.title}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
           <section className="w-full mb-8">
             <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
               {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
