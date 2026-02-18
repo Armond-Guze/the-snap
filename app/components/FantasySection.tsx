@@ -12,14 +12,36 @@ function toFantasyUrl(article: FantasyArticle): string {
   return article._type === "article" ? `/articles/${slug}` : `/fantasy/${slug}`;
 }
 
+function dedupeFantasyArticles(items: FantasyArticle[]): FantasyArticle[] {
+  const seen = new Set<string>();
+  const deduped: FantasyArticle[] = [];
+  for (const item of items) {
+    const slugKey = item.slug?.current?.trim().toLowerCase();
+    const key = slugKey && slugKey.length > 0 ? slugKey : item._id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(item);
+  }
+  return deduped;
+}
+
 export default async function FantasySection({ hideSummaries = false }: FantasySectionProps) {
   const fantasyQuery = `*[
     published == true &&
+    !(_id in path("drafts.**")) &&
     (
-      _type == "fantasyFootball" ||
-      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))) ||
+      (
+        _type == "fantasyFootball" &&
+        !(slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current)
+      )
     )
-  ] | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc)[0...4]{
+  ] | order(coalesce(publishedAt, date, _createdAt) desc, coalesce(priority, 999) asc)[0...4]{
     _type,
     _id,
     title,
@@ -30,7 +52,8 @@ export default async function FantasySection({ hideSummaries = false }: FantasyS
     fantasyType,
     format
   }`;
-  const fantasyArticles: FantasyArticle[] = await client.fetch(fantasyQuery);
+  const fantasyArticlesRaw: FantasyArticle[] = await client.fetch(fantasyQuery);
+  const fantasyArticles = dedupeFantasyArticles(fantasyArticlesRaw);
   const mobileFantasy = fantasyArticles?.slice(0, 3) || [];
   return (
     <section className="relative py-16 px-4 lg:px-8 2xl:px-12 3xl:px-16">

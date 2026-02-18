@@ -24,6 +24,19 @@ function toFantasyUrl(item: FantasyArticle): string {
   return item._type === "article" ? `/articles/${slug}` : `/fantasy/${slug}`;
 }
 
+function dedupeFantasyArticles(items: FantasyArticle[]): FantasyArticle[] {
+  const seen = new Set<string>();
+  const deduped: FantasyArticle[] = [];
+  for (const item of items) {
+    const slugKey = item.slug?.current?.trim().toLowerCase();
+    const key = slugKey && slugKey.length > 0 ? slugKey : item._id;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(item);
+  }
+  return deduped;
+}
+
 function formatFantasyType(type?: string): string {
   if (!type) return "Fantasy";
   return type
@@ -41,15 +54,24 @@ function getPublishedDate(value?: string): string | null {
 }
 
 export default async function FantasyFootballPage() {
-  const fantasyArticles: FantasyArticle[] = await sanityFetch(
+  const fantasyArticlesRaw: FantasyArticle[] = await sanityFetch(
     `*[
       published == true &&
+      !(_id in path("drafts.**")) &&
       (
-        _type == "fantasyFootball" ||
-        (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+        (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))) ||
+        (
+          _type == "fantasyFootball" &&
+          !(slug.current in *[
+            _type == "article" &&
+            published == true &&
+            !(_id in path("drafts.**")) &&
+            (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+          ].slug.current)
+        )
       )
     ]
-    | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc) {
+    | order(coalesce(publishedAt, date, _createdAt) desc, coalesce(priority, 999) asc) {
       _type,
       _id,
       title,
@@ -67,6 +89,7 @@ export default async function FantasyFootballPage() {
     { next: { revalidate: 300 } },
     []
   );
+  const fantasyArticles = dedupeFantasyArticles(fantasyArticlesRaw);
 
   if (!fantasyArticles?.length) {
     return (
@@ -87,25 +110,12 @@ export default async function FantasyFootballPage() {
 
   const stories = fantasyArticles.filter((item) => !!item.slug?.current?.trim());
   const [topStory, ...moreStories] = stories;
-  const headerImage =
-    topStory?.coverImage?.asset?.url ||
-    fantasyArticles.find((item) => item.coverImage?.asset?.url)?.coverImage?.asset?.url;
   const topStoryDate = topStory ? getPublishedDate(topStory.publishedAt) : null;
 
   return (
     <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/90" />
-        {headerImage && (
-          <Image
-            src={headerImage}
-            alt="Fantasy Football"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-35"
-          />
-        )}
 
         <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-16">
           <h1 className="text-4xl font-black leading-tight sm:text-5xl">Fantasy Latest</h1>

@@ -595,12 +595,21 @@ export const articlesQuery = `
 export const fantasyFootballQuery = `
   *[
     published == true &&
+    !(_id in path("drafts.**")) &&
     (
-      _type == "fantasyFootball" ||
-      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, [])))
+      (_type == "article" && (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))) ||
+      (
+        _type == "fantasyFootball" &&
+        !(slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current)
+      )
     )
   ]
-  | order(coalesce(priority, 999) asc, coalesce(publishedAt, date, _createdAt) desc) {
+  | order(coalesce(publishedAt, date, _createdAt) desc, coalesce(priority, 999) asc) {
     _type,
     _id,
     title,

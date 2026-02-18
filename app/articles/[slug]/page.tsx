@@ -235,7 +235,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
-					<section className="mb-8 rounded-2xl border border-white/10 bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
+					<section className="mb-8 rounded-2xl bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
 						<h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{article.title}</h1>
 						<div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
 							{article.author?.image?.asset?.url && (

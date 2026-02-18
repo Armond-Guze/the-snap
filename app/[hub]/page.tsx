@@ -336,7 +336,7 @@ export default async function TopicHubPage({ params }: TopicHubPageProps) {
         style={{ boxShadow: `inset 0 -1px 0 ${accent}66` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/90" />
-        {topicHub.coverImage?.asset?.url && (
+        {!isDraftHub && topicHub.coverImage?.asset?.url && (
           <Image
             src={topicHub.coverImage.asset.url}
             alt={topicHub.coverImage.alt || topicHub.title}

@@ -197,7 +197,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
           </div>
-          <section className="mb-8 rounded-2xl border border-white/10 bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
+          <section className="mb-8 rounded-2xl bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
             {/* Extend headline title width similar to fantasy article (remove strict 20ch max) */}
             <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{headline.title}</h1>
             <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
