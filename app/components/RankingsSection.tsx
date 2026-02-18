@@ -196,7 +196,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               <div className="relative rounded-3xl overflow-hidden bg-white/[0.02] transition-all shadow-[0_22px_70px_rgba(0,0,0,0.4)]">
                 <div className="absolute inset-0">
                   {img && (
-                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-contain object-center scale-[1.04] transition-transform duration-500 group-hover:scale-[1.06]" />
+                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-cover object-center scale-[1.04] transition-transform duration-500 group-hover:scale-[1.06]" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 </div>

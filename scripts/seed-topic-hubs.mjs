@@ -212,6 +212,55 @@ const HUBS = [
     relatedTagSlugs: ['nfl-coaching-cycle', 'head-coach-search'],
   },
   {
+    title: 'Franchise Watch',
+    navLabel: 'Franchise',
+    slug: 'franchise-watch',
+    description:
+      'NFL ownership and franchise sale coverage, including valuations, bidders, and league approval milestones.',
+    intro:
+      'Track team sale announcements, ownership transitions, estate-led processes, and what each move means across the league.',
+    accentColor: '#0F766E',
+    priority: 115,
+    relatedTagSlugs: [
+      'nfl-ownership',
+      'franchise-sales',
+      'ownership-changes',
+      'team-valuation',
+      'ownership-bids',
+      'nfl-owners-meetings',
+    ],
+    seedTags: [
+      {
+        title: 'Franchise Sales',
+        slug: 'franchise-sales',
+        aliases: ['team sale', 'franchise sale process', 'sale process'],
+        description:
+          'News and analysis around team sale timelines, transaction structure, and expected close windows.',
+      },
+      {
+        title: 'Ownership Changes',
+        slug: 'ownership-changes',
+        aliases: ['new ownership', 'ownership transition', 'ownership shift'],
+        description:
+          'Coverage of ownership transitions, controlling stake changes, and long-term governance impact.',
+      },
+      {
+        title: 'Team Valuation',
+        slug: 'team-valuation',
+        aliases: ['franchise valuation', 'valuation', 'sale price'],
+        description:
+          'Franchise valuation trends, record sale comps, and market pricing context across the NFL.',
+      },
+      {
+        title: 'Ownership Bids',
+        slug: 'ownership-bids',
+        aliases: ['bidders', 'ownership group', 'purchase bids'],
+        description:
+          'Reports on prospective buyers, bid groups, and negotiations during ownership sales.',
+      },
+    ],
+  },
+  {
     title: 'NFL Offseason',
     navLabel: 'Offseason',
     slug: 'nfl-offseason',
@@ -253,6 +302,72 @@ function dedupeRefs(refs) {
   return out
 }
 
+function uniqueStrings(values) {
+  const seen = new Set()
+  const out = []
+  for (const value of values || []) {
+    if (typeof value !== 'string') continue
+    const next = value.trim()
+    if (!next) continue
+    const key = next.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(next)
+  }
+  return out
+}
+
+function dedupeSeedTags(tags) {
+  const seen = new Set()
+  const out = []
+  for (const tag of tags || []) {
+    const slug = typeof tag?.slug === 'string' ? tag.slug.trim().toLowerCase() : ''
+    if (!slug || seen.has(slug)) continue
+    seen.add(slug)
+    out.push({
+      ...tag,
+      slug,
+      aliases: uniqueStrings(tag.aliases || []),
+    })
+  }
+  return out
+}
+
+async function ensureAdvancedTag(tag) {
+  const slug = typeof tag?.slug === 'string' ? tag.slug.trim().toLowerCase() : ''
+  const title = typeof tag?.title === 'string' ? tag.title.trim() : ''
+  if (!slug || !title) return null
+
+  const existing = await client.fetch(
+    `*[_type=="advancedTag" && slug.current == $slug][0]{ _id, aliases, description }`,
+    { slug }
+  )
+
+  if (existing?._id) {
+    const aliases = uniqueStrings([...(existing.aliases || []), ...(tag.aliases || [])])
+    const patch = client.patch(existing._id)
+    patch.setIfMissing({
+      title,
+      slug: toSlugValue(slug),
+      description: tag.description,
+    })
+    if (aliases.length > 0) patch.set({ aliases })
+    await patch.commit({ autoGenerateArrayKeys: true })
+    console.log(`Ensured canonical tag: ${title} (${slug})`)
+    return existing._id
+  }
+
+  const created = await client.create({
+    _type: 'advancedTag',
+    title,
+    slug: toSlugValue(slug),
+    aliases: uniqueStrings(tag.aliases || []),
+    description: tag.description,
+  })
+  console.log(`Created canonical tag: ${title} (${slug})`)
+  return created._id
+}
+
 async function fetchTagIdMap() {
   const tags = await client.fetch(
     `*[_type=="advancedTag" && defined(slug.current)]{_id, "slug": slug.current}`
@@ -274,6 +389,10 @@ async function upsertHub(hub, tagIdMap) {
     .map((slug) => tagIdMap.get(slug))
     .filter(Boolean)
     .map((id) => toRef(id))
+  const missingSlugs = hub.relatedTagSlugs.filter((slug) => !tagIdMap.has(slug))
+  if (missingSlugs.length) {
+    console.warn(`Warning: missing canonical tags for hub "${hub.slug}": ${missingSlugs.join(', ')}`)
+  }
 
   const existingRefs = Array.isArray(existing?.relatedTags) ? existing.relatedTags : []
   const nextRelatedTags = dedupeRefs([...existingRefs, ...mappedRefs])
@@ -317,6 +436,11 @@ async function upsertHub(hub, tagIdMap) {
 }
 
 async function main() {
+  const seedTags = dedupeSeedTags(HUBS.flatMap((hub) => hub.seedTags || []))
+  for (const tag of seedTags) {
+    await ensureAdvancedTag(tag)
+  }
+
   const tagIdMap = await fetchTagIdMap()
   for (const hub of HUBS) {
     await upsertHub(hub, tagIdMap)
