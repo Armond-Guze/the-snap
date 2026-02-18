@@ -323,18 +323,15 @@ export const portableTextComponents: PortableTextComponents = {
       if (!value) return null
 
       const rank = typeof value.rank === 'number' ? value.rank : null
-      const summary = typeof value.summary === 'string' ? value.summary.trim() : ''
       const rangeStart = typeof value.rangeStart === 'number' ? value.rangeStart : null
       const rangeEnd = typeof value.rangeEnd === 'number' ? value.rangeEnd : null
       const runoffRank = typeof value.runoffRank === 'number' ? value.runoffRank : null
-      const entityType = typeof value.entityType === 'string' ? value.entityType : 'player'
       const fallbackName =
         (typeof value.name === 'string' && value.name.trim()) ||
         (typeof value.player?.name === 'string' && value.player.name.trim()) ||
         (typeof value.team?.title === 'string' && value.team.title.trim()) ||
         'Ranking Entry'
 
-      const typeLabel = `${entityType.charAt(0).toUpperCase()}${entityType.slice(1)}`
       const showRange = rangeStart !== null && rangeEnd !== null
 
       return (
@@ -344,20 +341,11 @@ export const portableTextComponents: PortableTextComponents = {
               {rank !== null ? rank : '?'}
             </div>
             <div className="min-w-0">
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">
-                {typeLabel} Ranking
-              </p>
               <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
                 {fallbackName}
               </h3>
             </div>
           </div>
-
-          {summary && (
-            <p className="px-5 pb-5 text-[15px] leading-relaxed text-zinc-200 sm:px-6 sm:pb-6">
-              {summary}
-            </p>
-          )}
 
           {(showRange || runoffRank !== null) && (
             <div className="border-t border-white/10 bg-black/35 px-5 py-4 text-sm text-zinc-300 sm:px-6">

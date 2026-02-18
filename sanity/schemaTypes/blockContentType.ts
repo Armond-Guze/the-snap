@@ -288,14 +288,6 @@ export const blockContentType = defineType({
           validation: Rule => Rule.max(80),
         },
         {
-          name: 'summary',
-          title: 'Summary',
-          type: 'text',
-          rows: 4,
-          validation: Rule => Rule.required().max(500),
-          description: 'Main ranking blurb shown on the card.',
-        },
-        {
           name: 'rangeStart',
           title: 'Top 99 Range Start',
           type: 'number',
