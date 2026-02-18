@@ -205,38 +205,6 @@ export const blockContentType = defineType({
         }
       ]
     }),
-    // Player Heading (custom rich heading with headshot + meta)
-    defineArrayMember({
-      type: 'object',
-      name: 'playerHeading',
-      title: 'Player Heading',
-      fields: [
-        { name: 'player', title: 'Player (reference preferred)', type: 'reference', to: [{ type: 'player' }], description: 'Pick an existing player or fill manual override fields.' },
-        { name: 'playerName', title: 'Manual Player Name', type: 'string', hidden: ({ parent }) => !!parent?.player },
-        { name: 'team', title: 'Manual Team', type: 'string', hidden: ({ parent }) => !!parent?.player },
-        { name: 'position', title: 'Manual Position', type: 'string', description: 'e.g. QB, WR, RB', hidden: ({ parent }) => !!parent?.player },
-        { name: 'headshot', title: 'Manual Headshot', type: 'image', options: { hotspot: true }, hidden: ({ parent }) => !!parent?.player, fields: [ { name: 'alt', type: 'string', title: 'Alt Text' } ] },
-        { name: 'style', title: 'Style Variant', type: 'string', options: { list: [
-          { title: 'Large Banner', value: 'banner' },
-          { title: 'Inline Compact', value: 'inline' },
-          { title: 'Card', value: 'card' }
-        ] }, initialValue: 'banner' },
-        { name: 'rank', title: 'Rank Number', type: 'number', description: 'Optional ranking position to display (e.g. 1, 12).', validation: Rule => Rule.min(1).max(999).warning('Rank should be between 1 and 999'), options: { layout: 'number' } },
-        { name: 'subtitle', title: 'Subtitle / Tagline', type: 'string', description: 'Optional short context line' },
-        { name: 'useTeamColors', title: 'Auto Team Colors', type: 'boolean', initialValue: true, description: 'Apply NFL team color background (uses team code). Works with reference or manual team.' },
-      ],
-      preview: {
-        select: { title: 'player.name', refTeam: 'player.team', manualName: 'playerName', manualTeam: 'team', mediaRef: 'player.headshot', mediaManual: 'headshot', rank: 'rank' },
-        prepare(sel) {
-          const title = sel.title || sel.manualName || 'Player Heading'
-          const subtitleParts = [sel.rank ? `#${sel.rank}` : null, sel.refTeam || sel.manualTeam].filter(Boolean)
-          const subtitle = subtitleParts.join(' • ')
-          const media = sel.mediaRef || sel.mediaManual
-          return { title, subtitle, media }
-        }
-      }
-    }),
-
     // Inline ranking card for "No. X" player/team blocks inside article body
     defineArrayMember({
       type: 'object',
@@ -288,24 +256,11 @@ export const blockContentType = defineType({
           validation: Rule => Rule.max(80),
         },
         {
-          name: 'rangeStart',
-          title: 'Top 99 Range Start',
-          type: 'number',
-          description: 'Example: 4 in "No. 4 to No. 12".',
-          validation: Rule => Rule.min(1).max(999),
-        },
-        {
-          name: 'rangeEnd',
-          title: 'Top 99 Range End',
-          type: 'number',
-          description: 'Example: 12 in "No. 4 to No. 12".',
-          validation: Rule => Rule.min(1).max(999),
-        },
-        {
-          name: 'runoffRank',
-          title: 'Community Run-Off Rank (optional)',
-          type: 'number',
-          validation: Rule => Rule.min(1).max(999),
+          name: 'position',
+          title: 'Position (manual override)',
+          type: 'string',
+          description: 'Optional. If blank, uses the referenced player position.',
+          validation: Rule => Rule.max(12),
         },
       ],
       preview: {

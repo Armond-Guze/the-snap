@@ -8,6 +8,13 @@ import SnapGraphicCard from '@/app/components/SnapGraphicCard'
 // Player reference data should be GROQ-populated when querying the document.
 type SanityImageRef = { asset?: { _ref?: string, url?: string }; alt?: string }
 const urlFor = (src: SanityImageRef | undefined) => src?.asset?.url || ''
+type RankingCardValue = {
+  rank?: number
+  name?: string
+  position?: string
+  player?: { name?: string; team?: string; position?: string }
+  team?: { title?: string; slug?: { current?: string } }
+}
 
 // Basic NFL team color map (primary, secondary)
 const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
@@ -44,6 +51,108 @@ const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
   CIN: { bg: '#FB4F14', accent: '#000000' },
   NYG: { bg: '#0B2265', accent: '#A71930' },
 };
+
+const TEAM_NAME_TO_CODE: Record<string, string> = {
+  'arizona cardinals': 'ARI',
+  'atlanta falcons': 'ATL',
+  'baltimore ravens': 'BAL',
+  'buffalo bills': 'BUF',
+  'carolina panthers': 'CAR',
+  'chicago bears': 'CHI',
+  'cincinnati bengals': 'CIN',
+  'cleveland browns': 'CLE',
+  'dallas cowboys': 'DAL',
+  'denver broncos': 'DEN',
+  'detroit lions': 'DET',
+  'green bay packers': 'GB',
+  'houston texans': 'HOU',
+  'indianapolis colts': 'IND',
+  'jacksonville jaguars': 'JAX',
+  'kansas city chiefs': 'KC',
+  'las vegas raiders': 'LV',
+  'los angeles chargers': 'LAC',
+  'los angeles rams': 'LAR',
+  'miami dolphins': 'MIA',
+  'minnesota vikings': 'MIN',
+  'new england patriots': 'NE',
+  'new orleans saints': 'NO',
+  'new york giants': 'NYG',
+  'new york jets': 'NYJ',
+  'philadelphia eagles': 'PHI',
+  'pittsburgh steelers': 'PIT',
+  'san francisco 49ers': 'SF',
+  'seattle seahawks': 'SEA',
+  'tampa bay buccaneers': 'TB',
+  'tennessee titans': 'TEN',
+  'washington commanders': 'WAS',
+}
+
+const TEAM_SLUG_TO_CODE: Record<string, string> = {
+  'arizona-cardinals': 'ARI',
+  'atlanta-falcons': 'ATL',
+  'baltimore-ravens': 'BAL',
+  'buffalo-bills': 'BUF',
+  'carolina-panthers': 'CAR',
+  'chicago-bears': 'CHI',
+  'cincinnati-bengals': 'CIN',
+  'cleveland-browns': 'CLE',
+  'dallas-cowboys': 'DAL',
+  'denver-broncos': 'DEN',
+  'detroit-lions': 'DET',
+  'green-bay-packers': 'GB',
+  'houston-texans': 'HOU',
+  'indianapolis-colts': 'IND',
+  'jacksonville-jaguars': 'JAX',
+  'kansas-city-chiefs': 'KC',
+  'las-vegas-raiders': 'LV',
+  'los-angeles-chargers': 'LAC',
+  'los-angeles-rams': 'LAR',
+  'miami-dolphins': 'MIA',
+  'minnesota-vikings': 'MIN',
+  'new-england-patriots': 'NE',
+  'new-orleans-saints': 'NO',
+  'new-york-giants': 'NYG',
+  'new-york-jets': 'NYJ',
+  'philadelphia-eagles': 'PHI',
+  'pittsburgh-steelers': 'PIT',
+  'san-francisco-49ers': 'SF',
+  'seattle-seahawks': 'SEA',
+  'tampa-bay-buccaneers': 'TB',
+  'tennessee-titans': 'TEN',
+  'washington-commanders': 'WAS',
+}
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const clean = hex.replace('#', '')
+  const expanded = clean.length === 3
+    ? clean.split('').map((c) => c + c).join('')
+    : clean
+  const r = parseInt(expanded.slice(0, 2), 16)
+  const g = parseInt(expanded.slice(2, 4), 16)
+  const b = parseInt(expanded.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
+const resolveTeamCode = (value: RankingCardValue): string | null => {
+  const fromPlayer = typeof value?.player?.team === 'string' ? value.player.team.trim().toUpperCase() : ''
+  if (fromPlayer && TEAM_COLORS[fromPlayer]) return fromPlayer
+
+  const fromTeamTitle = typeof value?.team?.title === 'string' ? value.team.title.trim() : ''
+  const fromTeamTitleCode = fromTeamTitle.toUpperCase()
+  if (fromTeamTitleCode && TEAM_COLORS[fromTeamTitleCode]) return fromTeamTitleCode
+
+  const fromTeamSlug = typeof value?.team?.slug?.current === 'string' ? value.team.slug.current.trim().toLowerCase() : ''
+  const fromTeamSlugCode = fromTeamSlug.toUpperCase()
+  if (fromTeamSlugCode && TEAM_COLORS[fromTeamSlugCode]) return fromTeamSlugCode
+
+  const mappedFromTitle = TEAM_NAME_TO_CODE[fromTeamTitle.toLowerCase()]
+  if (mappedFromTitle) return mappedFromTitle
+
+  const mappedFromSlug = TEAM_SLUG_TO_CODE[fromTeamSlug]
+  if (mappedFromSlug) return mappedFromSlug
+
+  return null
+}
 
 // Utility to create deterministic slug IDs from heading text (TOC + deep links)
 const slugify = (text: string) =>
@@ -322,46 +431,48 @@ export const portableTextComponents: PortableTextComponents = {
     rankingCard: ({ value }) => {
       if (!value) return null
 
-      const rank = typeof value.rank === 'number' ? value.rank : null
-      const rangeStart = typeof value.rangeStart === 'number' ? value.rangeStart : null
-      const rangeEnd = typeof value.rangeEnd === 'number' ? value.rangeEnd : null
-      const runoffRank = typeof value.runoffRank === 'number' ? value.runoffRank : null
+      const rankingValue = value as RankingCardValue
+      const rank = typeof rankingValue.rank === 'number' ? rankingValue.rank : null
       const fallbackName =
-        (typeof value.name === 'string' && value.name.trim()) ||
-        (typeof value.player?.name === 'string' && value.player.name.trim()) ||
-        (typeof value.team?.title === 'string' && value.team.title.trim()) ||
+        (typeof rankingValue.name === 'string' && rankingValue.name.trim()) ||
+        (typeof rankingValue.player?.name === 'string' && rankingValue.player.name.trim()) ||
+        (typeof rankingValue.team?.title === 'string' && rankingValue.team.title.trim()) ||
         'Ranking Entry'
-
-      const showRange = rangeStart !== null && rangeEnd !== null
+      const position =
+        (typeof rankingValue.player?.position === 'string' && rankingValue.player.position.trim()) ||
+        (typeof rankingValue.position === 'string' && rankingValue.position.trim()) ||
+        ''
+      const teamCode = resolveTeamCode(rankingValue)
+      const teamColors = teamCode ? TEAM_COLORS[teamCode] : null
+      const cardStyle = teamColors
+        ? {
+            backgroundImage: `linear-gradient(145deg, ${hexToRgba(teamColors.bg, 0.96)} 0%, ${hexToRgba(teamColors.bg, 0.88)} 52%, ${hexToRgba(teamColors.accent, 0.66)} 100%)`,
+            borderColor: hexToRgba(teamColors.accent, 0.46),
+          }
+        : undefined
 
       return (
-        <article className="my-8 overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black shadow-xl">
-          <div className="flex items-start gap-4 px-5 py-5 sm:px-6 sm:py-6">
-            <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-black text-white">
-              {rank !== null ? rank : '?'}
+        <article
+          className={`my-8 overflow-hidden rounded-2xl border shadow-xl ${teamColors ? '' : 'border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black'}`}
+          style={cardStyle}
+        >
+          <div className="flex items-start justify-between gap-4 px-5 py-5 sm:px-6 sm:py-6">
+            <div className="flex min-w-0 items-start gap-4">
+              <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-black text-white">
+                {rank !== null ? rank : '?'}
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+                  {fallbackName}
+                </h3>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-                {fallbackName}
-              </h3>
-            </div>
+            {position && (
+              <div className="shrink-0 rounded-lg border border-white/25 bg-black/25 px-3 py-2 text-xs font-bold uppercase tracking-wide text-white">
+                {position.toUpperCase()}
+              </div>
+            )}
           </div>
-
-          {(showRange || runoffRank !== null) && (
-            <div className="border-t border-white/10 bg-black/35 px-5 py-4 text-sm text-zinc-300 sm:px-6">
-              {showRange && (
-                <p>
-                  Top 99 range: <strong className="text-white">No. {rangeStart}</strong> to{' '}
-                  <strong className="text-white">No. {rangeEnd}</strong>.
-                </p>
-              )}
-              {runoffRank !== null && (
-                <p className={showRange ? 'mt-1' : ''}>
-                  Community run-off: <strong className="text-white">No. {runoffRank}</strong>.
-                </p>
-              )}
-            </div>
-          )}
         </article>
       )
     },
