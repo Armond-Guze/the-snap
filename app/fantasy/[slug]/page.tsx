@@ -79,6 +79,11 @@ export default async function FantasyArticlePage(props: PageProps) {
           ...,
           headshot{asset->{url}, alt}, // ensure manual headshot image has URL
           player->{ name, team, position, headshot{asset->{url}, alt} }
+        },
+        _type == "rankingCard" => {
+          ...,
+          player->{ name, team, position },
+          team->{ title, slug }
         }
       },
       body[]{
@@ -88,6 +93,11 @@ export default async function FantasyArticlePage(props: PageProps) {
           ...,
           headshot{asset->{url}, alt},
           player->{ name, team, position, headshot{asset->{url}, alt} }
+        },
+        _type == "rankingCard" => {
+          ...,
+          player->{ name, team, position },
+          team->{ title, slug }
         }
       },
       coverImage{asset->{url}},

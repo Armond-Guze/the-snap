@@ -130,6 +130,11 @@ export const headlineDetailQuery = `
           ...,
           image{alt, asset->{url}}
         }
+      },
+      _type == 'rankingCard' => {
+        ...,
+        player->{name, team, position},
+        team->{title, slug}
       }
     },
     youtubeVideoId,
@@ -317,6 +322,11 @@ export const articleDetailQuery = `
           ...,
           image{alt, asset->{url}}
         }
+      },
+      _type == 'rankingCard' => {
+        ...,
+        player->{name, team, position},
+        team->{title, slug}
       }
     },
     youtubeVideoId,

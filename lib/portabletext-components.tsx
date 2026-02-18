@@ -319,6 +319,65 @@ export const portableTextComponents: PortableTextComponents = {
       )
     },
 
+    rankingCard: ({ value }) => {
+      if (!value) return null
+
+      const rank = typeof value.rank === 'number' ? value.rank : null
+      const summary = typeof value.summary === 'string' ? value.summary.trim() : ''
+      const rangeStart = typeof value.rangeStart === 'number' ? value.rangeStart : null
+      const rangeEnd = typeof value.rangeEnd === 'number' ? value.rangeEnd : null
+      const runoffRank = typeof value.runoffRank === 'number' ? value.runoffRank : null
+      const entityType = typeof value.entityType === 'string' ? value.entityType : 'player'
+      const fallbackName =
+        (typeof value.name === 'string' && value.name.trim()) ||
+        (typeof value.player?.name === 'string' && value.player.name.trim()) ||
+        (typeof value.team?.title === 'string' && value.team.title.trim()) ||
+        'Ranking Entry'
+
+      const typeLabel = `${entityType.charAt(0).toUpperCase()}${entityType.slice(1)}`
+      const showRange = rangeStart !== null && rangeEnd !== null
+
+      return (
+        <article className="my-8 overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black shadow-xl">
+          <div className="flex items-start gap-4 px-5 py-5 sm:px-6 sm:py-6">
+            <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-black text-white">
+              {rank !== null ? rank : '?'}
+            </div>
+            <div className="min-w-0">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">
+                {typeLabel} Ranking
+              </p>
+              <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+                {fallbackName}
+              </h3>
+            </div>
+          </div>
+
+          {summary && (
+            <p className="px-5 pb-5 text-[15px] leading-relaxed text-zinc-200 sm:px-6 sm:pb-6">
+              {summary}
+            </p>
+          )}
+
+          {(showRange || runoffRank !== null) && (
+            <div className="border-t border-white/10 bg-black/35 px-5 py-4 text-sm text-zinc-300 sm:px-6">
+              {showRange && (
+                <p>
+                  Top 99 range: <strong className="text-white">No. {rangeStart}</strong> to{' '}
+                  <strong className="text-white">No. {rangeEnd}</strong>.
+                </p>
+              )}
+              {runoffRank !== null && (
+                <p className={showRange ? 'mt-1' : ''}>
+                  Community run-off: <strong className="text-white">No. {runoffRank}</strong>.
+                </p>
+              )}
+            </div>
+          )}
+        </article>
+      )
+    },
+
     // Snap-style graphic card (Aura Meter + Trajectory Sticker + Pressure Stamp)
     snapGraphicCard: ({ value }) => {
       return <SnapGraphicCard value={value} />

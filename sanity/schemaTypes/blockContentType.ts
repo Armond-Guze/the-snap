@@ -237,6 +237,105 @@ export const blockContentType = defineType({
       }
     }),
 
+    // Inline ranking card for "No. X" player/team blocks inside article body
+    defineArrayMember({
+      type: 'object',
+      name: 'rankingCard',
+      title: 'Ranking Card',
+      fields: [
+        {
+          name: 'rank',
+          title: 'Rank Number',
+          type: 'number',
+          validation: Rule => Rule.required().min(1).max(999),
+        },
+        {
+          name: 'entityType',
+          title: 'Entity Type',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Player', value: 'player' },
+              { title: 'Team', value: 'team' },
+              { title: 'Coach', value: 'coach' },
+              { title: 'Unit', value: 'unit' },
+              { title: 'Other', value: 'other' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'player',
+        },
+        {
+          name: 'player',
+          title: 'Player (reference)',
+          type: 'reference',
+          to: [{ type: 'player' }],
+          hidden: ({ parent }) => parent?.entityType !== 'player',
+        },
+        {
+          name: 'team',
+          title: 'Team Tag (reference)',
+          type: 'reference',
+          to: [{ type: 'tag' }],
+          description: 'Pick your canonical team tag.',
+          hidden: ({ parent }) => parent?.entityType !== 'team',
+        },
+        {
+          name: 'name',
+          title: 'Display Name (manual / override)',
+          type: 'string',
+          description: 'Optional. If blank, uses referenced player/team name.',
+          validation: Rule => Rule.max(80),
+        },
+        {
+          name: 'summary',
+          title: 'Summary',
+          type: 'text',
+          rows: 4,
+          validation: Rule => Rule.required().max(500),
+          description: 'Main ranking blurb shown on the card.',
+        },
+        {
+          name: 'rangeStart',
+          title: 'Top 99 Range Start',
+          type: 'number',
+          description: 'Example: 4 in "No. 4 to No. 12".',
+          validation: Rule => Rule.min(1).max(999),
+        },
+        {
+          name: 'rangeEnd',
+          title: 'Top 99 Range End',
+          type: 'number',
+          description: 'Example: 12 in "No. 4 to No. 12".',
+          validation: Rule => Rule.min(1).max(999),
+        },
+        {
+          name: 'runoffRank',
+          title: 'Community Run-Off Rank (optional)',
+          type: 'number',
+          validation: Rule => Rule.min(1).max(999),
+        },
+      ],
+      preview: {
+        select: {
+          rank: 'rank',
+          entityType: 'entityType',
+          name: 'name',
+          playerName: 'player.name',
+          teamName: 'team.title',
+        },
+        prepare(sel) {
+          const rank = typeof sel.rank === 'number' ? `No. ${sel.rank}` : 'No. ?'
+          const displayName = sel.name || sel.playerName || sel.teamName || 'Ranking Entry'
+          const entityType = sel.entityType ? ` • ${String(sel.entityType).toUpperCase()}` : ''
+          return {
+            title: `${rank} - ${displayName}`,
+            subtitle: `Ranking card${entityType}`,
+          }
+        },
+      },
+    }),
+
     // Snap-style graphics (Aura Meter + Trajectory Sticker + Pressure Stamp)
     defineArrayMember({
       type: 'snapGraphicCard',
