@@ -15,7 +15,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[hsl(0_0%_3.9%)] py-10 md:py-12 text-gray-200">
+    <footer className="theme-footer py-10 md:py-12 text-gray-200">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="hidden md:flex flex-col items-center text-center gap-8">
           <Image

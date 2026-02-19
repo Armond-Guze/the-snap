@@ -4,19 +4,64 @@
 :root {
   --background: hsl(0 0% 3.9%);
   --foreground: #ededed;
+  --home-gradient:
+    radial-gradient(120% 85% at 50% 0%, hsla(205, 90%, 58%, 0.05) 0%, transparent 58%),
+    linear-gradient(180deg, hsl(0 0% 4.2%) 0%, hsl(0 0% 3.9%) 52%, hsl(0 0% 3.7%) 100%);
+  --nav-background: hsl(0 0% 3.9%);
+  --footer-background: hsl(0 0% 3.9%);
+  --theme-toggle-border: rgba(255, 255, 255, 0.15);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.1);
+  --theme-toggle-hover: rgba(255, 255, 255, 0.16);
+  --focus-ring: rgba(255, 255, 255, 0.45);
 }
 
+:root[data-theme="light"] {
+  --background: hsl(216 24% 14%);
+  --foreground: hsl(210 20% 95%);
+  --home-gradient:
+    radial-gradient(130% 90% at 50% 0%, hsla(205, 90%, 62%, 0.14) 0%, transparent 60%),
+    linear-gradient(180deg, hsl(216 24% 18%) 0%, hsl(216 24% 14%) 52%, hsl(218 24% 12%) 100%);
+  --nav-background: hsl(216 26% 12%);
+  --footer-background: hsl(216 26% 12%);
+  --theme-toggle-border: rgba(255, 255, 255, 0.2);
+  --theme-toggle-bg: rgba(255, 255, 255, 0.14);
+  --theme-toggle-hover: rgba(255, 255, 255, 0.22);
+  --focus-ring: rgba(255, 255, 255, 0.65);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --background: hsl(216 24% 14%);
+    --foreground: hsl(210 20% 95%);
+    --home-gradient:
+      radial-gradient(130% 90% at 50% 0%, hsla(205, 90%, 62%, 0.14) 0%, transparent 60%),
+      linear-gradient(180deg, hsl(216 24% 18%) 0%, hsl(216 24% 14%) 52%, hsl(218 24% 12%) 100%);
+    --nav-background: hsl(216 26% 12%);
+    --footer-background: hsl(216 26% 12%);
+    --theme-toggle-border: rgba(255, 255, 255, 0.2);
+    --theme-toggle-bg: rgba(255, 255, 255, 0.14);
+    --theme-toggle-hover: rgba(255, 255, 255, 0.22);
+    --focus-ring: rgba(255, 255, 255, 0.65);
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Force dark theme on all devices */
 html, body {
   background-color: var(--background) !important;
-  color: #ffffff !important;
+  color: var(--foreground) !important;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden !important;
@@ -24,22 +69,7 @@ html, body {
 }
 
 .home-gradient {
-  background:
-    radial-gradient(120% 85% at 50% 0%, hsla(205, 90%, 58%, 0.05) 0%, transparent 58%),
-    linear-gradient(180deg, hsl(0 0% 4.2%) 0%, hsl(0 0% 3.9%) 52%, hsl(0 0% 3.7%) 100%);
-}
-
-/* Ensure mobile devices respect dark theme */
-@media screen and (max-width: 768px) {
-  html, body {
-    background-color: var(--background) !important;
-    color: #ffffff !important;
-  }
-  
-  /* Force dark backgrounds for common elements */
-  * {
-    color-scheme: dark !important;
-  }
+  background: var(--home-gradient);
 }
 
 /* Custom NFL-themed gradients */
@@ -128,15 +158,21 @@ html, body {
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* Remove default white focus outlines/rings site-wide (user requested) */
-button:focus, a:focus, select:focus, input:focus {
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+input:focus:not(:focus-visible) {
   outline: none !important;
   box-shadow: none !important;
 }
-/* (Optional) If later you want keyboard-only focus styling, replace the above with:
-   :focus:not(:focus-visible){outline:none;box-shadow:none}
-   :focus-visible{outline:2px solid rgba(255,255,255,0.35);outline-offset:2px}
-*/
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
 
 /* ------------------------------ */
 /* Fluid Heading Scale Utilities  */
@@ -175,3 +211,20 @@ select.custom-select-dark option { font-weight: 500; }
 
 /* Team accent dynamic background (uses data-color attr set in components) */
 .team-accent[data-color] { background-color: var(--team-accent, #444); }
+
+.theme-nav {
+  background-color: var(--nav-background);
+}
+
+.theme-footer {
+  background-color: var(--footer-background);
+}
+
+.theme-toggle {
+  border-color: var(--theme-toggle-border) !important;
+  background-color: var(--theme-toggle-bg) !important;
+}
+
+.theme-toggle:hover {
+  background-color: var(--theme-toggle-hover) !important;
+}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SmartSearch from "./SmartSearch";
 import ProfileMenu from "./ProfileMenu";
+import ThemeToggle from "./ThemeToggle";
 import { NAV_ITEMS, type NavItem } from "./navConfig";
 import { TEAM_META } from "@/lib/schedule";
 import { TEAM_COLORS } from "./teamLogos";
@@ -188,7 +189,7 @@ export default function Navbar() {
   return (
     <nav
       ref={navRef}
-      className="relative bg-[hsl(0_0%_3.9%)] sticky top-0 z-[60] shadow-2xl"
+      className="theme-nav relative sticky top-0 z-[60] shadow-2xl"
       style={teamAccent ? {
         borderBottomColor: teamAccent,
         boxShadow: `0 8px 30px -12px ${teamAccent}66`,
@@ -428,6 +429,7 @@ export default function Navbar() {
           <div className="hidden sm:block">
             <SmartSearch />
           </div>
+          <ThemeToggle />
           <ProfileMenu />
         </div>
       </div>
@@ -475,6 +477,11 @@ export default function Navbar() {
           </div>
 
           <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4 text-white">
+            <div className="rounded-xl bg-white/[0.04] p-3">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Theme</p>
+              <ThemeToggle />
+            </div>
+
             <div className="space-y-1.5">
               <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Menu</p>
               {mobileMenuItems.map(({ label, href, key }) => {

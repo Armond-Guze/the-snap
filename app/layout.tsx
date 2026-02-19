@@ -24,6 +24,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const themeInitScript = `
+(() => {
+  try {
+    const storageKey = "theme-preference";
+    const root = document.documentElement;
+    const saved = localStorage.getItem(storageKey);
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = saved === "light" || saved === "dark" ? saved : (systemDark ? "dark" : "light");
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    root.classList.toggle("dark", theme === "dark");
+  } catch {
+    // Keep server-rendered defaults if storage/media access fails.
+  }
+})();
+`;
+
 export const metadata: Metadata = {
   title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
   description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
@@ -104,10 +121,11 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
-    <html lang="en" className="dark" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
+        <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="color-scheme" content="dark only" />
+        <meta name="color-scheme" content="dark light" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   {/* Explicit favicon links (square SVG for crisp scaling) */}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -126,9 +144,7 @@ export default function RootLayout({
   <StructuredData id="sd-website" data={websiteData} />
   <StructuredData id="sd-organization" data={organizationData} />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <LayoutWrapper>
           {children}
         </LayoutWrapper>
