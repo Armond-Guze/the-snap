@@ -100,15 +100,45 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
     ? `${teamStanding.wins}-${teamStanding.losses}${teamStanding.ties ? `-${teamStanding.ties}` : ''}`
     : null;
   const teamTag = await client.fetch<{ _id: string } | null>(
-    `*[_type == "tag" && title == $title][0]{ _id }`,
-    { title: meta.name }
+    `*[
+      _type == "tag" &&
+      (
+        title == $title ||
+        slug.current == $slug ||
+        $abbr in coalesce(aliases, [])
+      )
+    ][0]{ _id }`,
+    { title: meta.name, slug: slugifyTeamName(meta.name), abbr }
   );
   const latestNews = teamTag?._id
-    ? await client.fetch<{ _id: string; title: string; homepageTitle?: string; summary?: string; slug: { current: string }; _type?: string; coverImage?: { asset?: { url?: string } }; featuredImage?: { asset?: { url?: string } }; image?: { asset?: { url?: string } } }[]>(
+    ? await client.fetch<{
+        _id: string;
+        title: string;
+        homepageTitle?: string;
+        summary?: string;
+        slug: { current: string };
+        _type?: string;
+        coverImage?: { asset?: { url?: string } };
+        featuredImage?: { asset?: { url?: string } };
+        image?: { asset?: { url?: string } };
+      }[]>(
         `*[
-          ((_type=="article" && format=="headline") || _type=="headline") && published==true &&
-          defined(teams) && $tagId in teams[]._ref
-        ]|order(coalesce(publishedAt,_createdAt) desc)[0...20]{ _id,title,homepageTitle,summary,slug,_type,coverImage{asset->{url}},featuredImage{asset->{url}},image{asset->{url}} }`,
+          _type in ["article", "headline"] &&
+          published == true &&
+          defined(slug.current) &&
+          defined(teams) &&
+          $tagId in teams[]._ref
+        ] | order(coalesce(publishedAt, date, _createdAt) desc)[0...20]{
+          _id,
+          title,
+          homepageTitle,
+          summary,
+          slug,
+          _type,
+          coverImage{asset->{url}},
+          featuredImage{asset->{url}},
+          image{asset->{url}}
+        }`,
         { tagId: teamTag._id }
       )
     : [];
