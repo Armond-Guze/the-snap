@@ -79,35 +79,38 @@
     oklch(0.922 0 0);
   --sidebar-ring:
     oklch(0.708 0 0);
+  --trim-color: rgba(255, 255, 255, 0.12);
 }
 
 :root[data-theme="light"] {
-  --background: hsl(216 24% 14%);
-  --foreground: hsl(210 20% 95%);
+  --background: hsl(0 0% 99%);
+  --foreground: hsl(220 13% 10%);
   --home-gradient:
-    radial-gradient(130% 90% at 50% 0%, hsla(205, 90%, 62%, 0.14) 0%, transparent 60%),
-    linear-gradient(180deg, hsl(216 24% 18%) 0%, hsl(216 24% 14%) 52%, hsl(218 24% 12%) 100%);
-  --nav-background: hsl(216 26% 12%);
-  --footer-background: hsl(216 26% 12%);
-  --theme-toggle-border: rgba(255, 255, 255, 0.2);
-  --theme-toggle-bg: rgba(255, 255, 255, 0.14);
-  --theme-toggle-hover: rgba(255, 255, 255, 0.22);
-  --focus-ring: rgba(255, 255, 255, 0.65);
+    radial-gradient(130% 90% at 50% 0%, rgba(0, 0, 0, 0.045) 0%, transparent 62%),
+    linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 56%, hsl(0 0% 97%) 100%);
+  --nav-background: hsl(0 0% 100%);
+  --footer-background: hsl(0 0% 99%);
+  --theme-toggle-border: rgba(0, 0, 0, 0.18);
+  --theme-toggle-bg: rgba(0, 0, 0, 0.045);
+  --theme-toggle-hover: rgba(0, 0, 0, 0.085);
+  --focus-ring: rgba(0, 0, 0, 0.55);
+  --trim-color: rgba(0, 0, 0, 0.2);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --background: hsl(216 24% 14%);
-    --foreground: hsl(210 20% 95%);
+    --background: hsl(0 0% 99%);
+    --foreground: hsl(220 13% 10%);
     --home-gradient:
-      radial-gradient(130% 90% at 50% 0%, hsla(205, 90%, 62%, 0.14) 0%, transparent 60%),
-      linear-gradient(180deg, hsl(216 24% 18%) 0%, hsl(216 24% 14%) 52%, hsl(218 24% 12%) 100%);
-    --nav-background: hsl(216 26% 12%);
-    --footer-background: hsl(216 26% 12%);
-    --theme-toggle-border: rgba(255, 255, 255, 0.2);
-    --theme-toggle-bg: rgba(255, 255, 255, 0.14);
-    --theme-toggle-hover: rgba(255, 255, 255, 0.22);
-    --focus-ring: rgba(255, 255, 255, 0.65);
+      radial-gradient(130% 90% at 50% 0%, rgba(0, 0, 0, 0.045) 0%, transparent 62%),
+      linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 56%, hsl(0 0% 97%) 100%);
+    --nav-background: hsl(0 0% 100%);
+    --footer-background: hsl(0 0% 99%);
+    --theme-toggle-border: rgba(0, 0, 0, 0.18);
+    --theme-toggle-bg: rgba(0, 0, 0, 0.045);
+    --theme-toggle-hover: rgba(0, 0, 0, 0.085);
+    --focus-ring: rgba(0, 0, 0, 0.55);
+    --trim-color: rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -291,6 +294,47 @@ select.custom-select-dark option { font-weight: 500; }
 
 .theme-toggle:hover {
   background-color: var(--theme-toggle-hover) !important;
+}
+
+html[data-theme="light"] .theme-nav {
+  border-bottom: 1px solid var(--trim-color);
+  box-shadow: 0 14px 30px -28px rgba(0, 0, 0, 0.65);
+}
+
+html[data-theme="light"] .theme-footer {
+  border-top: 1px solid var(--trim-color);
+}
+
+html[data-theme="light"] .theme-toggle {
+  color: hsl(220 13% 10%) !important;
+}
+
+html[data-theme="light"] .theme-nav .text-white,
+html[data-theme="light"] .theme-nav [class*="text-white/"],
+html[data-theme="light"] .theme-nav [class*="text-gray-"] {
+  color: hsl(220 13% 10%) !important;
+}
+
+html[data-theme="light"] .theme-footer [class*="text-white"],
+html[data-theme="light"] .theme-footer [class*="text-gray-"] {
+  color: hsl(220 10% 18%) !important;
+}
+
+html[data-theme="light"] .theme-nav [class*="bg-white/"] {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .theme-nav [class*="border-white/"] {
+  border-color: rgba(0, 0, 0, 0.18) !important;
+}
+
+html[data-theme="light"] .theme-nav [class*="bg-[#1f1f1f]"],
+html[data-theme="light"] .theme-nav [class*="bg-[hsl(0_0%_3.9%)]"] {
+  background-color: hsl(0 0% 100%) !important;
+}
+
+html[data-theme="light"] .theme-nav :is(a:hover, button:hover) {
+  color: hsl(220 15% 6%) !important;
 }
 
 @theme inline {
