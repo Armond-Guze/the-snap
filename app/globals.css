@@ -296,6 +296,12 @@ select.custom-select-dark option { font-weight: 500; }
   background-color: var(--theme-toggle-hover) !important;
 }
 
+/* Disable thumbnail zoom effects on hover across the site */
+img[class*="group-hover:scale"],
+img[class*="hover:scale"] {
+  transform: none !important;
+}
+
 html[data-theme="light"] .theme-nav {
   border-bottom: 1px solid var(--trim-color);
   box-shadow: 0 14px 30px -28px rgba(0, 0, 0, 0.65);
@@ -345,6 +351,14 @@ html[data-theme="light"] .home-shell [class*="text-gray-"] {
 
 html[data-theme="light"] .home-shell [class*="bg-white/"] {
   background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .home-shell .home-section-surface {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .home-shell .home-section-fade {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.06) 100%) !important;
 }
 
 html[data-theme="light"] .home-shell [class*="border-white/"] {
