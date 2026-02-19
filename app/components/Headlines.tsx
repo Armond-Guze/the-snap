@@ -367,68 +367,27 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                   <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
                   <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white">Around The NFL</h3>
                 </div>
-                <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
+                <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5">
                   {rightSidebar.map((headline) => (
-                    <li key={headline._id}>
+                    <li key={headline._id} className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
                       {headline.slug?.current ? (
-                        <Link href={getArticleUrl(headline)}>
-                          <div className="flex items-center gap-3 group cursor-pointer">
-            {/* Reduced default desktop thumbnail size slightly (was w-20 h-12 / 2xl:w-24 2xl:h-14) */}
-            <div className="relative w-16 h-10 2xl:w-20 2xl:h-12 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
-                              {headline.coverImage?.asset?.url ? (
-                                <Image
-                                  src={headline.coverImage.asset.url}
-                                  alt={headline.title}
-                                  fill
-              sizes="104px"
-                                  className="object-cover object-center transition-transform duration-300"
-                                />
-                              ) : (
-                                <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                                  <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
-                                  </svg>
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="mb-1 flex items-center gap-2">
-                                {formatShortDate(headline.publishedAt) && (
-                                  <span className="text-[10px] uppercase tracking-wide text-white/45">
-                                    {formatShortDate(headline.publishedAt)}
-                                  </span>
-                                )}
-                              </div>
-                              <h4 className="line-clamp-2 text-[13px] 2xl:text-sm font-semibold leading-snug text-white/90 transition-colors group-hover:text-white">
-                                {headline.homepageTitle || headline.title}
-                              </h4>
-                            </div>
-                          </div>
-                        </Link>
-                      ) : (
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-16 h-10 2xl:w-20 2xl:h-12 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
-                            {headline.coverImage?.asset?.url ? (
-                              <Image
-                                src={headline.coverImage.asset.url}
-                                alt={headline.title || "Untitled"}
-                                fill
-                                sizes="104px"
-                                className="object-cover object-center"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                                <svg className="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
-                                </svg>
-                              </div>
+                        <Link href={getArticleUrl(headline)} className="group block">
+                          <div className="mb-1 flex items-center gap-2">
+                            {formatShortDate(headline.publishedAt) && (
+                              <span className="text-[10px] uppercase tracking-wide text-white/45">
+                                {formatShortDate(headline.publishedAt)}
+                              </span>
                             )}
                           </div>
-                          <div className="flex-1">
-                            <h4 className="line-clamp-2 text-[13px] 2xl:text-sm font-semibold leading-snug text-gray-500">
-                              {headline.homepageTitle || headline.title || "Untitled"}
-                            </h4>
-                          </div>
+                          <h4 className="line-clamp-2 text-base 2xl:text-lg 3xl:text-xl font-semibold leading-snug text-white/90 transition-colors group-hover:text-white">
+                            {headline.homepageTitle || headline.title}
+                          </h4>
+                        </Link>
+                      ) : (
+                        <div>
+                          <h4 className="line-clamp-2 text-base 2xl:text-lg 3xl:text-xl font-semibold leading-snug text-gray-500">
+                            {headline.homepageTitle || headline.title || "Untitled"}
+                          </h4>
                         </div>
                       )}
                     </li>
