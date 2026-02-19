@@ -420,11 +420,37 @@ export async function getFallbackStandings(): Promise<ProcessedTeamData[]> {
 }
 
 // Enhanced main function with fallback
+let standingsCache: { data: ProcessedTeamData[]; expiresAt: number } | null = null;
+let standingsInFlight: Promise<ProcessedTeamData[]> | null = null;
+const STANDINGS_CACHE_MS = 5 * 60 * 1000;
+
 export async function fetchNFLStandingsWithFallback(): Promise<ProcessedTeamData[]> {
+  const now = Date.now();
+  if (standingsCache && standingsCache.expiresAt > now) {
+    return standingsCache.data;
+  }
+
+  if (standingsInFlight) {
+    return standingsInFlight;
+  }
+
+  standingsInFlight = (async () => {
+    try {
+      return await fetchNFLStandings();
+    } catch (error) {
+      console.warn('ESPN API failed, using fallback data:', error);
+      return await getFallbackStandings();
+    }
+  })();
+
   try {
-    return await fetchNFLStandings();
-  } catch (error) {
-    console.warn('ESPN API failed, using fallback data:', error);
-    return await getFallbackStandings();
+    const data = await standingsInFlight;
+    standingsCache = {
+      data,
+      expiresAt: Date.now() + STANDINGS_CACHE_MS,
+    };
+    return data;
+  } finally {
+    standingsInFlight = null;
   }
 }

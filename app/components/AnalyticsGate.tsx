@@ -6,8 +6,8 @@ import dynamic from "next/dynamic";
 const VercelAnalytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics), { ssr: false, loading: () => null });
 const GoogleAnalytics = dynamic(() => import("./GoogleAnalytics"), { ssr: false, loading: () => null });
 
-// GA4 Measurement ID (configure in env as NEXT_PUBLIC_GA_ID; fallback to provided ID)
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-0YLR2ZR8SX';
+// Only load GA when explicitly configured.
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
 
 /**
  * Conditionally load Vercel Analytics only if the visitor has NOT opted out.
@@ -19,6 +19,17 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-0YLR2ZR8SX';
  */
 export default function AnalyticsGate() {
   const [excluded, setExcluded] = useState<boolean | null>(null);
+  const [hasConsent, setHasConsent] = useState<boolean | null>(null);
+
+  const readConsent = useCallback(() => {
+    try {
+      const cookieConsent = document.cookie.split(';').some(c => c.trim().startsWith('cookie_consent=1'));
+      const lsConsent = localStorage.getItem("cookie_consent") === "1";
+      setHasConsent(cookieConsent || lsConsent);
+    } catch {
+      setHasConsent(false);
+    }
+  }, []);
 
   const toggle = useCallback(() => {
     if (excluded) {
@@ -50,7 +61,31 @@ export default function AnalyticsGate() {
     } catch {
       setExcluded(false);
     }
-  }, []);
+    readConsent();
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === "va-exclude") {
+        try {
+          const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
+          const lsExcluded = localStorage.getItem("va-exclude") === "1";
+          setExcluded(cookieExcluded || lsExcluded);
+        } catch {
+          setExcluded(false);
+        }
+      }
+      if (event.key === "cookie_consent") {
+        readConsent();
+      }
+    };
+
+    const onConsentUpdated = () => readConsent();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("cookie-consent-updated", onConsentUpdated as EventListener);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("cookie-consent-updated", onConsentUpdated as EventListener);
+    };
+  }, [readConsent]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -63,11 +98,13 @@ export default function AnalyticsGate() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggle]);
 
-  if (excluded === null) return null;
+  if (excluded === null || hasConsent === null) return null;
+
+  const analyticsEnabled = !excluded && hasConsent;
 
   return (
     <>
-      {!excluded && (
+      {analyticsEnabled && (
         <>
           <VercelAnalytics />
           {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}

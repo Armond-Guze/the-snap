@@ -198,6 +198,9 @@ function formatRecord(record?: TeamRecordDoc): string | undefined {
 }
 
 async function fetchFreshRecords(season: number): Promise<Map<string, TeamRecordDoc>> {
+  const stored = await fetchTeamRecords(season);
+  if (stored.size === 32) return stored;
+
   try {
     const live = await fetchNFLStandingsWithFallback();
     if (live?.length) {
@@ -219,13 +222,13 @@ async function fetchFreshRecords(season: number): Promise<Map<string, TeamRecord
         });
       }
 
-      if (map.size === 32) return map;
+      if (map.size > 0) return map;
     }
   } catch (err) {
-    console.warn('[home] live standings fallback to Sanity', err);
+    console.warn('[home] live standings fallback to cached records', err);
   }
 
-  return fetchTeamRecords(season);
+  return stored;
 }
 
 async function fetchHeadlineArchiveCount(): Promise<number> {

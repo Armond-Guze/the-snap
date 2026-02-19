@@ -24,6 +24,7 @@ export default function CookieConsent() {
     try {
       window.localStorage.setItem('cookie_consent', '1');
       document.cookie = 'cookie_consent=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
+      window.dispatchEvent(new Event('cookie-consent-updated'));
     } catch {/* ignore */}
     setVisible(false);
     if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
