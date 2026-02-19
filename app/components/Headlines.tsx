@@ -90,6 +90,10 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     if (Number.isNaN(parsed.getTime())) return null;
     return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed);
   };
+  const getItemKicker = (item: HeadlineItem) => {
+    if (item._type === "rankings" || item.format === "ranking" || item.format === "powerRankings") return "Rankings";
+    return "Headline";
+  };
   const mobileSidebarItems = leftColumn.concat(rightSidebarMobile);
 
   return (
@@ -106,6 +110,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                 src={main.coverImage.asset.url}
                 alt={main.title}
                 fill
+                priority
                 sizes={HERO_SIZES}
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
@@ -297,6 +302,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       src={main.coverImage.asset.url}
                       alt={main.title}
                       fill
+                      priority
                       sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                     />
@@ -365,7 +371,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                   <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
                   <h3 className="text-base 2xl:text-lg 3xl:text-xl font-bold text-white">Around The NFL</h3>
                 </div>
-        <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
+                <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5 text-sm">
                   {rightSidebar.map((headline) => (
                     <li key={headline._id}>
                       {headline.slug?.current ? (
@@ -390,9 +396,16 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                               )}
                             </div>
                             <div className="flex-1">
-                              <h4 className="text-white font-bold text-sm 2xl:text-base leading-snug mb-1 group-hover:text-gray-300 transition-colors duration-300 line-clamp-2">
-                                {headline.homepageTitle || headline.title}
-                              </h4>
+                              <div className="mb-1 flex items-center gap-2">
+                                <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                                  {getItemKicker(headline)}
+                                </span>
+                                {formatShortDate(headline.publishedAt) && (
+                                  <span className="text-[10px] uppercase tracking-wide text-white/45">
+                                    {formatShortDate(headline.publishedAt)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </Link>
@@ -416,9 +429,11 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                             )}
                           </div>
                           <div className="flex-1">
-                            <h4 className="text-gray-500 font-bold text-xs leading-snug mb-1 line-clamp-2">
-                              {headline.homepageTitle || headline.title || "Untitled"}
-                            </h4>
+                            <div className="mb-1 flex items-center gap-2">
+                              <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
+                                {getItemKicker(headline)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       )}

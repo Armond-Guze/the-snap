@@ -80,9 +80,9 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   };
   const [featuredArticle, ...compactArticles] = topThree;
   return (
-    <section className="relative py-10 px-4 lg:px-8 2xl:px-10 3xl:px-12">
+    <section className="relative py-10 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
-      <div className="relative mx-auto max-w-7xl 2xl:max-w-[80rem] 3xl:max-w-[88rem] z-10">
+      <div className="relative z-10 mx-auto max-w-[82rem] 2xl:max-w-[88rem] 3xl:max-w-[100rem]">
         <div className="mb-4 2xl:mb-5 3xl:mb-6"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-lg sm:text-xl 2xl:text-xl 3xl:text-2xl font-bold text-gray-300 tracking-tight">Latest Articles</h2></div></div>
         {/* Mobile: one featured + compact follow-up cards */}
         <div className="lg:hidden space-y-3">
@@ -105,6 +105,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                       alt={displayTitle}
                       width={1200}
                       height={675}
+                      priority
                       sizes="(max-width:1024px) 100vw, 50vw"
                       className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                     />
@@ -183,7 +184,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
         </div>
         {/* Desktop: three uniform cards using fantasy featured style */}
         <div className="hidden lg:grid grid-cols-3 gap-3 2xl:gap-4 3xl:gap-5">
-          {topThree.map((item) => {
+          {topThree.map((item, index) => {
             const img =
               item.coverImage?.asset?.url ||
               item.featuredImage?.asset?.url ||
@@ -191,18 +192,33 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               item.fallbackCoverImage?.asset?.url ||
               null;
             const displayTitle = item.homepageTitle || item.title;
+            const kicker = getItemKicker(item);
+            const published = formatShortDate(item.publishedAt || item.date);
             return (
             <Link key={item._id} href={getArticleUrl(item)} className="group flex flex-col">
               <div className="relative rounded-3xl overflow-hidden bg-white/[0.02] transition-all shadow-[0_22px_70px_rgba(0,0,0,0.4)]">
                 <div className="absolute inset-0">
                   {img && (
-                    <Image src={img} alt={displayTitle} fill sizes="(min-width:1024px) 33vw, 100vw" className="object-contain object-center scale-[1.04] transition-transform duration-500 group-hover:scale-[1.06]" />
+                    <Image
+                      src={img}
+                      alt={displayTitle}
+                      fill
+                      priority={index === 0}
+                      sizes="(min-width:1024px) 33vw, 100vw"
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.06]"
+                    />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 </div>
                 <div className="relative h-[250px] 2xl:h-[280px] 3xl:h-[320px]" />
               </div>
               <div className="pt-5">
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/75">
+                    {kicker}
+                  </span>
+                  {published && <span className="text-[10px] uppercase tracking-wide text-white/45">{published}</span>}
+                </div>
                 <h3 className="text-xl 2xl:text-2xl font-extrabold leading-tight text-white group-hover:text-gray-200 transition-colors">{displayTitle}</h3>
                 {(item.summary || item.excerpt) && !hideSummaries && (
                   <p className="mt-3 max-w-2xl text-gray-300 text-sm 2xl:text-base leading-relaxed line-clamp-3">{item.summary || item.excerpt}</p>

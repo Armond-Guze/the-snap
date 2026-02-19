@@ -21,10 +21,9 @@ const Footer = () => {
           <Image
             src="/images/thesnap-logo-new%20copy123.png"
             alt="The Game Snap Logo"
-            width={130}
-            height={130}
-            className="h-6 w-auto max-w-none shrink-0"
-            priority
+            width={110}
+            height={110}
+            className="h-5 w-auto max-w-none shrink-0"
           />
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
             {quickLinks.map(({ label, href }) => (
@@ -39,10 +38,9 @@ const Footer = () => {
           <Image
             src="/images/thesnap-logo-new%20copy123.png"
             alt="The Game Snap Logo"
-            width={130}
-            height={130}
-            className="h-6 w-auto max-w-none shrink-0"
-            priority
+            width={110}
+            height={110}
+            className="h-5 w-auto max-w-none shrink-0"
           />
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
             {quickLinks.map(({ label, href }) => (
