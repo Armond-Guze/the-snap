@@ -141,7 +141,7 @@ export default function Navbar() {
           : undefined
       }
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-4 md:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-[84rem] items-center px-4 md:px-6 2xl:max-w-[92rem] 3xl:max-w-[102rem]">
         <div className="flex items-center md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -316,7 +316,7 @@ export default function Navbar() {
 
         <div className="mx-6 hidden flex-1 items-center md:flex">
           <NavigationMenu className="w-full justify-start">
-            <NavigationMenuList>
+            <NavigationMenuList className="gap-1.5">
               {navItems.map(({ label, href, key }) => {
                 if (key === "schedule") return null;
 
@@ -331,7 +331,7 @@ export default function Navbar() {
                       <NavigationMenuTrigger
                         className={cn(
                           isTeamsActive ? "bg-white/10 text-white" : "text-white/65 hover:text-white",
-                          "px-2.5"
+                          "px-4 text-[15px]"
                         )}
                       >
                         Teams
@@ -400,7 +400,7 @@ export default function Navbar() {
                         href={href}
                         className={cn(
                           navigationMenuTriggerStyle(),
-                          "px-2.5 text-sm",
+                          "px-4 text-[15px]",
                           isActive ? "bg-white/10 text-white" : "text-white/65 hover:bg-white/10 hover:text-white"
                         )}
                       >
@@ -418,7 +418,7 @@ export default function Navbar() {
                       href={singleMoreItem.href}
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        "px-2.5 text-sm",
+                        "px-4 text-[15px]",
                         isPathActive(pathname, singleMoreItem.href)
                           ? "bg-white/10 text-white"
                           : "text-white/65 hover:bg-white/10 hover:text-white"
@@ -432,7 +432,7 @@ export default function Navbar() {
 
               {hasDropdownMore && (
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="px-2.5 text-white/65 hover:text-white">More</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="px-4 text-[15px] text-white/65 hover:text-white">More</NavigationMenuTrigger>
                   <NavigationMenuContent className="p-2 md:w-44">
                     <div className="flex flex-col gap-1">
                       {moreItems.map((item) => (

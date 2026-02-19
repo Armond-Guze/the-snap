@@ -81,7 +81,7 @@ export default async function Home() {
         <MoreHeadlinesSection hideSummaries />
       </div>
       <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-14" style={deferredSectionStyle}>
-    <div className="mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem]">
+    <div className="mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
       <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>

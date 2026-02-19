@@ -90,10 +90,6 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     if (Number.isNaN(parsed.getTime())) return null;
     return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed);
   };
-  const getItemKicker = (item: HeadlineItem) => {
-    if (item._type === "rankings" || item.format === "ranking" || item.format === "powerRankings") return "Rankings";
-    return "Headline";
-  };
   const mobileSidebarItems = leftColumn.concat(rightSidebarMobile);
 
   return (
@@ -115,7 +111,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+              <div className="thumbnail-overlay-text absolute inset-x-0 top-0 flex items-center justify-between p-4">
                 <span className="inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
                   Top Story
                 </span>
@@ -136,7 +132,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                 </span>
               </div>
 
-              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+              <div className="thumbnail-overlay-text absolute inset-x-0 bottom-0 p-4 sm:p-5">
                 <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white line-clamp-3 group-hover:text-gray-200 transition-colors duration-300 sm:text-3xl">
                   {main.homepageTitle || main.title || "Untitled"}
                 </h2>
@@ -153,7 +149,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-            <div className="absolute inset-x-0 bottom-0 p-5">
+            <div className="thumbnail-overlay-text absolute inset-x-0 bottom-0 p-5">
               <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white sm:text-3xl">No Headlines Available</h2>
               <p className="text-sm leading-relaxed text-gray-300 sm:text-base">
                 Check back soon for the latest NFL news and updates.
@@ -232,7 +228,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
       {/* Desktop: New layout with left sidebar */}
       <div className="hidden lg:block py-6 md:py-12 px-6 lg:px-8 2xl:px-12 3xl:px-16">
         {/* Slightly widened container (was max-w-7xl/85rem/95rem) */}
-        <div className="relative z-10 mx-auto max-w-[82rem] 2xl:max-w-[88rem] 3xl:max-w-[100rem]">
+        <div className="relative z-10 mx-auto max-w-[86rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
           <div className="grid grid-cols-24 gap-3 2xl:gap-4 3xl:gap-6">
             {/* Left Sidebar - Two vertical images (slightly narrowed from col-span-5 to 4) */}
             <div className="col-span-4 flex flex-col justify-center space-y-3">
@@ -257,7 +253,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <div className="thumbnail-overlay-text absolute bottom-0 left-0 right-0 p-2">
                           <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
                             {headline.homepageTitle || headline.title}
                           </h4>
@@ -282,7 +278,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <div className="thumbnail-overlay-text absolute bottom-0 left-0 right-0 p-2">
                         <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
                           {headline.homepageTitle || headline.title || "Untitled"}
                         </h4>
@@ -325,7 +321,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                         </svg>
                       </div>
 
-                      <div>
+                      <div className="thumbnail-overlay-text">
                         <h2 className="text-xl lg:text-2xl 2xl:text-3xl 3xl:text-4xl font-bold text-white mb-3 line-clamp-3 group-hover:text-gray-300 transition-colors duration-300">
                           {main.homepageTitle || main.title || "Untitled"}
                         </h2>
@@ -350,7 +346,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       </svg>
                     </div>
                     
-                    <div>
+                    <div className="thumbnail-overlay-text">
                       <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4">
                         No Headlines Available
                       </h2>
@@ -397,9 +393,6 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                             </div>
                             <div className="flex-1">
                               <div className="mb-1 flex items-center gap-2">
-                                <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/70">
-                                  {getItemKicker(headline)}
-                                </span>
                                 {formatShortDate(headline.publishedAt) && (
                                   <span className="text-[10px] uppercase tracking-wide text-white/45">
                                     {formatShortDate(headline.publishedAt)}
@@ -432,11 +425,6 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                             )}
                           </div>
                           <div className="flex-1">
-                            <div className="mb-1 flex items-center gap-2">
-                              <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
-                                {getItemKicker(headline)}
-                              </span>
-                            </div>
                             <h4 className="line-clamp-2 text-[13px] 2xl:text-sm font-semibold leading-snug text-gray-500">
                               {headline.homepageTitle || headline.title || "Untitled"}
                             </h4>

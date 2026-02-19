@@ -58,7 +58,7 @@ export default async function FantasySection({ hideSummaries = false }: FantasyS
   return (
     <section className="relative py-16 px-4 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
-      <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
+      <div className="relative mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem] z-10">
         <div className="mb-4 2xl:mb-6 3xl:mb-8"><div className="flex flex-wrap items-center gap-8 mb-3"><h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-300">Fantasy Football</h2></div></div>
         <div className="md:hidden space-y-3">
           {mobileFantasy.map((article: FantasyArticle, index: number) => (

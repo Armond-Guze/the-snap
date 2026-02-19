@@ -150,7 +150,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
     <section className="relative overflow-hidden py-14 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent" />
       <div className="pointer-events-none absolute -left-24 top-8 -z-10 h-64 w-64 rounded-full bg-white/[0.03] blur-3xl" />
-      <div className="relative mx-auto max-w-7xl 2xl:max-w-[90rem] 3xl:max-w-[100rem] z-10">
+      <div className="relative mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem] z-10">
         <div className="mb-6 flex items-end justify-between pb-3">
           <div>
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Around The League</p>
