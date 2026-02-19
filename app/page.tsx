@@ -67,7 +67,7 @@ export default async function Home() {
   const deferredSectionStyle = { contentVisibility: "auto", containIntrinsicSize: "1200px" } as const;
 
   return (
-    <main className="home-gradient min-h-screen">
+    <main className="home-gradient home-shell min-h-screen">
       <GameSchedule games={games} />
       <Headlines hideSummaries />
       <GoogleAds />

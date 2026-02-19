@@ -100,16 +100,21 @@ export default function Navbar() {
   const teamCode = resolveTeamCode(pathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
 
-  const baseNavItems: NavItem[] = [
-    ...(pathname !== "/" ? [{ key: "home", label: "Home", href: "/" }] : []),
-    ...NAV_ITEMS,
-  ];
+  const homeNavItem: NavItem = { key: "home", label: "Home", href: "/" };
+  const desktopBaseNavItems: NavItem[] = [homeNavItem, ...NAV_ITEMS];
+  const mobileBaseNavItems: NavItem[] = pathname === "/" ? NAV_ITEMS : [homeNavItem, ...NAV_ITEMS];
+
   const showFantasyInMainNav = shouldKeepFantasyInMainNav();
-  const navItems = showFantasyInMainNav ? insertAfterKey(baseNavItems, "headlines", FANTASY_NAV_ITEM) : baseNavItems;
+  const navItems = showFantasyInMainNav
+    ? insertAfterKey(desktopBaseNavItems, "headlines", FANTASY_NAV_ITEM)
+    : desktopBaseNavItems;
+  const mobileNavItems = showFantasyInMainNav
+    ? insertAfterKey(mobileBaseNavItems, "headlines", FANTASY_NAV_ITEM)
+    : mobileBaseNavItems;
   const moreItems = showFantasyInMainNav ? [] : [FANTASY_NAV_ITEM];
   const singleMoreItem = moreItems.length === 1 ? moreItems[0] : null;
   const hasDropdownMore = moreItems.length > 1;
-  const mobileMenuItems = singleMoreItem ? [...navItems, singleMoreItem] : navItems;
+  const mobileMenuItems = singleMoreItem ? [...mobileNavItems, singleMoreItem] : mobileNavItems;
 
   const navIcons: Record<string, ReactNode> = {
     home: <HomeIcon className="h-4 w-4" />,

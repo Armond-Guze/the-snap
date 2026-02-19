@@ -406,6 +406,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                                   </span>
                                 )}
                               </div>
+                              <h4 className="line-clamp-2 text-[13px] 2xl:text-sm font-semibold leading-snug text-white/90 transition-colors group-hover:text-white">
+                                {headline.homepageTitle || headline.title}
+                              </h4>
                             </div>
                           </div>
                         </Link>
@@ -434,6 +437,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                                 {getItemKicker(headline)}
                               </span>
                             </div>
+                            <h4 className="line-clamp-2 text-[13px] 2xl:text-sm font-semibold leading-snug text-gray-500">
+                              {headline.homepageTitle || headline.title || "Untitled"}
+                            </h4>
                           </div>
                         </div>
                       )}

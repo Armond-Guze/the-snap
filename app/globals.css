@@ -337,6 +337,23 @@ html[data-theme="light"] .theme-nav :is(a:hover, button:hover) {
   color: hsl(220 15% 6%) !important;
 }
 
+html[data-theme="light"] .home-shell [class*="text-white"],
+html[data-theme="light"] .home-shell [class*="text-gray-"] {
+  color: hsl(220 13% 10%) !important;
+}
+
+html[data-theme="light"] .home-shell [class*="bg-white/"] {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="light"] .home-shell [class*="border-white/"] {
+  border-color: rgba(0, 0, 0, 0.18) !important;
+}
+
+html[data-theme="light"] .home-shell :is(a:hover, button:hover) {
+  color: hsl(220 15% 6%) !important;
+}
+
 @theme inline {
   --radius-sm:
     calc(var(--radius) - 4px);
