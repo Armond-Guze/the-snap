@@ -235,9 +235,9 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
-					<section className="mb-8 rounded-2xl bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
-						<h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{article.title}</h1>
-						<div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
+					<section className="mb-6 rounded-2xl bg-zinc-900/85 px-4 py-4 sm:px-5 sm:py-5">
+						<h1 className="text-2xl sm:text-3xl md:text-[2.2rem] font-extrabold leading-tight text-white mb-2 md:mb-3 text-left">{article.title}</h1>
+						<div className="text-[12px] sm:text-[13px] text-gray-400 mb-4 flex items-center gap-2.5 text-left flex-wrap">
 							{article.author?.image?.asset?.url && (
 								<div className="relative w-8 h-8 rounded-full overflow-hidden">
 									<Image
@@ -283,7 +283,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							)}
 						</div>
 						{article.coverImage?.asset?.url && (
-							<div className="relative h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-xl shadow-sm">
+							<div className="relative -mx-4 sm:-mx-5 h-[220px] sm:h-[310px] md:h-[430px] overflow-hidden">
 								<Image
 									src={article.coverImage.asset.url}
 									alt={(article.coverImage as { alt?: string })?.alt || article.title}
@@ -295,10 +295,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</div>
 						)}
 						{article.summary && (
-							<p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>
+							<p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>
 						)}
 						{tagList.length > 0 && (
-							<div className="mt-4 flex flex-wrap gap-2">
+							<div className="mt-3 flex flex-wrap gap-2">
 								{tagList.map((tag) => (
 									<Link
 										key={tag.slug || tag.title}
