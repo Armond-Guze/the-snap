@@ -57,6 +57,7 @@ const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = 
 
 const MOBILE_TEAM_CODES: (keyof typeof TEAM_META)[] = ["KC", "BUF", "PHI", "DAL", "SF", "DET", "BAL", "MIA"];
 const FANTASY_NAV_ITEM: NavItem = { key: "fantasy", label: "Fantasy", href: "/fantasy" };
+const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
 
 function shouldKeepFantasyInMainNav(now = new Date()): boolean {
   const override = process.env.NEXT_PUBLIC_FANTASY_NAV_MODE?.trim().toLowerCase();
@@ -185,10 +186,12 @@ export default function Navbar() {
               </div>
 
               <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4 text-white">
-                <div className="rounded-xl bg-white/[0.04] p-3">
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Theme</p>
-                  <ThemeToggle />
-                </div>
+                {LIGHT_THEME_ENABLED && (
+                  <div className="rounded-xl bg-white/[0.04] p-3">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Theme</p>
+                    <ThemeToggle />
+                  </div>
+                )}
 
                 <div className="space-y-1.5">
                   <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Menu</p>
@@ -461,7 +464,7 @@ export default function Navbar() {
           <div className="hidden sm:block">
             <SmartSearch />
           </div>
-          <ThemeToggle />
+          {LIGHT_THEME_ENABLED && <ThemeToggle />}
           <ProfileMenu />
         </div>
       </div>

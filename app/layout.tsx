@@ -24,17 +24,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
+
 const themeInitScript = `
 (() => {
   try {
-    const storageKey = "theme-preference";
     const root = document.documentElement;
+    ${LIGHT_THEME_ENABLED
+      ? `
+    const storageKey = "theme-preference";
     const saved = localStorage.getItem(storageKey);
     const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const theme = saved === "light" || saved === "dark" ? saved : (systemDark ? "dark" : "light");
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
     root.classList.toggle("dark", theme === "dark");
+    `
+      : `
+    const storageKey = "theme-preference";
+    root.dataset.theme = "dark";
+    root.style.colorScheme = "dark";
+    root.classList.add("dark");
+    try {
+      localStorage.setItem(storageKey, "dark");
+    } catch {
+      // Ignore storage failures.
+    }
+    `}
   } catch {
     // Keep server-rendered defaults if storage/media access fails.
   }
@@ -125,7 +141,7 @@ export default function RootLayout({
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="color-scheme" content="dark light" />
+        <meta name="color-scheme" content={LIGHT_THEME_ENABLED ? "dark light" : "dark"} />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   {/* Explicit favicon links (square SVG for crisp scaling) */}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
