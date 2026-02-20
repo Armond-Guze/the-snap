@@ -10,18 +10,20 @@ import PageTransition from './PageTransition';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStudioRoute = pathname.startsWith('/studio');
+  const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
   const isArticlePage = pathname.includes('/headlines/') && pathname.split('/').length > 2;
   const isHomePage = pathname === '/';
+  const hideGlobalChrome = isStudioRoute || isAuthRoute;
 
   return (
     <>
-      {!isStudioRoute && <Navbar />}
-  {/* {!isStudioRoute && !isArticlePage && !isHomePage && <NavbarAd />}  Ads disabled temporarily */}
+      {!hideGlobalChrome && <Navbar />}
+  {/* {!hideGlobalChrome && !isArticlePage && !isHomePage && <NavbarAd />}  Ads disabled temporarily */}
       <PageTransition>
         <main>{children}</main>
       </PageTransition>
-      {!isStudioRoute && <Footer />}
-      {!isStudioRoute && <BackToTop />}
+      {!hideGlobalChrome && <Footer />}
+      {!hideGlobalChrome && <BackToTop />}
     </>
   );
 }

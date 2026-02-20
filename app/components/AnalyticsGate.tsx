@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 
 // Dynamically import analytics so bundle excluded when user opted out
 const VercelAnalytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics), { ssr: false, loading: () => null });
@@ -18,6 +19,11 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
  * Includes a small toggle button in non-production environments.
  */
 export default function AnalyticsGate() {
+  const pathname = usePathname();
+  const hideOnRoute =
+    pathname.startsWith("/studio") ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/sign-up");
   const [excluded, setExcluded] = useState<boolean | null>(null);
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
 
@@ -98,6 +104,7 @@ export default function AnalyticsGate() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggle]);
 
+  if (hideOnRoute) return null;
   if (excluded === null || hasConsent === null) return null;
 
   const analyticsEnabled = !excluded && hasConsent;

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -7,18 +8,22 @@ declare global {
 }
 
 export default function CookieConsent() {
+  const pathname = usePathname();
+  const hideOnRoute =
+    pathname.startsWith('/studio') ||
+    pathname.startsWith('/sign-in') ||
+    pathname.startsWith('/sign-up');
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
-      // Hide banner inside Sanity Studio (/studio/*) since it's only for editors.
-      if (window.location.pathname.startsWith('/studio')) return;
+      if (hideOnRoute) return;
 
       const stored = window.localStorage.getItem('cookie_consent');
       if (!stored) setVisible(true);
     } catch {/* ignore */}
-  }, []);
+  }, [hideOnRoute]);
 
   const accept = () => {
     try {
@@ -32,7 +37,7 @@ export default function CookieConsent() {
     }
   };
 
-  if (!visible) return null;
+  if (hideOnRoute || !visible) return null;
 
   return (
     <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-3xl px-5 py-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[#05060a]/95 via-[#0b1020]/70 to-[#05060a]/95 shadow-2xl backdrop-blur">
