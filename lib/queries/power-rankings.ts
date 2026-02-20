@@ -80,3 +80,16 @@ export const powerRankingsLatestSnapshotForSeasonQuery = `
         rankings[]{ rank, teamAbbr, teamName }
       }
 `;
+
+export const powerRankingsLatestSnapshotQuery = `
+  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true]
+    | order(
+        seasonYear desc,
+        coalesce(weekNumber, select(playoffRound == "WC" => 19, playoffRound == "DIV" => 20, playoffRound == "CONF" => 21, playoffRound == "SB" => 22, 0)) desc,
+        date desc
+      )[0]{
+        seasonYear,
+        weekNumber,
+        playoffRound
+      }
+`;

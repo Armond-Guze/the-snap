@@ -1,8 +1,11 @@
 import { client } from "@/sanity/lib/client";
-import { powerRankingsLatestSnapshotForSeasonQuery } from "@/lib/queries/power-rankings";
+import {
+  powerRankingsLatestSnapshotForSeasonQuery,
+  powerRankingsLatestSnapshotQuery,
+} from "@/lib/queries/power-rankings";
 import { getActiveSeason } from "@/lib/season";
 import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { SITE_URL } from "@/lib/site-config";
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
@@ -58,22 +61,34 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
+type LatestSnapshotTarget = {
+  seasonYear: number;
+  weekNumber?: number;
+  playoffRound?: string;
+};
+
 export default async function PowerRankingsArticlePage() {
+  let latestSnapshot: LatestSnapshotTarget | null = null;
+
   try {
     const season = await getActiveSeason();
-    const latestSnapshot: { seasonYear: number; weekNumber?: number; playoffRound?: string } | null =
+    const latestSnapshotForSeason: LatestSnapshotTarget | null =
       season ? await client.fetch(powerRankingsLatestSnapshotForSeasonQuery, { season }) : null;
-
-    if (latestSnapshot?.seasonYear && (latestSnapshot.weekNumber || latestSnapshot.playoffRound)) {
-      const weekPart = latestSnapshot.playoffRound
-        ? latestSnapshot.playoffRound.toLowerCase()
-        : `week-${latestSnapshot.weekNumber}`;
-      redirect(`/articles/power-rankings/${latestSnapshot.seasonYear}/${weekPart}`);
-    }
-
-    notFound();
+    latestSnapshot =
+      latestSnapshotForSeason ?? await client.fetch(powerRankingsLatestSnapshotQuery);
   } catch (error) {
-    console.error('Power Rankings error:', error);
-    notFound();
+    console.error('Power Rankings query failed:', error);
   }
+
+  if (
+    latestSnapshot?.seasonYear &&
+    (typeof latestSnapshot.weekNumber === 'number' || latestSnapshot.playoffRound)
+  ) {
+    const weekPart = latestSnapshot.playoffRound
+      ? latestSnapshot.playoffRound.toLowerCase()
+      : `week-${latestSnapshot.weekNumber}`;
+    redirect(`/articles/power-rankings/${latestSnapshot.seasonYear}/${weekPart}`);
+  }
+
+  redirect('/power-rankings/changelog');
 }
