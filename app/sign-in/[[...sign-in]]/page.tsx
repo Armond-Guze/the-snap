@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import { SignIn } from '@clerk/nextjs';
+
+export const metadata: Metadata = {
+  title: 'Log In | The Snap',
+  description: 'Log in to your The Snap account.',
+  alternates: { canonical: '/sign-in' },
+  robots: { index: false, follow: false },
+};
 
 export default function SignInPage() {
   return (

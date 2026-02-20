@@ -10,6 +10,7 @@ import type { Metadata } from 'next';
 import StructuredData from '../components/StructuredData';
 import WeekDropdown from './WeekDropdown';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
+import { SITE_URL } from '@/lib/site-config';
 
 // Root schedule metadata (dynamic by season; week-specific pages handle granular titles)
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,11 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
       'NFL matchups',
       'NFL week by week schedule'
     ].join(', '),
-    alternates: { canonical: 'https://thegamesnap.com/schedule' },
+    alternates: { canonical: `${SITE_URL}/schedule` },
     openGraph: {
       title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,
       description: `Complete ${season} NFL schedule: dates, kickoff times (ET), TV channels, live scores and weekly navigation.`,
-      url: 'https://thegamesnap.com/schedule',
+      url: `${SITE_URL}/schedule`,
       type: 'website'
     },
     twitter: {

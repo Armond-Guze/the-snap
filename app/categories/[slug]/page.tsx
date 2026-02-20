@@ -7,6 +7,7 @@ import Image from 'next/image';
 import NewsletterSignup from '@/app/components/NewsletterSignup';
 import { generateCategorySEOMetadata } from '@/lib/seo';
 import { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
 
@@ -99,7 +100,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
   const nextPageHref = `/categories/${categorySlug}?page=${currentPage + 1}`;
 
   // Build JSON-LD ItemList for SEO
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const baseUrl = SITE_URL;
   const listLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',

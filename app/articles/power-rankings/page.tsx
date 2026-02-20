@@ -3,6 +3,7 @@ import { powerRankingsLatestSnapshotForSeasonQuery } from "@/lib/queries/power-r
 import { getActiveSeason } from "@/lib/season";
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { SITE_URL } from "@/lib/site-config";
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
   '#97233F': 'text-[#97233F]',
@@ -49,10 +50,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
     description: 'Weekly updated rankings for all 32 NFL teams with movement notes and analysis.',
-    url: 'https://thegamesnap.com/articles/power-rankings',
+    url: `${SITE_URL}/articles/power-rankings`,
     type: 'website',
   },
-  alternates: { canonical: 'https://thegamesnap.com/articles/power-rankings' },
+  alternates: { canonical: `${SITE_URL}/articles/power-rankings` },
 };
 
 export const revalidate = 60;

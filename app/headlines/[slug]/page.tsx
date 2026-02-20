@@ -22,6 +22,7 @@ import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
 import MostRead from '@/app/components/MostRead';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
 
@@ -42,7 +43,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   const metadata = generateSEOMetadata(headline, '/articles');
   // Safety: enforce canonical exactly once (avoid double slash issues)
-  const canonicalBase = 'https://thegamesnap.com/articles';
+  const canonicalBase = `${SITE_URL}/articles`;
   const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
   return {
     ...metadata,
@@ -152,8 +153,8 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   ];
 
 
-  const shareUrl = `https://thegamesnap.com/articles/${trimmedSlug}`;
-  const ogFallback = `https://thegamesnap.com/api/og?${new URLSearchParams({
+  const shareUrl = `${SITE_URL}/articles/${trimmedSlug}`;
+  const ogFallback = `${SITE_URL}/api/og?${new URLSearchParams({
     title: headline.title,
     subtitle: headline.summary || headline.title,
     category: headline.category?.title || '',

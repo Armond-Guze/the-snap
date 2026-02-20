@@ -1,16 +1,17 @@
 import { Metadata } from 'next'
+import { DEFAULT_OG_IMAGE_PATH, SITE_URL } from '@/lib/site-config'
 
 export const metadata: Metadata = {
-  title: "2025 NFL Standings – Division Leaders & Playoff Picture | The Snap",
-  description: "Stay updated on the 2025 NFL standings with division-by-division records and playoff race context. Fresh after every game window.",
-  keywords: "NFL standings, NFL division standings, NFL playoff picture, NFL records, AFC standings, NFC standings, NFL playoffs 2025",
+  title: "NFL Standings – Division Leaders & Playoff Picture | The Snap",
+  description: "Stay updated on NFL standings with division-by-division records and playoff race context. Fresh after every game window.",
+  keywords: "NFL standings, NFL division standings, NFL playoff picture, NFL records, AFC standings, NFC standings",
   openGraph: {
-    title: "2025 NFL Standings – Division Leaders & Playoff Picture | The Snap",
-    description: "Live 2025 NFL standings with records, division leaders, and playoff implications after every game.",
-    url: 'https://thegamesnap.com/standings',
+    title: "NFL Standings – Division Leaders & Playoff Picture | The Snap",
+    description: "Live NFL standings with records, division leaders, and playoff implications after every game.",
+    url: `${SITE_URL}/standings`,
     images: [
       {
-        url: '/images/thesnap-logo-new copy.jpg',
+        url: DEFAULT_OG_IMAGE_PATH,
         width: 1200,
         height: 630,
         alt: 'NFL Standings - The Snap',
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
-    images: ['/images/thesnap-logo-new copy.jpg'],
+    images: [DEFAULT_OG_IMAGE_PATH],
   },
   alternates: {
     canonical: '/standings',

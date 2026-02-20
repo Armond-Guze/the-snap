@@ -12,28 +12,29 @@ import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { client } from "@/sanity/lib/client";
+import { DEFAULT_OG_IMAGE_URL, SITE_BRAND, SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "The Game Snap (The Snap) - NFL News, Power Rankings, Standings & Analysis",
-  description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.",
+  title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings, Standings & Analysis`,
+  description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.`,
   openGraph: {
-    title: "The Game Snap (The Snap) - NFL News, Power Rankings & Analysis",
-    description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.",
-    url: 'https://thegamesnap.com',
+    title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings & Analysis`,
+    description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.`,
+    url: SITE_URL,
     images: [
-  {
-    url: 'https://thegamesnap.com/images/thesnap-logo-transparent.png',
-    width: 1200,
-    height: 630,
-    alt: 'The Snap - NFL News and Analysis Homepage',
-  },
+      {
+        url: DEFAULT_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} - NFL News and Analysis Homepage`,
+      },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Game Snap (The Snap) - NFL News, Power Rankings & Analysis",
-    description: "The Game Snap (The Snap) brings the latest NFL news, power rankings, standings, and game schedules.",
-  images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
+    title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings & Analysis`,
+    description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules.`,
+    images: [DEFAULT_OG_IMAGE_URL],
   },
 }
 

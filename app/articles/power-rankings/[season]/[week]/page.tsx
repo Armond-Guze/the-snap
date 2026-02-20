@@ -16,6 +16,7 @@ import { formatArticleDate } from '@/lib/date-utils';
 import { gradientClassForTeam } from '@/lib/team-utils';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
 import { teamCodeFromName } from '@/lib/team-utils';
+import { SITE_URL } from '@/lib/site-config';
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
   '#97233F': 'text-[#97233F]',
@@ -127,7 +128,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
-  const baseUrl = 'https://thegamesnap.com';
+  const baseUrl = SITE_URL;
   const canonical = `${baseUrl}/articles/power-rankings/${season}/${week}`;
   const ogImage = `${baseUrl}/api/og?${new URLSearchParams({
     title,
@@ -209,7 +210,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   const displaySummary = data.summary || liveDoc?.summary;
   const displayCover = data.coverImage || liveDoc?.coverImage;
   const displayAuthor = data.author || liveDoc?.author;
-  const shareUrl = `https://thegamesnap.com/articles/power-rankings/${season}/${week}`;
+  const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${week}`;
   const breadcrumbItems = [
     { label: 'Articles', href: '/articles' },
     { label: 'Power Rankings', href: '/articles/power-rankings' },

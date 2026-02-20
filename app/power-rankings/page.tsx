@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { SITE_URL } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
@@ -7,10 +8,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Power Rankings – Weekly Team Rankings & Analysis | The Snap',
     description: 'Weekly updated rankings for all 32 NFL teams with movement notes and analysis.',
-    url: 'https://thegamesnap.com/articles/power-rankings',
+    url: `${SITE_URL}/articles/power-rankings`,
     type: 'website',
   },
-  alternates: { canonical: 'https://thegamesnap.com/articles/power-rankings' },
+  alternates: { canonical: `${SITE_URL}/articles/power-rankings` },
 };
 
 export default function PowerRankingsPage() {

@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/site-config'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/studio/', '/api/'],
     },
-    sitemap: 'https://thegamesnap.com/sitemap.xml', // Replace with your actual domain
+    sitemap: `${SITE_URL}/sitemap.xml`,
   }
 }

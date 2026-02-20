@@ -22,6 +22,7 @@ import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
 
@@ -47,8 +48,8 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 				? `week-${weekNumber}`
 				: null;
 		const canonical = weekPart && season
-			? `https://thegamesnap.com/articles/power-rankings/${season}/${weekPart}`
-			: 'https://thegamesnap.com/articles/power-rankings';
+			? `${SITE_URL}/articles/power-rankings/${season}/${weekPart}`
+			: `${SITE_URL}/articles/power-rankings`;
 		return {
 			...generateSEOMetadata(article, '/articles'),
 			alternates: {
@@ -58,7 +59,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 	}
 
 	const metadata = generateSEOMetadata(article, '/articles');
-	const canonicalBase = 'https://thegamesnap.com/articles';
+	const canonicalBase = `${SITE_URL}/articles`;
 	const cleanSlug = article.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
 	return {
 		...metadata,
@@ -186,8 +187,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		{ label: article.title }
 	];
 
-	const shareUrl = `https://thegamesnap.com/articles/${trimmedSlug}`;
-	const ogFallback = `https://thegamesnap.com/api/og?${new URLSearchParams({
+	const shareUrl = `${SITE_URL}/articles/${trimmedSlug}`;
+	const ogFallback = `${SITE_URL}/api/og?${new URLSearchParams({
 		title: article.title,
 		subtitle: article.summary || article.title,
 		category: article.category?.title || '',

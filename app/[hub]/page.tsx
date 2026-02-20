@@ -5,8 +5,9 @@ import type { Metadata } from 'next'
 import StructuredData from '@/app/components/StructuredData'
 import { formatArticleDate } from '@/lib/date-utils'
 import { client } from '@/sanity/lib/client'
+import { SITE_URL } from '@/lib/site-config'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com'
+const baseUrl = SITE_URL
 
 interface TopicHubPageProps {
   params: Promise<{ hub: string }>

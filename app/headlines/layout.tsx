@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { DEFAULT_OG_IMAGE_PATH, SITE_URL } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: "NFL Headlines & Breaking News - The Snap",
@@ -7,21 +8,21 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NFL Headlines & Breaking News - The Snap",
     description: "Stay updated with the latest NFL headlines, breaking news, trade rumors, and injury reports.",
-    url: 'https://thegamesnap.com/headlines',
+    url: `${SITE_URL}/headlines`,
     images: [
-  {
-    url: '/images/thesnap-logo-new copy.jpg',
-    width: 1200,
-    height: 630,
-    alt: 'The Snap - NFL Headlines',
-  },
+      {
+        url: DEFAULT_OG_IMAGE_PATH,
+        width: 1200,
+        height: 630,
+        alt: 'The Snap - NFL Headlines',
+      },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: "NFL Headlines & Breaking News - The Snap",
     description: "Stay updated with the latest NFL headlines, breaking news, trade rumors, and injury reports.",
-  images: ['/images/thesnap-logo-new copy.jpg'],
+    images: [DEFAULT_OG_IMAGE_PATH],
   },
   alternates: {
     canonical: '/headlines',

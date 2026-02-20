@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import type { PageProps } from '@/types';
+import { SITE_URL } from '@/lib/site-config';
 
 const PLAYOFF_LABELS: Record<string, string> = {
   WC: 'Wild Card',
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
-  const baseUrl = 'https://thegamesnap.com';
+  const baseUrl = SITE_URL;
   const canonical = `${baseUrl}/articles/power-rankings/${season}/${week}`;
   const ogImage = `${baseUrl}/api/og?${new URLSearchParams({
     title,

@@ -9,6 +9,7 @@ import { client } from '@/sanity/lib/client';
 import { getActiveSeason } from '@/lib/season';
 import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
 import { TEAM_COLORS } from '@/app/components/teamLogos';
+import { SITE_URL } from '@/lib/site-config';
 
 // Follow project convention: params delivered as a Promise
 interface TeamPageProps { params: Promise<{ team: string }> }
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   return {
     title,
     description,
-    alternates: { canonical: `https://thegamesnap.com/teams/${slug}` },
+    alternates: { canonical: `${SITE_URL}/teams/${slug}` },
     openGraph: { title, description },
     twitter: { card: 'summary_large_image', title, description }
   };
@@ -166,7 +167,7 @@ export default async function TeamSchedulePage({ params }: TeamPageProps) {
         sport: 'American Football',
         memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
           season: String(season),
-        url: `https://thegamesnap.com/teams/${slugifyTeamName(meta.name)}`,
+        url: `${SITE_URL}/teams/${slugifyTeamName(meta.name)}`,
         hasPart: eventList,
       }
     : null;

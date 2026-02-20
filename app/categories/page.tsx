@@ -1,6 +1,7 @@
 import { client } from '@/sanity/lib/client';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 600;
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Categories – The Snap',
     description: 'Explore topic hubs for every major NFL storyline and analysis area.',
-    url: 'https://thegamesnap.com/categories',
+    url: `${SITE_URL}/categories`,
     type: 'website'
   },
   robots: { index: true, follow: true }

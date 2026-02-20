@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getCalendarBuckets, getCalendarMilestones, getNextMilestone } from '@/lib/calendar';
 import { formatDetailedDate } from '@/lib/date-utils';
 import type { CalendarMilestone } from '@/types/calendar';
+import { SITE_URL } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'NFL Offseason Calendar | The Snap',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Offseason Calendar',
     description: 'Important dates, countdowns, and context for the next league year.',
-    url: 'https://thegamesnap.com/calendar'
+    url: `${SITE_URL}/calendar`
   },
   twitter: {
     card: 'summary_large_image',

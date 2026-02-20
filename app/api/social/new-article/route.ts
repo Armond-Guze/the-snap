@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { client as baseClient } from '@/sanity/lib/client';
 import { postTweet } from '@/lib/twitter';
+import { SITE_URL } from '@/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ ok: false, error: 'Document not found or not a headline' }), { status: 404 });
   }
 
-  const baseUrl = process.env.SITE_URL || 'https://thegamesnap.com';
+  const baseUrl = process.env.SITE_URL || SITE_URL;
   const slug = doc.slug?.current || '';
   const urlObj = new URL(`/headlines/${slug}`, baseUrl);
   // Add UTM params for analytics

@@ -9,6 +9,7 @@ import TagCloud from '../components/TagCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MostRead from '../components/MostRead';
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site-config';
 
 export const metadata: Metadata = {
   title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
     description: 'Fresh NFL news and analysis across all 32 teams—fan-first, no corporate spin.',
-    url: 'https://thegamesnap.com/headlines',
+    url: `${SITE_URL}/headlines`,
     type: 'website',
   },
 };

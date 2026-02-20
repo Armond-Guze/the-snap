@@ -16,6 +16,7 @@ import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time'
 import { formatArticleDate } from '@/lib/date-utils';
 import { portableTextComponents } from '@/lib/portabletext-components';
 import type { HeadlineListItem, TypedObject } from '@/types';
+import { SITE_URL } from '@/lib/site-config';
 
 interface FantasyDetail {
   _id: string;
@@ -154,7 +155,7 @@ export default async function FantasyArticlePage(props: PageProps) {
               {blocks && <PortableText value={blocks as unknown as TypedObject[]} components={portableTextComponents} />}
             </div>
           </section>
-          <SocialShare url={`https://thegamesnap.com/fantasy/${slug}`} title={article.title} description={article.summary || ''} variant="compact" className="mb-8" />
+          <SocialShare url={`${SITE_URL}/fantasy/${slug}`} title={article.title} description={article.summary || ''} variant="compact" className="mb-8" />
         </article>
 
         {/* Sidebar */}

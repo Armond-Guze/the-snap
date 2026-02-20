@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { computeDraftOrder } from '@/lib/draft-order';
 import { TEAM_META } from '@/lib/schedule';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 900; // 15 minutes; cron/API revalidation will force-refresh sooner
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'NFL Draft Order Tracker | Tank-a-thon',
     description: 'Updated draft order with traded picks and movement after every game.',
-    url: 'https://thegamesnap.com/tankathon'
+    url: `${SITE_URL}/tankathon`
   },
   twitter: {
     card: 'summary_large_image',

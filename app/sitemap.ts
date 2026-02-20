@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next'
 import { client } from '../sanity/lib/client'
+import { SITE_URL } from '@/lib/site-config'
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com'
+const baseUrl = SITE_URL
 
 // Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
 // You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).

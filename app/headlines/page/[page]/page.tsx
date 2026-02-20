@@ -4,11 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { HeadlineListItem } from '@/types';
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 120;
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
   const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
-  const canonical = `https://thegamesnap.com${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
+  const canonical = `${SITE_URL}${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
   return {
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
     description: `Archive page ${pageNum} of NFL headlines, analysis and news articles from The Snap.`,

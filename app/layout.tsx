@@ -8,6 +8,14 @@ import LayoutWrapper from "./components/LayoutWrapper";
 import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import {
+  DEFAULT_OG_IMAGE_PATH,
+  DEFAULT_OG_IMAGE_URL,
+  SITE_BRAND,
+  SITE_NAME,
+  SITE_TWITTER,
+  SITE_URL,
+} from "@/lib/site-config";
 
 // Centralized config (build-time evaluated)
 const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
@@ -58,52 +66,53 @@ const themeInitScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
-  description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
-  authors: [{ name: "The Game Snap Editorial Team" }],
-  creator: "The Game Snap",
-  publisher: "The Game Snap",
+  title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
+  description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.`,
+  authors: [{ name: `${SITE_BRAND} Editorial Team` }],
+  creator: SITE_BRAND,
+  publisher: SITE_BRAND,
+  applicationName: SITE_NAME,
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://thegamesnap.com'),
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
-    description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.",
-    url: 'https://thegamesnap.com',
-    siteName: 'The Game Snap',
+    title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
+    description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.`,
+    url: SITE_URL,
+    siteName: SITE_BRAND,
     images: [
-  {
-    url: 'https://thegamesnap.com/images/thesnap-logo-transparent.png',
-    width: 1200,
-    height: 630,
-    alt: 'The Snap - NFL News and Analysis',
-  },
+      {
+        url: DEFAULT_OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} - NFL News and Analysis`,
+      },
     ],
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "The Game Snap (The Snap) – NFL News, Rankings & Analysis",
-    description: "The Game Snap (The Snap) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.",
-    creator: '@thesnap',
-    images: ['https://thegamesnap.com/images/thesnap-logo-transparent.png'],
+    title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
+    description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.`,
+    creator: SITE_TWITTER,
+    images: [DEFAULT_OG_IMAGE_URL],
   },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '32x32' },
-      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '192x192' },
-      { url: '/images/thesnap-logo-transparent.png', type: 'image/png', sizes: '512x512' }
+      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '32x32' },
+      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '192x192' },
+      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '512x512' }
     ],
     apple: [
-      { url: '/images/thesnap-logo-transparent.png', sizes: '180x180', type: 'image/png' }
+      { url: DEFAULT_OG_IMAGE_PATH, sizes: '180x180', type: 'image/png' }
     ],
     shortcut: ['/favicon.svg']
   },
@@ -127,12 +136,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const websiteData = createWebsiteStructuredData('The Game Snap', 'https://thegamesnap.com', 'The Snap')
+  const websiteData = createWebsiteStructuredData(SITE_BRAND, SITE_URL, SITE_NAME)
   const organizationData = createOrganizationStructuredData(
-    'The Game Snap',
-    'https://thegamesnap.com',
-    'https://thegamesnap.com/images/thesnap-logo-transparent.png',
-    'The Snap'
+    SITE_BRAND,
+    SITE_URL,
+    DEFAULT_OG_IMAGE_URL,
+    SITE_NAME
   )
 
   return (

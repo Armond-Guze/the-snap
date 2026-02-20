@@ -1,5 +1,8 @@
 // Email templates for newsletter confirmation and welcome emails
 // These templates can be used with your newsletter service (Mailchimp, ConvertKit, etc.)
+import { SITE_URL } from '@/lib/site-config';
+
+const EMAIL_SITE_URL = SITE_URL;
 
 export const confirmationEmailTemplate = `
 <!DOCTYPE html>
@@ -223,7 +226,7 @@ export const welcomeEmailTemplate = `
                 <p>While you wait for your first newsletter, explore our website for the latest NFL content:</p>
                 
                 <div style="text-align: center;">
-                    <a href="https://thegamesnap.com/headlines" class="button">Read Latest Headlines</a>
+                    <a href="${EMAIL_SITE_URL}/headlines" class="button">Read Latest Headlines</a>
                 </div>
                 
                 <p>Have questions or feedback? Reply to this email - we read every message!</p>
@@ -234,7 +237,7 @@ export const welcomeEmailTemplate = `
             
             <div class="footer">
                 <p>© 2025 The Game Snap. All rights reserved.</p>
-                <p><a href="{{UNSUBSCRIBE_LINK}}" style="color: #6b7280;">Unsubscribe</a> | <a href="https://thegamesnap.com" style="color: #6b7280;">Visit Website</a></p>
+                <p><a href="{{UNSUBSCRIBE_LINK}}" style="color: #6b7280;">Unsubscribe</a> | <a href="${EMAIL_SITE_URL}" style="color: #6b7280;">Visit Website</a></p>
             </div>
         </div>
     </div>
@@ -371,7 +374,7 @@ export const weeklyNewsletterTemplate = `
             
             <div class="footer">
                 <p>© 2025 The Game Snap. All rights reserved.</p>
-                <p><a href="{{UNSUBSCRIBE_LINK}}" style="color: #6b7280;">Unsubscribe</a> | <a href="https://thegamesnap.com" style="color: #6b7280;">Visit Website</a> | <a href="mailto:thegamesnap@yahoo.com" style="color: #6b7280;">Contact Us</a></p>
+                <p><a href="{{UNSUBSCRIBE_LINK}}" style="color: #6b7280;">Unsubscribe</a> | <a href="${EMAIL_SITE_URL}" style="color: #6b7280;">Visit Website</a> | <a href="mailto:thegamesnap@yahoo.com" style="color: #6b7280;">Contact Us</a></p>
             </div>
         </div>
     </div>

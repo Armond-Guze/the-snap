@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { DEFAULT_OG_IMAGE_PATH, SITE_URL } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: "NFL Power Rankings - Week by Week Team Rankings | The Snap",
@@ -7,10 +8,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "NFL Power Rankings - Week by Week Team Rankings | The Snap",
     description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up with expert analysis.",
-    url: 'https://thegamesnap.com/articles/power-rankings',
+    url: `${SITE_URL}/articles/power-rankings`,
     images: [
       {
-        url: '/images/thesnap-logo-new copy.jpg',
+        url: DEFAULT_OG_IMAGE_PATH,
         width: 1200,
         height: 630,
         alt: 'The Snap - NFL Power Rankings',
@@ -21,10 +22,10 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "NFL Power Rankings - Week by Week Team Rankings",
     description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up.",
-    images: ['/images/thesnap-logo-new copy.jpg'],
+    images: [DEFAULT_OG_IMAGE_PATH],
   },
   alternates: {
-    canonical: 'https://thegamesnap.com/articles/power-rankings',
+    canonical: `${SITE_URL}/articles/power-rankings`,
   },
 }
 

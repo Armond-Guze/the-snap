@@ -1,4 +1,5 @@
 import { client } from '@/sanity/lib/client';
+import { SITE_URL } from '@/lib/site-config';
 
 // Revalidate every 10 minutes
 export const revalidate = 600;
@@ -21,7 +22,7 @@ export async function GET() {
     _id,title,homepageTitle,slug,summary,date,_createdAt,_updatedAt,category->{title}
   }`);
 
-  const siteUrl = 'https://thegamesnap.com';
+  const siteUrl = SITE_URL;
   const updated = items[0]?.date || items[0]?._updatedAt || new Date().toISOString();
 
   const escape = (s?: string) => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

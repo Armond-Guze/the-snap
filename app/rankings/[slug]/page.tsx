@@ -25,6 +25,7 @@ import { generateSEOMetadata } from "@/lib/seo";
 import { gradientClassForTeam } from "@/lib/team-utils";
 import { calculateReadingTime, extractTextFromBlocks } from "@/lib/formatting";
 import { formatArticleDate } from "@/lib/formatting";
+import { SITE_URL } from "@/lib/site-config";
 
 // Type guard to detect legacy article documents (former "rankings" type)
 function isLegacyArticle(doc: unknown): doc is RankingsType {
@@ -103,7 +104,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
           ? `week-${legacy.weekNumber}`
           : null;
       const canonical = weekPart ? `/articles/power-rankings/${season}/${weekPart}` : '/articles/power-rankings';
-      const canonicalAbs = `https://thegamesnap.com${canonical}`;
+      const canonicalAbs = `${SITE_URL}${canonical}`;
       return {
         title: legacy.title || 'NFL Power Rankings',
         description: legacy.summary || 'NFL Power Rankings and weekly snapshots.',
@@ -269,7 +270,7 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
   ];
 
   // Build JSON-LD: NewsArticle + ItemList of teams
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const baseUrl = SITE_URL;
   const canonicalUrl = `${baseUrl}/articles/${slug}`;
   const ogImage = ranking.coverImage?.asset?.url || `${baseUrl}/api/og?${new URLSearchParams({
     title: ranking.title,
@@ -439,7 +440,7 @@ function UnifiedRankingRenderer({
   ];
 
   // Structured data for unified article
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com';
+  const baseUrl = SITE_URL;
   const canonicalUrl = `${baseUrl}/articles/${slug}`;
   const ogImage = ranking.featuredImage?.asset?.url || `${baseUrl}/api/og?${new URLSearchParams({
     title: ranking.title,

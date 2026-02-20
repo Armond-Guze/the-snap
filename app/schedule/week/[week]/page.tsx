@@ -10,6 +10,7 @@ import type { Metadata } from 'next';
 import StructuredData from '../../../components/StructuredData';
 import WeekDropdown from '../../WeekDropdown';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
+import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
 
@@ -24,7 +25,7 @@ export async function generateMetadata(p: { params: Promise<Params> }): Promise<
   const season = await getActiveSeason();
   const baseTitle = `NFL Schedule ${weekLabel} ${season} – Matchups, Times (ET) & TV Channels`;
   const desc = `Complete NFL ${weekLabel} ${season} schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
-  const canonical = `https://thegamesnap.com${week ? `/schedule/week/${week}` : '/schedule'}`;
+  const canonical = `${SITE_URL}${week ? `/schedule/week/${week}` : '/schedule'}`;
   return {
     title: baseTitle + ' | The Snap',
     description: desc,
