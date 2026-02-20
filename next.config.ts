@@ -22,6 +22,26 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: '/categories/bengals',
+        destination: '/teams/bengals',
+        permanent: true,
+      },
+      {
+        source: '/categories/giants-qb',
+        destination: '/teams/giants',
+        permanent: true,
+      },
+      {
+        source: '/categories/dolphins',
+        destination: '/teams/dolphins',
+        permanent: true,
+      },
+      {
+        source: '/rankings/top-10-nfl-players-of-the-2024-season',
+        destination: '/articles',
+        permanent: true,
+      },
+      {
         source: '/rankings',
         destination: '/articles',
         permanent: true,
