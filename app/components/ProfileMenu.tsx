@@ -294,16 +294,16 @@ export default function ProfileMenu() {
                   <Link
                     href="/sign-in"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10"
+                    className="rounded-xl border border-[#d7d9df] bg-[#ececef] px-3 py-2.5 text-center text-sm font-semibold text-[#1f2430] transition-colors hover:bg-[#e2e4e8]"
                   >
-                    Sign in
+                    Log In
                   </Link>
                   <Link
                     href="/sign-up"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10"
+                    className="rounded-xl border border-[#1a57ec] bg-[#1f63ff] px-3 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#1a57ec]"
                   >
-                    Sign up
+                    Sign Up
                   </Link>
                 </div>
               </div>
