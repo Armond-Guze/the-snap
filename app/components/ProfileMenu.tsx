@@ -1,176 +1,288 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { FaRegCircleUser } from 'react-icons/fa6';
-import { TEAM_LOGOS, TEAM_COLORS } from './teamLogos';
-import { SignedIn, SignedOut, SignOutButton, useUser } from '@clerk/nextjs';
 
-// Very lightweight user profile stored in localStorage
-interface UserProfile {
-  id: string;
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { FaRegCircleUser } from "react-icons/fa6";
+import { SignedIn, SignedOut, SignOutButton, useUser } from "@clerk/nextjs";
+
+import { fetchCurrentUserProfile, updateCurrentUserProfile } from "@/lib/users/client";
+import type { UserProfileDTO } from "@/lib/users/contracts";
+
+import { TEAM_COLORS, TEAM_LOGOS } from "./teamLogos";
+
+interface LocalProfile {
   favoriteTeam?: string;
   teamLogoUrl?: string;
-  // legacy login fields kept for backwards compatibility (ignored now)
-  signedIn?: boolean;
-  email?: string;
 }
 
-// Hook to persist profile in localStorage
-function useUserProfile(): [UserProfile | null, (p: Partial<UserProfile>) => void] {
-  // Initialize from localStorage immediately (client-only) to avoid first-paint 'None Selected'
-  const [profile, setProfile] = useState<UserProfile | null>(() => {
-    if (typeof window === 'undefined') return null; // SSR safeguard
-    try {
-      const raw = window.localStorage.getItem('userProfile');
-      if (raw) return JSON.parse(raw) as UserProfile;
-      // Legacy single-key migration (if an older version stored just the code)
-      const legacyFav = window.localStorage.getItem('favoriteTeam');
-      if (legacyFav) {
-        const migrated: UserProfile = { id: 'local-user', favoriteTeam: legacyFav, teamLogoUrl: TEAM_LOGOS[legacyFav] };
-        window.localStorage.setItem('userProfile', JSON.stringify(migrated));
-        return migrated;
+const LOCAL_PROFILE_KEY = "userProfile";
+const LEGACY_TEAM_KEY = "favoriteTeam";
+
+function readLocalProfile(): LocalProfile | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_PROFILE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as LocalProfile;
+      if (parsed.favoriteTeam) {
+        return {
+          favoriteTeam: parsed.favoriteTeam,
+          teamLogoUrl: TEAM_LOGOS[parsed.favoriteTeam] || parsed.teamLogoUrl,
+        };
       }
-    } catch {}
+    }
+
+    const legacyFavoriteTeam = window.localStorage.getItem(LEGACY_TEAM_KEY);
+    if (legacyFavoriteTeam) {
+      const migrated: LocalProfile = {
+        favoriteTeam: legacyFavoriteTeam,
+        teamLogoUrl: TEAM_LOGOS[legacyFavoriteTeam],
+      };
+      window.localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(migrated));
+      return migrated;
+    }
+  } catch {
     return null;
-  });
+  }
 
-  const update = (p: Partial<UserProfile>) => {
-    setProfile(prev => {
-      const base = (prev || { id: 'local-user' }) as UserProfile;
-      const next: UserProfile = { ...base, ...p };
-      // If favoriteTeam is cleared/undefined, also drop teamLogoUrl to avoid stale logos
-      if (!next.favoriteTeam) {
-        delete next.favoriteTeam; // optional: remove the key entirely
-        delete next.teamLogoUrl;
-        try { window.localStorage.removeItem('favoriteTeam'); } catch {}
-      }
-      try { window.localStorage.setItem('userProfile', JSON.stringify(next)); } catch {}
-      return next;
-    });
-  };
+  return null;
+}
 
-  return [profile, update];
+function writeLocalProfile(profile: LocalProfile | null) {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (!profile?.favoriteTeam) {
+      window.localStorage.removeItem(LOCAL_PROFILE_KEY);
+      window.localStorage.removeItem(LEGACY_TEAM_KEY);
+      return;
+    }
+
+    window.localStorage.setItem(LOCAL_PROFILE_KEY, JSON.stringify(profile));
+    window.localStorage.removeItem(LEGACY_TEAM_KEY);
+  } catch {
+    // Ignore localStorage write errors.
+  }
 }
 
 export default function ProfileMenu() {
+  const { isSignedIn, isLoaded, user } = useUser();
+
   const [open, setOpen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const [profile, update] = useUserProfile();
-  const { isSignedIn, isLoaded, user } = useUser();
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [localProfile, setLocalProfile] = useState<LocalProfile | null>(() => readLocalProfile());
+  const [serverProfile, setServerProfile] = useState<UserProfileDTO | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Close on outside click / Escape
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const legacyMigrationAttempted = useRef(false);
+
+  const allTeams = [
+    "ARI",
+    "ATL",
+    "BAL",
+    "BUF",
+    "CAR",
+    "CHI",
+    "CIN",
+    "CLE",
+    "DAL",
+    "DEN",
+    "DET",
+    "GB",
+    "HOU",
+    "IND",
+    "JAX",
+    "KC",
+    "LV",
+    "LAC",
+    "LAR",
+    "MIA",
+    "MIN",
+    "NE",
+    "NO",
+    "NYG",
+    "NYJ",
+    "PHI",
+    "PIT",
+    "SF",
+    "SEA",
+    "TB",
+    "TEN",
+    "WAS",
+  ];
+
   useEffect(() => {
     if (!open) return;
-    const handlePointer = (e: MouseEvent | TouchEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setOpen(false);
+
+    const handlePointer = (event: MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
     };
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', handlePointer);
-    document.addEventListener('touchstart', handlePointer);
-    document.addEventListener('keydown', handleKey);
+
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointer);
+    document.addEventListener("touchstart", handlePointer);
+    document.addEventListener("keydown", handleKey);
+
     return () => {
-      document.removeEventListener('mousedown', handlePointer);
-      document.removeEventListener('touchstart', handlePointer);
-      document.removeEventListener('keydown', handleKey);
+      document.removeEventListener("mousedown", handlePointer);
+      document.removeEventListener("touchstart", handlePointer);
+      document.removeEventListener("keydown", handleKey);
     };
   }, [open]);
 
-  const allTeams = [
-    'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LV','LAC','LAR','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SF','SEA','TB','TEN','WAS'
-  ];
+  useEffect(() => {
+    let cancelled = false;
 
-  const clerkMeta = (user?.unsafeMetadata || {}) as { favoriteTeam?: string; teamLogoUrl?: string };
-  const effectiveFavorite = clerkMeta.favoriteTeam || profile?.favoriteTeam;
-  const effectiveLogo = clerkMeta.teamLogoUrl || profile?.teamLogoUrl;
-  const derivedLogo = effectiveFavorite ? TEAM_LOGOS[effectiveFavorite] : undefined;
-  const avatarSrc = (effectiveFavorite ? (effectiveLogo || derivedLogo) : undefined) || '/images/avatar-silhouette-white.svg';
+    async function loadProfile() {
+      if (!isLoaded || !isSignedIn) {
+        legacyMigrationAttempted.current = false;
+        setServerProfile(null);
+        setIsLoadingProfile(false);
+        return;
+      }
+
+      setIsLoadingProfile(true);
+      setErrorMessage(null);
+
+      try {
+        const profile = await fetchCurrentUserProfile();
+        if (!cancelled) {
+          setServerProfile(profile);
+        }
+      } catch (error) {
+        console.error("Failed to load user profile", error);
+        if (!cancelled) {
+          setErrorMessage("Could not load profile right now.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoadingProfile(false);
+        }
+      }
+    }
+
+    void loadProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, isSignedIn, user?.id]);
 
   useEffect(() => {
-    if (!isSignedIn || !user) return;
-    const localFav = profile?.favoriteTeam;
-    const metaFav = (user.unsafeMetadata as { favoriteTeam?: string } | undefined)?.favoriteTeam;
-    if (!metaFav && localFav) {
-      user.update({
-        unsafeMetadata: {
-          ...(user.unsafeMetadata || {}),
-          favoriteTeam: localFav,
-          teamLogoUrl: profile?.teamLogoUrl || TEAM_LOGOS[localFav],
-        },
-      }).catch(() => {});
+    if (!isLoaded || !isSignedIn || !serverProfile) return;
+    if (legacyMigrationAttempted.current) return;
+
+    legacyMigrationAttempted.current = true;
+    const localFavorite = localProfile?.favoriteTeam;
+
+    if (!localFavorite || serverProfile.preferences.favoriteTeam) {
+      return;
     }
-  }, [isSignedIn, user, profile?.favoriteTeam, profile?.teamLogoUrl]);
+
+    void (async () => {
+      try {
+        const migrated = await updateCurrentUserProfile({ favoriteTeam: localFavorite });
+        setServerProfile(migrated);
+        setLocalProfile(null);
+        writeLocalProfile(null);
+      } catch (error) {
+        console.error("Failed to migrate legacy local profile", error);
+      }
+    })();
+  }, [isLoaded, isSignedIn, serverProfile, localProfile?.favoriteTeam]);
+
+  const effectiveFavorite = isSignedIn
+    ? serverProfile?.preferences.favoriteTeam ?? undefined
+    : localProfile?.favoriteTeam;
+
+  const effectiveLogo = effectiveFavorite ? TEAM_LOGOS[effectiveFavorite] : undefined;
+  const avatarSrc = effectiveLogo || "/images/avatar-silhouette-white.svg";
 
   const updateFavorite = async (code?: string) => {
-    if (code) {
-      update({ favoriteTeam: code, teamLogoUrl: TEAM_LOGOS[code], signedIn: isSignedIn });
-    } else {
-      update({ favoriteTeam: undefined, teamLogoUrl: undefined });
+    setErrorMessage(null);
+
+    if (!isSignedIn) {
+      const next = code
+        ? {
+            favoriteTeam: code,
+            teamLogoUrl: TEAM_LOGOS[code],
+          }
+        : null;
+
+      setLocalProfile(next);
+      writeLocalProfile(next);
+      return;
     }
 
-    if (!isSignedIn || !user) return;
-    const nextMeta: Record<string, unknown> = { ...(user.unsafeMetadata || {}) };
-    if (code) {
-      nextMeta.favoriteTeam = code;
-      nextMeta.teamLogoUrl = TEAM_LOGOS[code];
-    } else {
-      delete nextMeta.favoriteTeam;
-      delete nextMeta.teamLogoUrl;
-    }
+    setIsSavingProfile(true);
+
     try {
-      await user.update({ unsafeMetadata: nextMeta });
-    } catch {}
+      const updatedProfile = await updateCurrentUserProfile({ favoriteTeam: code ?? null });
+      setServerProfile(updatedProfile);
+      setLocalProfile(null);
+      writeLocalProfile(null);
+    } catch (error) {
+      console.error("Failed to save favorite team", error);
+      setErrorMessage("Could not save your favorite team. Try again.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   return (
     <div className="relative" ref={menuRef}>
-  {/* Dynamically inject minimal CSS for team colors (once) */}
-  <style dangerouslySetInnerHTML={{ __html: Object.entries(TEAM_COLORS).map(([k,v]) => `.team-color-${k}{--team-color:${v};}`).join('') }} />
-      {open ? (
-        <button
-          onClick={() => setOpen(o => !o)}
-          aria-haspopup="true"
-          aria-expanded="true"
-          aria-controls="profile-menu-panel"
-          className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-white hover:text-white/90 focus:outline-none cursor-pointer"
-        >
-          {(derivedLogo || profile?.teamLogoUrl) ? (
-            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden">
-              <Image src={avatarSrc} alt={profile?.favoriteTeam ? `${profile.favoriteTeam} logo` : 'Profile'} fill sizes="36px" className="object-cover" />
-            </div>
-          ) : (
-            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden flex items-center justify-center">
-              <FaRegCircleUser className="w-5 h-5 md:w-6 md:h-6 text-white/80" aria-hidden="true" />
-              <span className="sr-only">Profile</span>
-            </div>
-          )}
-        </button>
-      ) : (
-        <button
-          onClick={() => setOpen(o => !o)}
-          aria-haspopup="true"
-          aria-expanded="false"
-          aria-controls="profile-menu-panel"
-          className="relative w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-white hover:text-white/90 focus:outline-none cursor-pointer"
-        >
-          {(derivedLogo || profile?.teamLogoUrl) ? (
-            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden">
-              <Image src={avatarSrc} alt={profile?.favoriteTeam ? `${profile.favoriteTeam} logo` : 'Profile'} fill sizes="36px" className="object-cover" />
-            </div>
-          ) : (
-            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden flex items-center justify-center">
-              <FaRegCircleUser className="w-5 h-5 md:w-6 md:h-6 text-white/80" aria-hidden="true" />
-              <span className="sr-only">Profile</span>
-            </div>
-          )}
-        </button>
-      )}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: Object.entries(TEAM_COLORS)
+            .map(([key, value]) => `.team-color-${key}{--team-color:${value};}`)
+            .join(""),
+        }}
+      />
+
+      <button
+        onClick={() => setOpen((state) => !state)}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls="profile-menu-panel"
+        className="relative flex h-9 w-9 cursor-pointer items-center justify-center text-white hover:text-white/90 focus:outline-none md:h-10 md:w-10"
+      >
+        {effectiveLogo ? (
+          <div className="relative h-8 w-8 overflow-hidden rounded-full md:h-9 md:w-9">
+            <Image
+              src={avatarSrc}
+              alt={effectiveFavorite ? `${effectiveFavorite} logo` : "Profile"}
+              fill
+              sizes="36px"
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full md:h-9 md:w-9">
+            <FaRegCircleUser className="h-5 w-5 text-white/80 md:h-6 md:w-6" aria-hidden="true" />
+            <span className="sr-only">Profile</span>
+          </div>
+        )}
+      </button>
+
       {open && (
         <div
           id="profile-menu-panel"
-          className="absolute right-0 mt-3 w-[360px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl p-4 shadow-2xl z-50 animate-fade-in"
-          role="dialog" aria-label="Profile menu" aria-modal="false"
+          className="animate-fade-in absolute right-0 z-50 mt-3 w-[360px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur-xl"
+          role="dialog"
+          aria-label="Profile menu"
+          aria-modal="false"
         >
           <div className="mb-3">
             <SignedOut>
@@ -182,25 +294,26 @@ export default function ProfileMenu() {
                   <Link
                     href="/sign-in"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10 text-center"
+                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/sign-up"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10 text-center"
+                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs font-semibold uppercase tracking-wide text-white/80 hover:bg-white/10"
                   >
                     Sign up
                   </Link>
                 </div>
               </div>
             </SignedOut>
+
             <SignedIn>
               <div className="flex items-center justify-between text-xs text-white/60">
                 <span className="truncate">{user?.primaryEmailAddress?.emailAddress}</span>
                 <SignOutButton>
-                  <button className="text-[11px] px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 text-white/80">
+                  <button className="rounded-md bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10">
                     Sign out
                   </button>
                 </SignOutButton>
@@ -208,67 +321,90 @@ export default function ProfileMenu() {
             </SignedIn>
           </div>
 
-          <p className="text-xs uppercase tracking-wide text-white/40 mb-2">Favorite Team</p>
+          <p className="mb-2 text-xs uppercase tracking-wide text-white/40">Favorite Team</p>
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/80 font-medium">{effectiveFavorite || 'None Selected'}</span>
+              <span className="text-sm font-medium text-white/80">
+                {effectiveFavorite || "None Selected"}
+              </span>
               <button
                 type="button"
-                className="text-xs px-2 py-1 rounded-md bg-white/5 hover:bg-white/10 text-white/80"
-                onClick={() => setShowPicker(s => !s)}
-              >{showPicker ? 'Close' : (effectiveFavorite ? 'Change Team' : 'Choose Team')}</button>
+                disabled={isLoadingProfile || isSavingProfile}
+                className="rounded-md bg-white/5 px-2 py-1 text-xs text-white/80 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => setShowPicker((state) => !state)}
+              >
+                {showPicker
+                  ? "Close"
+                  : effectiveFavorite
+                  ? "Change Team"
+                  : "Choose Team"}
+              </button>
             </div>
+
+            {isSignedIn && isLoadingProfile && (
+              <p className="text-[11px] text-white/55">Syncing your account profile...</p>
+            )}
+
+            {errorMessage && (
+              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[11px] text-red-200">
+                {errorMessage}
+              </p>
+            )}
+
             {showPicker && (
-              <div className="grid grid-cols-6 gap-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar" role="listbox" aria-label="Select Favorite Team">
-                {allTeams.map(code => {
-                  const active = profile?.favoriteTeam === code;
-                  const color = TEAM_COLORS[code] || '#444444';
-                  // Compute brightness for text contrast
-                  const r = parseInt(color.slice(1,3),16), g = parseInt(color.slice(3,5),16), b = parseInt(color.slice(5,7),16);
-                  const brightness = 0.2126*r + 0.7152*g + 0.0722*b;
-                  const textClass = brightness > 160 ? 'text-black' : 'text-white';
+              <div
+                className="custom-scrollbar grid max-h-56 grid-cols-6 gap-2 overflow-y-auto pr-1"
+                role="listbox"
+                aria-label="Select Favorite Team"
+              >
+                {allTeams.map((code) => {
+                  const active = effectiveFavorite === code;
+                  const color = TEAM_COLORS[code] || "#444444";
+                  const red = Number.parseInt(color.slice(1, 3), 16);
+                  const green = Number.parseInt(color.slice(3, 5), 16);
+                  const blue = Number.parseInt(color.slice(5, 7), 16);
+                  const brightness = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+                  const textClass = brightness > 160 ? "text-black" : "text-white";
+
                   return (
-                    active ? (
-                      <button
-                        key={code}
-                        type="button"
-                        data-team={code}
-                        data-active="true"
-                        onClick={() => {
-                          updateFavorite(code);
-                          setShowPicker(false);
-                          setTimeout(() => setOpen(false), 150);
-                        }}
-                        className={`team-color-${code} relative aspect-square rounded-md flex items-center justify-center text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 bg-[color:var(--team-color)] ${textClass} ring-2 ring-white/70 scale-105 shadow-lg shadow-black/40`}
-                        role="option"
-                        aria-selected="true"
-                      >{code}</button>
-                    ) : (
-                      <button
-                        key={code}
-                        type="button"
-                        data-team={code}
-                        data-active="false"
-                        onClick={() => {
-                          updateFavorite(code);
-                          setShowPicker(false);
-                          setTimeout(() => setOpen(false), 150);
-                        }}
-                        className={`team-color-${code} relative aspect-square rounded-md flex items-center justify-center text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 bg-[color:var(--team-color)] ${textClass} opacity-90 hover:opacity-100 hover:brightness-110`}
-                        role="option"
-                        aria-selected="false"
-                      >{code}</button>
-                    )
+                    <button
+                      key={code}
+                      type="button"
+                      data-team={code}
+                      data-active={active}
+                      onClick={() => {
+                        void updateFavorite(code);
+                        setShowPicker(false);
+                        setTimeout(() => setOpen(false), 150);
+                      }}
+                      className={`team-color-${code} relative flex aspect-square items-center justify-center rounded-md bg-[color:var(--team-color)] text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${textClass} ${
+                        active
+                          ? "scale-105 ring-2 ring-white/70 shadow-lg shadow-black/40"
+                          : "opacity-90 hover:brightness-110 hover:opacity-100"
+                      }`}
+                      role="option"
+                      aria-selected={active}
+                    >
+                      {code}
+                    </button>
                   );
                 })}
               </div>
             )}
+
             {effectiveFavorite && (
               <button
                 type="button"
-                className="w-full text-left text-[11px] text-red-300/70 hover:text-red-300 hover:bg-red-500/10 rounded-lg px-3 py-2 transition-colors focus:outline-none"
-                onClick={() => { updateFavorite(undefined); setShowPicker(true); }}
-              >Clear Selection</button>
+                disabled={isSavingProfile}
+                className="w-full rounded-lg px-3 py-2 text-left text-[11px] text-red-300/70 transition-colors hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => {
+                  void updateFavorite(undefined);
+                  setShowPicker(true);
+                }}
+              >
+                Clear Selection
+              </button>
             )}
           </div>
         </div>
