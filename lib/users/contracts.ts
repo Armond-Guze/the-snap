@@ -1,5 +1,6 @@
 export type AuthProviderValue = "CLERK" | "APPLE" | "GOOGLE" | "EMAIL_PASSWORD";
 export type ThemePreferenceValue = "SYSTEM" | "LIGHT" | "DARK";
+export type OnboardingStateValue = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 export type FollowTargetTypeValue = "TEAM" | "TOPIC" | "AUTHOR";
 export type SubscriptionChannelValue = "EMAIL" | "PUSH" | "IN_APP";
 export type SubscriptionTopicValue =
@@ -12,6 +13,8 @@ export type SubscriptionTopicValue =
 export interface UserPreferenceDTO {
   favoriteTeam: string | null;
   themePreference: ThemePreferenceValue;
+  onboardingState: OnboardingStateValue;
+  onboardingCompletedAt: string | null;
 }
 
 export interface UserFollowDTO {
@@ -44,6 +47,7 @@ export interface UserProfileDTO {
 export interface UpdateProfileInput {
   favoriteTeam?: string | null;
   themePreference?: ThemePreferenceValue | null;
+  onboardingCompleted?: boolean;
 }
 
 export interface ReplaceFollowsInput {

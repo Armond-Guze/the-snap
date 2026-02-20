@@ -3,6 +3,7 @@ import "server-only";
 import {
   AuthProvider,
   FollowTargetType,
+  OnboardingState,
   Prisma,
   SubscriptionChannel,
   SubscriptionTopic,
@@ -94,6 +95,8 @@ function toDto(record: UserWithRelations): UserProfileDTO {
     preferences: {
       favoriteTeam: record.preferences?.favoriteTeam ?? null,
       themePreference: (record.preferences?.themePreference ?? ThemePreference.SYSTEM) as UserProfileDTO["preferences"]["themePreference"],
+      onboardingState: (record.preferences?.onboardingState ?? OnboardingState.NOT_STARTED) as UserProfileDTO["preferences"]["onboardingState"],
+      onboardingCompletedAt: record.preferences?.onboardingCompletedAt?.toISOString() ?? null,
     },
     follows: record.follows.map((follow) => ({
       targetType: follow.targetType as UserProfileDTO["follows"][number]["targetType"],
@@ -226,6 +229,7 @@ export async function upsertUserFromAuthIdentity(input: UpsertAuthUserInput): Pr
           preferences: {
             create: {
               favoriteTeam: normalizedFavoriteTeam ?? null,
+              onboardingState: OnboardingState.NOT_STARTED,
             },
           },
         },
@@ -323,8 +327,9 @@ export async function updatePreferencesByAuthIdentity(
 
   const hasFavoriteTeam = Object.prototype.hasOwnProperty.call(input, "favoriteTeam");
   const hasThemePreference = Object.prototype.hasOwnProperty.call(input, "themePreference");
+  const hasOnboardingCompleted = Object.prototype.hasOwnProperty.call(input, "onboardingCompleted");
 
-  if (!hasFavoriteTeam && !hasThemePreference) {
+  if (!hasFavoriteTeam && !hasThemePreference && !hasOnboardingCompleted) {
     throw new Error("NO_UPDATES");
   }
 
@@ -338,6 +343,23 @@ export async function updatePreferencesByAuthIdentity(
         throw new Error("INVALID_TEAM_CODE");
       }
       nextFavoriteTeam = normalizedTeamCode;
+    }
+  }
+
+  let onboardingState: OnboardingState | undefined;
+  let onboardingCompletedAt: Date | null | undefined;
+
+  if (hasOnboardingCompleted) {
+    if (typeof input.onboardingCompleted !== "boolean") {
+      throw new Error("INVALID_ONBOARDING_COMPLETED");
+    }
+
+    if (input.onboardingCompleted) {
+      onboardingState = OnboardingState.COMPLETED;
+      onboardingCompletedAt = new Date();
+    } else {
+      onboardingState = OnboardingState.IN_PROGRESS;
+      onboardingCompletedAt = null;
     }
   }
 
@@ -359,6 +381,13 @@ export async function updatePreferencesByAuthIdentity(
       const themePreference = toThemePreference(input.themePreference);
       preferenceCreate.themePreference = themePreference;
       preferenceUpdate.themePreference = themePreference;
+    }
+
+    if (hasOnboardingCompleted) {
+      preferenceCreate.onboardingState = onboardingState;
+      preferenceCreate.onboardingCompletedAt = onboardingCompletedAt;
+      preferenceUpdate.onboardingState = onboardingState;
+      preferenceUpdate.onboardingCompletedAt = onboardingCompletedAt;
     }
 
     return tx.user.update({

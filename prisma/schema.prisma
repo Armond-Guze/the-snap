@@ -21,6 +21,12 @@ enum ThemePreference {
   DARK
 }
 
+enum OnboardingState {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
 enum FollowTargetType {
   TEAM
   TOPIC
@@ -39,6 +45,18 @@ enum SubscriptionTopic {
   TEAM_UPDATES
   FANTASY_UPDATES
   DRAFT_UPDATES
+}
+
+enum WebhookProvider {
+  CLERK
+  SANITY
+}
+
+enum WebhookEventStatus {
+  RECEIVED
+  PROCESSED
+  SKIPPED
+  FAILED
 }
 
 model User {
@@ -81,6 +99,8 @@ model UserPreference {
   userId          String          @unique @db.Uuid
   favoriteTeam    String?         @db.VarChar(3)
   themePreference ThemePreference @default(SYSTEM)
+  onboardingState OnboardingState @default(NOT_STARTED)
+  onboardingCompletedAt DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -116,4 +136,40 @@ model UserSubscription {
 
   @@unique([userId, channel, topic])
   @@index([userId])
+}
+
+model WebhookEventLog {
+  id            String            @id @default(uuid()) @db.Uuid
+  provider      WebhookProvider
+  eventId       String            @db.VarChar(191)
+  eventType     String            @db.VarChar(120)
+  status        WebhookEventStatus @default(RECEIVED)
+  attemptCount  Int               @default(1)
+  firstSeenAt   DateTime          @default(now())
+  lastAttemptAt DateTime          @default(now())
+  processedAt   DateTime?
+  lastError     String?
+  payload       Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([provider, eventId])
+  @@index([provider, eventType])
+  @@index([status, lastAttemptAt])
+}
+
+model AuthRateLimitState {
+  id            String   @id @default(uuid()) @db.Uuid
+  scope         String   @db.VarChar(80)
+  identifier    String   @db.VarChar(191)
+  windowStart   DateTime
+  windowEndsAt  DateTime
+  requestCount  Int      @default(0)
+  blockedUntil  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([scope, identifier])
+  @@index([blockedUntil])
+  @@index([windowEndsAt])
 }
