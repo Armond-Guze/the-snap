@@ -236,7 +236,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
-					<section className="mb-6 rounded-2xl bg-zinc-900/85 px-4 py-4 sm:px-5 sm:py-5">
+					<section className="mb-6 -mx-6 rounded-none bg-zinc-900/85 px-6 py-4 sm:mx-0 sm:rounded-2xl sm:px-5 sm:py-5">
 						<h1 className="text-2xl sm:text-3xl md:text-[2.2rem] font-extrabold leading-tight text-white mb-2 md:mb-3 text-left">{article.title}</h1>
 						<div className="text-[12px] sm:text-[13px] text-gray-400 mb-4 flex items-center gap-2.5 text-left flex-wrap">
 							{article.author?.image?.asset?.url && (
@@ -284,7 +284,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							)}
 						</div>
 						{article.coverImage?.asset?.url && (
-							<div className="relative -mx-4 sm:-mx-5 h-[220px] sm:h-[310px] md:h-[430px] overflow-hidden">
+							<div className="relative -mx-6 sm:-mx-5 h-[220px] sm:h-[310px] md:h-[430px] overflow-hidden">
 								<Image
 									src={article.coverImage.asset.url}
 									alt={(article.coverImage as { alt?: string })?.alt || article.title}

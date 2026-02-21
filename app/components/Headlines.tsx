@@ -91,131 +91,123 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed);
   };
   const mobileSidebarItems = leftColumn.concat(rightSidebarMobile);
+  const mainPublished = formatShortDate(main?.publishedAt || main?.date);
+  const mainAuthor = main?.author?.name;
 
   return (
     <section className="relative">
       {/* Clean gradient background (top lighter, bottom darker) */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/35 via-black/55 to-black/85" />
 
-      {/* Mobile: Feature hero + compact list */}
-      <div className="lg:hidden px-4 pb-8 pt-3">
-        {main?.coverImage?.asset?.url && main?.slug?.current ? (
+      {/* Mobile: Feature story + swipeable rail */}
+      <div className="lg:hidden px-4 pb-9 pt-3">
+        {main?.slug?.current ? (
           <Link href={getArticleUrl(main)} className="group block">
-            <div className="relative h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden rounded-2xl bg-gray-900 shadow-[0_22px_70px_rgba(0,0,0,0.45)]">
-              <Image
-                src={main.coverImage.asset.url}
-                alt={main.title}
-                fill
-                priority
-                sizes={HERO_SIZES}
-                className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-              <div className="thumbnail-overlay-text absolute inset-x-0 top-0 flex items-center justify-between p-4">
-                <span className="inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
-                  Top Story
-                </span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40">
-                  <svg
-                    className="h-4 w-4 text-white/80 group-hover:text-white transition-colors duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </span>
+            <article className="overflow-hidden rounded-[24px] bg-[linear-gradient(160deg,rgba(10,10,11,0.9),rgba(4,4,5,0.96))] shadow-[0_20px_45px_-28px_rgba(0,0,0,0.85)]">
+              <div className="relative aspect-[16/11] overflow-hidden bg-gray-900">
+                {main.coverImage?.asset?.url ? (
+                  <Image
+                    src={main.coverImage.asset.url}
+                    alt={main.title}
+                    fill
+                    priority
+                    sizes={HERO_SIZES}
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
               </div>
 
-              <div className="thumbnail-overlay-text absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white line-clamp-3 group-hover:text-gray-200 transition-colors duration-300 sm:text-3xl">
+              <div className="bg-black/70 px-4 pb-4 pt-3.5">
+                {mainPublished && (
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/55">
+                    {mainPublished}
+                  </div>
+                )}
+
+                <h2 className="text-[1.55rem] font-bold leading-tight text-white transition-colors duration-300 group-hover:text-white/90 line-clamp-3">
                   {main.homepageTitle || main.title || "Untitled"}
                 </h2>
+
                 {main.summary && !hideSummaries && (
-                  <p className="text-sm leading-relaxed text-gray-200/95 line-clamp-2 sm:text-base">
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-300/95">
                     {main.summary}
                   </p>
                 )}
+
+                {mainAuthor && (
+                  <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/55">By {mainAuthor}</p>
+                )}
               </div>
-            </div>
+            </article>
           </Link>
         ) : (
-          <div className="relative h-[52vh] min-h-[340px] max-h-[520px] overflow-hidden rounded-2xl bg-gray-900 shadow-[0_22px_70px_rgba(0,0,0,0.45)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/60 to-black/60" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-            <div className="thumbnail-overlay-text absolute inset-x-0 bottom-0 p-5">
-              <h2 className="mb-3 text-[1.65rem] font-bold leading-tight text-white sm:text-3xl">No Headlines Available</h2>
-              <p className="text-sm leading-relaxed text-gray-300 sm:text-base">
-                Check back soon for the latest NFL news and updates.
-              </p>
-            </div>
+          <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(160deg,rgba(15,23,42,0.8),rgba(2,6,23,0.96))] px-4 py-5">
+            <h2 className="text-2xl font-bold leading-tight text-white">No Headlines Available</h2>
+            <p className="mt-2 text-sm leading-relaxed text-gray-300">Check back soon for the latest NFL news and updates.</p>
           </div>
         )}
 
-        {/* Mobile Sidebar - below hero */}
-        <div className="mt-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-bold tracking-tight text-white">Around The NFL</h3>
-            <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
-              {mobileSidebarItems.length} Stories
-            </span>
+        <div className="mt-7">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold tracking-tight text-white">Around The NFL</h3>
+            </div>
           </div>
-          <ul className="space-y-3">
-            {mobileSidebarItems.map((headline) => {
+
+          <ul className="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {mobileSidebarItems.map((headline, index) => {
               const author = headline.author?.name;
-              const published = formatShortDate(headline.publishedAt);
+              const published = formatShortDate(headline.publishedAt || headline.date);
+              const cardTitle = headline.homepageTitle || headline.title || "Untitled";
+
               return (
-                <li key={headline._id}>
+                <li key={headline._id} className="w-[82%] max-w-[334px] flex-none snap-start">
                   {headline.slug?.current ? (
                     <Link
                       href={getArticleUrl(headline)}
-                      className="group flex gap-3.5 rounded-2xl bg-white/[0.03] p-3 transition-all duration-300 hover:bg-white/[0.07] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                      className="group block h-full overflow-hidden rounded-2xl bg-[linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02))] transition-colors duration-300 hover:bg-[linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0.03))] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                     >
-                      <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800/40">
+                      <div className="relative h-36 overflow-hidden bg-gray-800/40">
                         {headline.coverImage?.asset?.url ? (
                           <Image
                             src={headline.coverImage.asset.url}
                             alt={headline.title}
                             fill
-                            className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.04]"
-                            sizes="112px"
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                            sizes="(max-width: 768px) 82vw, 300px"
                             priority={false}
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8z"/></svg>
-                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
                         )}
-                      </div>
-                      <div className="flex min-w-0 flex-1 flex-col pt-0.5">
-                        <div className="mb-1 flex items-center gap-2">
-                          {published && <span className="text-[10px] font-medium uppercase tracking-wide text-white/45">{published}</span>}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                        <div className="absolute left-3 top-3 inline-flex rounded-full border border-white/25 bg-black/35 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/80">
+                          {(index + 1).toString().padStart(2, "0")}
                         </div>
-                        <h4 className="mb-1 text-sm font-semibold leading-snug text-gray-100 line-clamp-2 group-hover:text-white">
-                          {headline.homepageTitle || headline.title}
+                      </div>
+
+                      <div className="p-3.5">
+                        <div className="mb-1.5 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
+                          {published && <span>{published}</span>}
+                          {published && author && <span className="text-white/30">•</span>}
+                          {author && <span className="truncate">{author}</span>}
+                        </div>
+
+                        <h4 className="line-clamp-2 text-[15px] font-semibold leading-snug text-white/95 transition-colors group-hover:text-white">
+                          {cardTitle}
                         </h4>
+
                         {!hideSummaries && headline.summary && (
-                          <p className="mb-1.5 line-clamp-2 text-[11px] leading-snug text-gray-400">{headline.summary}</p>
-                        )}
-                        {author && (
-                          <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-500 group-hover:text-gray-300">{author}</p>
+                          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-300/90">{headline.summary}</p>
                         )}
                       </div>
                     </Link>
                   ) : (
-                    <div className="flex gap-3.5 rounded-2xl bg-white/[0.03] p-3">
-                      <div className="relative h-24 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800/40" />
-                      <div className="flex min-w-0 flex-1 flex-col pt-0.5">
-                        <h4 className="mb-1 line-clamp-2 text-sm font-semibold leading-snug text-gray-500">
-                          {headline.title || "Untitled"}
-                        </h4>
-                      </div>
+                    <div className="h-full overflow-hidden rounded-2xl bg-white/[0.04] p-3.5">
+                      <h4 className="line-clamp-2 text-[15px] font-semibold leading-snug text-gray-500">{cardTitle}</h4>
                     </div>
                   )}
                 </li>
