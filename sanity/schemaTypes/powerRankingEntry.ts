@@ -148,21 +148,18 @@ export default defineType({
       teamAbbr: 'teamAbbr',
       teamName: 'teamName',
       teamTag: 'team.title',
+      teamLogo: 'teamLogo',
+      teamTagLogo: 'team.teamLogo',
       movement: 'movement',
       movementOverride: 'movementOverride',
       tier: 'tier',
     },
-    prepare(selection: {
-      rank?: number
-      teamAbbr?: string
-      teamName?: string
-      teamTag?: string
-      movement?: number
-      movementOverride?: number
-      tier?: string
-    }) {
+    prepare(selection) {
       const rank = typeof selection.rank === 'number' ? selection.rank : '?'
-      const team = (selection.teamAbbr || selection.teamName || selection.teamTag || 'Team').toUpperCase()
+      const teamNameRaw = (selection.teamTag || selection.teamName || '').trim()
+      const teamNameLooksLikeAbbr = /^[A-Z]{2,4}$/.test(teamNameRaw)
+      const fallbackName = (selection.teamName || selection.teamAbbr || 'Team').trim()
+      const team = teamNameRaw && !teamNameLooksLikeAbbr ? teamNameRaw : fallbackName
       const movement = typeof selection.movement === 'number'
         ? selection.movement
         : typeof selection.movementOverride === 'number'
@@ -174,6 +171,7 @@ export default defineType({
       return {
         title: `${rank} - ${team}`,
         subtitle: `${tierLabel} • ${movementLabel}`,
+        media: selection.teamLogo || selection.teamTagLogo,
       }
     },
   },

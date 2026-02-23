@@ -53,6 +53,7 @@ const PLAYOFF_LABELS = {
   DIV: 'Divisional',
   CONF: 'Conference Championship',
   SB: 'Super Bowl',
+  OFF: 'Offseason',
 };
 
 function teamLabel(item) {

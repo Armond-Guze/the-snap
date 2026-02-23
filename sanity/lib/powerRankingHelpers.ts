@@ -18,6 +18,7 @@ const PLAYOFF_LABELS: Record<string, string> = {
   DIV: 'Divisional',
   CONF: 'Conference Championship',
   SB: 'Super Bowl',
+  OFF: 'Offseason',
 }
 
 function clampMetaTitle(input: string): string {

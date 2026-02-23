@@ -57,6 +57,7 @@ const PLAYOFF_ROUNDS = [
   { value: 'DIV', label: 'Divisional' },
   { value: 'CONF', label: 'Conference Championship' },
   { value: 'SB', label: 'Super Bowl' },
+  { value: 'OFF', label: 'Offseason' },
 ] as const
 
 type PlayoffRound = (typeof PLAYOFF_ROUNDS)[number]['value']
@@ -98,7 +99,7 @@ type LivePowerRankingDoc = {
 }
 
 function getPrevPlayoffRound(round: PlayoffRound): PlayoffRound | null {
-  const order: PlayoffRound[] = ['WC', 'DIV', 'CONF', 'SB']
+  const order: PlayoffRound[] = ['WC', 'DIV', 'CONF', 'SB', 'OFF']
   const index = order.indexOf(round)
   if (index <= 0) return null
   return order[index - 1]
@@ -271,7 +272,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
       props?.toast?.push?.({
         status: 'warning',
         title: 'Invalid input',
-        description: `Choose a valid week (1–${REGULAR_SEASON_MAX_WEEK}) or playoff round.`,
+        description: `Choose a valid week (1–${REGULAR_SEASON_MAX_WEEK}), playoff round, or offseason.`,
       })
       return
     }
@@ -292,11 +293,11 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
       ? {
           type: 'dialog',
           onClose: () => (!submitting ? setDialogOpen(false) : undefined),
-          header: 'Create week snapshot',
+          header: 'Create snapshot',
           content: (
             <Stack space={4} padding={4}>
               <Text size={1} muted>
-                Choose the season and target to snapshot. Regular season supports Weeks 1–17, then Wild Card, Divisional, Conference Championship, and Super Bowl.
+                Choose the season and target to snapshot. Regular season supports Weeks 1–17, then Wild Card, Divisional, Conference Championship, Super Bowl, and Offseason.
               </Text>
               <TextInput
                 type="number"
@@ -325,7 +326,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
                       </option>
                     ))}
                   </optgroup>
-                  <optgroup label="Playoffs">
+                  <optgroup label="Playoffs & Offseason">
                     {PLAYOFF_ROUNDS.map((round) => (
                       <option key={round.value} value={round.value}>
                         {round.label}

@@ -12,9 +12,8 @@ import SocialShare from '@/app/components/SocialShare';
 import MostRead from '@/app/components/MostRead';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { formatArticleDate } from '@/lib/date-utils';
-import { gradientClassForTeam } from '@/lib/team-utils';
+import { gradientClassForTeam, teamCodeFromName, teamNameFromCode } from '@/lib/team-utils';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
-import { teamCodeFromName } from '@/lib/team-utils';
 import { SITE_URL } from '@/lib/site-config';
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
@@ -61,9 +60,11 @@ const PLAYOFF_LABELS: Record<string, string> = {
   DIV: 'Divisional',
   CONF: 'Conference Championship',
   SB: 'Super Bowl',
+  OFF: 'Offseason',
 };
 
-const PLAYOFF_ORDER: string[] = ['WC', 'DIV', 'CONF', 'SB'];
+const PLAYOFF_ORDER: string[] = ['WC', 'DIV', 'CONF', 'SB', 'OFF'];
+const TEAM_ABBR_PATTERN = /^[A-Z]{2,4}$/;
 
 type ParsedWeek =
   | { weekNumber: number; playoffRound?: undefined }
@@ -77,6 +78,9 @@ function parseWeekParam(raw: string): ParsedWeek {
     if (Number.isFinite(weekNumber) && weekNumber >= 1 && weekNumber <= 18) {
       return { weekNumber };
     }
+  }
+  if (normalized === 'offseason') {
+    return { playoffRound: 'OFF' };
   }
   const round = normalized.toUpperCase();
   if (PLAYOFF_ORDER.includes(round)) {
@@ -99,6 +103,36 @@ function getMovementIndicator(change: number): MovementIndicator {
     return { symbol: "▼", color: "text-red-500" };
   }
   return { symbol: "–", color: "text-gray-400" };
+}
+
+function resolveTeamDisplayName(entry: PowerRankingEntry): string {
+  const refTitle = typeof entry.team?.title === 'string' ? entry.team.title.trim() : '';
+  if (refTitle) return refTitle;
+
+  const rawName = typeof entry.teamName === 'string' ? entry.teamName.trim() : '';
+  if (rawName) {
+    const normalized = rawName.toUpperCase();
+    if (TEAM_ABBR_PATTERN.test(normalized)) {
+      return teamNameFromCode(normalized) || rawName;
+    }
+    return rawName;
+  }
+
+  const abbr = typeof entry.teamAbbr === 'string' ? entry.teamAbbr.trim().toUpperCase() : '';
+  return teamNameFromCode(abbr) || abbr || 'Team';
+}
+
+function resolveTeamCode(entry: PowerRankingEntry, displayName?: string): string {
+  const abbr = typeof entry.teamAbbr === 'string' ? entry.teamAbbr.trim().toUpperCase() : '';
+  if (abbr) return abbr;
+  const fromDisplay = teamCodeFromName(displayName || '');
+  if (fromDisplay) return fromDisplay;
+  const fromName = teamCodeFromName(entry.teamName || entry.team?.title || '');
+  return fromName || '';
+}
+
+function buildTeamLookupKey(entry: PowerRankingEntry, displayName?: string): string {
+  return resolveTeamCode(entry, displayName) || resolveTeamDisplayName(entry).toLowerCase();
 }
 
 export async function generateStaticParams() {
@@ -200,7 +234,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   });
 
   const prevMap = new Map(
-    (prevSnapshot?.rankings || []).map((entry) => [entry.teamAbbr || entry.teamName || entry.team?.title || '', entry.rank])
+    (prevSnapshot?.rankings || []).map((entry) => [buildTeamLookupKey(entry), entry.rank])
   );
 
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[data.playoffRound || ''] || 'Playoffs';
@@ -302,16 +336,17 @@ export default async function RankingsWeekPage({ params }: PageProps) {
               .sort((a, b) => a.rank - b.rank)
               .map((team: PowerRankingEntry, index: number) => {
                 const rank = team.rank;
-                const teamName = team.teamName || team.team?.title || '';
-                const teamLogo = team.teamLogo;
+                const teamName = resolveTeamDisplayName(team);
+                const teamCode = resolveTeamCode(team, teamName);
+                const teamLogo = team.teamLogo || team.team?.teamLogo;
                 const teamNameClass = getTeamColorClass(team.teamColor);
-	                const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
+	                const key = `${teamCode || teamName}-${rank}-${index}`;
 	                const prevRank =
 	                  typeof team.previousRank === 'number'
 	                    ? team.previousRank
                     : typeof team.prevRankOverride === 'number'
                       ? team.prevRankOverride
-	                    : prevMap.get(team.teamAbbr || teamName || team.team?.title || '');
+	                    : prevMap.get(buildTeamLookupKey(team, teamName));
 	                const change = typeof team.movement === 'number'
                     ? team.movement
 	                  : typeof team.movementOverride === 'number'
@@ -350,7 +385,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                             <div className="flex flex-col items-start">
                               <h2 className={`text-xl sm:text-2xl font-bold truncate ${teamNameClass}`}>{teamName}</h2>
                               {(() => {
-                                const abbr = team.teamAbbr || teamCodeFromName(teamName);
+                                const abbr = teamCode || teamCodeFromName(teamName);
                                 const rec = shortRecord(abbr ? records.get(abbr) : undefined);
                                 return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null;
                               })()}

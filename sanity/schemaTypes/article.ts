@@ -113,13 +113,13 @@ export default defineType({
       name: "weekNumber",
       title: "Week Number",
       type: "number",
-      description: "Regular season week number (1–17). Leave empty for playoff rounds.",
+      description: "Regular season week number (1–17). Leave empty for playoff or offseason snapshots.",
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!isPowerRankingsSnapshot(ctx.document)) return true;
           const playoffRound = ctx.document?.playoffRound;
-          if (typeof val !== "number" && !playoffRound) return "Week number is required for snapshots unless a playoff round is selected";
-          if (typeof val === "number" && playoffRound) return "Use either a week number or a playoff round, not both";
+          if (typeof val !== "number" && !playoffRound) return "Week number is required unless a playoff/offseason target is selected";
+          if (typeof val === "number" && playoffRound) return "Use either a week number or a playoff/offseason target, not both";
           if (typeof val === "number" && (val < 1 || val > 17)) return "Week number must be between 1 and 17";
           return true;
         }),
@@ -129,7 +129,7 @@ export default defineType({
 
     defineField({
       name: "playoffRound",
-      title: "Playoff Round",
+      title: "Playoff / Offseason Target",
       type: "string",
       options: {
         list: [
@@ -137,16 +137,17 @@ export default defineType({
           { title: "Divisional", value: "DIV" },
           { title: "Conference", value: "CONF" },
           { title: "Super Bowl", value: "SB" },
+          { title: "Offseason", value: "OFF" },
         ],
         layout: "radio",
       },
-      description: "Only use for playoff snapshots. Leave empty for regular season weeks.",
+      description: "Use for playoff or offseason snapshots. Leave empty for regular season weeks.",
       validation: (Rule) =>
         Rule.custom((val, ctx) => {
           if (!isPowerRankingsSnapshot(ctx.document)) return true;
           const weekNumber = ctx.document?.weekNumber;
-          if (!val && typeof weekNumber !== "number") return "Select a playoff round or enter a week number";
-          if (val && typeof weekNumber === "number") return "Use either a playoff round or a week number, not both";
+          if (!val && typeof weekNumber !== "number") return "Select a playoff/offseason target or enter a week number";
+          if (val && typeof weekNumber === "number") return "Use either a playoff/offseason target or a week number, not both";
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",

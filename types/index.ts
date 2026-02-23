@@ -58,7 +58,7 @@ export interface Author {
 // Power Rankings types
 export interface PowerRankingEntry {
   rank: number;
-  team?: { _id: string; title?: string; slug?: SanitySlug };
+  team?: { _id: string; title?: string; slug?: SanitySlug; teamLogo?: SanityImageWithUrl };
   teamAbbr?: string;
   teamName?: string;
   teamColor?: string;
@@ -81,7 +81,7 @@ export interface PowerRankingsDoc {
   seasonYear: number;
   rankingType: 'live' | 'snapshot';
   weekNumber?: number;
-  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB';
+  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB' | 'OFF';
   methodology?: string;
   rankingIntro?: PortableTextContent;
   rankingConclusion?: PortableTextContent;

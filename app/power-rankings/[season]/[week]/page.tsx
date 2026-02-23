@@ -8,9 +8,10 @@ const PLAYOFF_LABELS: Record<string, string> = {
   DIV: 'Divisional',
   CONF: 'Conference Championship',
   SB: 'Super Bowl',
+  OFF: 'Offseason',
 };
 
-const PLAYOFF_ORDER: string[] = ['WC', 'DIV', 'CONF', 'SB'];
+const PLAYOFF_ORDER: string[] = ['WC', 'DIV', 'CONF', 'SB', 'OFF'];
 
 type ParsedWeek =
   | { weekNumber: number; playoffRound?: undefined }
@@ -24,6 +25,9 @@ function parseWeekParam(raw: string): ParsedWeek {
     if (Number.isFinite(weekNumber) && weekNumber >= 1 && weekNumber <= 18) {
       return { weekNumber };
     }
+  }
+  if (normalized === 'offseason') {
+    return { playoffRound: 'OFF' };
   }
   const round = normalized.toUpperCase();
   if (PLAYOFF_ORDER.includes(round)) {

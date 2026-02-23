@@ -36,6 +36,41 @@ const OFFICIAL_NAME_TO_CODE: Record<string, string> = {
   'washington commanders': 'WAS',
 }
 
+const CODE_TO_OFFICIAL_NAME: Record<string, string> = {
+  ARI: 'Arizona Cardinals',
+  ATL: 'Atlanta Falcons',
+  BAL: 'Baltimore Ravens',
+  BUF: 'Buffalo Bills',
+  CAR: 'Carolina Panthers',
+  CHI: 'Chicago Bears',
+  CIN: 'Cincinnati Bengals',
+  CLE: 'Cleveland Browns',
+  DAL: 'Dallas Cowboys',
+  DEN: 'Denver Broncos',
+  DET: 'Detroit Lions',
+  GB: 'Green Bay Packers',
+  HOU: 'Houston Texans',
+  IND: 'Indianapolis Colts',
+  JAX: 'Jacksonville Jaguars',
+  KC: 'Kansas City Chiefs',
+  LV: 'Las Vegas Raiders',
+  LAC: 'Los Angeles Chargers',
+  LAR: 'Los Angeles Rams',
+  MIA: 'Miami Dolphins',
+  MIN: 'Minnesota Vikings',
+  NE: 'New England Patriots',
+  NO: 'New Orleans Saints',
+  NYG: 'New York Giants',
+  NYJ: 'New York Jets',
+  PHI: 'Philadelphia Eagles',
+  PIT: 'Pittsburgh Steelers',
+  SF: 'San Francisco 49ers',
+  SEA: 'Seattle Seahawks',
+  TB: 'Tampa Bay Buccaneers',
+  TEN: 'Tennessee Titans',
+  WAS: 'Washington Commanders',
+}
+
 // Common aliases -> code (lowercased keys)
 const ALIASES: Record<string, string> = {
   // City-only
@@ -73,6 +108,12 @@ export function teamCodeFromName(input: string | null | undefined): string | nul
     if (c.includes(key)) return ALIASES[key]
   }
   return null
+}
+
+export function teamNameFromCode(input: string | null | undefined): string | null {
+  if (!input || typeof input !== 'string') return null
+  const code = input.trim().toUpperCase()
+  return CODE_TO_OFFICIAL_NAME[code] || null
 }
 
 export function gradientClassForTeam(input: string | null | undefined): string {

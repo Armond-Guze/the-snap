@@ -170,6 +170,24 @@ const HUBS = [
     ],
   },
   {
+    title: 'NFL Power Rankings',
+    navLabel: 'Power',
+    slug: 'nfl-power-rankings',
+    description:
+      'Weekly NFL power rankings with biggest risers, biggest fallers, and full 1-32 team analysis.',
+    intro:
+      'Track weekly movement across all 32 teams with tier context, trend signals, and playoff pressure points.',
+    accentColor: '#0284C7',
+    priority: 85,
+    relatedTagSlugs: [
+      'power-rankings',
+      'team-rankings',
+      'offensive-rankings',
+      'defensive-rankings',
+      'playoff-picture',
+    ],
+  },
+  {
     title: 'NFL Playoffs',
     navLabel: 'Playoffs',
     slug: 'nfl-playoffs',
