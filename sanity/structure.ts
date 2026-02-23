@@ -3,6 +3,9 @@ import { CogIcon } from '@sanity/icons'
 
 // Custom structure to surface the singleton settings doc & clean grouping
 export const structure: StructureResolver = (S) => {
+  const nowIso = new Date().toISOString()
+  const weekStartIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
   const hiddenDocTypes = new Set([
     'homepageSettings',
     'siteSettings',
@@ -70,11 +73,11 @@ export const structure: StructureResolver = (S) => {
                   .title('Power Rankings')
                   .items([
                     S.listItem()
-                      .title('Template')
+                      .title('Live Template')
                       .schemaType('article')
                       .child(
                         S.documentTypeList('article')
-                          .title('Power Rankings — Template')
+                          .title('Power Rankings — Live Template')
                           .filter('_type == "article" && format == "powerRankings" && rankingType == "live"')
                           .initialValueTemplates([
                             S.initialValueTemplateItem('article', { format: 'powerRankings', rankingType: 'live' })
@@ -82,6 +85,51 @@ export const structure: StructureResolver = (S) => {
                           .defaultOrdering([
                             { field: 'seasonYear', direction: 'desc' },
                             { field: 'date', direction: 'desc' },
+                          ])
+                      ),
+                    S.listItem()
+                      .title('This Week')
+                      .schemaType('article')
+                      .child(
+                        S.documentTypeList('article')
+                          .title('Power Rankings — This Week')
+                          .filter(
+                            '_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true && coalesce(date, _updatedAt) >= $weekStart'
+                          )
+                          .params({ weekStart: weekStartIso })
+                          .defaultOrdering([
+                            { field: 'seasonYear', direction: 'desc' },
+                            { field: 'weekNumber', direction: 'desc' },
+                            { field: 'date', direction: 'desc' },
+                          ])
+                      ),
+                    S.listItem()
+                      .title('Scheduled')
+                      .schemaType('article')
+                      .child(
+                        S.documentTypeList('article')
+                          .title('Power Rankings — Scheduled / Review')
+                          .filter(
+                            '_type == "article" && format == "powerRankings" && rankingType == "snapshot" && (editorialStatus == "review" || (published != true && defined(date) && date > $now))'
+                          )
+                          .params({ now: nowIso })
+                          .defaultOrdering([
+                            { field: 'date', direction: 'asc' },
+                            { field: 'seasonYear', direction: 'desc' },
+                            { field: 'weekNumber', direction: 'asc' },
+                          ])
+                      ),
+                    S.listItem()
+                      .title('Drafts')
+                      .schemaType('article')
+                      .child(
+                        S.documentTypeList('article')
+                          .title('Power Rankings — Drafts')
+                          .filter('_type == "article" && format == "powerRankings" && rankingType == "snapshot" && _id in path("drafts.**")')
+                          .defaultOrdering([
+                            { field: '_updatedAt', direction: 'desc' },
+                            { field: 'seasonYear', direction: 'desc' },
+                            { field: 'weekNumber', direction: 'desc' },
                           ])
                       ),
                     S.listItem()

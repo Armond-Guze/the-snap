@@ -63,6 +63,10 @@ export interface PowerRankingEntry {
   teamName?: string;
   teamColor?: string;
   teamLogo?: SanityImageWithUrl;
+  previousRank?: number;
+  movement?: number;
+  tier?: 'elite' | 'contender' | 'middle' | 'slipping' | 'rebuilding' | string;
+  summary?: string;
   note?: string;
   analysis?: PortableTextContent;
   prevRankOverride?: number;
@@ -79,6 +83,11 @@ export interface PowerRankingsDoc {
   weekNumber?: number;
   playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB';
   methodology?: string;
+  rankingIntro?: PortableTextContent;
+  rankingConclusion?: PortableTextContent;
+  biggestRiser?: string;
+  biggestFaller?: string;
+  editorialStatus?: 'draft' | 'review' | 'published' | string;
   rankings: PowerRankingEntry[];
   date?: string;
   publishedAt?: string;

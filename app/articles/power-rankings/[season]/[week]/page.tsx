@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 import { powerRankingsLiveQuery, powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
 import type { HeadlineListItem, MovementIndicator, PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
 import Image from 'next/image';
-import Link from 'next/link';
 import { PortableText } from '@portabletext/react';
 import { portableTextComponents } from '@/lib/portabletext-components';
 import Breadcrumb from '@/app/components/Breadcrumb';
@@ -210,6 +209,10 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   const displaySummary = data.summary || liveDoc?.summary;
   const displayCover = data.coverImage || liveDoc?.coverImage;
   const displayAuthor = data.author || liveDoc?.author;
+  const displayIntro = (Array.isArray(data.rankingIntro) && data.rankingIntro.length > 0 ? data.rankingIntro : liveDoc?.rankingIntro) || [];
+  const displayConclusion = (Array.isArray(data.rankingConclusion) && data.rankingConclusion.length > 0 ? data.rankingConclusion : liveDoc?.rankingConclusion) || [];
+  const biggestRiser = data.biggestRiser || liveDoc?.biggestRiser;
+  const biggestFaller = data.biggestFaller || liveDoc?.biggestFaller;
   const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${week}`;
   const breadcrumbItems = [
     { label: 'Articles', href: '/articles' },
@@ -252,7 +255,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
             </div>
           </header>
 
-          {displayCover?.asset?.url && (
+	          {displayCover?.asset?.url && (
             <div className="w-full mb-6">
               <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
@@ -270,9 +273,30 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                 </p>
               )}
             </div>
+	          )}
+
+          {(biggestRiser || biggestFaller) && (
+            <div className="mb-8 flex flex-wrap gap-3">
+              {biggestRiser && (
+                <span className="inline-flex items-center rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-300">
+                  Biggest Riser: {biggestRiser}
+                </span>
+              )}
+              {biggestFaller && (
+                <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">
+                  Biggest Faller: {biggestFaller}
+                </span>
+              )}
+            </div>
           )}
 
-          <div className="space-y-12">
+          {Array.isArray(displayIntro) && displayIntro.length > 0 && (
+            <section className="mb-10 prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+              <PortableText value={displayIntro} components={portableTextComponents} />
+            </section>
+          )}
+
+	          <div className="space-y-12">
             {(data.rankings || [])
               .slice()
               .sort((a, b) => a.rank - b.rank)
@@ -281,16 +305,20 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                 const teamName = team.teamName || team.team?.title || '';
                 const teamLogo = team.teamLogo;
                 const teamNameClass = getTeamColorClass(team.teamColor);
-                const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
-                const prevRank =
-                  typeof team.prevRankOverride === 'number'
-                    ? team.prevRankOverride
-                    : prevMap.get(team.teamAbbr || teamName || team.team?.title || '');
-                const change = typeof team.movementOverride === 'number'
-                  ? team.movementOverride
-                  : typeof prevRank === 'number'
-                    ? prevRank - rank
-                    : 0;
+	                const key = `${team.teamAbbr || teamName}-${rank}-${index}`;
+	                const prevRank =
+	                  typeof team.previousRank === 'number'
+	                    ? team.previousRank
+                    : typeof team.prevRankOverride === 'number'
+                      ? team.prevRankOverride
+	                    : prevMap.get(team.teamAbbr || teamName || team.team?.title || '');
+	                const change = typeof team.movement === 'number'
+                    ? team.movement
+	                  : typeof team.movementOverride === 'number'
+	                    ? team.movementOverride
+	                  : typeof prevRank === 'number'
+	                    ? prevRank - rank
+	                    : 0;
                 const movement = getMovementIndicator(change);
 
                 return (
@@ -351,15 +379,21 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                           <PortableText value={team.analysis} components={portableTextComponents} />
                         </div>
                       )}
-                      {!team.analysis && team.note && (
-                        <p className="text-lg text-gray-300 leading-relaxed max-w-4xl text-left">{team.note}</p>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
-          </div>
-        </article>
+	                      {(!Array.isArray(team.analysis) || team.analysis.length === 0) && (team.summary || team.note) && (
+	                        <p className="text-lg text-gray-300 leading-relaxed max-w-4xl text-left">{team.summary || team.note}</p>
+	                      )}
+	                    </div>
+	                  </article>
+	                );
+	              })}
+	          </div>
+
+          {Array.isArray(displayConclusion) && displayConclusion.length > 0 && (
+            <section className="mt-12 prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+              <PortableText value={displayConclusion} components={portableTextComponents} />
+            </section>
+          )}
+	        </article>
 
         <aside className="space-y-8 lg:sticky lg:top-24 self-start">
           <MostRead />

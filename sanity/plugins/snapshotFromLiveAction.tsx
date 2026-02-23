@@ -3,6 +3,11 @@ import { createClient, type SanityClient } from '@sanity/client'
 import { useState } from 'react'
 import { Button, Stack, Text, TextInput } from '@sanity/ui'
 import { apiVersion, dataset, projectId } from '../env'
+import {
+  buildPowerRankingSeoPrefill,
+  deriveBiggestMovers,
+  normalizePowerRankingItems,
+} from '../lib/powerRankingHelpers'
 
 // Map of common team names/aliases to standard abbreviations
 const NAME_TO_ABBR: Record<string, string> = {
@@ -59,6 +64,39 @@ type SnapshotTarget =
   | { weekNumber: number; playoffRound?: undefined }
   | { playoffRound: PlayoffRound; weekNumber?: undefined }
 
+type RankingRow = {
+  rank?: number
+  team?: Record<string, unknown>
+  teamAbbr?: string
+  teamName?: string
+  teamColor?: string
+  tier?: string
+  note?: string
+  summary?: string
+  analysis?: unknown[]
+  teamLogo?: unknown
+}
+
+type LivePowerRankingDoc = {
+  _type?: string
+  format?: string
+  rankingType?: string
+  seasonYear?: number
+  rankings?: RankingRow[]
+  title?: string
+  homepageTitle?: string
+  summary?: string
+  coverImage?: unknown
+  author?: unknown
+  category?: unknown
+  methodology?: string
+  rankingIntro?: unknown[]
+  rankingConclusion?: unknown[]
+  teams?: unknown[]
+  tagRefs?: unknown[]
+  seo?: Record<string, unknown>
+}
+
 function getPrevPlayoffRound(round: PlayoffRound): PlayoffRound | null {
   const order: PlayoffRound[] = ['WC', 'DIV', 'CONF', 'SB']
   const index = order.indexOf(round)
@@ -84,25 +122,9 @@ function targetLabel(target: SnapshotTarget): string {
   return PLAYOFF_ROUNDS.find((r) => r.value === target.playoffRound)?.label || target.playoffRound || 'Playoffs'
 }
 
-export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
+const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
-  const doc = (draft || published) as {
-    _type?: string
-    format?: string
-    rankingType?: string
-    seasonYear?: number
-    rankings?: Array<any>
-    title?: string
-    homepageTitle?: string
-    summary?: string
-    coverImage?: any
-    author?: any
-    category?: any
-    methodology?: string
-    teams?: any[]
-    tagRefs?: any[]
-    seo?: any
-  } | undefined
+  const doc = (draft || published) as LivePowerRankingDoc | undefined
   const isLivePowerRankings = !!doc && doc._type === 'article' && doc.format === 'powerRankings' && doc.rankingType === 'live'
 
   const now = new Date()
@@ -118,108 +140,128 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
   const client: SanityClient = createClient({ projectId, dataset, apiVersion, useCdn: false, withCredentials: true })
 
   const handleCreate = async (season: number, target: SnapshotTarget) => {
-      try {
-        const liveRankings = Array.isArray(doc.rankings) ? doc.rankings : []
-        if (liveRankings.length !== 32) {
-          throw new Error(`Expected 32 teams on the Live Power Rankings doc. Found ${liveRankings.length}.`) 
-        }
+    try {
+      const liveRankings = Array.isArray(doc.rankings) ? doc.rankings : []
+      if (liveRankings.length !== 32) {
+        throw new Error(`Expected 32 teams on the Live Power Rankings doc. Found ${liveRankings.length}.`)
+      }
 
-        // Fetch previous snapshot (to compute movement)
-        let prev: { rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null = null
-        if (target.weekNumber && target.weekNumber > 1) {
+      let prev: { rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null = null
+      if (target.weekNumber && target.weekNumber > 1) {
+        prev = await client.fetch<{ rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null>(
+          `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && weekNumber==$week][0]{ rankings[]{teamAbbr, teamName, rank} }`,
+          { season, week: target.weekNumber - 1 }
+        )
+      } else if (target.playoffRound) {
+        if (target.playoffRound === 'WC') {
           prev = await client.fetch<{ rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null>(
             `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && weekNumber==$week][0]{ rankings[]{teamAbbr, teamName, rank} }`,
-            { season, week: target.weekNumber - 1 }
+            { season, week: REGULAR_SEASON_MAX_WEEK }
           )
-        } else if (target.playoffRound) {
-          if (target.playoffRound === 'WC') {
+        } else {
+          const prevRound = getPrevPlayoffRound(target.playoffRound)
+          if (prevRound) {
             prev = await client.fetch<{ rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null>(
-              `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && weekNumber==$week][0]{ rankings[]{teamAbbr, teamName, rank} }`,
-              { season, week: REGULAR_SEASON_MAX_WEEK }
+              `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && playoffRound==$round][0]{ rankings[]{teamAbbr, teamName, rank} }`,
+              { season, round: prevRound }
             )
-          } else {
-            const prevRound = getPrevPlayoffRound(target.playoffRound)
-            if (prevRound) {
-              prev = await client.fetch<{ rankings?: { teamAbbr?: string; teamName?: string; rank: number }[] } | null>(
-                `*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && seasonYear==$season && playoffRound==$round][0]{ rankings[]{teamAbbr, teamName, rank} }`,
-                { season, round: prevRound }
-              )
-            }
           }
         }
+      }
 
-        const items = liveRankings.map((t: any) => {
-          const name = t.teamName || t?.team?.title
+      const items = normalizePowerRankingItems(
+        liveRankings.map((t: RankingRow) => {
+          const teamTitle = typeof t.team?.title === 'string' ? t.team.title : undefined
+          const name = t.teamName || teamTitle
           const abbr = t.teamAbbr || toAbbr(name || '') || (name || '').slice(0, 3).toUpperCase()
-          const prevRank: number | undefined = prev?.rankings?.find((p: { teamAbbr?: string; teamName?: string; rank: number }) => (p.teamAbbr || p.teamName) === (abbr || name))?.rank
+          const prevRank: number | undefined = prev?.rankings?.find(
+            (p: { teamAbbr?: string; teamName?: string; rank: number }) => (p.teamAbbr || p.teamName) === (abbr || name)
+          )?.rank
+          const movement = typeof prevRank === 'number' && typeof t.rank === 'number' ? prevRank - t.rank : 0
+
           return {
-            _type: 'object',
+            _type: 'powerRankingEntry',
             rank: t.rank,
             team: t.team || undefined,
             teamAbbr: abbr,
             teamName: name || abbr,
-            note: t.note || '',
-            analysis: t.analysis || [],
+            teamColor: t.teamColor || undefined,
             teamLogo: t.teamLogo || undefined,
+            tier: t.tier || undefined,
+            summary: t.summary || t.note || '',
+            note: t.note || t.summary || '',
+            analysis: t.analysis || [],
+            previousRank: typeof prevRank === 'number' ? prevRank : undefined,
             prevRankOverride: typeof prevRank === 'number' ? prevRank : undefined,
+            movement,
+            movementOverride: movement,
           }
         })
+      )
 
-        const playoffRound = target.playoffRound
-        const id = target.weekNumber
-          ? `prw-${season}-w${target.weekNumber}`
-          : `prw-${season}-${(playoffRound || 'playoffs').toLowerCase()}`
-        const generatedTitle = target.weekNumber
-          ? `NFL Power Rankings ${season} — Week ${target.weekNumber}`
-          : `NFL Power Rankings ${season} — ${targetLabel(target)}`
-        const generatedSlug = target.weekNumber
-          ? `power-rankings-${season}-week-${target.weekNumber}`
-          : `power-rankings-${season}-${(playoffRound || 'playoffs').toLowerCase()}`
-        await client.createOrReplace({
-          _id: id,
-          _type: 'article',
-          format: 'powerRankings',
-          rankingType: 'snapshot',
-          seasonYear: season,
-          weekNumber: target.weekNumber,
-          playoffRound,
-          title: generatedTitle,
-          slug: { _type: 'slug', current: generatedSlug },
-          homepageTitle: doc.homepageTitle || undefined,
-          summary: doc.summary || undefined,
-          coverImage: doc.coverImage || undefined,
-          author: doc.author || undefined,
-          category: doc.category || undefined,
-          methodology: doc.methodology || undefined,
-          teams: Array.isArray(doc.teams) ? doc.teams : undefined,
-          tagRefs: Array.isArray(doc.tagRefs) ? doc.tagRefs : undefined,
-          seo: doc.seo || undefined,
-          date: new Date().toISOString(),
-          published: true,
-          rankings: items,
-        })
-        // @ts-expect-error toast may be undefined depending on Studio version
-        props?.toast?.push?.({ status: 'success', title: `Snapshot created: ${targetLabel(target)} — ${season}` })
-        // If we had to fall back to drafts, let the user know
-        // We can detect this by checking for any draft IDs in the teams query above, but since we merged data,
-        // just provide a general info message to publish for future runs.
-        try {
-          const publishedCount: number = await client.fetch<number>(
-            `count(*[_type=="article" && format=="powerRankings" && rankingType=="live" && published==true])`
-          )
-          if (publishedCount < 1) {
-            // @ts-expect-error toast may be undefined depending on Studio version
-            props?.toast?.push?.({ status: 'info', title: 'Live doc not published', description: 'Publish the live Power Rankings article for consistent snapshots.' })
-          }
-        } catch {}
-        props.onComplete?.()
-      } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e)
-        // @ts-expect-error toast may be undefined depending on Studio version
-        props?.toast?.push?.({ status: 'error', title: 'Snapshot failed', description: msg })
-      } finally {
-      }
+      const movers = deriveBiggestMovers(items)
+      const playoffRound = target.playoffRound
+      const baseId = target.weekNumber
+        ? `prw-${season}-w${target.weekNumber}`
+        : `prw-${season}-${(playoffRound || 'playoffs').toLowerCase()}`
+      const draftId = `drafts.${baseId}`
+      const generatedTitle = target.weekNumber
+        ? `NFL Power Rankings ${season} — Week ${target.weekNumber}`
+        : `NFL Power Rankings ${season} — ${targetLabel(target)}`
+      const generatedSlug = target.weekNumber
+        ? `power-rankings-${season}-week-${target.weekNumber}`
+        : `power-rankings-${season}-${(playoffRound || 'playoffs').toLowerCase()}`
+
+      const seo = buildPowerRankingSeoPrefill({
+        title: generatedTitle,
+        seasonYear: season,
+        weekNumber: target.weekNumber,
+        playoffRound,
+        summary: doc.summary,
+      })
+
+      await client.createOrReplace({
+        _id: draftId,
+        _type: 'article',
+        format: 'powerRankings',
+        rankingType: 'snapshot',
+        seasonYear: season,
+        weekNumber: target.weekNumber,
+        playoffRound,
+        title: generatedTitle,
+        slug: { _type: 'slug', current: generatedSlug },
+        homepageTitle: doc.homepageTitle || undefined,
+        summary: doc.summary || undefined,
+        coverImage: doc.coverImage || undefined,
+        author: doc.author || undefined,
+        category: doc.category || undefined,
+        methodology: doc.methodology || undefined,
+        rankingIntro: Array.isArray(doc.rankingIntro) ? doc.rankingIntro : undefined,
+        rankingConclusion: Array.isArray(doc.rankingConclusion) ? doc.rankingConclusion : undefined,
+        teams: Array.isArray(doc.teams) ? doc.teams : undefined,
+        tagRefs: Array.isArray(doc.tagRefs) ? doc.tagRefs : undefined,
+        seo: { ...(doc.seo || {}), ...seo },
+        date: new Date().toISOString(),
+        published: false,
+        editorialStatus: 'draft',
+        biggestRiser: movers.biggestRiser,
+        biggestFaller: movers.biggestFaller,
+        rankings: items,
+      })
+
+      // @ts-expect-error toast may be undefined depending on Studio version
+      props?.toast?.push?.({
+        status: 'success',
+        title: `Draft snapshot created: ${targetLabel(target)} — ${season}`,
+        description: 'Saved as draft with helpers and SEO prefill.',
+      })
+      props.onComplete?.()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      // @ts-expect-error toast may be undefined depending on Studio version
+      props?.toast?.push?.({ status: 'error', title: 'Snapshot failed', description: msg })
     }
+  }
 
   const runSnapshot = async () => {
     const season = Number(seasonInput)
@@ -308,4 +350,6 @@ export const snapshotFromLivePowerRankingsAction: DocumentActionComponent = (pro
   }
 }
 
-export default snapshotFromLivePowerRankingsAction
+export const snapshotFromLivePowerRankingsAction = SnapshotFromLivePowerRankingsAction
+
+export default SnapshotFromLivePowerRankingsAction

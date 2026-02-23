@@ -90,7 +90,7 @@ export default defineType({
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document) || isSimplifiedPowerSnapshot(document),
-      group: "power",
+      group: "rankings",
     }),
 
     defineField({
@@ -106,7 +106,7 @@ export default defineType({
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document),
-      group: "power",
+      group: "rankings",
     }),
 
     defineField({
@@ -124,7 +124,7 @@ export default defineType({
           return true;
         }),
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
-      group: "power",
+      group: "rankings",
     }),
 
     defineField({
@@ -149,108 +149,17 @@ export default defineType({
           if (val && typeof weekNumber === "number") return "Use either a playoff round or a week number, not both";
           return true;
         }),
-      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot" || isSimplifiedPowerSnapshot(document),
-      group: "power",
+      hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType !== "snapshot",
+      group: "rankings",
     }),
 
     defineField({
       name: "rankings",
       title: "Ranked Teams (1–32)",
       type: "array",
-      of: [
-        {
-          type: "object",
-          fields: [
-            defineField({ name: "rank", title: "Rank", type: "number", validation: (Rule) => Rule.required().min(1).max(32) }),
-            defineField({
-              name: "team",
-              title: "Team",
-              type: "reference",
-              to: [{ type: "tag" }],
-              description: "Use the canonical team tag",
-              validation: (Rule) => Rule.required().error("Team tag is required"),
-            }),
-            defineField({ name: "teamAbbr", title: "Team Abbreviation", type: "string", description: "Optional (e.g., KC, SF). Used for links/labels." }),
-            defineField({ name: "teamName", title: "Team Name (override)", type: "string", description: "Optional display override" }),
-            defineField({
-              name: "teamColor",
-              title: "Team Name Color",
-              type: "string",
-              description: "Hex color used only for the team name text (e.g., #FFB612).",
-              options: {
-                list: [
-                  { title: "Arizona Cardinals — #97233F", value: "#97233F" },
-                  { title: "Atlanta Falcons — #A71930", value: "#A71930" },
-                  { title: "Baltimore Ravens — #241773", value: "#241773" },
-                  { title: "Buffalo Bills — #00338D", value: "#00338D" },
-                  { title: "Carolina Panthers — #0085CA", value: "#0085CA" },
-                  { title: "Chicago Bears — #0B162A", value: "#0B162A" },
-                  { title: "Cincinnati Bengals — #FB4F14", value: "#FB4F14" },
-                  { title: "Cleveland Browns — #311D00", value: "#311D00" },
-                  { title: "Dallas Cowboys — #041E42", value: "#041E42" },
-                  { title: "Denver Broncos — #FB4F14", value: "#FB4F14" },
-                  { title: "Detroit Lions — #0076B6", value: "#0076B6" },
-                  { title: "Green Bay Packers — #203731", value: "#203731" },
-                  { title: "Houston Texans — #03202F", value: "#03202F" },
-                  { title: "Indianapolis Colts — #002C5F", value: "#002C5F" },
-                  { title: "Jacksonville Jaguars — #006778", value: "#006778" },
-                  { title: "Kansas City Chiefs — #E31837", value: "#E31837" },
-                  { title: "Las Vegas Raiders — #000000", value: "#000000" },
-                  { title: "Los Angeles Chargers — #0080C6", value: "#0080C6" },
-                  { title: "Los Angeles Rams — #003594", value: "#003594" },
-                  { title: "Miami Dolphins — #008E97", value: "#008E97" },
-                  { title: "Minnesota Vikings — #4F2683", value: "#4F2683" },
-                  { title: "New England Patriots — #002244", value: "#002244" },
-                  { title: "New Orleans Saints — #D3BC8D", value: "#D3BC8D" },
-                  { title: "New York Giants — #0B2265", value: "#0B2265" },
-                  { title: "New York Jets — #125740", value: "#125740" },
-                  { title: "Philadelphia Eagles — #004C54", value: "#004C54" },
-                  { title: "Pittsburgh Steelers — #FFB612", value: "#FFB612" },
-                  { title: "San Francisco 49ers — #AA0000", value: "#AA0000" },
-                  { title: "Seattle Seahawks — #002244", value: "#002244" },
-                  { title: "Tampa Bay Buccaneers — #D50A0A", value: "#D50A0A" },
-                  { title: "Tennessee Titans — #0C2340", value: "#0C2340" },
-                  { title: "Washington Commanders — #5A1414", value: "#5A1414" },
-                ],
-              },
-              validation: (Rule) =>
-                Rule.regex(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/, { name: "hex color" })
-                  .warning("Use a hex color like #FFB612."),
-            }),
-            defineField({
-              name: "teamLogo",
-              title: "Team Logo",
-              type: "image",
-              options: { hotspot: true },
-              fields: [
-                defineField({ name: "alt", title: "Alt Text", type: "string", description: "Team logo alt text." }),
-              ],
-            }),
-            defineField({ name: "note", title: "Blurb", type: "text", rows: 2, description: "Short punchy note" }),
-            defineField({ name: "analysis", title: "Analysis (Full Write-Up)", type: "blockContent" }),
-            defineField({ name: "prevRankOverride", title: "Prev Rank (override)", type: "number" }),
-            defineField({ name: "movementOverride", title: "Movement (+/- override)", type: "number", description: "Leave empty to auto-compute" }),
-          ],
-          preview: {
-            select: {
-              rank: "rank",
-              teamAbbr: "teamAbbr",
-              teamName: "teamName",
-              teamTag: "team.title",
-            },
-            prepare(selection: { rank?: number; teamAbbr?: string; teamName?: string; teamTag?: string }) {
-              const { rank, teamAbbr, teamName, teamTag } = selection;
-              const label = (teamAbbr || teamName || teamTag || "Team").toString().trim().toUpperCase();
-              return {
-                title: `${typeof rank === "number" ? rank : "?"} - ${label}`,
-                subtitle: teamTag && teamTag !== label ? teamTag : undefined,
-              };
-            },
-          },
-        },
-      ],
+      of: [{ type: "powerRankingEntry" }],
       validation: (Rule) =>
-        Rule.custom((items: any, ctx) => {
+        Rule.custom((items: Array<{ _key?: string; rank?: number; team?: { _ref?: string } }> | undefined, ctx) => {
           if (!isPowerRankings(ctx.document)) return true;
           if (!Array.isArray(items)) return "Add the ranked teams";
           if (items.length !== 32) return "Must include exactly 32 teams";
@@ -281,8 +190,8 @@ export default defineType({
           if (new Set(teamRefs).size !== 32) return "Teams must be unique";
           return true;
         }),
-      hidden: ({ document }) => !isPowerRankings(document) || isSimplifiedPowerSnapshot(document),
-      group: "power",
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "rankings",
     }),
 
     defineField({
@@ -292,7 +201,57 @@ export default defineType({
       rows: 3,
       description: "Explain how rankings are decided. Keep on live doc and reuse for snapshots.",
       hidden: ({ document }) => !isPowerRankings(document) || document?.rankingType === "snapshot",
-      group: "power",
+      group: "rankings",
+    }),
+    defineField({
+      name: "rankingIntro",
+      title: "Top-Level Intro",
+      type: "blockContent",
+      description: "Required introduction shown before the team-by-team rankings.",
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          if (ctx.document?.published !== true) return true;
+          return Array.isArray(value) && value.length > 0
+            ? true
+            : "Power rankings require a top-level intro";
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "advanced",
+    }),
+    defineField({
+      name: "rankingConclusion",
+      title: "Top-Level Conclusion",
+      type: "blockContent",
+      description: "Required wrap-up shown after all 32 teams.",
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          if (ctx.document?.published !== true) return true;
+          return Array.isArray(value) && value.length > 0
+            ? true
+            : "Power rankings require a top-level conclusion";
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "advanced",
+    }),
+    defineField({
+      name: "biggestRiser",
+      title: "Biggest Riser (Auto)",
+      type: "string",
+      description: "Auto-filled helper field from rankings movement.",
+      readOnly: true,
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "rankings",
+    }),
+    defineField({
+      name: "biggestFaller",
+      title: "Biggest Faller (Auto)",
+      type: "string",
+      description: "Auto-filled helper field from rankings movement.",
+      readOnly: true,
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "rankings",
     }),
     defineField({
       name: "title",
@@ -378,7 +337,7 @@ export default defineType({
           return val ? true : "Cover image is required before publishing";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
-      group: "media",
+      group: "quick",
     }),
     defineField({
       name: "author",
@@ -501,6 +460,35 @@ export default defineType({
           .max(6)
           .warning("Recommended: add 3–6 canonical tags for best internal linking"),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
+    }),
+    defineField({
+      name: "editorialStatus",
+      title: "Editorial Checkpoint",
+      type: "string",
+      options: {
+        list: [
+          { title: "Draft", value: "draft" },
+          { title: "Review", value: "review" },
+          { title: "Published", value: "published" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "draft",
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (!isPowerRankings(ctx.document)) return true;
+          if (!value) return "Pick an editorial status";
+          const isMarkedPublished = ctx.document?.published === true;
+          if (isMarkedPublished && value !== "published") {
+            return "Set Editorial Checkpoint to Published before enabling Published";
+          }
+          if (!isMarkedPublished && value === "published") {
+            return "Enable Published when Editorial Checkpoint is Published";
+          }
+          return true;
+        }),
+      hidden: ({ document }) => !isPowerRankings(document),
+      group: "quick",
     }),
     defineField({
       name: "published",
@@ -645,11 +633,10 @@ export default defineType({
     },
   ],
   groups: [
-    { name: "quick", title: "Quick Publish" },
-    { name: "media", title: "Media" },
+    { name: "rankings", title: "Rankings" },
+    { name: "advanced", title: "Analysis" },
     { name: "seo", title: "SEO" },
-    { name: "power", title: "Power Rankings" },
-    { name: "advanced", title: "Advanced" },
+    { name: "quick", title: "Publish" },
   ],
   preview: {
     select: {
