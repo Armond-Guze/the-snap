@@ -18,6 +18,7 @@ import { migrateTeamCategoryToTagAction } from './sanity/plugins/migrateTeamCate
 import snapshotFromLivePowerRankingsAction from './sanity/plugins/snapshotFromLiveAction'
 import duplicatePowerRankingWeekAction from './sanity/plugins/duplicatePowerRankingWeek'
 import powerRankingHelpersAction from './sanity/plugins/powerRankingHelpersAction'
+import { withPowerRankingAutoPublishHelpers } from './sanity/plugins/powerRankingAutoPublish'
 import suggestPrimetimeTagAction from './sanity/plugins/suggestPrimetimeTag'
 import seoRegenerateAction from './sanity/plugins/seoRegenerateAction'
 
@@ -37,6 +38,7 @@ export default defineConfig({
         actions = [...actions, createRankingsSnapshotAction, publishAndSnapshotAction]
       }
       if (context.schemaType === 'article') {
+        actions = actions.map((action) => withPowerRankingAutoPublishHelpers(action))
         actions = [...actions, snapshotFromLivePowerRankingsAction, duplicatePowerRankingWeekAction, powerRankingHelpersAction]
       }
       if (context.schemaType === 'headline') {
