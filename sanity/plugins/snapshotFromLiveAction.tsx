@@ -59,6 +59,7 @@ const PLAYOFF_ROUNDS = [
   { value: 'SB', label: 'Super Bowl' },
   { value: 'OFF', label: 'Offseason' },
 ] as const
+const OFFSEASON_TARGET = { value: 'OFF', label: 'Offseason (No week)' } as const
 
 type PlayoffRound = (typeof PLAYOFF_ROUNDS)[number]['value']
 type SnapshotTarget =
@@ -123,6 +124,13 @@ function targetLabel(target: SnapshotTarget): string {
   return PLAYOFF_ROUNDS.find((r) => r.value === target.playoffRound)?.label || target.playoffRound || 'Playoffs'
 }
 
+function getDefaultSnapshotTarget(now: Date): string {
+  const month = now.getMonth() + 1
+  // Default to offseason target from February through August.
+  if (month >= 2 && month <= 8) return OFFSEASON_TARGET.value
+  return 'week-1'
+}
+
 const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: DocumentActionProps) => {
   const { draft, published } = props
   const doc = (draft || published) as LivePowerRankingDoc | undefined
@@ -132,7 +140,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
   const defaultSeason = String(doc?.seasonYear || now.getFullYear())
   const [dialogOpen, setDialogOpen] = useState(false)
   const [seasonInput, setSeasonInput] = useState(defaultSeason)
-  const [targetInput, setTargetInput] = useState('week-1')
+  const [targetInput, setTargetInput] = useState(getDefaultSnapshotTarget(now))
   const [submitting, setSubmitting] = useState(false)
 
   if (!isLivePowerRankings) return null
@@ -319,6 +327,11 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
                     padding: '9px 10px',
                   }}
                 >
+                  <optgroup label="Offseason">
+                    <option value={OFFSEASON_TARGET.value}>
+                      {OFFSEASON_TARGET.label}
+                    </option>
+                  </optgroup>
                   <optgroup label="Regular Season">
                     {Array.from({ length: REGULAR_SEASON_MAX_WEEK }, (_, i) => i + 1).map((week) => (
                       <option key={week} value={`week-${week}`}>
@@ -326,8 +339,8 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
                       </option>
                     ))}
                   </optgroup>
-                  <optgroup label="Playoffs & Offseason">
-                    {PLAYOFF_ROUNDS.map((round) => (
+                  <optgroup label="Playoffs">
+                    {PLAYOFF_ROUNDS.filter((round) => round.value !== OFFSEASON_TARGET.value).map((round) => (
                       <option key={round.value} value={round.value}>
                         {round.label}
                       </option>
