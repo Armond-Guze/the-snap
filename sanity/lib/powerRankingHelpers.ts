@@ -2,7 +2,7 @@ type TeamRefLike = { title?: string } | null | undefined
 
 export type PowerRankingEntryLike = {
   rank?: number
-  team?: TeamRefLike
+  team?: TeamRefLike & { _ref?: string; _type?: string; _weak?: boolean }
   teamAbbr?: string
   teamName?: string
   summary?: string
@@ -51,6 +51,19 @@ function getPreviousRank(item: PowerRankingEntryLike): number | null {
   return null
 }
 
+function sanitizeTeamReference(
+  team: PowerRankingEntryLike['team']
+): PowerRankingEntryLike['team'] {
+  if (!team || typeof team !== 'object') return undefined
+  const ref = typeof team._ref === 'string' ? team._ref : ''
+  if (!ref) return undefined
+  return {
+    _type: 'reference',
+    _ref: ref,
+    ...(team._weak ? { _weak: true } : {}),
+  }
+}
+
 function getMovement(item: PowerRankingEntryLike): number {
   if (typeof item.movement === 'number') return item.movement
   if (typeof item.movementOverride === 'number') return item.movementOverride
@@ -69,6 +82,7 @@ export function normalizePowerRankingItems(items: unknown[]): PowerRankingEntryL
       const movement = getMovement(item)
       return {
         ...item,
+        team: sanitizeTeamReference(item.team),
         summary: item.summary || item.note || '',
         note: item.note || item.summary || '',
         previousRank: typeof previousRank === 'number' ? previousRank : undefined,

@@ -75,7 +75,63 @@ function movement(item) {
   return 0;
 }
 
-function normalizeItems(items) {
+function sanitizeTeamRef(team) {
+  if (!team || typeof team !== 'object' || !team._ref) return undefined;
+  return {
+    _type: 'reference',
+    _ref: team._ref,
+    ...(team._weak ? { _weak: true } : {}),
+  };
+}
+
+function normalizeKey(input) {
+  return String(input || '').trim().toLowerCase();
+}
+
+async function fetchTeamTagLookup() {
+  const tags = await client.fetch(
+    `*[_type=="tag" && !(_id in path("drafts.**"))]{
+      _id,
+      title,
+      aliases
+    }`
+  );
+
+  const map = new Map();
+  for (const tag of tags) {
+    if (tag?.title) map.set(normalizeKey(tag.title), tag._id);
+    if (Array.isArray(tag?.aliases)) {
+      for (const alias of tag.aliases) {
+        if (alias) map.set(normalizeKey(alias), tag._id);
+      }
+    }
+  }
+
+  // Common normalization edge case
+  if (map.has('jax')) map.set('jac', map.get('jax'));
+
+  return map;
+}
+
+function resolveTeamRef(item, teamTagMap) {
+  const existing = sanitizeTeamRef(item.team);
+  if (existing) return existing;
+
+  const candidates = [
+    item.teamName,
+    item.teamAbbr,
+  ];
+
+  for (const candidate of candidates) {
+    const key = normalizeKey(candidate);
+    const ref = teamTagMap.get(key);
+    if (ref) return { _type: 'reference', _ref: ref };
+  }
+
+  return undefined;
+}
+
+function normalizeItems(items, teamTagMap) {
   return (Array.isArray(items) ? items : [])
     .filter((item) => !!item && typeof item === 'object')
     .map((item) => {
@@ -83,6 +139,7 @@ function normalizeItems(items) {
       const move = movement(item);
       return {
         ...item,
+        team: resolveTeamRef(item, teamTagMap),
         summary: item.summary || item.note || '',
         note: item.note || item.summary || '',
         previousRank: typeof prev === 'number' ? prev : undefined,
@@ -165,6 +222,7 @@ function buildSeoPrefill(doc) {
 
 async function main() {
   console.log(`Backfilling power ranking helpers (dataset=${dataset}) ${DRY_RUN ? '[DRY RUN]' : ''}`);
+  const teamTagMap = await fetchTeamTagLookup();
 
   const docs = await client.fetch(
     `*[_type=="article" && format=="powerRankings"]{
@@ -181,8 +239,7 @@ async function main() {
       biggestFaller,
       seo,
       rankings[]{
-        ...,
-        team->{title}
+        ...
       }
     }`
   );
@@ -191,7 +248,7 @@ async function main() {
 
   let patched = 0;
   for (const doc of docs) {
-    const normalized = normalizeItems(doc.rankings);
+    const normalized = normalizeItems(doc.rankings, teamTagMap);
     const movers = deriveMovers(normalized);
     const editorialStatus =
       doc.editorialStatus || (doc.published ? 'published' : 'draft');
