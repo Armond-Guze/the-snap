@@ -5,7 +5,6 @@ import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
 import Image from 'next/image';
-import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../components/StructuredData';
 import WeekDropdown from './WeekDropdown';
@@ -45,11 +44,26 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const revalidate = 300; // updated frequently in season
 
+interface ScheduleLandingProps {
+  searchParams: Promise<{
+    team?: string | string[];
+  }>;
+}
+
+function toSingleParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    const candidate = value.find((entry) => typeof entry === 'string' && entry.trim().length > 0);
+    return candidate?.trim();
+  }
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 // Root schedule page (auto-detect current week)
-export default async function ScheduleLandingPage() {
-  const hdrs = await headers();
-  const url = new URL(hdrs.get('x-url') || 'http://localhost');
-  const teamParam = url.searchParams.get('team')?.toUpperCase();
+export default async function ScheduleLandingPage(props: ScheduleLandingProps) {
+  const searchParams = await props.searchParams;
+  const teamParam = toSingleParam(searchParams.team)?.toUpperCase();
   const { week, games } = await getScheduleWeekOrCurrent();
   const season = await getActiveSeason();
   const recordsMap = await fetchTeamRecords(season);

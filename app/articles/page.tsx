@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import { client } from '@/sanity/lib/client';
 import { categoriesQuery } from '@/sanity/lib/queries';
 import type { Category } from '@/types';
@@ -21,6 +20,31 @@ export const metadata = {
 
 export const revalidate = 120;
 
+interface ArticlesPageProps {
+  searchParams: Promise<{
+    category?: string | string[];
+    tag?: string | string[];
+    search?: string | string[];
+  }>;
+}
+
+type ArticleFilters = {
+  category?: string;
+  tag?: string;
+  search?: string;
+};
+
+function toSingleParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    const candidate = value.find((entry) => typeof entry === 'string' && entry.trim().length > 0);
+    return candidate?.trim();
+  }
+
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 function formatDate(date?: string) {
   if (!date || isNaN(new Date(date).getTime())) return '';
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -33,11 +57,7 @@ type ArticleListItem = HeadlineListItem & {
   playoffRound?: string;
 };
 
-async function fetchArticles(params: URLSearchParams): Promise<ArticleListItem[]> {
-  const category = params.get('category');
-  const tag = params.get('tag');
-  const search = params.get('search');
-
+async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]> {
   const baseFilter = 'published == true && (_type == "rankings" || (_type == "article" && format != "headline"))';
 
   const baseFields = `{
@@ -45,61 +65,72 @@ async function fetchArticles(params: URLSearchParams): Promise<ArticleListItem[]
     coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},tags[]->{title}
   }`;
 
-  if (search) {
-    return client.fetch(`
+  if (filters.search) {
+    const searchPattern = `*${filters.search}*`;
+    return client.fetch(
+      `
       *[${baseFilter} && (
-        title match "*${search}*" ||
-        summary match "*${search}*" ||
-        category->title match "*${search}*" ||
-        author->name match "*${search}*"
+        title match $searchPattern ||
+        summary match $searchPattern ||
+        category->title match $searchPattern ||
+        author->name match $searchPattern
       )] | order(_createdAt desc, publishedAt desc) ${baseFields}
-    `);
+      `,
+      { searchPattern }
+    );
   }
-  if (category) {
-    return client.fetch(`
+
+  if (filters.category) {
+    return client.fetch(
+      `
       *[${baseFilter} && category->slug.current == $categorySlug]
       | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) ${baseFields}
-    `, { categorySlug: category });
+      `,
+      { categorySlug: filters.category }
+    );
   }
-  if (tag) {
-    return client.fetch(`
+
+  if (filters.tag) {
+    return client.fetch(
+      `
       *[${baseFilter} && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))]
       | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) ${baseFields}
-    `, { tagTitle: tag });
+      `,
+      { tagTitle: filters.tag }
+    );
   }
+
   return client.fetch(`*[$baseFilter] | order(_createdAt desc, coalesce(publishedAt, date) desc) ${baseFields}`.replace('$baseFilter', baseFilter));
 }
 
-function buildTitle(params: URLSearchParams) {
-  const c = params.get('category');
-  const t = params.get('tag');
-  const s = params.get('search');
-  if (s) return `Search Results for "${s}"`;
-  if (c) return `${c.charAt(0).toUpperCase() + c.slice(1).replace('-', ' ')} Articles`;
-  if (t) return `${t.charAt(0).toUpperCase() + t.slice(1)} Articles`;
+function buildTitle(filters: ArticleFilters) {
+  if (filters.search) return `Search Results for "${filters.search}"`;
+  if (filters.category) return `${filters.category.charAt(0).toUpperCase() + filters.category.slice(1).replace('-', ' ')} Articles`;
+  if (filters.tag) return `${filters.tag.charAt(0).toUpperCase() + filters.tag.slice(1)} Articles`;
   return 'NFL Articles';
 }
 
-function buildDescription(params: URLSearchParams) {
-  const c = params.get('category');
-  const t = params.get('tag');
-  const s = params.get('search');
-  if (s) return `Showing articles matching "${s}" from around the NFL.`;
-  if (c) return `Latest articles and analysis in ${c.replace('-', ' ')}.`;
-  if (t) return `Articles tagged with ${t}.`;
+function buildDescription(filters: ArticleFilters) {
+  if (filters.search) return `Showing articles matching "${filters.search}" from around the NFL.`;
+  if (filters.category) return `Latest articles and analysis in ${filters.category.replace('-', ' ')}.`;
+  if (filters.tag) return `Articles tagged with ${filters.tag}.`;
   return 'Discover long-form NFL articles, analysis, and deep dives.';
 }
 
-export default async function ArticlesPage() {
-  const hdrs = await headers();
-  const url = new URL(hdrs.get('x-url') || 'http://localhost');
-  const params = url.searchParams;
+export default async function ArticlesPage(props: ArticlesPageProps) {
+  const searchParams = await props.searchParams;
+  const filters: ArticleFilters = {
+    category: toSingleParam(searchParams.category),
+    tag: toSingleParam(searchParams.tag),
+    search: toSingleParam(searchParams.search),
+  };
+
   const [articles, categories] = await Promise.all([
-    fetchArticles(params),
+    fetchArticles(filters),
     client.fetch<Category[]>(categoriesQuery)
   ]);
-  const title = buildTitle(params);
-  const description = buildDescription(params);
+  const title = buildTitle(filters);
+  const description = buildDescription(filters);
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white py-12">

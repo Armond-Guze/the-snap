@@ -5,7 +5,6 @@ import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from '../../TimezoneClient';
 import Image from 'next/image';
-import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import StructuredData from '../../../components/StructuredData';
 import WeekDropdown from '../../WeekDropdown';
@@ -15,6 +14,20 @@ import { SITE_URL } from '@/lib/site-config';
 export const revalidate = 300;
 
 interface Params { week: string }
+interface WeekPageProps {
+  params: Promise<Params>;
+  searchParams: Promise<{ team?: string | string[] }>;
+}
+
+function toSingleParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    const candidate = value.find((entry) => typeof entry === 'string' && entry.trim().length > 0);
+    return candidate?.trim();
+  }
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
 
 // Week-level metadata (dynamic per param) – ensures unique keyword rich titles
 export async function generateMetadata(p: { params: Promise<Params> }): Promise<Metadata> {
@@ -46,11 +59,10 @@ export async function generateMetadata(p: { params: Promise<Params> }): Promise<
 }
 
 // In Next.js 15, dynamic route params are provided as a Promise
-export default async function WeekSchedulePage({ params }: { params: Promise<Params> }) {
+export default async function WeekSchedulePage({ params, searchParams }: WeekPageProps) {
   const resolved = await params;
-  const hdrs = await headers();
-  const url = new URL(hdrs.get('x-url') || 'http://localhost');
-  const teamParam = url.searchParams.get('team')?.toUpperCase();
+  const query = await searchParams;
+  const teamParam = toSingleParam(query.team)?.toUpperCase();
   const weekNum = Number(resolved.week);
   const { week, games } = await getScheduleWeekOrCurrent(weekNum);
   const season = await getActiveSeason();

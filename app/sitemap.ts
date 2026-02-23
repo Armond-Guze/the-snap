@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { client } from '../sanity/lib/client'
 import { SITE_URL } from '@/lib/site-config'
+import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule'
 
 const baseUrl = SITE_URL
 
@@ -19,6 +20,12 @@ const safeSlug = (slug?: string | null) => {
   // encodeURI keeps slashes; encodeURIComponent would encode slashes too. We only expect single-segment slugs here.
   return encodeURIComponent(trimmed.toLowerCase());
 };
+
+const teamSlug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
 
 const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap => {
   const byUrl = new Map<string, MetadataRoute.Sitemap[number]>();
@@ -125,6 +132,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(Boolean) as MetadataRoute.Sitemap
   );
 
+  const teamHubEntries: MetadataRoute.Sitemap = TEAM_ABBRS.map((abbr) => ({
+    url: `${baseUrl}/teams/${teamSlug(TEAM_META[abbr].name)}`,
+    lastModified: STATIC_LAST_MOD,
+    changeFrequency: 'daily' as const,
+    priority: 0.72,
+  }));
+
   return dedupeEntries([
     {
       url: baseUrl,
@@ -163,6 +177,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.75,
     },
     {
+      url: `${baseUrl}/teams`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
@@ -194,6 +214,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...dynamicEntries,
     ...rankingWeekEntries,
+    ...teamHubEntries,
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,
