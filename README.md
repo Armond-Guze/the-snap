@@ -171,7 +171,7 @@ Pipeline stages:
 - Keep UI changes mobile-safe and test on small screens.
 - Preserve canonical URLs and metadata behavior for SEO.
 - Prefer typed server-side data access and parameterized queries.
-- Keep PRs focused and include validation commands in the description.
+- Keep commits focused and include validation commands in commit messages.
 
 ## Ownership
 
