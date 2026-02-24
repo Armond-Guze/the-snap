@@ -15,7 +15,7 @@ const latestArticlesQuery = `
       format in ["feature","ranking","analysis"] || (format == "powerRankings" && rankingType == "snapshot")
     )
   ]
-    | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc)[0...6] {
+    | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc)[0...8] {
       _id
     }
 `;
@@ -90,10 +90,10 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
     client.fetch<HeadlineItem[]>(moreHeadlinesQuery),
   ]);
 
-  // Skip items already displayed above (first 9 headlines + first 3 latest articles)
+  // Skip items already displayed above (first 9 headlines + first 5 latest articles)
   const skipIds = new Set([
     ...(headlineIds || []).slice(0, 9).map((item) => item._id),
-    ...(articleIds || []).slice(0, 3).map((item) => item._id),
+    ...(articleIds || []).slice(0, 5).map((item) => item._id),
   ]);
 
   // Keep section size consistent with prior layout (20 total with 9 already used in Headlines)
