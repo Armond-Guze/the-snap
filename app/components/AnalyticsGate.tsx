@@ -54,13 +54,25 @@ export default function AnalyticsGate() {
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
+      let shouldCleanUrl = false;
       if (params.has("exclude_analytics")) {
         localStorage.setItem("va-exclude", "1");
         document.cookie = 'va-exclude=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
+        shouldCleanUrl = true;
       } else if (params.has("include_analytics")) {
         localStorage.removeItem("va-exclude");
         document.cookie = 'va-exclude=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        shouldCleanUrl = true;
       }
+
+      if (shouldCleanUrl) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("exclude_analytics");
+        cleanUrl.searchParams.delete("include_analytics");
+        const nextUrl = `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`;
+        window.history.replaceState({}, "", nextUrl || "/");
+      }
+
       const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
       const lsExcluded = localStorage.getItem("va-exclude") === "1";
       setExcluded(cookieExcluded || lsExcluded);
