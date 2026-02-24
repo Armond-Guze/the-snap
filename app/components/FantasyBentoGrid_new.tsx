@@ -65,7 +65,7 @@ export default async function FantasyBentoGrid({ textureSrc }: FantasyBentoGridP
           {fantasyArticles?.slice(0, 4).map((article: FantasyArticle, index: number) => (
             <div key={article._id || index}>
               {article && article.slug?.current ? (
-                <Link href={`/headlines/${article.slug.current}`} className="group">
+                <Link href={`/articles/${article.slug.current}`} className="group">
                   <div className="relative h-[280px] 2xl:h-[320px] 3xl:h-[360px] rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-all duration-500 hover:scale-[1.02] shadow-xl hover:shadow-2xl">
                     {article.coverImage?.asset ? (
                       <Image

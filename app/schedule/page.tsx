@@ -184,7 +184,7 @@ function ScheduleFAQ({ season }: { season: number }) {
     },
     {
       q: 'Where can I see a specific team\'s full schedule?',
-      a: `Visit dedicated team pages like /teams/kc or /teams/sf for the full ${season} slate.`
+      a: `Visit dedicated team pages like /teams/kansas-city-chiefs or /teams/san-francisco-49ers for the full ${season} slate.`
     }
   ];
   const faqLd = {

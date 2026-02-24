@@ -46,7 +46,7 @@ export default function LatestHeadlinesFooterLinks({ limit = 6 }: { limit?: numb
       <ul className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
         {items.slice(0, limit).map(i => (
           <li key={i._id} className="min-w-0">
-            <a href={`/headlines/${i.slug.current}`} className="text-gray-400 hover:text-white transition-colors line-clamp-1">
+            <a href={`/articles/${i.slug.current}`} className="text-gray-400 hover:text-white transition-colors line-clamp-1">
               {i.title}
             </a>
           </li>

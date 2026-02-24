@@ -38,7 +38,7 @@ export default function FilteredHeadlines({
     if (t === 'rankings' || t === 'article') {
       return `/articles/${item.slug.current.trim()}`;
     }
-    return `/headlines/${item.slug.current.trim()}`;
+    return `/articles/${item.slug.current.trim()}`;
   };
 
   useEffect(() => {

@@ -165,7 +165,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
 
   const handleResultClick = useCallback((result?: SearchResult) => {
     if (result) {
-      router.push(`/headlines/${result.slug.current}`);
+      router.push(`/articles/${result.slug.current}`);
     }
     handleClose();
   }, [router, handleClose]);

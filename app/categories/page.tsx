@@ -44,7 +44,7 @@ function getContentUrl(item: CategoryTopItem): string {
   const slug = item.slug?.current?.trim();
   if (!slug) return '#';
 
-  if (item._type === 'headline') return `/headlines/${slug}`;
+  if (item._type === 'headline') return `/articles/${slug}`;
   if (item._type === 'rankings') return `/rankings/${slug}`;
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
 

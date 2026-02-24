@@ -158,6 +158,13 @@ Pipeline stages:
 - Primary deployment target is Vercel.
 - Ensure all production secrets are set in your deployment environment before build.
 - Sanity webhook and revalidation secrets must match between Sanity and the deployed app.
+- This repo is configured to deploy production automatically after CI passes on `main`/`master` via `.github/workflows/deploy-production.yml`.
+- Local one-command production deploy:
+  - `npm run deploy` (alias of `npm run deploy:prod`)
+- Required GitHub secrets for auto production deploy:
+  - `VERCEL_TOKEN`
+  - `VERCEL_ORG_ID`
+  - `VERCEL_PROJECT_ID`
 
 ## Security and Legal
 

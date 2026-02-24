@@ -54,7 +54,7 @@ export default async function InsightsPage() {
                     <tr key={a.articleId} className="odd:bg-white/[0.015] hover:bg-white/[0.05] transition-colors">
                       <td className="px-3 py-2 text-gray-400">{i+1}</td>
                       <td className="px-3 py-2 max-w-xs">
-                        <Link href={`/${a.articleSlug.startsWith('fantasy') ? '' : 'headlines/'}${a.articleSlug}`} className="hover:underline line-clamp-2">
+                        <Link href={`/${a.articleSlug.startsWith('fantasy') ? '' : 'articles/'}${a.articleSlug}`} className="hover:underline line-clamp-2">
                           {a.articleTitle || a.articleSlug}
                         </Link>
                       </td>

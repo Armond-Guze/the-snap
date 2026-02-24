@@ -46,7 +46,7 @@ export default async function HeadlinesPaginatedPage({ params }: { params: Promi
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map(h => (
               <article key={h._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                <Link href={`/headlines/${h.slug.current}`}>
+                <Link href={`/articles/${h.slug.current}`}>
                   {h.coverImage?.asset?.url && (
                     <div className="aspect-video relative overflow-hidden bg-[#111]">
                       <Image src={h.coverImage.asset.url} alt={h.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />

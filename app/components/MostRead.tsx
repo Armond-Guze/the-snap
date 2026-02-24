@@ -13,7 +13,7 @@ export default async function MostRead({ limit = 6 }: { limit?: number }) {
       <ul className="space-y-3 text-sm">
         {items.map(i => (
           <li key={i._id}>
-            <a href={`/headlines/${i.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-2">
+            <a href={`/articles/${i.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-2">
               {i.homepageTitle || i.title}
             </a>
           </li>

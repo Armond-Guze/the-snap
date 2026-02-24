@@ -107,7 +107,7 @@ export function getContentUrl(content: NormalizedContent): string {
   if (content.contentType === 'ranking') {
     return `/articles/${slugValue}`;
   }
-  return `/headlines/${slugValue}`;
+  return `/articles/${slugValue}`;
 }
 
 /**

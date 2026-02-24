@@ -121,7 +121,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {headlines.map((headline) => (
               <article key={headline._id} className="group">
-                <Link href={`/headlines/${headline.slug.current}`}>
+                <Link href={`/articles/${headline.slug.current}`}>
                   <div className="space-y-4">
                     {/* Image */}
                     <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">

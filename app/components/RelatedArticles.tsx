@@ -37,7 +37,7 @@ export default function RelatedArticles({
       }
       return `/articles/${item.slug.current}`;
     }
-    return `/headlines/${item.slug.current}`;
+    return `/articles/${item.slug.current}`;
   };
 
   if (relatedArticles.length === 0) return null;

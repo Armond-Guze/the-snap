@@ -83,7 +83,7 @@ function getHeadlineHref(item: HeadlineListItem): string {
     return `/articles/${slug}`;
   }
 
-  return `/headlines/${slug}`;
+  return `/articles/${slug}`;
 }
 
 function buildTitle(filters: { category?: string; tag?: string; search?: string }) {

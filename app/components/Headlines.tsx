@@ -82,7 +82,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     if (item._type === 'rankings' || item._type === 'article') {
       return `/articles/${item.slug.current.trim()}`;
     }
-    return `/headlines/${item.slug.current.trim()}`;
+    return `/articles/${item.slug.current.trim()}`;
   };
   const formatShortDate = (value?: string) => {
     if (!value) return null;

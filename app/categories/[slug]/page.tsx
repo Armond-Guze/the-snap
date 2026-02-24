@@ -40,7 +40,7 @@ interface CategoryContentItem {
 function getContentUrl(item: CategoryContentItem): string {
   const slug = item.slug?.current?.trim();
   if (!slug) return '#';
-  if (item._type === 'headline') return `/headlines/${slug}`;
+  if (item._type === 'headline') return `/articles/${slug}`;
   if (item._type === 'rankings') return `/rankings/${slug}`;
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
   if (item._type === 'article' && item.format === 'powerRankings') {

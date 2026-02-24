@@ -28,7 +28,7 @@ export async function GET() {
   const escape = (s?: string) => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
   const rssItems = items.map(item => {
-    const url = `${siteUrl}/headlines/${item.slug.current}`;
+    const url = `${siteUrl}/articles/${item.slug.current}`;
     const published = item.date || item._createdAt;
   const title = escape(item.homepageTitle || item.title);
     return `\n    <item>\n      <title>${title}</title>\n      <link>${url}</link>\n      <guid isPermaLink="true">${url}</guid>\n      <pubDate>${new Date(published).toUTCString()}</pubDate>\n      ${item.category?.title ? `<category>${escape(item.category.title)}</category>` : ''}\n      <description><![CDATA[${item.summary || ''}]]></description>\n    </item>`;

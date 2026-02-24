@@ -344,7 +344,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {dedupedNews.map((item) => {
-                  const href = item._type === 'headline' ? `/headlines/${item.slug.current}` : `/articles/${item.slug.current}`;
+                  const href = `/articles/${item.slug.current}`;
                   const img = item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url;
 
                   return (

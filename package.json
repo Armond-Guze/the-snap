@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "build:local": "env-cmd -f .env.local next build",
+    "deploy": "npm run deploy:prod",
+    "deploy:prod": "npx vercel deploy --prod -y",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint .",

@@ -56,7 +56,7 @@ export default async function RankingsGrid({ showSidebar = true }: RankingsGridP
     if (item._type === 'rankings') {
       return `/articles/${item.slug.current.trim()}`;
     }
-    return `/headlines/${item.slug.current.trim()}`;
+    return `/articles/${item.slug.current.trim()}`;
   };
 
   const getRankingTypeDisplay = (type: string) => {

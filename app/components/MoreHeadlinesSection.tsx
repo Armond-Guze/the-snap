@@ -128,7 +128,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
       }
       return item.slug?.current ? `/articles/${item.slug.current.trim()}` : '#';
     }
-    return item.slug?.current ? `/headlines/${item.slug.current.trim()}` : '#';
+    return item.slug?.current ? `/articles/${item.slug.current.trim()}` : '#';
   };
 
   const getItemKicker = (item: HeadlineItem) => {

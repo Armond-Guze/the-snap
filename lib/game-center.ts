@@ -317,7 +317,7 @@ function buildArticleHref(doc: SanityArticleDoc): string | null {
   if (!slug) return null;
   switch (doc._type) {
     case 'headline':
-      return `/headlines/${slug}`;
+      return `/articles/${slug}`;
     case 'fantasyFootball':
       return `/fantasy/${slug}`;
     case 'article':

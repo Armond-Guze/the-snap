@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
   const baseUrl = process.env.SITE_URL || SITE_URL;
   const slug = doc.slug?.current || '';
-  const urlObj = new URL(`/headlines/${slug}`, baseUrl);
+  const urlObj = new URL(`/articles/${slug}`, baseUrl);
   // Add UTM params for analytics
   urlObj.searchParams.set('utm_source', 'x');
   urlObj.searchParams.set('utm_medium', 'social');

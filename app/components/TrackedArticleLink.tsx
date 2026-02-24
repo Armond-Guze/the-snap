@@ -42,7 +42,7 @@ export default function TrackedArticleLink({
 
   return (
     <Link 
-      href={`/headlines/${article.slug.current}`}
+      href={`/articles/${article.slug.current}`}
       className={className}
       onClick={handleClick}
     >
