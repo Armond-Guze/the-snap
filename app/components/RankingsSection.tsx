@@ -36,7 +36,13 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
     ) ||
     ( _type == "rankings" && published == true && coalesce(rankingType, "snapshot") != "live" )
   ]
-    | order(coalesce(date, publishedAt, _createdAt) desc)[0...6] {
+    | order(
+      select(
+        _type == "article" && format == "powerRankings" && coalesce(rankingType, "snapshot") == "live" =>
+          coalesce(_updatedAt, date, publishedAt, _createdAt),
+        coalesce(date, publishedAt, _createdAt)
+      ) desc
+    )[0...6] {
       _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
       seasonYear, weekNumber, playoffRound,
       "fallbackCoverImage": select(
