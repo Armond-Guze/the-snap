@@ -165,6 +165,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/fantasy`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/fantasy/mock-draft-simulator`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/standings`,
       lastModified: standingsLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',

@@ -122,6 +122,12 @@ export default async function FantasyFootballPage() {
           <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/85">
             Latest fantasy football strategy, matchup breakdowns, waiver targets, and lineup decisions.
           </p>
+          <Link
+            href="/fantasy/mock-draft-simulator"
+            className="mt-6 inline-flex items-center rounded-lg border border-cyan-200/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+          >
+            Open Mock Draft Simulator
+          </Link>
         </div>
       </section>
 
