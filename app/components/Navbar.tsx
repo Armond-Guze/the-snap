@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Capacitor } from "@capacitor/core";
 import {
   BarChart3,
   BookOpen,
@@ -116,6 +117,20 @@ export default function Navbar() {
   const singleMoreItem = moreItems.length === 1 ? moreItems[0] : null;
   const hasDropdownMore = moreItems.length > 1;
   const mobileMenuItems = singleMoreItem ? [...mobileNavItems, singleMoreItem] : mobileNavItems;
+  const isNativeIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  const safeAreaTop = isNativeIOS
+    ? "calc(max(env(safe-area-inset-top, 0px), 44px) + 6px)"
+    : "env(safe-area-inset-top, 0px)";
+  const navStyle = {
+    paddingTop: safeAreaTop,
+    ...(teamAccent
+      ? {
+          borderBottomColor: teamAccent,
+          boxShadow: `0 8px 30px -12px ${teamAccent}66`,
+          backgroundImage: `linear-gradient(90deg, ${teamAccent}66 0%, ${teamAccent}55 55%, ${teamAccent}44 100%)`,
+        }
+      : {}),
+  };
 
   const navIcons: Record<string, ReactNode> = {
     home: <HomeIcon className="h-4 w-4" />,
@@ -132,15 +147,7 @@ export default function Navbar() {
   return (
     <nav
       className="theme-nav relative sticky top-0 z-[60] shadow-2xl"
-      style={
-        teamAccent
-          ? {
-              borderBottomColor: teamAccent,
-              boxShadow: `0 8px 30px -12px ${teamAccent}66`,
-              backgroundImage: `linear-gradient(90deg, ${teamAccent}66 0%, ${teamAccent}55 55%, ${teamAccent}44 100%)`,
-            }
-          : undefined
-      }
+      style={navStyle}
     >
       <div className="mx-auto flex h-16 w-full max-w-[84rem] items-center px-4 md:px-6 2xl:max-w-[92rem] 3xl:max-w-[102rem]">
         <div className="flex items-center md:hidden">

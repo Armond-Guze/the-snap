@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { Capacitor } from '@capacitor/core';
+import Link from 'next/link';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +20,7 @@ export default function CookieConsent() {
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
+      if (Capacitor.isNativePlatform()) return;
       if (hideOnRoute) return;
 
       const stored = window.localStorage.getItem('cookie_consent');
@@ -46,12 +49,12 @@ export default function CookieConsent() {
           <p className="text-sm font-semibold text-white">Cookies & analytics</p>
           <p className="text-sm text-gray-200 leading-relaxed">
             We use cookies for performance, analytics, and optional ads. Continue to accept or see our{' '}
-            <a
+            <Link
               href="/privacy-policy"
               className="underline italic font-semibold whitespace-nowrap bg-gradient-to-r from-sky-300 to-cyan-200 bg-clip-text text-transparent hover:from-sky-200 hover:to-cyan-100"
             >
               Privacy Policy
-            </a>.
+            </Link>.
           </p>
         </div>
         <div className="flex items-center gap-3 md:flex-shrink-0 w-full md:w-auto justify-center md:justify-end">

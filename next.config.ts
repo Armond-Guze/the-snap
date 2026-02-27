@@ -64,6 +64,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    const shouldUpgradeInsecureRequests = process.env.NODE_ENV === 'production';
     const baseCsp = [
       "default-src 'self';",
       // Allow Sanity + Vercel analytics scripts everywhere to avoid blocks if headers fall back to baseCsp.
@@ -79,7 +80,7 @@ const nextConfig: NextConfig = {
       "base-uri 'self';",
       "form-action 'self';",
       "frame-ancestors 'self';",
-      "upgrade-insecure-requests;",
+      ...(shouldUpgradeInsecureRequests ? ["upgrade-insecure-requests;"] : []),
     ].join(' ');
 
     // Sanity Studio needs its own CSP so the studio bridge, CDN assets, and API calls are allowed.
@@ -98,7 +99,7 @@ const nextConfig: NextConfig = {
       "base-uri 'self';",
       "form-action 'self';",
       "frame-ancestors 'self';",
-      "upgrade-insecure-requests;",
+      ...(shouldUpgradeInsecureRequests ? ["upgrade-insecure-requests;"] : []),
     ].join(' ');
 
     return [

@@ -6,6 +6,7 @@ import Footer from './Footer';
 // import NavbarAd from './NavbarAd'; // Ads temporarily disabled
 import BackToTop from './BackToTop';
 import PageTransition from './PageTransition';
+import BottomTabBar from './BottomTabBar';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +21,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <PageTransition>
         <main>{children}</main>
       </PageTransition>
+      {!hideGlobalChrome && <BottomTabBar />}
       {!hideGlobalChrome && <Footer />}
       {!hideGlobalChrome && <BackToTop />}
     </>
