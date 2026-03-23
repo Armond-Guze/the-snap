@@ -22,6 +22,16 @@ export default function AdminPage() {
               Manage headlines, articles, and other content via Sanity Studio.
             </p>
           </Link>
+
+          <Link
+            href="/admin/search-console"
+            className="bg-gray-900 hover:bg-gray-800 rounded-lg p-6 transition-colors group"
+          >
+            <h2 className="text-2xl font-bold mb-4 group-hover:text-gray-300">Search Console Audit</h2>
+            <p className="text-gray-400">
+              Review sitemap, indexing, canonical, and page-level GSC health checks.
+            </p>
+          </Link>
         </div>
         
         <div className="mt-8 bg-gray-900 rounded-lg p-6">
