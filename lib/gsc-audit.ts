@@ -330,6 +330,16 @@ function resolveRedirectLocation(sourceUrl: string, location: string | null) {
   }
 }
 
+function resolveMaybeRelativeUrl(sourceUrl: string, candidate: string | null) {
+  if (!candidate) return null;
+
+  try {
+    return new URL(candidate, sourceUrl).toString();
+  } catch {
+    return candidate;
+  }
+}
+
 function parseCanonicalUrl(html: string) {
   const match = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
   return match?.[1] || null;
@@ -569,7 +579,7 @@ async function auditPage(
       });
     } else {
       const html = await pageResponse.text();
-      canonicalUrl = parseCanonicalUrl(html);
+      canonicalUrl = resolveMaybeRelativeUrl(normalizedUrl, parseCanonicalUrl(html));
       robotsMeta = parseRobotsMeta(html);
 
       if (!canonicalUrl) {
@@ -641,7 +651,7 @@ async function auditPage(
       });
     }
 
-    if (pageFetchState && pageFetchState !== "SUCCESS") {
+    if (pageFetchState && !["SUCCESS", "SUCCESSFUL"].includes(pageFetchState)) {
       issues.push({
         severity: "error",
         code: "GOOGLE_FETCH_FAILED",

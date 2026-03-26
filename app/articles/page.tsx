@@ -7,13 +7,18 @@ import Link from 'next/link';
 import TagCloud from '../components/TagCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MostRead from '../components/MostRead';
+import { SITE_URL } from '@/lib/site-config';
 
 export const metadata = {
   title: 'NFL Articles | The Snap',
   description: 'Long-form articles, deep dives, and analysis from around the NFL.',
+  alternates: {
+    canonical: `${SITE_URL}/articles`,
+  },
   openGraph: {
     title: 'NFL Articles | The Snap',
     description: 'Long-form articles, deep dives, and analysis from around the NFL.',
+    url: `${SITE_URL}/articles`,
     type: 'website',
   },
 };

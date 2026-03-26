@@ -4,8 +4,26 @@ import Link from "next/link";
 import { TEAM_META } from "@/lib/schedule";
 import { getActiveSeason } from "@/lib/season";
 import { fetchNFLStandingsWithFallback, ProcessedTeamData } from "@/lib/nfl-api";
+import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-config";
 
 export const revalidate = 3600; // allow ISR; tag-based revalidation will refresh instantly when triggered
+
+export const metadata: Metadata = {
+  title: "NFL Standings | The Snap",
+  description:
+    "Live NFL standings, division races, and conference tables with updated records from The Snap.",
+  alternates: {
+    canonical: `${SITE_URL}/standings`,
+  },
+  openGraph: {
+    title: "NFL Standings | The Snap",
+    description:
+      "Live NFL standings, division races, and conference tables with updated records from The Snap.",
+    url: `${SITE_URL}/standings`,
+    type: "website",
+  },
+};
 
 interface StandingsTeam {
   _id: string;

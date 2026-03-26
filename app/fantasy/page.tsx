@@ -2,6 +2,8 @@ import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
 import { formatArticleDate } from "@/lib/date-utils";
+import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-config";
 
 interface FantasyArticle {
   _type: "fantasyFootball" | "article";
@@ -17,6 +19,22 @@ interface FantasyArticle {
   publishedAt?: string;
   priority?: number;
 }
+
+export const metadata: Metadata = {
+  title: "Fantasy Football | The Snap",
+  description:
+    "Fantasy football rankings, mock drafts, waiver targets, and lineup analysis from The Snap.",
+  alternates: {
+    canonical: `${SITE_URL}/fantasy`,
+  },
+  openGraph: {
+    title: "Fantasy Football | The Snap",
+    description:
+      "Fantasy football rankings, mock drafts, waiver targets, and lineup analysis from The Snap.",
+    url: `${SITE_URL}/fantasy`,
+    type: "website",
+  },
+};
 
 function toFantasyUrl(item: FantasyArticle): string {
   const slug = item.slug?.current?.trim();
