@@ -3,6 +3,7 @@ import "server-only";
 import crypto from "node:crypto";
 
 import { emitMonitoringAlert } from "@/lib/monitoring/alerts";
+import { powerRankingsLatestSnapshotQuery } from "@/lib/queries/power-rankings";
 import { SITE_URL, toAbsoluteSiteUrl } from "@/lib/site-config";
 import { client } from "@/sanity/lib/client";
 
@@ -73,6 +74,12 @@ interface RecentContentDoc {
   slug?: { current?: string };
   format?: string;
   rankingType?: string;
+  seasonYear?: number;
+  weekNumber?: number;
+  playoffRound?: string;
+}
+
+interface PowerRankingsSnapshotRef {
   seasonYear?: number;
   weekNumber?: number;
   playoffRound?: string;
@@ -350,6 +357,20 @@ function parseRobotsMeta(html: string) {
   return match?.[1] || null;
 }
 
+function buildPowerRankingsSnapshotUrl(snapshot?: PowerRankingsSnapshotRef | null) {
+  if (!snapshot?.seasonYear) return null;
+
+  const weekPart = snapshot.playoffRound
+    ? snapshot.playoffRound.toLowerCase()
+    : typeof snapshot.weekNumber === "number"
+      ? `week-${snapshot.weekNumber}`
+      : null;
+
+  if (!weekPart) return null;
+
+  return toAbsoluteSiteUrl(`/articles/power-rankings/${snapshot.seasonYear}/${weekPart}`);
+}
+
 function decodeXmlValue(value: string) {
   return value
     .replace(/&amp;/g, "&")
@@ -389,19 +410,11 @@ function buildContentUrl(doc: RecentContentDoc) {
   if (!slug) return null;
 
   if (doc._type === "article" && doc.format === "powerRankings") {
-    if (doc.rankingType === "snapshot" && doc.seasonYear) {
-      const weekPart = doc.playoffRound
-        ? doc.playoffRound.toLowerCase()
-        : typeof doc.weekNumber === "number"
-          ? `week-${doc.weekNumber}`
-          : null;
-
-      if (weekPart) {
-        return toAbsoluteSiteUrl(`/articles/power-rankings/${doc.seasonYear}/${weekPart}`);
-      }
+    if (doc.rankingType === "snapshot") {
+      return buildPowerRankingsSnapshotUrl(doc);
     }
 
-    return toAbsoluteSiteUrl("/articles/power-rankings");
+    return null;
   }
 
   return toAbsoluteSiteUrl(`/articles/${slug}`);
@@ -427,6 +440,12 @@ async function fetchRecentTargets(limit: number): Promise<GscAuditTarget[]> {
       }`,
     { limit }
   );
+  const includesLivePowerRankings = docs.some(
+    (doc) => doc._type === "article" && doc.format === "powerRankings" && doc.rankingType === "live"
+  );
+  const latestPowerRankingsSnapshot = includesLivePowerRankings
+    ? await client.fetch<PowerRankingsSnapshotRef | null>(powerRankingsLatestSnapshotQuery)
+    : null;
 
   const coreTargets: GscAuditTarget[] = [
     { title: "Homepage", url: toAbsoluteSiteUrl("/"), kind: "core" },
@@ -438,7 +457,10 @@ async function fetchRecentTargets(limit: number): Promise<GscAuditTarget[]> {
   ];
 
   const mappedContentTargets = docs.map((doc) => {
-    const url = buildContentUrl(doc);
+    const url =
+      doc._type === "article" && doc.format === "powerRankings" && doc.rankingType === "live"
+        ? buildPowerRankingsSnapshotUrl(latestPowerRankingsSnapshot)
+        : buildContentUrl(doc);
     if (!url) return null;
     return {
       title: doc.title?.trim() || url,
@@ -651,7 +673,10 @@ async function auditPage(
       });
     }
 
-    if (pageFetchState && !["SUCCESS", "SUCCESSFUL"].includes(pageFetchState)) {
+    if (
+      pageFetchState &&
+      !["SUCCESS", "SUCCESSFUL", "PAGE_FETCH_STATE_UNSPECIFIED"].includes(pageFetchState)
+    ) {
       issues.push({
         severity: "error",
         code: "GOOGLE_FETCH_FAILED",
