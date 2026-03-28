@@ -1,76 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { Mail, Instagram, Youtube, Twitter, Music2 } from "lucide-react";
+import { FaEnvelope, FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
+
+const mainLinks = [
+  { label: "Contact & Support", href: "/contact" },
+  { label: "Our Story", href: "/about" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms" },
+  { label: "Newsletter", href: "/newsletter" },
+];
+
+const socials = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/thesnapfootball",
+    icon: FaInstagram,
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@thesnapfootball",
+    icon: FaTiktok,
+  },
+  {
+    label: "X",
+    href: "https://twitter.com/thesnapfootball",
+    icon: FaXTwitter,
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@thesnapfootball",
+    icon: FaYoutube,
+  },
+  {
+    label: "Email",
+    href: "mailto:TheGameSnap@yahoo.com",
+    icon: FaEnvelope,
+  },
+];
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
-  const quickLinks = [
-    { label: "About", href: "/about" },
-    { label: "Headlines", href: "/headlines" },
-    { label: "Power Rankings", href: "/articles/power-rankings" },
-    { label: "NFL Standings", href: "/standings" },
-  ];
-
   return (
-    <footer className="theme-footer py-10 md:py-12 text-gray-200">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="hidden md:flex flex-col items-center text-center gap-8">
-          <Image
-            src="/images/thesnap-logo-new%20copy123.png"
-            alt="The Game Snap Logo"
-            width={110}
-            height={110}
-            className="h-5 w-auto max-w-none shrink-0"
-          />
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
-            {quickLinks.map(({ label, href }) => (
-              <Link key={label} href={href} className="hover:text-white transition-colors">
-                {label}
-              </Link>
-            ))}
-          </div>
-        </div>
+    <footer className="relative mt-16 overflow-hidden border-t border-white/10 bg-[#0b0b0d] text-white">
+      <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-10 md:block">
+        <div className="absolute left-0 top-0 h-px w-[16%] bg-white/15" />
+        <div className="absolute left-[16%] top-0 h-px w-12 origin-left rotate-[28deg] bg-white/15" />
+        <div className="absolute left-[19.5%] top-0 h-px w-[80.5%] bg-white/15" />
+      </div>
 
-        <div className="md:hidden flex flex-col items-center text-center gap-5">
-          <Image
-            src="/images/thesnap-logo-new%20copy123.png"
-            alt="The Game Snap Logo"
-            width={110}
-            height={110}
-            className="h-5 w-auto max-w-none shrink-0"
-          />
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-400">
-            {quickLinks.map(({ label, href }) => (
-              <Link key={label} href={href} className="hover:text-white transition-colors">
-                {label}
-              </Link>
-            ))}
-          </div>
-        </div>
+      <div className="mx-auto max-w-7xl px-5 pb-7 pt-9 sm:px-8 md:pb-9 md:pt-11">
+        <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-10">
+          <div className="space-y-3">
+            <p className="text-[1.28rem] font-black uppercase tracking-[0.18em] text-white">
+              The Snap
+            </p>
 
-        <div className="mt-8 md:mt-12 border-t border-white/10 pt-6">
-          <div className="mb-4 flex items-center justify-center gap-5 text-gray-400">
-            <a href="https://www.instagram.com/thesnapfootball" aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Instagram className="w-[18px] h-[18px] md:w-5 md:h-5" /></a>
-            <a href="https://www.youtube.com/@thesnapfootball" aria-label="YouTube" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Youtube className="w-[18px] h-[18px] md:w-5 md:h-5" /></a>
-            <a href="https://twitter.com/thesnapfootball" aria-label="Twitter / X" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Twitter className="w-[18px] h-[18px] md:w-5 md:h-5" /></a>
-            <a href="https://www.tiktok.com/@thesnapfootball" aria-label="TikTok" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors"><Music2 className="w-[18px] h-[18px] md:w-5 md:h-5" /></a>
-            <a href="mailto:TheGameSnap@yahoo.com" aria-label="Email" className="hover:text-white transition-colors"><Mail className="w-[18px] h-[18px] md:w-5 md:h-5" /></a>
-          </div>
-
-          <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-between sm:items-center">
-            <div className="text-xs text-gray-500 text-center sm:text-left">
-              &copy; {currentYear} The Game Snap. All rights reserved.
+            <div className="flex flex-wrap items-center gap-2.5 text-white">
+              {socials.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                  aria-label={label}
+                  className="transition-colors hover:text-white/75"
+                >
+                  <Icon className="h-[17px] w-[17px]" />
+                </a>
+              ))}
             </div>
-            <div className="text-center sm:text-right">
-              <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-4 gap-y-1 text-xs text-gray-500">
-                <Link href="/privacy-policy" className="hover:text-gray-400 transition-colors">Privacy</Link>
-                <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
-                <Link href="/contact" className="hover:text-gray-400 transition-colors">Contact</Link>
-              </div>
-              <div className="mt-1 text-[11px] text-gray-600">Not affiliated with the NFL.</div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid gap-x-3 gap-y-2 text-[13px] sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-2">
+              {mainLinks.map(({ label, href }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="font-medium text-white/90 transition-colors hover:text-white"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="border-t border-white/10 pt-4 text-[11px] text-white/70">
+              <p className="leading-5">
+                Owned and operated by The Snap. Copyright {currentYear} The Snap. All rights reserved.
+              </p>
+              <p className="mt-2.5 max-w-4xl leading-5 text-white/60">
+                The Snap provides NFL news, rankings, analysis, and opinion content for informational and entertainment purposes.
+                Betting coverage should not be treated as financial or legal advice. Always verify league, sportsbook, and local
+                compliance rules before acting on any information published on this site.
+              </p>
             </div>
           </div>
         </div>

@@ -6,20 +6,38 @@
     "**/.next/**": true,
     "**/.turbo/**": true,
     "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/.cache/**": true,
     "**/out/**": true,
     "**/.vercel/**": true,
     "**/sanity/.cache/**": true,
     "**/sanity/node_modules/**": true
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.cache": true,
+    "**/out": true,
+    "**/.vercel": true,
+    "**/sanity/.cache": true
   },
   "search.exclude": {
     "**/node_modules/**": true,
     "**/.next/**": true,
     "**/.turbo/**": true,
     "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/.cache/**": true,
     "**/out/**": true,
     "**/.vercel/**": true,
     "**/sanity/.cache/**": true
   },
+  "search.followSymlinks": false,
+  "git.autofetch": false,
+  "npm.autoDetect": "off",
   "typescript.tsserver.maxTsServerMemory": 4096,
   "typescript.disableAutomaticTypeAcquisition": true
 }
