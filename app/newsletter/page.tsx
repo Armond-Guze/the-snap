@@ -1,166 +1,68 @@
-import NewsletterSignup from '../components/NewsletterSignup';
+import NewsletterSignup from "../components/NewsletterSignup";
+import { SimpleCard, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+
+const benefits = [
+  {
+    title: "Weekly signal",
+    body: "A cleaner read on what actually matters across the league instead of another noisy recap.",
+  },
+  {
+    title: "Rankings drops",
+    body: "Power rankings, offseason movement, and sharper team-level takeaways in one place.",
+  },
+  {
+    title: "Useful updates",
+    body: "Fantasy, betting, and content product updates when there is something worth opening.",
+  },
+];
 
 export default function NewsletterPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
-      <div className="py-24 px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Subscribe to The Game Snap
-          </h1>
-          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto">
-            Join thousands of NFL fans who rely on our expert analysis, breaking news, and insider insights delivered straight to their inbox.
-          </p>
-        </div>
+    <SimplePageShell
+      eyebrow="Newsletter"
+      title="Get The Snap in your inbox."
+      intro="A simple weekly email with rankings, analysis, and site updates. No blue gradients, no fake urgency, no extra noise."
+    >
+      <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+        <NewsletterSignup variant="sidebar" />
       </div>
 
-      {/* Newsletter Signup */}
-      <NewsletterSignup />
-      <div className="max-w-4xl mx-auto px-6 -mt-8">
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <section className="grid gap-4 md:grid-cols-3">
+        {benefits.map((benefit) => (
+          <SimpleCard key={benefit.title} title={benefit.title} body={benefit.body} />
+        ))}
+      </section>
+
+      <SimpleSection title="Prefer RSS?">
+        <p>
+          If you would rather follow headlines in an RSS reader, you can use the site feed instead of email.
+        </p>
+        <div className="pt-1">
+          <a
+            href="/rss.xml"
+            className="inline-flex rounded-full border border-white/12 bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90"
+          >
+            Open RSS Feed
+          </a>
+        </div>
+      </SimpleSection>
+
+      <SimpleSection title="FAQ">
+        <div className="space-y-5">
           <div>
-            <h3 className="text-xl font-semibold mb-2 text-white">Prefer using an RSS reader?</h3>
-            <p className="text-gray-400 text-sm max-w-xl">Grab our RSS feed for real-time headline updates in your favorite app.</p>
+            <h3 className="text-lg font-semibold text-white">How often will emails go out?</h3>
+            <p className="mt-2">Usually weekly, with occasional sends when there is a major update worth sending.</p>
           </div>
-          <a href="/rss.xml" className="px-5 py-3 bg-white text-black rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors">Add RSS Feed →</a>
-        </div>
-      </div>
-
-      {/* Benefits Section */}
-      <div className="py-16 px-6 lg:px-8 bg-black">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            What You&apos;ll Get
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl">📊</span>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-4">
-                Weekly Power Rankings
-              </h3>
-              <p className="text-gray-400">
-                Our expert analysis of all 32 teams with detailed breakdowns and predictions for upcoming matchups.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl">⚡</span>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-4">
-                Breaking News Alerts
-              </h3>
-              <p className="text-gray-400">
-                Be the first to know about trades, injuries, coaching changes, and other major NFL developments.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-2xl">🎯</span>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-4">
-                Exclusive Analysis
-              </h3>
-              <p className="text-gray-400">
-                Deep dives into draft prospects, strategy breakdowns, and insider information you won&apos;t find anywhere else.
-              </p>
-            </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Can I unsubscribe?</h3>
+            <p className="mt-2">Yes. Every email should have an unsubscribe option.</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Is it free?</h3>
+            <p className="mt-2">Yes. The newsletter is free.</p>
           </div>
         </div>
-      </div>
-
-      {/* Testimonials Section */}
-      <div className="py-16 px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            What Our Subscribers Say
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gray-900 rounded-2xl p-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-4">
-                  <span className="text-white font-bold">MJ</span>
-                </div>
-                <div>
-                  <h4 className="text-white font-semibold">Mike Johnson</h4>
-                  <p className="text-gray-400 text-sm">Fantasy Football Enthusiast</p>
-                </div>
-              </div>
-              <p className="text-gray-300">
-                &quot;The Game Snap&apos;s analysis has completely transformed my fantasy team. Their injury reports and player insights are incredibly accurate.&quot;
-              </p>
-            </div>
-            
-            <div className="bg-gray-900 rounded-2xl p-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center mr-4">
-                  <span className="text-white font-bold">SR</span>
-                </div>
-                <div>
-                  <h4 className="text-white font-semibold">Sarah Rodriguez</h4>
-                  <p className="text-gray-400 text-sm">NFL Betting Analyst</p>
-                </div>
-              </div>
-              <p className="text-gray-300">
-                &quot;I&apos;ve been following The Game Snap for over a year. Their power rankings and predictions have helped me make much better betting decisions.&quot;
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* FAQ Section */}
-      <div className="py-16 px-6 lg:px-8 bg-black">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Frequently Asked Questions
-          </h2>
-          
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                How often will I receive emails?
-              </h3>
-              <p className="text-gray-400">
-                We send one comprehensive newsletter per week, typically on Tuesdays, plus occasional breaking news alerts for major developments.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Can I unsubscribe at any time?
-              </h3>
-              <p className="text-gray-400">
-                Absolutely! Every email includes an easy one-click unsubscribe link. We respect your privacy and won&apos;t send you any unwanted emails.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Is the newsletter free?
-              </h3>
-              <p className="text-gray-400">
-                Yes! Our newsletter is completely free. We&apos;re passionate about sharing NFL insights with fellow fans and believe great content should be accessible to everyone.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                What makes your analysis different?
-              </h3>
-              <p className="text-gray-400">
-                Our team combines advanced analytics with traditional scouting methods. We focus on actionable insights rather than just statistics, helping you understand not just what happened, but why it matters.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </SimpleSection>
+    </SimplePageShell>
   );
 }

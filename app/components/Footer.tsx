@@ -74,7 +74,7 @@ const Footer = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="grid gap-x-3 gap-y-2 text-[13px] sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] lg:gap-x-5">
               {mainLinks.map(({ label, href }) => (
                 <Link
                   key={label}
