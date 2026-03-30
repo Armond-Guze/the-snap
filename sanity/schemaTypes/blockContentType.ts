@@ -248,11 +248,13 @@ export const blockContentType = defineType({
             Rule.required()
               .min(1)
               .custom((rows, ctx) => {
-                const columns = Array.isArray(ctx.parent?.columns) ? ctx.parent.columns : []
+                const parent = ctx.parent as {columns?: unknown} | undefined
+                const columns = Array.isArray(parent?.columns) ? parent.columns : []
                 if (!Array.isArray(rows) || columns.length === 0) return true
 
                 const mismatchIndex = rows.findIndex((row) => {
-                  const cells = Array.isArray(row?.cells) ? row.cells : []
+                  const rowValue = row as {cells?: unknown} | undefined
+                  const cells = Array.isArray(rowValue?.cells) ? rowValue.cells : []
                   return cells.length !== columns.length
                 })
 
