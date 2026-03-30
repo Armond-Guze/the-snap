@@ -15,6 +15,15 @@ type RankingCardValue = {
   player?: { name?: string; team?: string; position?: string }
   team?: { title?: string; slug?: { current?: string } }
 }
+type DataTableRowValue = {
+  _key?: string
+  cells?: string[]
+}
+type DataTableValue = {
+  caption?: string
+  columns?: string[]
+  rows?: DataTableRowValue[]
+}
 
 // Basic NFL team color map (primary, secondary)
 const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
@@ -152,6 +161,11 @@ const resolveTeamCode = (value: RankingCardValue): string | null => {
   if (mappedFromSlug) return mappedFromSlug
 
   return null
+}
+
+const isNumericTableCell = (value: string): boolean => {
+  const compact = value.replace(/[\s,]/g, '')
+  return /^[-+]?[$]?\d+(\.\d+)?%?$/.test(compact) || /^\(\d+(\.\d+)?\)$/.test(compact)
 }
 
 // Utility to create deterministic slug IDs from heading text (TOC + deep links)
@@ -302,6 +316,71 @@ export const portableTextComponents: PortableTextComponents = {
             </p>
           )}
         </div>
+      )
+    },
+
+    dataTable: ({ value }) => {
+      const tableValue = value as DataTableValue
+      const columns = Array.isArray(tableValue?.columns)
+        ? tableValue.columns.filter((column): column is string => typeof column === 'string')
+        : []
+      const rows = Array.isArray(tableValue?.rows)
+        ? tableValue.rows.filter((row): row is DataTableRowValue => Boolean(row && Array.isArray(row.cells)))
+        : []
+
+      if (columns.length === 0 || rows.length === 0) return null
+
+      return (
+        <figure className="my-8">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse">
+                <thead className="bg-white/[0.06]">
+                  <tr>
+                    {columns.map((column, index) => (
+                      <th
+                        key={`column-${index}`}
+                        scope="col"
+                        className="border-b border-white/10 px-4 py-3 text-left text-xs font-bold uppercase tracking-[0.14em] text-white/85 sm:px-5 sm:text-sm"
+                      >
+                        {column || `Column ${index + 1}`}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, rowIndex) => (
+                    <tr
+                      key={row._key || `row-${rowIndex}`}
+                      className={rowIndex % 2 === 0 ? 'bg-white/[0.03]' : 'bg-transparent'}
+                    >
+                      {columns.map((_, columnIndex) => {
+                        const cellValue = row.cells?.[columnIndex] ?? ''
+                        const alignmentClass = isNumericTableCell(cellValue)
+                          ? 'text-right font-semibold tabular-nums text-white'
+                          : 'text-left text-white/90'
+
+                        return (
+                          <td
+                            key={`${row._key || rowIndex}-${columnIndex}`}
+                            className={`border-b border-white/10 px-4 py-3 align-top text-sm leading-relaxed sm:px-5 sm:py-4 sm:text-base ${alignmentClass}`}
+                          >
+                            <span className="whitespace-pre-wrap">{cellValue}</span>
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {tableValue.caption && (
+            <figcaption className="mt-3 text-sm leading-relaxed text-white/60">
+              {tableValue.caption}
+            </figcaption>
+          )}
+        </figure>
       )
     },
 

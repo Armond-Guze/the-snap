@@ -1,5 +1,6 @@
-import {defineType, defineArrayMember} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {ImageIcon} from '@sanity/icons'
+import DataTableInput from '../plugins/dataTableInput'
 
 /**
  * This is the schema type for block content used in the post document type
@@ -189,6 +190,95 @@ export const blockContentType = defineType({
           }
         }
       }
+    }),
+    defineArrayMember({
+      type: 'object',
+      name: 'dataTable',
+      title: 'Data Table',
+      description: 'Paste spreadsheet-style rows for odds, standings, rankings, and other quick comparisons.',
+      components: {input: DataTableInput},
+      fields: [
+        defineField({
+          name: 'caption',
+          title: 'Caption',
+          type: 'string',
+          description: 'Optional note shown below the table.',
+          validation: (Rule) => Rule.max(160),
+        }),
+        defineField({
+          name: 'columns',
+          title: 'Columns',
+          type: 'array',
+          of: [defineArrayMember({type: 'string'})],
+          validation: (Rule) => Rule.required().min(2).max(8),
+        }),
+        defineField({
+          name: 'rows',
+          title: 'Rows',
+          type: 'array',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              name: 'dataTableRow',
+              title: 'Row',
+              fields: [
+                defineField({
+                  name: 'cells',
+                  title: 'Cells',
+                  type: 'array',
+                  of: [defineArrayMember({type: 'string'})],
+                  validation: (Rule) => Rule.required().min(1),
+                }),
+              ],
+              preview: {
+                select: {
+                  cells: 'cells',
+                },
+                prepare(selection) {
+                  const cells = Array.isArray(selection.cells) ? selection.cells.filter(Boolean) : []
+                  return {
+                    title: cells[0] || 'Table row',
+                    subtitle: `${cells.length} cells`,
+                  }
+                },
+              },
+            }),
+          ],
+          validation: (Rule) =>
+            Rule.required()
+              .min(1)
+              .custom((rows, ctx) => {
+                const columns = Array.isArray(ctx.parent?.columns) ? ctx.parent.columns : []
+                if (!Array.isArray(rows) || columns.length === 0) return true
+
+                const mismatchIndex = rows.findIndex((row) => {
+                  const cells = Array.isArray(row?.cells) ? row.cells : []
+                  return cells.length !== columns.length
+                })
+
+                if (mismatchIndex >= 0) {
+                  return `Row ${mismatchIndex + 1} must contain ${columns.length} cells to match the header.`
+                }
+
+                return true
+              }),
+        }),
+      ],
+      preview: {
+        select: {
+          caption: 'caption',
+          columns: 'columns',
+          rows: 'rows',
+        },
+        prepare(selection) {
+          const columnCount = Array.isArray(selection.columns) ? selection.columns.length : 0
+          const rowCount = Array.isArray(selection.rows) ? selection.rows.length : 0
+          return {
+            title: selection.caption || 'Data Table',
+            subtitle: `${columnCount} columns • ${rowCount} rows`,
+          }
+        },
+      },
     }),
     // You can add additional types here. Note that you can't use
     // primitive types such as 'string' and 'number' in the same array
