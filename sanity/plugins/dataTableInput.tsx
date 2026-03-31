@@ -54,6 +54,12 @@ const splitCsvLine = (line: string) => {
   return cells
 }
 
+const splitSpacedLine = (line: string) =>
+  line
+    .trim()
+    .split(/\s{2,}/)
+    .map((cell) => cell.trim())
+
 const isMarkdownDividerRow = (cells: string[]) =>
   cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell.replace(/\s+/g, '')))
 
@@ -88,8 +94,10 @@ const parseTableText = (input: string) => {
     }
   } else if (lines.every((line) => line.includes(','))) {
     parsedRows = lines.map(splitCsvLine)
+  } else if (lines.every((line) => /\s{2,}/.test(line))) {
+    parsedRows = lines.map(splitSpacedLine)
   } else {
-    throw new Error('Use tab-separated, comma-separated, or markdown table text.')
+    throw new Error('Use tab-separated, multi-space, comma-separated, or markdown table text.')
   }
 
   const normalizedRows = normalizeRows(parsedRows)
