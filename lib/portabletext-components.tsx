@@ -327,6 +327,9 @@ export const portableTextComponents: PortableTextComponents = {
       const rows = Array.isArray(tableValue?.rows)
         ? tableValue.rows.filter((row): row is DataTableRowValue => Boolean(row && Array.isArray(row.cells)))
         : []
+      const numericColumns = columns.map((_, columnIndex) =>
+        rows.every((row) => isNumericTableCell(row.cells?.[columnIndex] ?? '')),
+      )
 
       if (columns.length === 0 || rows.length === 0) return null
 
@@ -341,7 +344,9 @@ export const portableTextComponents: PortableTextComponents = {
                       <th
                         key={`column-${index}`}
                         scope="col"
-                        className="border-b border-white/10 px-4 py-3 text-left text-xs font-bold uppercase tracking-[0.14em] text-white/85 sm:px-5 sm:text-sm"
+                        className={`border-b border-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white/85 sm:px-5 sm:text-sm ${
+                          numericColumns[index] ? 'text-right' : 'text-left'
+                        }`}
                       >
                         {column || `Column ${index + 1}`}
                       </th>
@@ -356,7 +361,7 @@ export const portableTextComponents: PortableTextComponents = {
                     >
                       {columns.map((_, columnIndex) => {
                         const cellValue = row.cells?.[columnIndex] ?? ''
-                        const alignmentClass = isNumericTableCell(cellValue)
+                        const alignmentClass = numericColumns[columnIndex]
                           ? 'text-right font-semibold tabular-nums text-white'
                           : 'text-left text-white/90'
 
