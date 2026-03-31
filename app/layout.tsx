@@ -9,7 +9,6 @@ import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
-  DEFAULT_OG_IMAGE_PATH,
   DEFAULT_OG_IMAGE_URL,
   SITE_BRAND,
   SITE_NAME,
@@ -107,14 +106,14 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '32x32' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '192x192' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '512x512' }
+      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/favicon-512.png', type: 'image/png', sizes: '512x512' }
     ],
     apple: [
-      { url: DEFAULT_OG_IMAGE_PATH, sizes: '180x180', type: 'image/png' }
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
     ],
-    shortcut: ['/favicon.svg']
+    shortcut: ['/favicon-32.png']
   },
   robots: {
     index: true,
@@ -154,6 +153,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   {/* Explicit favicon links (square SVG for crisp scaling) */}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="shortcut icon" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="alternate icon" href="/favicon.svg" />
   {/* RSS feed autodiscovery */}
   <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
