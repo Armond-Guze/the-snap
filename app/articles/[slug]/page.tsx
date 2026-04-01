@@ -183,19 +183,20 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	const primaryTopicHub = topicHubLinks[0];
 
 	const categorySlug = article.category?.slug?.current;
-	const categoryMatches = categorySlug
-		? otherArticles
-				.filter(
-					(a) =>
-						a.slug.current !== trimmedSlug &&
-						a.category?.slug?.current === categorySlug
-				)
-				.slice(0, 3)
-		: [];
-
-	const trendingArticles = otherArticles
-		.filter((a) => a.slug.current !== trimmedSlug)
-		.slice(0, 5);
+	const relatedArticlePool = otherArticles.filter(
+		(item) =>
+			item.slug.current !== trimmedSlug &&
+			!(item._type === 'article' && item.format === 'powerRankings')
+	);
+	const prioritizedMoreArticles = categorySlug
+		? [
+				...relatedArticlePool.filter((item) => item.category?.slug?.current === categorySlug),
+				...relatedArticlePool.filter((item) => item.category?.slug?.current !== categorySlug),
+			]
+		: relatedArticlePool;
+	const moreArticles = prioritizedMoreArticles.slice(0, 3);
+	const moreArticleIds = new Set(moreArticles.map((item) => item._id));
+	const sidebarArticles = relatedArticlePool.filter((item) => !moreArticleIds.has(item._id));
 
 	const textContent = extractTextFromBlocks(article.body || []);
 	const readingTime = calculateReadingTime(textContent);
@@ -339,21 +340,18 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							{Array.isArray(article.body) && <PortableText value={article.body} components={portableTextComponents} />}
 						</div>
 					</section>
-					{categoryMatches.length > 1 && (
-						<section className="mt-10">
-							<div className="flex items-center justify-between mb-4">
-								<h2 className="text-2xl font-semibold text-white">
-									More from {article.category?.title}
+					{moreArticles.length > 0 && (
+						<section className="mt-12 -mx-6 rounded-[2rem] bg-white/[0.03] px-6 py-8 sm:-mx-5 sm:px-5">
+							<div className="mb-5">
+								<p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
+									More articles
+								</p>
+								<h2 className="mt-2 text-2xl font-semibold text-white">
+									More Articles
 								</h2>
-								<Link
-									href={`/categories/${article.category?.slug?.current}`}
-									className="text-sm font-semibold text-emerald-300 hover:text-emerald-200"
-								>
-									View category →
-								</Link>
 							</div>
-							<div className="grid gap-5 md:grid-cols-3">
-								{categoryMatches.map((item) => {
+							<div className="grid gap-6 md:grid-cols-3">
+								{moreArticles.map((item) => {
 									const img =
 										item.coverImage?.asset?.url ||
 										item.featuredImage?.asset?.url ||
@@ -363,10 +361,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 										<Link
 											key={item._id}
 											href={`/articles/${item.slug.current}`}
-											className="group rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm hover:border-white/30 hover:bg-white/10 transition-colors"
+											className="group block"
 										>
 											{img && (
-												<div className="relative mb-4 h-36 overflow-hidden rounded-xl">
+												<div className="relative mb-4 h-44 overflow-hidden rounded-[1.35rem] sm:h-48">
 													<Image
 														src={img}
 														alt={item.title}
@@ -376,49 +374,16 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 													/>
 												</div>
 											)}
-											<p className="text-xs uppercase tracking-wide text-white/50 mb-2">
+											<p className="mb-2 text-xs uppercase tracking-[0.24em] text-white/45">
 												{formatArticleDate(item.date || item.publishedAt)}
 											</p>
-											<h3 className="text-lg font-semibold text-white leading-snug line-clamp-2">
+											<h3 className="text-xl font-semibold leading-snug text-white line-clamp-2 transition-colors group-hover:text-white/80">
 												{item.homepageTitle || item.title}
 											</h3>
 										</Link>
 									);
 								})}
 							</div>
-						</section>
-					)}
-					{trendingArticles.length > 0 && (
-						<section className="mt-12">
-							<div className="flex items-center gap-3 mb-4">
-								<div className="h-10 w-10 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
-									🔥
-								</div>
-								<div>
-									<p className="text-xs uppercase tracking-[0.3em] text-white/40">Trending now</p>
-									<h2 className="text-2xl font-semibold text-white">What readers are clicking</h2>
-								</div>
-							</div>
-							<ol className="space-y-3">
-								{trendingArticles.map((item, index) => (
-									<li key={item._id} className="flex items-start gap-4">
-										<span className="text-3xl font-black text-white/10 leading-none">
-											{(index + 1).toString().padStart(2, '0')}
-										</span>
-										<div className="flex-1 border-b border-white/5 pb-3">
-											<Link
-												href={`/articles/${item.slug.current}`}
-												className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
-											>
-												{item.homepageTitle || item.title}
-											</Link>
-											<div className="mt-1 text-xs uppercase tracking-wide text-white/40">
-												{item.category?.title || (item._type === 'rankings' ? `${item.rankingType?.replace('-', ' ')} rankings` : 'Article')}
-											</div>
-										</div>
-									</li>
-								))}
-							</ol>
 						</section>
 					)}
 				</article>
@@ -449,7 +414,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							<TikTokEmbed url={article.tiktokUrl} title={article.tiktokTitle} />
 						</div>
 					)}
-					<RelatedArticles currentSlug={trimmedSlug} articles={otherArticles as unknown as HeadlineListItem[]} />
+					<RelatedArticles currentSlug={trimmedSlug} articles={sidebarArticles as unknown as HeadlineListItem[]} />
 				</aside>
 			</div>
 		</main>

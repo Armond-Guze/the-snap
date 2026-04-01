@@ -150,6 +150,31 @@ The voice should sound confident and editorial, not robotic and not overly forma
 
 ## Body Formatting Rules
 
+### Sanity Paste Rules
+
+If the user is likely to paste the article manually into Sanity, do not assume Markdown formatting will auto-convert correctly.
+
+- Do not rely on literal `#`, `##`, or `###` characters for headings in the pasted body.
+- Do not rely on Markdown link syntax.
+- Do not leave line-separated list items as plain text if they are meant to be bullets.
+- Do not leave raw comparison text in the body when it should be a `Data Table` block.
+
+Practical rule:
+
+- major sections should become `H2`
+- FAQ questions should become `H3`
+- Key Terms entries should become `H3`
+- list-shaped content should become real bullet lists
+- structured comparison content should become a real `Data Table`
+
+Before an article is considered publish-ready in Sanity, check for:
+
+- duplicate paragraphs
+- stray pasted syntax markers
+- missing punctuation on linked phrases
+- trailing blank blocks
+- a section label that should read `Key Terms` instead of `Glossary`
+
 ### Headings
 
 Use headings to create clear scanning structure.
@@ -187,6 +212,22 @@ Do not:
 - bold entire sentences
 - bold every subheading lead-in
 - use bold as a substitute for structure
+
+### Italics
+
+Use italics lightly.
+
+Good uses:
+
+- a short phrase that benefits from subtle emphasis
+- a brief tonal lead-in
+- a small piece of explanatory stress in an evergreen article
+
+Do not:
+
+- italicize full paragraphs
+- stack bold and italics everywhere
+- use italics as a replacement for clear headings or tighter writing
 
 ### Lists
 

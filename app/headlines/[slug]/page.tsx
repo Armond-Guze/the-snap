@@ -122,19 +122,20 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   const primaryTopicHub = topicHubLinks[0];
 
   const categorySlug = headline.category?.slug?.current;
-  const categoryMatches = categorySlug
-    ? otherHeadlines
-        .filter(
-          (article) =>
-            article.slug.current !== trimmedSlug &&
-            article.category?.slug?.current === categorySlug
-        )
-        .slice(0, 3)
-    : [];
-
-  const trendingArticles = otherHeadlines
-    .filter((article) => article.slug.current !== trimmedSlug)
-    .slice(0, 5);
+  const relatedHeadlinePool = otherHeadlines.filter(
+    (article) =>
+      article.slug.current !== trimmedSlug &&
+      !(article._type === 'article' && article.format === 'powerRankings')
+  );
+  const prioritizedMoreArticles = categorySlug
+    ? [
+        ...relatedHeadlinePool.filter((article) => article.category?.slug?.current === categorySlug),
+        ...relatedHeadlinePool.filter((article) => article.category?.slug?.current !== categorySlug),
+      ]
+    : relatedHeadlinePool;
+  const moreArticles = prioritizedMoreArticles.slice(0, 3);
+  const moreArticleIds = new Set(moreArticles.map((article) => article._id));
+  const sidebarArticles = relatedHeadlinePool.filter((article) => !moreArticleIds.has(article._id));
 
   // Calculate reading time
   const textContent = extractTextFromBlocks(headline.body || []);
@@ -268,21 +269,18 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
             </div>
           </section>
-          {categoryMatches.length > 1 && (
-            <section className="mt-10">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-semibold text-white">
-                  More from {headline.category?.title}
+          {moreArticles.length > 0 && (
+            <section className="mt-12 -mx-6 rounded-[2rem] bg-white/[0.03] px-6 py-8 sm:-mx-5 sm:px-5">
+              <div className="mb-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
+                  More articles
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">
+                  More Articles
                 </h2>
-                <Link
-                  href={`/categories/${headline.category?.slug?.current}`}
-                  className="text-sm font-semibold text-emerald-300 hover:text-emerald-200"
-                >
-                  View category →
-                </Link>
               </div>
-              <div className="grid gap-5 md:grid-cols-3">
-                {categoryMatches.map((article) => {
+              <div className="grid gap-6 md:grid-cols-3">
+                {moreArticles.map((article) => {
                   const img =
                     article.coverImage?.asset?.url ||
                     article.featuredImage?.asset?.url ||
@@ -292,10 +290,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                     <Link
                       key={article._id}
                       href={`/articles/${article.slug.current}`}
-                      className="group rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm hover:border-white/30 hover:bg-white/10 transition-colors"
+                      className="group block"
                     >
                       {img && (
-                        <div className="relative mb-4 h-36 overflow-hidden rounded-xl">
+                        <div className="relative mb-4 h-44 overflow-hidden rounded-[1.35rem] sm:h-48">
                           <Image
                             src={img}
                             alt={article.title}
@@ -305,49 +303,16 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                           />
                         </div>
                       )}
-                      <p className="text-xs uppercase tracking-wide text-white/50 mb-2">
+                      <p className="mb-2 text-xs uppercase tracking-[0.24em] text-white/45">
                         {formatArticleDate(article.date || article.publishedAt)}
                       </p>
-                      <h3 className="text-lg font-semibold text-white leading-snug line-clamp-2">
+                      <h3 className="text-xl font-semibold leading-snug text-white line-clamp-2 transition-colors group-hover:text-white/80">
                         {article.homepageTitle || article.title}
                       </h3>
                     </Link>
                   );
                 })}
               </div>
-            </section>
-          )}
-          {trendingArticles.length > 0 && (
-            <section className="mt-12">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
-                  🔥
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-white/40">Trending now</p>
-                  <h2 className="text-2xl font-semibold text-white">What readers are clicking</h2>
-                </div>
-              </div>
-              <ol className="space-y-3">
-                {trendingArticles.map((article, index) => (
-                  <li key={article._id} className="flex items-start gap-4">
-                    <span className="text-3xl font-black text-white/10 leading-none">
-                      {(index + 1).toString().padStart(2, '0')}
-                    </span>
-                    <div className="flex-1 border-b border-white/5 pb-3">
-                      <Link
-                        href={`/articles/${article.slug.current}`}
-                        className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
-                      >
-                        {article.homepageTitle || article.title}
-                      </Link>
-                      <div className="mt-1 text-xs uppercase tracking-wide text-white/40">
-                        {article.category?.title || (article._type === 'rankings' ? `${article.rankingType?.replace('-', ' ')} rankings` : 'Headline')}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ol>
             </section>
           )}
         </article>
@@ -379,7 +344,10 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
             </div>
           )}
           {/* Use homepageTitle if present for shorter sidebar list titles */}
-          <RelatedArticles currentSlug={trimmedSlug} articles={otherHeadlines.map(h => ({...h, title: h.homepageTitle || h.title }))} />
+          <RelatedArticles
+            currentSlug={trimmedSlug}
+            articles={sidebarArticles.map((h) => ({ ...h, title: h.homepageTitle || h.title }))}
+          />
           <div className="mt-6">
             {/* Async server component renders most recent headlines for broader recirculation */}
             <MostRead limit={6} />
