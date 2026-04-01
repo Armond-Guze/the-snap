@@ -1,4 +1,5 @@
-import { SignedIn, SignedOut, SignInButton, SignOutButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+import { SignedIn, SignedOut, SignOutButton, UserButton } from "@clerk/nextjs";
 
 export default function AccountPage() {
   return (
@@ -11,16 +12,18 @@ export default function AccountPage() {
             Sign in to manage your account and personalize your experience.
           </p>
           <div className="flex gap-3">
-            <SignInButton mode="modal">
-              <button className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/15">
-                Sign in
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
-                Create account
-              </button>
-            </SignUpButton>
+            <Link
+              href="/sign-in"
+              className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/15"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Create account
+            </Link>
           </div>
         </SignedOut>
 

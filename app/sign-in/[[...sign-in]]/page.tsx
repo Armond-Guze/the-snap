@@ -1,30 +1,22 @@
-import type { Metadata } from 'next';
-import { SignIn } from '@clerk/nextjs';
+import type { Metadata } from 'next'
+
+import AuthShell from '@/app/components/auth/AuthShell'
+import CustomAuthFlow from '@/app/components/auth/CustomAuthFlow'
 
 export const metadata: Metadata = {
   title: 'Log In | The Snap',
   description: 'Log in to your The Snap account.',
   alternates: { canonical: '/sign-in' },
   robots: { index: false, follow: false },
-};
+}
 
 export default function SignInPage() {
   return (
-    <div className="h-[100svh] overflow-hidden bg-black flex items-center justify-center px-4 sm:px-6">
-      <SignIn
-        appearance={{
-          elements: {
-            rootBox: 'w-full flex justify-center',
-            card: 'w-full max-w-[520px] md:max-w-[580px] scale-[1.02] md:scale-[1.06] origin-center shadow-2xl border border-white/10 bg-[#0b0b0b]',
-            headerTitle: 'text-xl md:text-2xl',
-            headerSubtitle: 'text-base',
-            socialButtonsBlockButton: 'text-base',
-            formButtonPrimary: 'text-base',
-            formFieldInput: 'text-base',
-            formFieldLabel: 'text-sm',
-          },
-        }}
-      />
-    </div>
-  );
+    <AuthShell
+      title="Log in or sign up"
+      subtitle="Get access to NFL news, rankings, betting guides, and the stories you want to follow."
+    >
+      <CustomAuthFlow />
+    </AuthShell>
+  )
 }
