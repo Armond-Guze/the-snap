@@ -37,11 +37,32 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
   return Array.from(byUrl.values());
 };
 
+const maxDate = (...values: Array<string | Date | null | undefined>): Date | undefined => {
+  const timestamps = values
+    .map((value) => {
+      if (!value) return null;
+      const date = value instanceof Date ? value : new Date(value);
+      const time = date.getTime();
+      return Number.isFinite(time) ? time : null;
+    })
+    .filter((value): value is number => value !== null);
+
+  if (timestamps.length === 0) return undefined;
+  return new Date(Math.max(...timestamps));
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, fantasy, categories, topicHubs] = await Promise.all([
+  const [articles, headlines, fantasy, categories, topicHubs] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[
         (_type in ["article","headline","rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
+      ]{ slug, _updatedAt }`
+    ),
+    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+      `*[
+        ((_type == "article" && format == "headline") || _type == "headline") &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
       ]{ slug, _updatedAt }`
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
@@ -60,6 +81,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     `*[_type == "teamRecord" && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
   );
   const standingsLastMod = latestTeamRecordUpdatedAt ? new Date(latestTeamRecordUpdatedAt) : undefined;
+  const articleLastMod = maxDate(...articles.map((entry) => entry._updatedAt));
+  const headlineLastMod = maxDate(...headlines.map((entry) => entry._updatedAt));
+  const fantasyLastMod = maxDate(...fantasy.map((entry) => entry._updatedAt));
+  const categoryLastMod = maxDate(...categories.map((entry) => entry._updatedAt));
+  const topicHubLastMod = maxDate(...topicHubs.map((entry) => entry._updatedAt));
+  const homepageLastMod = maxDate(articleLastMod, headlineLastMod, fantasyLastMod, categoryLastMod, topicHubLastMod, standingsLastMod);
+  const teamsLastMod = maxDate(standingsLastMod, articleLastMod);
+  const scheduleLastMod = maxDate(standingsLastMod, articleLastMod);
 
   const dynamicEntries: MetadataRoute.Sitemap = dedupeEntries([
     // Detail pages: always point to final articles path to avoid sitemap URLs that redirect
@@ -142,31 +171,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return dedupeEntries([
     {
       url: baseUrl,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: homepageLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
       url: `${baseUrl}/categories`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: categoryLastMod || STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.55,
     },
     {
       url: `${baseUrl}/headlines`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: headlineLastMod || articleLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/articles`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: articleLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/fantasy`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: fantasyLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
@@ -184,13 +213,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/schedule`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: scheduleLastMod || STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.75,
     },
     {
       url: `${baseUrl}/teams`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: teamsLastMod || STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },

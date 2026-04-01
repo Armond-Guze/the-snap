@@ -207,16 +207,16 @@ export default function Navbar() {
                     const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                     return (
                       <SheetClose asChild key={key || label}>
-                        <Button
-                          asChild
-                          variant="ghost"
-                          className={cn(
-                            "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold",
-                            isActive
-                              ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
-                              : "text-white/75 hover:bg-white/[0.08] hover:text-white"
-                          )}
-                        >
+	                        <Button
+	                          asChild
+	                          variant="ghost"
+	                          className={cn(
+	                            "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em]",
+	                            isActive
+	                              ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
+	                              : "text-white/90 hover:bg-white/[0.08] hover:text-white"
+	                          )}
+	                        >
                           <Link href={href}>
                             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white/85">
                               {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
@@ -237,16 +237,16 @@ export default function Navbar() {
                       const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                       return (
                         <SheetClose asChild key={key || label}>
-                          <Button
-                            asChild
-                            variant="ghost"
-                            className={cn(
-                              "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold",
-                              isActive
-                                ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
-                                : "text-white/75 hover:bg-white/[0.08] hover:text-white"
-                            )}
-                          >
+	                          <Button
+	                            asChild
+	                            variant="ghost"
+	                            className={cn(
+	                              "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em]",
+	                              isActive
+	                                ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
+	                                : "text-white/90 hover:bg-white/[0.08] hover:text-white"
+	                            )}
+	                          >
                             <Link href={href}>
                               <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white/85">
                                 {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
@@ -338,12 +338,12 @@ export default function Navbar() {
 
                   return (
                     <NavigationMenuItem key="teams">
-                      <NavigationMenuTrigger
-                        className={cn(
-                          isTeamsActive ? "bg-white/10 text-white" : "text-white/65 hover:text-white",
-                          "px-4 text-[15px]"
-                        )}
-                      >
+	                      <NavigationMenuTrigger
+	                        className={cn(
+	                          isTeamsActive ? "bg-white/10 text-white" : "text-white/85 hover:text-white",
+	                          "px-4 text-[13px] font-bold uppercase tracking-[0.14em]"
+	                        )}
+	                      >
                         Teams
                       </NavigationMenuTrigger>
                       <NavigationMenuContent className="max-w-[90vw] p-5 md:w-[860px]">
@@ -406,14 +406,14 @@ export default function Navbar() {
                 return (
                   <NavigationMenuItem key={key || label}>
                     <NavigationMenuLink asChild>
-                      <Link
-                        href={href}
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          "px-4 text-[15px]",
-                          isActive ? "bg-white/10 text-white" : "text-white/65 hover:bg-white/10 hover:text-white"
-                        )}
-                      >
+	                      <Link
+	                        href={href}
+	                        className={cn(
+	                          navigationMenuTriggerStyle(),
+	                          "px-4 text-[13px] font-bold uppercase tracking-[0.14em]",
+	                          isActive ? "bg-white/10 text-white" : "text-white/85 hover:bg-white/10 hover:text-white"
+	                        )}
+	                      >
                         {label}
                       </Link>
                     </NavigationMenuLink>
@@ -424,37 +424,37 @@ export default function Navbar() {
               {singleMoreItem && (
                 <NavigationMenuItem key={singleMoreItem.key}>
                   <NavigationMenuLink asChild>
-                    <Link
-                      href={singleMoreItem.href}
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        "px-4 text-[15px]",
-                        isPathActive(pathname, singleMoreItem.href)
-                          ? "bg-white/10 text-white"
-                          : "text-white/65 hover:bg-white/10 hover:text-white"
-                      )}
-                    >
+	                    <Link
+	                      href={singleMoreItem.href}
+	                      className={cn(
+	                        navigationMenuTriggerStyle(),
+	                        "px-4 text-[13px] font-bold uppercase tracking-[0.14em]",
+	                        isPathActive(pathname, singleMoreItem.href)
+	                          ? "bg-white/10 text-white"
+	                          : "text-white/85 hover:bg-white/10 hover:text-white"
+	                      )}
+	                    >
                       {singleMoreItem.label}
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
 
-              {hasDropdownMore && (
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="px-4 text-[15px] text-white/65 hover:text-white">More</NavigationMenuTrigger>
-                  <NavigationMenuContent className="p-2 md:w-44">
+	              {hasDropdownMore && (
+	                <NavigationMenuItem>
+	                  <NavigationMenuTrigger className="px-4 text-[13px] font-bold uppercase tracking-[0.14em] text-white/85 hover:text-white">More</NavigationMenuTrigger>
+	                  <NavigationMenuContent className="p-2 md:w-44">
                     <div className="flex flex-col gap-1">
                       {moreItems.map((item) => (
                         <Link
                           key={item.key}
                           href={item.href}
-                          className={cn(
-                            "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-                            isPathActive(pathname, item.href)
-                              ? "bg-white/10 text-white"
-                              : "text-white/75 hover:bg-white/[0.08] hover:text-white"
-                          )}
+	                          className={cn(
+	                            "rounded-lg px-3 py-2 text-sm font-semibold uppercase tracking-[0.12em] transition-colors",
+	                            isPathActive(pathname, item.href)
+	                              ? "bg-white/10 text-white"
+	                              : "text-white/90 hover:bg-white/[0.08] hover:text-white"
+	                          )}
                         >
                           {item.label}
                         </Link>

@@ -4,7 +4,6 @@ import { DEFAULT_OG_IMAGE_PATH, SITE_URL } from '@/lib/site-config'
 export const metadata: Metadata = {
   title: "NFL Power Rankings - Week by Week Team Rankings | The Snap",
   description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up with expert analysis, win probabilities, and detailed team breakdowns.",
-  keywords: "NFL power rankings, NFL team rankings, NFL team analysis, NFL standings, football rankings",
   openGraph: {
     title: "NFL Power Rankings - Week by Week Team Rankings | The Snap",
     description: "Comprehensive NFL power rankings updated weekly. See how all 32 NFL teams stack up with expert analysis.",

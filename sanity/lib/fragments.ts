@@ -62,8 +62,7 @@ export const seoFields = `
       }
     },
     canonicalUrl,
-    noIndex,
-    structuredData
+    noIndex
   }
 `;
 

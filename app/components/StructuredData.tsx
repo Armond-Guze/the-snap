@@ -2,6 +2,7 @@
 // Usage: <StructuredData data={{ ...jsonLd }} />
 // Works in both Server and Client components
 import Script from 'next/script'
+import { toAbsoluteSiteUrl } from '@/lib/site-config'
 
 interface StructuredDataProps {
   data: Record<string, unknown>
@@ -30,6 +31,14 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
     />
   )
 }
+
+const PUBLISHER_LOGO_URL = toAbsoluteSiteUrl('/apple-touch-icon.png');
+const PUBLISHER_LOGO = {
+  '@type': 'ImageObject',
+  url: PUBLISHER_LOGO_URL,
+  width: 180,
+  height: 180,
+};
 
 // Helper functions for common structured data
 export const createWebsiteStructuredData = (siteName: string, url: string, alternateName?: string) => ({
@@ -82,10 +91,7 @@ export const createArticleStructuredData = (
   publisher: {
     '@type': 'Organization',
     name: 'The Snap',
-    logo: {
-      '@type': 'ImageObject',
-  url: `${url}/images/logo--design copy.png`,
-    },
+    logo: PUBLISHER_LOGO,
   },
 })
 
@@ -125,10 +131,7 @@ export const createEnhancedArticleStructuredData = (p: EnhancedArticleParams) =>
   publisher: {
     '@type': 'Organization',
     name: 'The Snap',
-    logo: {
-      '@type': 'ImageObject',
-      url: `${new URL('/images/logo--design copy.png', p.canonicalUrl)}`,
-    },
+    logo: PUBLISHER_LOGO,
   },
   ...(p.articleSection?.trim() ? { articleSection: p.articleSection.trim() } : {}),
   ...(p.keywords?.length ? { keywords: p.keywords.filter(Boolean) } : {}),

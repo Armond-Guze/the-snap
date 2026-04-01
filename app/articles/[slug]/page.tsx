@@ -23,8 +23,30 @@ import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
 import { SITE_URL } from '@/lib/site-config';
+import { client } from '@/sanity/lib/client';
 
 export const revalidate = 300;
+
+export async function generateStaticParams() {
+	const docs = await client.fetch<Array<{ slug?: string }>>(
+		`*[
+			published == true &&
+			defined(slug.current) &&
+			(
+				_type == "headline" ||
+				_type == "rankings" ||
+				(_type == "article" && format != "powerRankings")
+			)
+		]{
+			"slug": slug.current
+		}`
+	);
+
+	return docs
+		.map((doc) => doc.slug?.trim())
+		.filter((slug): slug is string => Boolean(slug))
+		.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
 	const params = await props.params;

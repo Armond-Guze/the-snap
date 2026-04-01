@@ -17,15 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,
     description: `Full ${season} NFL schedule with weekly matchups, dates, kickoff times (ET) and TV channels. Live scores during games and final results after every matchup.`,
-    keywords: [
-      `NFL schedule ${season}`,
-      `${season} NFL schedule`,
-      'NFL games this week',
-      'NFL kickoff times',
-      'NFL TV schedule',
-      'NFL matchups',
-      'NFL week by week schedule'
-    ].join(', '),
     alternates: { canonical: `${SITE_URL}/schedule` },
     openGraph: {
       title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,

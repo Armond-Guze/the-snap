@@ -47,10 +47,6 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
   const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
   return {
     ...metadata,
-    robots: {
-      index: true,
-      follow: true,
-    },
     alternates: {
       ...metadata.alternates,
       canonical: `${canonicalBase}/${cleanSlug}`,

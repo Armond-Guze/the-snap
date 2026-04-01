@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -130,6 +130,12 @@ export const metadata: Metadata = {
   verification: GOOGLE_SITE_VERIFICATION ? { google: GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -148,15 +154,8 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content={LIGHT_THEME_ENABLED ? "dark light" : "dark"} />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  {/* Explicit favicon links (square SVG for crisp scaling) */}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="shortcut icon" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="alternate icon" href="/favicon.svg" />
   {/* RSS feed autodiscovery */}
   <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
         {/* Google AdSense (conditionally loaded) */}
