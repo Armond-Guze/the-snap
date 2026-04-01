@@ -22,8 +22,9 @@ Use this skill when the request is about:
    - `sanity/structure.ts`
    - relevant files in `sanity/plugins/`
 3. For article tasks, use the checklist in `references/editorial.md`
-4. For power rankings tasks, use the checklist in `references/power-rankings.md`
-5. For rewrite tasks, use:
+4. For article-writing structure, formatting, internal-linking, and output order, use `references/article-writer-guide.md`
+5. For power rankings tasks, use the checklist in `references/power-rankings.md`
+6. For rewrite tasks, use:
    - `references/headlines-rewrite.md`
    - `references/power-rankings-rewrite.md`
    - `references/topic-list.md`
@@ -53,6 +54,7 @@ Use this skill when the request is about:
 ## References
 
 - Read `references/editorial.md` for standard article workflow
+- Read `references/article-writer-guide.md` for full article-writing rules, formatting, internal-linking, and Sanity-ready output structure
 - Read `references/power-rankings.md` for rankings-specific workflow
 - Read `references/headlines-rewrite.md` for headline/news rewrite format
 - Read `references/power-rankings-rewrite.md` for rankings rewrite format
