@@ -38,7 +38,7 @@ export default function AuthShell({ title, subtitle, children }: AuthShellProps)
           </div>
 
           <div className="mb-4 text-center">
-            <h1 className="text-[1.18rem] font-semibold leading-tight tracking-tight text-white sm:text-[2.5rem]">
+            <h1 className="text-[1.02rem] font-semibold leading-tight tracking-tight text-white sm:text-[2.15rem]">
               {title}
             </h1>
             <p className="mx-auto mt-2 max-w-[23rem] text-[0.74rem] leading-5 text-white/62 sm:text-[0.9rem]">

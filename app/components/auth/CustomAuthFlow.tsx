@@ -6,6 +6,7 @@ import { useSignIn, useSignUp } from '@clerk/nextjs'
 import { isClerkAPIResponseError } from '@clerk/nextjs/errors'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { FcGoogle } from 'react-icons/fc'
+import { FaApple } from 'react-icons/fa'
 
 import { cn } from '@/lib/utils'
 
@@ -218,7 +219,7 @@ export default function CustomAuthFlow() {
     }
   }
 
-  const handleGoogle = async () => {
+  const handleOauthRedirect = async (strategy: 'oauth_google' | 'oauth_apple') => {
     if (!signInLoaded || !signIn) return
 
     setError(null)
@@ -227,17 +228,21 @@ export default function CustomAuthFlow() {
 
     try {
       await signIn.authenticateWithRedirect({
-        strategy: 'oauth_google',
+        strategy,
         redirectUrl: '/sso-callback',
         redirectUrlComplete: '/',
         continueSignIn: true,
         continueSignUp: true,
       })
     } catch (oauthError) {
-      setError(getErrorMessage(oauthError, 'Unable to start Google sign-in right now.'))
+      setError(getErrorMessage(oauthError, 'Unable to start sign-in right now.'))
       setIsSubmitting(false)
     }
   }
+
+  const handleGoogle = async () => handleOauthRedirect('oauth_google')
+
+  const handleApple = async () => handleOauthRedirect('oauth_apple')
 
   const renderTopContext = () => {
     if (!heading && !helper) return null
@@ -274,7 +279,7 @@ export default function CustomAuthFlow() {
             inputMode="email"
             value={emailInput}
             onChange={(event) => setEmailInput(event.target.value)}
-            className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/78 bg-transparent px-4 text-[0.84rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/90 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.24)]"
+            className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/62 bg-transparent px-4 text-[0.84rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/78 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
             placeholder="Email"
           />
 
@@ -299,7 +304,7 @@ export default function CustomAuthFlow() {
           </button>
 
           <div className="space-y-3 pt-1">
-            <div className="flex h-[3.35rem] w-full items-center rounded-[0.85rem] border border-white/78 bg-transparent px-4 text-[0.84rem] text-white/92 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
+            <div className="flex h-[3.35rem] w-full items-center rounded-[0.85rem] border border-white/62 bg-transparent px-4 text-[0.84rem] text-white/92 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
               {currentEmail}
             </div>
 
@@ -312,7 +317,7 @@ export default function CustomAuthFlow() {
               autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/78 bg-transparent px-4 text-[0.84rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/90 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.24)]"
+              className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/62 bg-transparent px-4 text-[0.84rem] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/78 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
               placeholder="Password"
             />
 
@@ -350,7 +355,7 @@ export default function CustomAuthFlow() {
             maxLength={6}
             value={code}
             onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-            className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/78 bg-transparent px-4 text-[0.84rem] tracking-[0.18em] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/90 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.24)]"
+            className="h-[3.35rem] w-full rounded-[0.85rem] border border-white/62 bg-transparent px-4 text-[0.84rem] tracking-[0.18em] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] outline-none transition-[border-color,box-shadow] placeholder:text-white/66 focus:border-white/78 focus:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
             placeholder="Code"
           />
 
@@ -389,14 +394,33 @@ export default function CustomAuthFlow() {
           >
             <span className="grid w-full grid-cols-[20px_minmax(0,1fr)_20px] items-center gap-3">
               <span className="inline-flex items-center justify-center">
-                <FcGoogle className="h-4.5 w-4.5" />
+                <FcGoogle className="h-5.5 w-5.5" />
               </span>
-              <span className="text-center text-[0.84rem] font-semibold text-white">
+              <span className="text-center text-[0.92rem] font-semibold text-white">
                 Continue with Google
               </span>
               <span aria-hidden="true" />
             </span>
           </AuthActionButton>
+
+          <div className="mt-3">
+            <AuthActionButton
+              onClick={handleApple}
+              loading={isSubmitting}
+              disabled={!authReady}
+              className="border-white/78 bg-transparent px-5 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] hover:border-white/90 hover:bg-white/[0.04]"
+            >
+              <span className="grid w-full grid-cols-[20px_minmax(0,1fr)_20px] items-center gap-3">
+                <span className="inline-flex items-center justify-center">
+                  <FaApple className="h-5 w-5 text-white" />
+                </span>
+                <span className="text-center text-[0.92rem] font-semibold text-white">
+                  Continue with Apple
+                </span>
+                <span aria-hidden="true" />
+              </span>
+            </AuthActionButton>
+          </div>
         </>
       ) : null}
     </div>
