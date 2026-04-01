@@ -31,12 +31,32 @@ interface HeadlinesProps {
 }
 
 export default async function Headlines({ hideSummaries = false }: HeadlinesProps) {
-  // Simple strategy: always show newest content (headline or rankings) by publishedAt desc.
-  // Fetch a buffer of 20 (main page cap) – first 9 rendered here, remainder consumed by MoreHeadlinesSection.
-  const newestHeadlinesQuery = `*[
-    ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true
+  const homepageFeaturesQuery = `*[
+    _type == "article" && published == true
   ]
-    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...20]{
+    | order(
+      select(format == "feature" => 0, 1) asc,
+      coalesce(publishedAt, date, _createdAt) desc,
+      _createdAt desc
+    )[0...3]{
+      _id,
+      _type,
+      format,
+      title,
+      homepageTitle,
+      slug,
+      summary,
+      coverImage { asset->{ url } },
+      author->{ name },
+      date,
+      publishedAt,
+      tags
+    }`;
+
+  const newestHeadlinesQuery = `*[
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true
+  ]
+    | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...6]{
       _id,
       _type,
       format,
@@ -50,32 +70,18 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
       tags
     }`;
 
-  const headlines = await sanityFetch<HeadlineItem[]>(
-    newestHeadlinesQuery,
-    {},
-    { next: { revalidate: 180 } },
-    []
-  );
+  const [featurePool, headlines] = await Promise.all([
+    sanityFetch<HeadlineItem[]>(homepageFeaturesQuery, {}, { next: { revalidate: 180 } }, []),
+    sanityFetch<HeadlineItem[]>(newestHeadlinesQuery, {}, { next: { revalidate: 180 } }, []),
+  ]);
 
-  // (Removed verbose dev console logging of headlines to keep console clean)
-
-  if (!headlines?.length) {
-    console.log('No headlines found');
+  if (!featurePool.length && !headlines?.length) {
     return null;
   }
 
-  // Layout consumption plan:
-  // main: 1 item (index 0)
-  // left column (vertical images): 2 items (indexes 1-2)
-  // right sidebar ("Around The NFL"): up to 6 items (indexes 3-8)
-  // Remaining items start at index 9 and flow into the "More Headlines" section (MoreHeadlinesSection)
-  const LEFT_IMAGE_COUNT = 2;
-  const RIGHT_SIDEBAR_LIMIT_DESKTOP = 6;
-  const RIGHT_SIDEBAR_LIMIT_MOBILE = 4; // mobile shows fewer items to avoid overwhelming the feed
-  const main = headlines[0];
-  const leftColumn = headlines.slice(1, 1 + LEFT_IMAGE_COUNT);
-  const rightSidebar = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT_DESKTOP);
-  const rightSidebarMobile = headlines.slice(1 + LEFT_IMAGE_COUNT, 1 + LEFT_IMAGE_COUNT + RIGHT_SIDEBAR_LIMIT_MOBILE);
+  const main = featurePool[0];
+  const leftColumn = featurePool.slice(1, 3);
+  const rightSidebar = headlines.slice(0, 6);
 
   // Helper function to get the correct URL based on content type
   const getArticleUrl = (item: HeadlineItem) => {
@@ -90,7 +96,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     if (Number.isNaN(parsed.getTime())) return null;
     return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parsed);
   };
-  const mobileSidebarItems = leftColumn.concat(rightSidebarMobile);
+  const mobileSidebarItems = rightSidebar.slice(0, 6);
   const mainPublished = formatShortDate(main?.publishedAt || main?.date);
   const mainAuthor = main?.author?.name;
 
@@ -222,56 +228,58 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
         {/* Slightly widened container (was max-w-7xl/85rem/95rem) */}
         <div className="relative z-10 mx-auto max-w-[86rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
           <div className="grid grid-cols-24 gap-3 2xl:gap-4 3xl:gap-6">
-            {/* Left Sidebar - Two vertical images (slightly narrowed from col-span-5 to 4) */}
+            {/* Left Sidebar - Two feature thumbnails */}
             <div className="col-span-4 flex flex-col justify-center space-y-3">
               {leftColumn.map((headline) => (
                 <div key={headline._id} className="group">
                   {headline.slug?.current ? (
                     <Link href={getArticleUrl(headline)}>
-                      <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900 hover:bg-gray-800 transition-colors duration-300">
-                        {headline.coverImage?.asset?.url ? (
-                          <Image
-                            src={headline.coverImage.asset.url}
-                            alt={headline.title}
-                            fill
-                            sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
-                            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                            <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
-                            </svg>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                        <div className="thumbnail-overlay-text absolute bottom-0 left-0 right-0 p-2">
-                          <h4 className="text-white font-bold text-xs 2xl:text-sm leading-tight line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                      <div className="overflow-hidden rounded-[1.35rem] p-2.5 transition-colors duration-300">
+                        <div className="relative h-32 2xl:h-36 3xl:h-40 overflow-hidden rounded-[1.1rem]">
+                          {headline.coverImage?.asset?.url ? (
+                            <Image
+                              src={headline.coverImage.asset.url}
+                              alt={headline.title}
+                              fill
+                              sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
+                              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-600 to-gray-800">
+                              <svg className="h-12 w-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                        <div className="px-1 pb-1 pt-2.5">
+                          <h4 className="line-clamp-2 text-xs font-bold leading-tight text-white transition-colors duration-300 group-hover:text-gray-300 2xl:text-sm">
                             {headline.homepageTitle || headline.title}
                           </h4>
                         </div>
                       </div>
                     </Link>
                   ) : (
-                    <div className="relative h-32 2xl:h-36 3xl:h-40 rounded-lg overflow-hidden bg-gray-900">
-                      {headline.coverImage?.asset?.url ? (
-                        <Image
-                          src={headline.coverImage.asset.url}
-                          alt={headline.title || "Untitled"}
-                          fill
-                          sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
-                          <svg className="w-12 h-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
-                          </svg>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                      <div className="thumbnail-overlay-text absolute bottom-0 left-0 right-0 p-2">
-                        <h4 className="text-gray-500 font-bold text-xs leading-tight line-clamp-2">
+                    <div className="overflow-hidden rounded-[1.35rem] p-2.5">
+                      <div className="relative h-32 2xl:h-36 3xl:h-40 overflow-hidden rounded-[1.1rem]">
+                        {headline.coverImage?.asset?.url ? (
+                          <Image
+                            src={headline.coverImage.asset.url}
+                            alt={headline.title || "Untitled"}
+                            fill
+                            sizes="(min-width:1536px) 18vw, (min-width:1280px) 19vw, (min-width:1024px) 20vw, 45vw"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-600 to-gray-800">
+                            <svg className="h-12 w-12 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm2 0v12h12V6H6zm2 2h8v6H8V8zm0 8h3v2H8v-2zm5 0h3v2h-3v-2z"/>
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-1 pb-1 pt-2.5">
+                        <h4 className="line-clamp-2 text-xs font-bold leading-tight text-gray-500 2xl:text-sm">
                           {headline.homepageTitle || headline.title || "Untitled"}
                         </h4>
                       </div>
@@ -281,19 +289,23 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
               ))}
             </div>
 
-            {/* Desktop Main Feature Story - widened by 1 column (12 -> 13) */}
+            {/* Desktop Main Feature Story */}
             <div className="col-span-13">
-              {main?.coverImage?.asset?.url && main?.slug?.current ? (
+              {main?.slug?.current ? (
                 <Link href={getArticleUrl(main)} className="group">
                   <div className="relative h-full min-h-[320px] sm:min-h-[370px] lg:min-h-[400px] 2xl:min-h-[440px] 3xl:min-h-[500px] rounded-xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-colors duration-500 shadow-xl hover:shadow-2xl">
-                    <Image
-                      src={main.coverImage.asset.url}
-                      alt={main.title}
-                      fill
-                      priority
-                      sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                    />
+                    {main.coverImage?.asset?.url ? (
+                      <Image
+                        src={main.coverImage.asset.url}
+                        alt={main.title}
+                        fill
+                        priority
+                        sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
 
                     <div className="relative h-full flex flex-col justify-between p-6">
@@ -362,12 +374,12 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                 <ul className="space-y-3 2xl:space-y-4 3xl:space-y-5">
                   {rightSidebar.map((headline) => (
                     <li key={headline._id} className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
-                      {headline.slug?.current ? (
+                        {headline.slug?.current ? (
                         <Link href={getArticleUrl(headline)} className="group block">
                           <div className="mb-1 flex items-center gap-2">
-                            {formatShortDate(headline.publishedAt) && (
+                            {formatShortDate(headline.publishedAt || headline.date) && (
                               <span className="text-[10px] uppercase tracking-wide text-white/45">
-                                {formatShortDate(headline.publishedAt)}
+                                {formatShortDate(headline.publishedAt || headline.date)}
                               </span>
                             )}
                           </div>

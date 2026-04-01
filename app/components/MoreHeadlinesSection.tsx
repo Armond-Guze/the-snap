@@ -1,10 +1,23 @@
 import { client } from "@/sanity/lib/client";
-// Fetch newest headlines/rankings for the hero section (used to skip duplicates below)
+// Fetch homepage feature cards so they can be skipped below.
+const homepageFeaturesQuery = `
+  *[
+    _type == "article" && published == true
+  ]
+    | order(
+      select(format == "feature" => 0, 1) asc,
+      coalesce(publishedAt, date, _createdAt) desc,
+      _createdAt desc
+    )[0...3] {
+      _id
+    }
+`;
+// Fetch newest headlines for the homepage sidebar (used to skip duplicates below).
 const homepageHeadlinesQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true
   ]
-    | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc)[0...20] {
+    | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...6] {
       _id
     }
 `;
@@ -84,19 +97,21 @@ interface HeadlineItem {
 }
 
 export default async function MoreHeadlinesSection({ hideSummaries = false }: MoreHeadlinesSectionProps) {
-  const [headlineIds, articleIds, combinedFeed] = await Promise.all([
+  const [featureIds, headlineIds, articleIds, combinedFeed] = await Promise.all([
+    client.fetch<{ _id: string }[]>(homepageFeaturesQuery),
     client.fetch<{ _id: string }[]>(homepageHeadlinesQuery),
     client.fetch<{ _id: string }[]>(latestArticlesQuery),
     client.fetch<HeadlineItem[]>(moreHeadlinesQuery),
   ]);
 
-  // Skip items already displayed above (first 9 headlines + first 6 latest articles)
+  // Skip items already displayed above on the homepage.
   const skipIds = new Set([
-    ...(headlineIds || []).slice(0, 9).map((item) => item._id),
+    ...(featureIds || []).slice(0, 3).map((item) => item._id),
+    ...(headlineIds || []).slice(0, 6).map((item) => item._id),
     ...(articleIds || []).slice(0, 6).map((item) => item._id),
   ]);
 
-  // Keep section size consistent with prior layout (20 total with 9 already used in Headlines)
+  // Keep section size consistent with prior layout.
   const START_INDEX = 9;
   const MAX_TOTAL = 20;
   const remainingSlots = Math.max(0, MAX_TOTAL - START_INDEX);

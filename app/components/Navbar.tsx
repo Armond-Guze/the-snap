@@ -207,20 +207,20 @@ export default function Navbar() {
                     const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                     return (
                       <SheetClose asChild key={key || label}>
-	                        <Button
-	                          asChild
-	                          variant="ghost"
-	                          className={cn(
-	                            "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em]",
-	                            isActive
-	                              ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
-	                              : "text-white/90 hover:bg-white/[0.08] hover:text-white"
-	                          )}
-	                        >
-                          <Link href={href}>
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white/85">
-                              {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
-                            </span>
+		                        <Button
+		                          asChild
+		                          variant="ghost"
+		                          className={cn(
+		                            "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold",
+		                            isActive
+		                              ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
+		                              : "text-white hover:bg-white/[0.08] hover:text-white"
+		                          )}
+		                        >
+	                          <Link href={href}>
+	                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white">
+	                              {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
+	                            </span>
                             <span>{label}</span>
                           </Link>
                         </Button>
@@ -237,20 +237,20 @@ export default function Navbar() {
                       const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                       return (
                         <SheetClose asChild key={key || label}>
-	                          <Button
-	                            asChild
-	                            variant="ghost"
-	                            className={cn(
-	                              "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold uppercase tracking-[0.12em]",
-	                              isActive
-	                                ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
-	                                : "text-white/90 hover:bg-white/[0.08] hover:text-white"
-	                            )}
-	                          >
-                            <Link href={href}>
-                              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white/85">
-                                {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
-                              </span>
+		                          <Button
+		                            asChild
+		                            variant="ghost"
+		                            className={cn(
+		                              "h-auto w-full justify-start gap-3 rounded-xl px-3 py-3 text-sm font-semibold",
+		                              isActive
+		                                ? "bg-white/[0.12] text-white hover:bg-white/[0.16] hover:text-white"
+		                                : "text-white hover:bg-white/[0.08] hover:text-white"
+		                            )}
+		                          >
+	                            <Link href={href}>
+	                              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-white">
+	                                {navIcons[itemKey] || <Sparkles className="h-4 w-4" />}
+	                              </span>
                               <span>{label}</span>
                             </Link>
                           </Button>
@@ -338,12 +338,12 @@ export default function Navbar() {
 
                   return (
                     <NavigationMenuItem key="teams">
-	                      <NavigationMenuTrigger
-	                        className={cn(
-	                          isTeamsActive ? "bg-white/10 text-white" : "text-white/85 hover:text-white",
-	                          "px-4 text-[13px] font-bold uppercase tracking-[0.14em]"
-	                        )}
-	                      >
+		                      <NavigationMenuTrigger
+		                        className={cn(
+		                          isTeamsActive ? "bg-white/10 text-white" : "text-white hover:text-white",
+		                          "px-4 text-[13px] font-bold"
+		                        )}
+		                      >
                         Teams
                       </NavigationMenuTrigger>
                       <NavigationMenuContent className="max-w-[90vw] p-5 md:w-[860px]">
@@ -357,12 +357,12 @@ export default function Navbar() {
                                   const nickname = meta?.name ? meta.name.split(" ").slice(-1).join(" ") : code;
                                   const accent = TEAM_COLORS[code] || "#9ca3af";
                                   return (
-                                    <Link
-                                      key={code}
-                                      href={`/teams/${slugifyTeamName(meta?.name || code)}`}
-                                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white/85 transition-colors hover:text-white"
-                                      style={{ backgroundColor: `${accent}33` }}
-                                    >
+	                                    <Link
+	                                      key={code}
+	                                      href={`/teams/${slugifyTeamName(meta?.name || code)}`}
+	                                      className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold text-white transition-colors hover:text-white"
+	                                      style={{ backgroundColor: `${accent}33` }}
+	                                    >
                                       <span>{nickname}</span>
                                       <span className="text-[11px] font-bold text-white">{code}</span>
                                     </Link>
@@ -376,23 +376,23 @@ export default function Navbar() {
                         <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
                           <Link
                             href="/standings"
-                            className={cn(
-                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
-                              pathname.startsWith("/standings")
-                                ? "border-white/30 bg-white/10 text-white"
-                                : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
-                            )}
+	                            className={cn(
+	                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
+	                              pathname.startsWith("/standings")
+	                                ? "border-white/30 bg-white/10 text-white"
+	                                : "border-white/10 text-white hover:border-white/20 hover:bg-white/5 hover:text-white"
+	                            )}
                           >
                             NFL Standings
                           </Link>
                           <Link
                             href="/schedule"
-                            className={cn(
-                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
-                              pathname.startsWith("/schedule")
-                                ? "border-white/30 bg-white/10 text-white"
-                                : "border-white/10 text-white/85 hover:border-white/20 hover:bg-white/5 hover:text-white"
-                            )}
+	                            className={cn(
+	                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
+	                              pathname.startsWith("/schedule")
+	                                ? "border-white/30 bg-white/10 text-white"
+	                                : "border-white/10 text-white hover:border-white/20 hover:bg-white/5 hover:text-white"
+	                            )}
                           >
                             Schedule
                           </Link>
@@ -408,12 +408,12 @@ export default function Navbar() {
                     <NavigationMenuLink asChild>
 	                      <Link
 	                        href={href}
-	                        className={cn(
-	                          navigationMenuTriggerStyle(),
-	                          "px-4 text-[13px] font-bold uppercase tracking-[0.14em]",
-	                          isActive ? "bg-white/10 text-white" : "text-white/85 hover:bg-white/10 hover:text-white"
-	                        )}
-	                      >
+		                        className={cn(
+		                          navigationMenuTriggerStyle(),
+		                          "px-4 text-[13px] font-bold",
+		                          isActive ? "bg-white/10 text-white" : "text-white hover:bg-white/10 hover:text-white"
+		                        )}
+		                      >
                         {label}
                       </Link>
                     </NavigationMenuLink>
@@ -426,13 +426,13 @@ export default function Navbar() {
                   <NavigationMenuLink asChild>
 	                    <Link
 	                      href={singleMoreItem.href}
-	                      className={cn(
-	                        navigationMenuTriggerStyle(),
-	                        "px-4 text-[13px] font-bold uppercase tracking-[0.14em]",
-	                        isPathActive(pathname, singleMoreItem.href)
-	                          ? "bg-white/10 text-white"
-	                          : "text-white/85 hover:bg-white/10 hover:text-white"
-	                      )}
+		                      className={cn(
+		                        navigationMenuTriggerStyle(),
+		                        "px-4 text-[13px] font-bold",
+		                        isPathActive(pathname, singleMoreItem.href)
+		                          ? "bg-white/10 text-white"
+		                          : "text-white hover:bg-white/10 hover:text-white"
+		                      )}
 	                    >
                       {singleMoreItem.label}
                     </Link>
@@ -442,19 +442,19 @@ export default function Navbar() {
 
 	              {hasDropdownMore && (
 	                <NavigationMenuItem>
-	                  <NavigationMenuTrigger className="px-4 text-[13px] font-bold uppercase tracking-[0.14em] text-white/85 hover:text-white">More</NavigationMenuTrigger>
+		                  <NavigationMenuTrigger className="px-4 text-[13px] font-bold text-white hover:text-white">More</NavigationMenuTrigger>
 	                  <NavigationMenuContent className="p-2 md:w-44">
                     <div className="flex flex-col gap-1">
                       {moreItems.map((item) => (
                         <Link
                           key={item.key}
                           href={item.href}
-	                          className={cn(
-	                            "rounded-lg px-3 py-2 text-sm font-semibold uppercase tracking-[0.12em] transition-colors",
-	                            isPathActive(pathname, item.href)
-	                              ? "bg-white/10 text-white"
-	                              : "text-white/90 hover:bg-white/[0.08] hover:text-white"
-	                          )}
+		                          className={cn(
+		                            "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+		                            isPathActive(pathname, item.href)
+		                              ? "bg-white/10 text-white"
+		                              : "text-white hover:bg-white/[0.08] hover:text-white"
+		                          )}
                         >
                           {item.label}
                         </Link>

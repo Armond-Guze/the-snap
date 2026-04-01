@@ -1,6 +1,7 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 
 interface ArticleItem {
   _id: string;
@@ -30,6 +31,17 @@ interface RankingsSectionProps {
 }
 
 export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
+  const homepageFeaturesQuery = `*[
+    _type == "article" && published == true
+  ]
+    | order(
+      select(format == "feature" => 0, 1) asc,
+      coalesce(publishedAt, date, _createdAt) desc,
+      _createdAt desc
+    )[0...3] {
+      _id
+    }`;
+
   const articlesQuery = `*[
     (
       _type == "article" && published == true && (
@@ -45,7 +57,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
           coalesce(_updatedAt, date, publishedAt, _createdAt),
         coalesce(date, publishedAt, _createdAt)
       ) desc
-    )[0...8] {
+    )[0...12] {
       _id,_type,format,rankingType,title,homepageTitle,slug,summary,excerpt,
       seasonYear, weekNumber, playoffRound,
       "fallbackCoverImage": select(
@@ -57,10 +69,18 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
       author->{name}, date, publishedAt
     }`;
 
-  const articles: ArticleItem[] = await sanityFetch(articlesQuery, {}, { next: { revalidate: 300 } }, []);
+  const [homepageFeatures, articles] = await Promise.all([
+    sanityFetch<{ _id: string }[]>(homepageFeaturesQuery, {}, { next: { revalidate: 300 } }, []),
+    sanityFetch<ArticleItem[]>(articlesQuery, {}, { next: { revalidate: 300 } }, []),
+  ]);
+
   if (!articles?.length) return null;
 
-  const topSix = articles.slice(0, 6);
+  const skipIds = new Set((homepageFeatures || []).slice(0, 3).map((item) => item._id));
+  const filteredArticles = articles.filter((item) => !skipIds.has(item._id));
+  if (!filteredArticles.length) return null;
+
+  const topSix = filteredArticles.slice(0, 6);
 
   const getImageUrl = (item: ArticleItem) =>
     item.coverImage?.asset?.url ||
@@ -120,9 +140,9 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               <Link
                 key={item._id}
                 href={getArticleUrl(item)}
-                className="group overflow-hidden rounded-2xl bg-white/[0.03] shadow-[0_16px_48px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.08]"
+                className="group block overflow-hidden rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,15,17,0.96),rgba(10,10,12,0.96))] shadow-[0_24px_80px_-48px_rgba(0,0,0,0.95)] transition-all duration-300 hover:-translate-y-1 hover:border-white/18"
               >
-                <div className="relative h-48 sm:h-44 lg:h-48 2xl:h-52">
+                <div className="relative aspect-[16/10] overflow-hidden bg-black">
                   {img ? (
                     <Image
                       src={img}
@@ -130,27 +150,28 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                       fill
                       priority={index < 2}
                       sizes="(min-width:1536px) 30vw, (min-width:1280px) 33vw, (min-width:640px) 50vw, 100vw"
-                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.035]"
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/28 via-transparent to-transparent" />
+                </div>
+                <div className="p-4 sm:p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="inline-flex rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/72">
                         {kicker}
                       </span>
-                      {published && <span className="text-[11px] text-white/60">{published}</span>}
+                      {published && <span className="text-[11px] font-medium text-white/42">{published}</span>}
                     </div>
+                    <ArrowUpRight className="h-4 w-4 flex-shrink-0 text-white/28 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/58" />
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="line-clamp-2 text-lg font-bold leading-snug text-white transition-colors group-hover:text-gray-200 2xl:text-xl">
+                  <h3 className="mt-3 line-clamp-2 text-[1.18rem] font-semibold leading-[1.14] tracking-[-0.025em] text-white transition-colors group-hover:text-white/92 2xl:text-[1.3rem]">
                     {displayTitle}
                   </h3>
                   {(item.summary || item.excerpt) && !hideSummaries && (
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-300">
+                    <p className="mt-2.5 line-clamp-2 text-sm leading-6 text-white/56">
                       {item.summary || item.excerpt}
                     </p>
                   )}
