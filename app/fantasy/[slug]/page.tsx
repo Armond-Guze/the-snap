@@ -12,6 +12,7 @@ import ReadingTime from '@/app/components/ReadingTime';
 import SocialShare from '@/app/components/SocialShare';
 import Breadcrumb from '@/app/components/Breadcrumb';
 import ArticleViewTracker from '@/app/components/ArticleViewTracker';
+import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time';
 import { formatArticleDate } from '@/lib/date-utils';
 import { portableTextComponents } from '@/lib/portabletext-components';
@@ -145,9 +146,12 @@ export default async function FantasyArticlePage(props: PageProps) {
           </div>
           {article.coverImage?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-                <Image src={article.coverImage.asset.url} alt={article.title} fill sizes={ARTICLE_COVER_SIZES} className="object-cover w-full h-full" priority />
-              </div>
+              <ArticleHeroCover
+                src={article.coverImage.asset.url}
+                alt={article.title}
+                sizes={ARTICLE_COVER_SIZES}
+                priority
+              />
             </div>
           )}
           <section className="w-full mb-8">

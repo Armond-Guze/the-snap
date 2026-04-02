@@ -301,12 +301,12 @@ export const portableTextComponents: PortableTextComponents = {
       
       return (
         <div className="my-8">
-          <div className="relative w-full h-96 rounded-lg overflow-hidden">
+          <div className="relative h-96 w-full overflow-hidden rounded-lg bg-zinc-950">
             <Image
               src={value.asset.url}
               alt={value.alt || 'Article image'}
               fill
-              className="object-cover"
+              className="object-contain object-center"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
             />
           </div>

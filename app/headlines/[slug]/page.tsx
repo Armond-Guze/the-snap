@@ -22,6 +22,7 @@ import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
 import MostRead from '@/app/components/MostRead';
+import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
@@ -236,16 +237,12 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
               )}
             </div>
             {headline.coverImage?.asset?.url && (
-              <div className="relative h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-xl shadow-sm">
-                <Image
-                  src={headline.coverImage.asset.url}
-                  alt={(headline.coverImage as { alt?: string })?.alt || headline.title}
-                  fill
-                  sizes={ARTICLE_COVER_SIZES}
-                  className="object-cover w-full h-full"
-                  priority
-                />
-              </div>
+              <ArticleHeroCover
+                src={headline.coverImage.asset.url}
+                alt={(headline.coverImage as { alt?: string })?.alt || headline.title}
+                sizes={ARTICLE_COVER_SIZES}
+                priority
+              />
             )}
             {headline.summary && (
               <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>

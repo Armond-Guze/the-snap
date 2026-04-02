@@ -22,6 +22,7 @@ import YouTubeEmbed from '@/app/components/YoutubeEmbed';
 import TwitterEmbed from '@/app/components/TwitterEmbed';
 import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
+import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { SITE_URL } from '@/lib/site-config';
 import { client } from '@/sanity/lib/client';
 
@@ -307,16 +308,12 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							)}
 						</div>
 						{article.coverImage?.asset?.url && (
-							<div className="relative -mx-6 sm:-mx-5 h-[220px] sm:h-[310px] md:h-[430px] overflow-hidden">
-								<Image
-									src={article.coverImage.asset.url}
-									alt={(article.coverImage as { alt?: string })?.alt || article.title}
-									fill
-									sizes={ARTICLE_COVER_SIZES}
-									className="object-cover w-full h-full"
-									priority
-								/>
-							</div>
+							<ArticleHeroCover
+								src={article.coverImage.asset.url}
+								alt={(article.coverImage as { alt?: string })?.alt || article.title}
+								sizes={ARTICLE_COVER_SIZES}
+								priority
+							/>
 						)}
 						{article.summary && (
 							<p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>
