@@ -182,7 +182,7 @@ const slugify = (text: string) =>
 export const portableTextComponents: PortableTextComponents = {
   // Block-level components
   block: {
-    normal: ({ children }) => <p className="mb-5 text-[1.05rem] leading-relaxed tracking-[0.01em]">{children}</p>,
+    normal: ({ children }) => <p className="mb-5 text-[1.03rem] leading-relaxed tracking-[0.01em]">{children}</p>,
     h1: ({ children }) => <h1 className="text-4xl font-extrabold mb-6 mt-10 tracking-tight scroll-mt-28" id={slugify(String(children))}>{children}</h1>,
     h2: ({ children }) => {
       const text = String(children);
@@ -190,7 +190,7 @@ export const portableTextComponents: PortableTextComponents = {
       return (
         <h2
           id={id}
-          className="group relative text-3xl font-bold mb-4 mt-12 tracking-tight scroll-mt-28"
+          className="group relative mb-4 mt-11 text-[1.85rem] font-bold tracking-tight text-white scroll-mt-28"
         >
           <a
             href={`#${id}`}
@@ -209,7 +209,7 @@ export const portableTextComponents: PortableTextComponents = {
       return (
         <h3
           id={id}
-          className="group relative text-2xl font-semibold mb-3 mt-10 tracking-tight scroll-mt-28"
+          className="group relative mb-3 mt-9 text-[1.4rem] font-semibold tracking-tight text-white scroll-mt-28"
         >
           <a
             href={`#${id}`}
@@ -334,8 +334,8 @@ export const portableTextComponents: PortableTextComponents = {
       if (columns.length === 0 || rows.length === 0) return null
 
       return (
-        <figure className="my-8">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 shadow-2xl">
+        <figure className="my-6">
+          <div className="overflow-hidden rounded-xl border border-white/8 bg-zinc-950/65 shadow-lg">
             <div className="overflow-x-auto">
               <table className="min-w-full border-collapse">
                 <thead className="bg-white/[0.06]">
@@ -344,7 +344,7 @@ export const portableTextComponents: PortableTextComponents = {
                       <th
                         key={`column-${index}`}
                         scope="col"
-                        className={`border-b border-white/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white/85 sm:px-5 sm:text-sm ${
+                        className={`border-b border-white/8 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white/80 sm:px-3.5 sm:text-[11px] ${
                           numericColumns[index] ? 'text-right' : 'text-left'
                         }`}
                       >
@@ -368,7 +368,7 @@ export const portableTextComponents: PortableTextComponents = {
                         return (
                           <td
                             key={`${row._key || rowIndex}-${columnIndex}`}
-                            className={`border-b border-white/10 px-4 py-3 align-top text-sm leading-relaxed sm:px-5 sm:py-4 sm:text-base ${alignmentClass}`}
+                            className={`border-b border-white/8 px-3 py-2.5 align-top text-[13px] leading-snug sm:px-3.5 sm:py-2.5 sm:text-[13.5px] ${alignmentClass}`}
                           >
                             <span className="whitespace-pre-wrap">{cellValue}</span>
                           </td>
