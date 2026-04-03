@@ -51,6 +51,23 @@ Important rules:
 - `tagRefs` should usually contain `3–6` tags
 - Do not stuff extra text into reference objects
 - `homepageTitle` should stay concise
+- When returning article packages for editorial use, do not output a `slug` field; Sanity auto-generates it from `title`
+- Betting or fantasy evergreen pieces do not need a new top-level category just because of the angle; use the existing category structure plus `topicHubs` and `tagRefs`
+
+## Current Sanity article behavior
+
+- Sanity body paste does **not** auto-convert Markdown heading syntax like `##` or Markdown links like `[text](url)`
+- Major article sections should be real `H2` blocks in Sanity
+- FAQ questions and Key Terms entries should usually be real `H3` blocks in Sanity
+- Comparison content such as odds, rankings, or glossary-style matrices should use the `Data Table` block instead of stacked plain text
+- Internal links should be added through the Sanity `URL` mark UI using link text plus URL, not by pasting raw URLs into the body
+- Before considering an article finished, verify there are no duplicate paragraphs, stray markdown markers, or heading lines still stored as normal paragraphs
+
+## Current article image behavior
+
+- Shared article hero images on article, headline, fantasy, and ranking pages now use a contained presentation so infographic-style images do not get cropped
+- Inline Portable Text images also favor contained presentation
+- Image ideas should still be landscape-friendly, but they no longer need to assume aggressive cover-style cropping
 
 ## Power rankings workflow
 

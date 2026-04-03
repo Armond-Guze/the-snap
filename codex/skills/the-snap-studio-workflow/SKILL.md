@@ -36,13 +36,19 @@ Use this skill when the request is about:
 - Canonical tag refs use `_type == "advancedTag"` in `tagRefs`
 - Power rankings are `article` docs with `format == "powerRankings"`
 - Published power rankings require `rankingIntro` and `rankingConclusion`
+- Do not return a `slug` field in article packages; Sanity auto-generates it from `title`
+- Sanity body paste does not auto-convert Markdown headings or Markdown links
+- Major sections should end up as real `H2` blocks, with FAQ and Key Terms entries usually as `H3`
+- Structured comparison content should use a real `Data Table` block when possible
+- Internal links should be handed back as link-text / URL / placement instructions for manual Sanity linking
+- Shared article hero images currently use a contained treatment so infographic-style cover images stay fully visible
 
 ## When writing article-ready content
 
 - Prefer direct, publishable prose
 - Keep `homepageTitle` shorter than the full title
-- Provide a usable slug idea
 - Think in terms of article schema fields, not just raw copy
+- Assume another editor may paste content manually into Sanity, so keep formatting editor-friendly
 
 ## Rewrite behavior
 

@@ -83,6 +83,8 @@ For power rankings only, insert these fields after `Tag References:` and before 
 - Give one practical visual direction.
 - Keep it editorial and realistic.
 - Prefer player/team/action concepts or a simple explainer graphic brief.
+- Article hero images now use a contained presentation on article-style pages, so full infographic graphics, wide charts, and text-heavy explainer images are safe choices.
+- Do not assume the site will aggressively center-crop every cover image.
 
 ### Summary
 
@@ -167,6 +169,12 @@ Practical rule:
 - list-shaped content should become real bullet lists
 - structured comparison content should become a real `Data Table`
 
+Important live behavior:
+
+- A heading only renders larger on the site if the block is actually stored in Sanity as `style: "h2"` or `style: "h3"`.
+- If a heading line is still stored as `normal`, the frontend will render it like paragraph text even if the wording clearly looks like a heading.
+- If a live article still shows flat headings, inspect the Sanity block styles before assuming the frontend styles are wrong.
+
 Before an article is considered publish-ready in Sanity, check for:
 
 - duplicate paragraphs
@@ -174,6 +182,7 @@ Before an article is considered publish-ready in Sanity, check for:
 - missing punctuation on linked phrases
 - trailing blank blocks
 - a section label that should read `Key Terms` instead of `Glossary`
+- section-heading lines accidentally left as `normal` blocks
 
 ### Headings
 
@@ -369,6 +378,12 @@ Then, in Sanity:
 3. paste the URL
 4. save or publish
 
+Do not:
+
+- paste raw URLs directly into the article body
+- paste Markdown links into the body
+- assume Sanity will auto-convert either format
+
 ### Anchor text rules
 
 - The real URL should always use the article's real canonical slug.
@@ -428,6 +443,22 @@ Guidelines:
 - preserve `+` signs on positive odds
 - use one table per clear comparison
 - do not turn normal narrative into unnecessary tables
+- keep the table compact so it does not overpower the article
+- prefer short labels inside cells over long explanatory sentences
+- if the comparison can work in 4 concise columns instead of 6 wide ones, choose the tighter structure
+
+## Current Frontend Behavior
+
+### Article headings
+
+- Shared Portable Text styling already gives `H2` and `H3` distinct sizes on the frontend.
+- If headings still look the same size, the problem is usually the stored Sanity block style, not the renderer.
+
+### Article hero images
+
+- Shared article hero images for articles, headlines, fantasy pieces, and rankings now use a contained treatment instead of a cover crop.
+- This is specifically to protect infographic-style images and wide explainer graphics from being cut off.
+- Future image ideas can safely include chart text, board layouts, or wide diagrams without assuming the edges will be cropped away.
 
 ## SEO Guidance
 
