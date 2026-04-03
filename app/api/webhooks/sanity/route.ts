@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { autopostDocumentToX } from '@/lib/social/x-autopost';
 
 const ROUTE_NAME = 'api/webhooks/sanity';
 const SECRET = process.env.SANITY_WEBHOOK_SECRET ?? process.env.REVALIDATE_SECRET;
 
 type SanityDoc = {
+  _id?: string;
   _type?: string;
   slug?: { current?: string } | string | null;
   format?: string | null;
@@ -15,10 +17,31 @@ type SanityDoc = {
 };
 
 type SanityWebhookBody = {
+  documentId?: string;
+  _id?: string;
+  transition?: string;
   document?: SanityDoc;
   result?: SanityDoc;
+  after?: SanityDoc;
   [key: string]: unknown;
 };
+
+function extractDocumentId(body: SanityWebhookBody | null, doc: SanityDoc | null) {
+  const candidates = [
+    body?.documentId,
+    body?._id,
+    body?.document?._id,
+    body?.result?._id,
+    body?.after?._id,
+    doc?._id,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+  }
+
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body: SanityWebhookBody | null = await request.json().catch(() => null);
-    const doc = (body?.document ?? body?.result ?? body) as SanityDoc | null;
+    const doc = (body?.document ?? body?.result ?? body?.after ?? body) as SanityDoc | null;
 
     if (!doc || typeof doc !== 'object') {
       return NextResponse.json({ revalidated: false, message: 'Missing document payload.' }, { status: 400 });
@@ -90,7 +113,37 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ revalidated: true, paths: Array.from(paths) }, { status: 200 });
+    const documentId = extractDocumentId(body, doc);
+    const shouldAttemptSocial = !!documentId && ['article', 'headline', 'fantasyFootball', 'rankings'].includes(type);
+    const transition = typeof body?.transition === 'string' ? body.transition : null;
+
+    let social: Awaited<ReturnType<typeof autopostDocumentToX>> | null = null;
+    if (shouldAttemptSocial) {
+      if (transition && transition !== 'appear') {
+        social = {
+          ok: true,
+          skipped: true,
+          reason: 'not-appear-transition',
+          docId: documentId || undefined,
+        };
+      } else {
+        try {
+          social = await autopostDocumentToX({ id: documentId! });
+        } catch (error) {
+          console.error(`[${ROUTE_NAME}] social autopost failed`, error);
+          social = {
+            ok: false,
+            error: error instanceof Error ? error.message : 'Unknown social autopost error',
+            docId: documentId || undefined,
+          };
+        }
+      }
+    }
+
+    return NextResponse.json(
+      { revalidated: true, paths: Array.from(paths), social },
+      { status: 200 },
+    );
   } catch (error) {
     console.error(`[${ROUTE_NAME}] failed`, error);
     return NextResponse.json(

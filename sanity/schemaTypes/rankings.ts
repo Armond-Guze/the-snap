@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { apiVersion } from "../env";
+import { createXAutopostFields } from './shared/xAutopostFields';
 
 // Articles schema mirrors Headlines fields for identical editing experience
 export default defineType({
@@ -300,6 +301,7 @@ export default defineType({
       group: "quick",
       fieldset: "socialMedia",
     }),
+    ...createXAutopostFields({ group: 'quick' }),
     defineField({
       name: "priority",
       title: "Priority",

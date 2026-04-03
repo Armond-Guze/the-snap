@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { createXAutopostFields } from './shared/xAutopostFields'
 
 export default defineType({
   name: 'fantasyFootball',
@@ -182,6 +183,7 @@ export default defineType({
       hidden: ({ document }) => !document?.tiktokUrl,
       fieldset: 'socialMedia',
     }),
+    ...createXAutopostFields(),
     // Category reference for category hub routing and archive pages
     defineField({
       name: 'category',

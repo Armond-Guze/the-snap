@@ -1,5 +1,6 @@
 import { defineType, defineField } from "sanity";
 import { apiVersion } from "../env";
+import { createXAutopostFields } from './shared/xAutopostFields';
 
 const headlineType = defineType({
   name: "headline",
@@ -298,6 +299,7 @@ const headlineType = defineType({
       group: 'quick',
       fieldset: 'socialMedia',
     }),
+    ...createXAutopostFields({ group: 'quick' }),
     defineField({
       name: "priority",
       title: "Priority",

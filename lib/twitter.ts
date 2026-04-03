@@ -1,4 +1,5 @@
 import { TwitterApi } from 'twitter-api-v2';
+import { SITE_TWITTER } from '@/lib/site-config';
 
 export type TweetTemplate = (args: {
   title: string;
@@ -50,6 +51,25 @@ export function getTwitterClient() {
   return null;
 }
 
+export function isTwitterConfigured() {
+  return !!(
+    (process.env.X_API_KEY || process.env.TWITTER_API_KEY)
+    && (process.env.X_API_SECRET || process.env.TWITTER_API_SECRET)
+    && (process.env.X_ACCESS_TOKEN || process.env.TWITTER_ACCESS_TOKEN)
+    && (process.env.X_ACCESS_SECRET || process.env.TWITTER_ACCESS_SECRET)
+  );
+}
+
+export function getTwitterUsername() {
+  const configured = (process.env.X_USERNAME || '').trim();
+  if (configured) return configured.replace(/^@+/, '');
+  return SITE_TWITTER.replace(/^@+/, '');
+}
+
+export function buildTweetUrl(id: string) {
+  return `https://x.com/${getTwitterUsername()}/status/${id}`;
+}
+
 export async function postTweet(args: {
   title: string;
   url: string;
@@ -58,11 +78,18 @@ export async function postTweet(args: {
   tags?: string[];
   templateIndex?: number;
   dryRun?: boolean;
+  textOverride?: string;
 }) {
-  const { title, url, category, author, tags, templateIndex, dryRun } = args;
+  const { title, url, category, author, tags, templateIndex, dryRun, textOverride } = args;
 
   const t = pickTemplate(templateIndex);
-  const raw = t({ title: truncateForTweet(title), url, category: category || undefined, author: author || undefined, tags });
+  const raw = textOverride?.trim() || t({
+    title: truncateForTweet(title),
+    url,
+    category: category || undefined,
+    author: author || undefined,
+    tags,
+  });
   const text = truncateForTweet(raw, 0);
 
   const client = getTwitterClient();
@@ -72,7 +99,13 @@ export async function postTweet(args: {
 
   try {
     const res = await client.v2.tweet(text);
-    return { ok: true, id: res.data?.id, text };
+    const id = res.data?.id;
+    return {
+      ok: true,
+      id,
+      text,
+      url: id ? buildTweetUrl(id) : undefined,
+    };
   } catch (err) {
     return { ok: false, error: (err as Error).message, text };
   }

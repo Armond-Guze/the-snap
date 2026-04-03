@@ -1,6 +1,7 @@
 import { defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
 import { apiVersion } from "../env";
+import { createXAutopostFields } from './shared/xAutopostFields';
 
 const isPowerRankings = (document?: Record<string, unknown>) => document?.format === "powerRankings";
 const isPowerRankingsSnapshot = (document?: Record<string, unknown>) =>
@@ -614,6 +615,10 @@ export default defineType({
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.tiktokUrl,
       group: "quick",
       fieldset: "socialMedia",
+    }),
+    ...createXAutopostFields({
+      group: 'quick',
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
     }),
     defineField({
       name: "priority",
