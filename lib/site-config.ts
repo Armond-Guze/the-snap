@@ -14,7 +14,7 @@ function normalizeSiteUrl(url?: string | null): string {
 export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 export const SITE_BRAND = "The Game Snap";
 export const SITE_NAME = "The Snap";
-export const SITE_TWITTER = "@thesnapfootball";
+export const SITE_TWITTER = "@thegamesnap";
 export const DEFAULT_OG_IMAGE_PATH = "/images/thesnap-logo-website.png";
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`;
 
