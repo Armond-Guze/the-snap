@@ -58,15 +58,11 @@ export interface Author {
 // Power Rankings types
 export interface PowerRankingEntry {
   rank: number;
-  team?: { _id: string; title?: string; slug?: SanitySlug; teamLogo?: SanityImageWithUrl };
+  team?: { _id: string; title?: string; slug?: SanitySlug };
   teamAbbr?: string;
   teamName?: string;
   teamColor?: string;
   teamLogo?: SanityImageWithUrl;
-  previousRank?: number;
-  movement?: number;
-  tier?: 'elite' | 'contender' | 'middle' | 'slipping' | 'rebuilding' | string;
-  summary?: string;
   note?: string;
   analysis?: PortableTextContent;
   prevRankOverride?: number;
@@ -81,13 +77,8 @@ export interface PowerRankingsDoc {
   seasonYear: number;
   rankingType: 'live' | 'snapshot';
   weekNumber?: number;
-  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB' | 'OFF';
+  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB';
   methodology?: string;
-  rankingIntro?: PortableTextContent;
-  rankingConclusion?: PortableTextContent;
-  biggestRiser?: string;
-  biggestFaller?: string;
-  editorialStatus?: 'draft' | 'review' | 'published' | string;
   rankings: PowerRankingEntry[];
   date?: string;
   publishedAt?: string;
@@ -119,7 +110,6 @@ export interface Headline {
   author?: Author;
   coverImage?: SanityImageWithUrl;
   category?: Category;
-  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title' | 'slug'>[];
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;
@@ -156,7 +146,6 @@ export interface HeadlineListItem {
   playoffRound?: string;
   author?: Pick<Author, 'name'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
-  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title'>[];
 }
 
@@ -206,11 +195,6 @@ export interface Category {
   color?: string;
   priority?: number;
   seo?: SEOData;
-}
-
-export interface TopicHubRef {
-  title?: string;
-  slug?: SanitySlug;
 }
 
 // Tag types
@@ -296,7 +280,6 @@ export interface Rankings {
   teams: RankingTeam[];
   methodology?: PortableTextContent;
   category?: Category;
-  topicHubs?: TopicHubRef[];
   tags?: Pick<Tag, 'title' | 'slug'>[];
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;

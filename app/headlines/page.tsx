@@ -100,6 +100,19 @@ function buildDescription(filters: { category?: string; tag?: string; search?: s
   return 'Breaking NFL news, instant analysis, and daily storylines in one live feed.';
 }
 
+const canonicalTagsProjection = `
+  "tags": select(
+    count(coalesce(tagRefs, [])) > 0 => tagRefs[]->{
+      title,
+      slug
+    },
+    defined(tags) && count(tags) > 0 => tags[]{
+      "title": @
+    },
+    []
+  )
+`;
+
 async function fetchHeadlines(filters: { category?: string; tag?: string; search?: string }): Promise<HeadlineListItem[]> {
   if (filters.search) {
     const searchPattern = `*${filters.search}*`;
@@ -130,7 +143,7 @@ async function fetchHeadlines(filters: { category?: string; tag?: string; search
         rankingType,
         author->{ name },
         category->{ title, slug, color },
-        tags[]->{ title }
+        ${canonicalTagsProjection}
       }
       `,
       { searchPattern }

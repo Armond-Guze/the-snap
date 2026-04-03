@@ -1,3 +1,16 @@
+const canonicalTagsProjection = `
+    "tags": select(
+      count(coalesce(tagRefs, [])) > 0 => tagRefs[]->{
+        title,
+        slug
+      },
+      defined(tags) && count(tags) > 0 => tags[]{
+        "title": @
+      },
+      []
+    )
+`;
+
 // Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
 export const headlineQuery = `
   *[
@@ -29,7 +42,7 @@ export const headlineQuery = `
     author->{
       name
     },
-  tags,
+    ${canonicalTagsProjection},
   twitterUrl,
   instagramUrl,
   tiktokUrl
@@ -92,10 +105,7 @@ export const headlineDetailQuery = `
       title,
       slug
     },
-    tags[]->{
-      title,
-      slug
-    },
+    ${canonicalTagsProjection},
     seo {
       metaTitle,
       metaDescription,
@@ -225,7 +235,7 @@ export const categoryContentQuery = `
     image { asset->{ url } },
     author->{ name },
     category->{ title, slug, color },
-    tags[]->{ title },
+    ${canonicalTagsProjection},
     date,
     publishedAt
   }
@@ -284,10 +294,7 @@ export const articleDetailQuery = `
       title,
       slug
     },
-    tags[]->{
-      title,
-      slug
-    },
+    ${canonicalTagsProjection},
     seo {
       metaTitle,
       metaDescription,
@@ -342,15 +349,36 @@ export const articleDetailQuery = `
 
 // Tags query - fixed to work with string tags in headlines
 export const tagsQuery = `
-  *[_type == "tag"] | order(trending desc, title asc) {
-    _id,
-    title,
-    slug,
-    description,
-    trending,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
-  }
+  (
+    *[_type == "advancedTag"] {
+      _id,
+      title,
+      slug,
+      description,
+      "trending": false,
+      "articleCount": count(*[
+        published == true &&
+        _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+        defined(tagRefs) &&
+        references(^._id)
+      ])
+    } +
+    *[_type == "tag"] {
+      _id,
+      title,
+      slug,
+      description,
+      trending,
+      "articleCount": count(*[
+        published == true &&
+        _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+        (
+          (defined(teams) && references(^._id)) ||
+          (defined(tags) && tags match "*" + ^.title + "*")
+        )
+      ])
+    }
+  )
 `;
 
 // Trending tags query - fixed to work with string tags
@@ -359,8 +387,14 @@ export const trendingTagsQuery = `
     _id,
     title,
     slug,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
+    "articleCount": count(*[
+      published == true &&
+      _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+      (
+        (defined(teams) && references(^._id)) ||
+        (defined(tags) && tags match "*" + ^.title + "*")
+      )
+    ])
   }
 `;
 
@@ -388,7 +422,7 @@ export const headlinesByCategoryQuery = `
       title,
       color
     },
-    tags,
+    ${canonicalTagsProjection},
     date
   }
 `;
@@ -417,7 +451,7 @@ export const headlinesByTagQuery = `
       title,
       color
     },
-    tags,
+    ${canonicalTagsProjection},
     date
   }
 `;
