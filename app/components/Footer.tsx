@@ -24,7 +24,7 @@ const socials = [
   },
   {
     label: "X",
-    href: "https://twitter.com/thesnapfootball",
+    href: "https://x.com/thegamesnap",
     icon: FaXTwitter,
   },
   {

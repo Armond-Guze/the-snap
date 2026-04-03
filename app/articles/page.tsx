@@ -62,26 +62,12 @@ type ArticleListItem = HeadlineListItem & {
   playoffRound?: string;
 };
 
-const canonicalTagsProjection = `
-  "tags": select(
-    count(coalesce(tagRefs, [])) > 0 => tagRefs[]->{
-      title,
-      slug
-    },
-    defined(tags) && count(tags) > 0 => tags[]{
-      "title": @
-    },
-    []
-  )
-`;
-
 async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]> {
   const baseFilter = 'published == true && (_type == "rankings" || (_type == "article" && format != "headline"))';
 
   const baseFields = `{
     _id,_type,format,rankingType,seasonYear,weekNumber,playoffRound,title,homepageTitle,slug,summary,
-    coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},
-    ${canonicalTagsProjection}
+    coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},tags[]->{title}
   }`;
 
   if (filters.search) {
