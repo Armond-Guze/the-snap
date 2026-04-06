@@ -5,16 +5,24 @@ import { isTwitterConfigured, getTwitterUsername } from '@/lib/twitter';
 export const dynamic = 'force-dynamic';
 
 function verifySecret(req: NextRequest) {
-  const secret = process.env.SANITY_WEBHOOK_SECRET;
-  if (!secret) return true;
+  const secret = process.env.SANITY_WEBHOOK_SECRET?.trim() || process.env.REVALIDATE_SECRET?.trim() || '';
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      return { ok: false, status: 500, error: 'SANITY_WEBHOOK_SECRET or REVALIDATE_SECRET is not configured' };
+    }
+    return { ok: true };
+  }
   const url = new URL(req.url);
-  const token = url.searchParams.get('secret');
-  return token === secret;
+  const token = url.searchParams.get('secret')?.trim() || '';
+  return token === secret
+    ? { ok: true }
+    : { ok: false, status: 401, error: 'Invalid secret' };
 }
 
 export async function GET(req: NextRequest) {
-  if (!verifySecret(req)) {
-    return new Response(JSON.stringify({ ok: false, error: 'Invalid secret' }), { status: 401 });
+  const auth = verifySecret(req);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ ok: false, error: auth.error }), { status: auth.status ?? 401 });
   }
 
   const has = {
@@ -38,8 +46,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!verifySecret(req)) {
-    return new Response(JSON.stringify({ ok: false, error: 'Invalid secret' }), { status: 401 });
+  const auth = verifySecret(req);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ ok: false, error: auth.error }), { status: auth.status ?? 401 });
   }
 
   const url = new URL(req.url);

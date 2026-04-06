@@ -63,21 +63,26 @@ export default function ArticleViewCount({ slug, className }: Props) {
     };
 
     const increment = async () => {
-      if (isExcludedEnvironment() || !shouldIncrementView(slug)) return;
+      if (isExcludedEnvironment() || !shouldIncrementView(slug)) return false;
       try {
         const res = await fetch(`/api/views/${encodedSlug}`, { method: 'POST', keepalive: true });
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const data = await res.json();
         if (!cancelled && typeof data.count === 'number') {
           setCount(data.count);
         }
+        return true;
       } catch {
-        // ignore
+        return false;
       }
     };
 
-    loadCount();
-    increment();
+    void (async () => {
+      const incremented = await increment();
+      if (!incremented) {
+        await loadCount();
+      }
+    })();
 
     return () => {
       cancelled = true;

@@ -33,7 +33,7 @@ function logFetch(context: LogContext) {
       error: error.message,
       duration,
     });
-  } else {
+  } else if (process.env.NODE_ENV !== 'production' || process.env.SANITY_FETCH_DEBUG === '1') {
     console.log('🟢 Sanity fetch success:', {
       query: query.substring(0, 50) + (query.length > 50 ? '...' : ''),
       params,

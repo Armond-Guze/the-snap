@@ -4,6 +4,7 @@ import { SITE_URL } from '@/lib/site-config'
 import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule'
 
 const baseUrl = SITE_URL
+export const revalidate = 3600
 
 // Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
 // You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).

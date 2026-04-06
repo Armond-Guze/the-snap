@@ -29,7 +29,7 @@ export default clerkMiddleware((_, req) => {
 // Apply to all paths except assets
 export const config = {
   matcher: [
-    '/((?!_next|.*\.(?:css|js|json|png|jpg|jpeg|gif|svg|ico|webp|txt|xml)).*)',
-    '/(api|trpc)(.*)',
+    '/((?!_next|api/|.*\.(?:css|js|json|png|jpg|jpeg|gif|svg|ico|webp|txt|xml)).*)',
+    '/api/me/(.*)',
   ],
 };

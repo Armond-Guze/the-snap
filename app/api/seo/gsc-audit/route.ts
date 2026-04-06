@@ -4,9 +4,9 @@ import { runGscAudit } from "@/lib/gsc-audit";
 
 const AUTH_HEADER = "x-gsc-audit-secret";
 
-function verifySecret(req: NextRequest) {
+function verifySecret(req: NextRequest): { ok: boolean; status?: number; error?: string } {
   const isVercelCron = Boolean(req.headers.get("x-vercel-cron"));
-  if (isVercelCron) return true;
+  if (isVercelCron) return { ok: true };
 
   const secret =
     process.env.GSC_AUDIT_SECRET?.trim() ||
@@ -14,20 +14,28 @@ function verifySecret(req: NextRequest) {
     process.env.REVALIDATE_SECRET?.trim() ||
     "";
 
-  if (!secret) return true;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, status: 500, error: "GSC_AUDIT_SECRET, SYNC_CRON_SECRET, or REVALIDATE_SECRET is not configured" };
+    }
+    return { ok: true };
+  }
 
   const headerSecret =
     req.headers.get(AUTH_HEADER)?.trim() ||
     req.nextUrl.searchParams.get("secret")?.trim() ||
     "";
 
-  return headerSecret === secret;
+  return headerSecret === secret
+    ? { ok: true }
+    : { ok: false, status: 401, error: "Unauthorized" };
 }
 
 async function handleAudit(req: NextRequest) {
-  if (!verifySecret(req)) {
-    return new Response(JSON.stringify({ ok: false, error: "Unauthorized" }), {
-      status: 401,
+  const auth = verifySecret(req);
+  if (!auth.ok) {
+    return new Response(JSON.stringify({ ok: false, error: auth.error }), {
+      status: auth.status ?? 401,
       headers: { "Content-Type": "application/json" },
     });
   }

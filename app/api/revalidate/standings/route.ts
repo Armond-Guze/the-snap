@@ -1,17 +1,32 @@
 import { NextRequest } from 'next/server';
 import { revalidateTag } from 'next/cache';
 
-// Minimal webhook handler to revalidate standings cache tag
+function verifySecret(req: NextRequest): { ok: boolean; status?: number; error?: string } {
+  const isVercelCron = Boolean(req.headers.get('x-vercel-cron'));
+  if (isVercelCron) return { ok: true };
+
+  const secret = (process.env.SANITY_STANDINGS_REVALIDATE_SECRET || process.env.REVALIDATE_SECRET || '').trim();
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      return { ok: false, status: 500, error: 'SANITY_STANDINGS_REVALIDATE_SECRET or REVALIDATE_SECRET is not configured' };
+    }
+    return { ok: true };
+  }
+
+  const url = new URL(req.url);
+  const token = url.searchParams.get('secret')?.trim() || req.headers.get('x-revalidate-secret')?.trim() || '';
+  return token === secret
+    ? { ok: true }
+    : { ok: false, status: 401, error: 'Invalid secret' };
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // Optional: verify secret if configured
-    const secret = process.env.SANITY_STANDINGS_REVALIDATE_SECRET;
-    if (secret) {
-      const url = new URL(req.url);
-      const token = url.searchParams.get('secret');
-      if (token !== secret) {
-        return new Response(JSON.stringify({ revalidated: false, message: 'Invalid secret' }), { status: 401 });
-      }
+    const auth = verifySecret(req);
+    if (!auth.ok) {
+      return new Response(JSON.stringify({ revalidated: false, message: auth.error }), {
+        status: auth.status ?? 401,
+      });
     }
 
     revalidateTag('standings', {});

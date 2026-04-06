@@ -116,12 +116,17 @@ export default async function StandingsPage() {
   // Fetch standings data (server-side) with tag for instant revalidation
   const season = await getActiveSeason();
   const noCdnClient = client.withConfig({ useCdn: false });
-  const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string; updatedAt: string }>
-    = await noCdnClient.fetch(
+  let docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string; updatedAt: string }> = [];
+
+  try {
+    docs = await noCdnClient.fetch(
       `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak, "updatedAt": _updatedAt }`,
       { season },
       { next: { tags: ['standings'], revalidate: 120 } }
     );
+  } catch (error) {
+    console.warn('[standings] teamRecord fetch failed, falling back to live API', error);
+  }
 
   const nameToAbbr: Record<string, string> = Object.entries(TEAM_META).reduce((acc, [abbr, meta]) => {
     acc[meta.name] = abbr;
