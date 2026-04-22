@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaRegCircleUser } from "react-icons/fa6";
 import { SignedIn, SignedOut, SignOutButton, useUser } from "@clerk/nextjs";
+import posthog from "posthog-js";
 
 import { fetchCurrentUserProfile, updateCurrentUserProfile } from "@/lib/users/client";
 import type { UserProfileDTO } from "@/lib/users/contracts";
@@ -223,6 +224,11 @@ export default function ProfileMenu() {
 
       setLocalProfile(next);
       writeLocalProfile(next);
+      if (code) {
+        posthog.capture('favorite_team_selected', { team: code, signed_in: false });
+      } else {
+        posthog.capture('favorite_team_cleared', { signed_in: false });
+      }
       return;
     }
 
@@ -233,6 +239,11 @@ export default function ProfileMenu() {
       setServerProfile(updatedProfile);
       setLocalProfile(null);
       writeLocalProfile(null);
+      if (code) {
+        posthog.capture('favorite_team_selected', { team: code, signed_in: true });
+      } else {
+        posthog.capture('favorite_team_cleared', { signed_in: true });
+      }
     } catch (error) {
       console.error("Failed to save favorite team", error);
       setErrorMessage("Could not save your favorite team. Try again.");
@@ -293,14 +304,14 @@ export default function ProfileMenu() {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/sign-in"
-                    onClick={() => setOpen(false)}
+                    onClick={() => { setOpen(false); posthog.capture('sign_in_clicked'); }}
                     className="rounded-xl border border-[#d7d9df] bg-[#ececef] px-3 py-2.5 text-center text-sm font-semibold text-[#1f2430] transition-colors hover:bg-[#e2e4e8]"
                   >
                     Log In
                   </Link>
                   <Link
                     href="/sign-up"
-                    onClick={() => setOpen(false)}
+                    onClick={() => { setOpen(false); posthog.capture('sign_up_clicked'); }}
                     className="rounded-xl border border-[#1a57ec] bg-[#1f63ff] px-3 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#1a57ec]"
                   >
                     Sign Up

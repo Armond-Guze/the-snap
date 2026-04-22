@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
+import posthog from 'posthog-js';
 
 interface SocialShareProps {
   url: string;
@@ -31,6 +32,7 @@ export default function SocialShare({
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      posthog.capture('article_link_copied', { url, title, variant });
     } catch (err) {
       console.error('Failed to copy link:', err);
     }
@@ -38,6 +40,7 @@ export default function SocialShare({
 
   const handleShare = (platform: keyof typeof shareUrls) => {
     window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+    posthog.capture('article_shared', { platform, url, title, variant });
   };
 
   if (variant === 'compact') {

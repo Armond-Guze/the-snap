@@ -3,6 +3,23 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
   transpilePackages: ['framer-motion'],
+  skipTrailingSlashRedirect: true,
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/array/:path*',
+        destination: 'https://us-assets.i.posthog.com/array/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
@@ -72,7 +89,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
       "img-src 'self' data: blob: https://cdn.sanity.io https://img.youtube.com https://i.ytimg.com https://pagead2.googlesyndication.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.google.com https://*.google.com https://lh3.googleusercontent.com https://img.clerk.com https://pbs.twimg.com https://abs.twimg.com https://static.fantasydata.com https://s3-us-west-2.amazonaws.com;",
       "font-src 'self' https://fonts.gstatic.com;",
-      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://cdn.syndication.twimg.com https://syndication.twitter.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
+      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://cdn.syndication.twimg.com https://syndication.twitter.com https://us.i.posthog.com https://us-assets.i.posthog.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
       "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://syndication.twitter.com https://twitter.com https://x.com;",
       "worker-src 'self' blob:;",
       "media-src 'self';",
@@ -91,7 +108,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
       "img-src 'self' data: blob: https://cdn.sanity.io https://img.youtube.com https://i.ytimg.com https://pagead2.googlesyndication.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.google.com https://*.google.com https://lh3.googleusercontent.com https://img.clerk.com https://pbs.twimg.com https://abs.twimg.com https://static.fantasydata.com https://s3-us-west-2.amazonaws.com;",
       "font-src 'self' https://fonts.gstatic.com;",
-      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://cdn.syndication.twimg.com https://syndication.twitter.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
+      "connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://*.api.sanity.io https://*.sanity.build https://*.sanity.dev https://*.sanity.tools https://*.sanity.studio https://registry.npmjs.org https://*.google-analytics.com https://*.doubleclick.net https://vercel.live https://api.clerk.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.gstatic.com https://www.gstatic.com/recaptcha/ https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://cdn.syndication.twimg.com https://syndication.twitter.com https://us.i.posthog.com https://us-assets.i.posthog.com wss://*.sanity.io wss://*.sanity.dev wss://*.sanity.build wss://*.sanity.tools wss://*.sanity.studio;",
       "frame-src https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://vercel.live https://*.sanity.io https://*.sanity.build https://*.sanity.tools https://*.sanity.studio https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.accounts.com https://clerk.thegamesnap.com https://www.google.com https://*.google.com https://www.recaptcha.net https://recaptcha.net https://challenges.cloudflare.com https://platform.twitter.com https://syndication.twitter.com https://twitter.com https://x.com;",
       "worker-src 'self' blob:;",
       "media-src 'self';",

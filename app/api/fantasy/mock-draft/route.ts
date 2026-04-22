@@ -4,6 +4,7 @@ import {
   runMockDraft,
   type MockDraftSettings,
 } from '@/lib/fantasy/mockDraftEngine'
+import { getPostHogClient } from '@/lib/posthog-server'
 
 const TEAM_OPTIONS = [10, 12, 14]
 const ROUND_OPTIONS = [12, 15, 18]
@@ -95,6 +96,19 @@ export async function POST(request: NextRequest) {
 
     const settings = normalizeMockDraftSettings(incoming)
     const result = runMockDraft(settings)
+
+    const posthog = getPostHogClient()
+    posthog.capture({
+      distinctId: 'anonymous',
+      event: 'mock_draft_completed',
+      properties: {
+        teams: settings.teams,
+        rounds: settings.rounds,
+        scoring: settings.scoring,
+        strategy: settings.strategy,
+        draft_slot: settings.draftSlot,
+      },
+    })
 
     return NextResponse.json({ ok: true, result })
   } catch (error) {

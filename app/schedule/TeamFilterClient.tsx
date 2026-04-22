@@ -3,6 +3,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule';
 import { useTransition } from 'react';
+import posthog from 'posthog-js';
 
 export default function TeamFilterClient() {
   const params = useSearchParams();
@@ -13,7 +14,13 @@ export default function TeamFilterClient() {
 
   function toggle(abbr: string) {
     const next = new URLSearchParams(params.toString());
-    if (active === abbr) next.delete('team'); else next.set('team', abbr);
+    const isClearing = active === abbr;
+    if (isClearing) {
+      next.delete('team');
+    } else {
+      next.set('team', abbr);
+      posthog.capture('schedule_team_filter_applied', { team: abbr });
+    }
     startTransition(() => {
       router.replace(pathname + (next.toString() ? `?${next.toString()}` : ''));
     });

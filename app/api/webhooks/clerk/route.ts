@@ -14,6 +14,7 @@ import {
   markUserDeletedByAuthIdentity,
   upsertUserFromAuthIdentity,
 } from "@/lib/users/service";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 export const runtime = "nodejs";
 
@@ -145,6 +146,27 @@ export async function POST(request: NextRequest) {
         lastName: data.last_name ?? null,
         avatarUrl: data.image_url ?? null,
       });
+
+      if (event.type === "user.created") {
+        const posthog = getPostHogClient();
+        const email = getPrimaryEmail(data);
+        posthog.identify({
+          distinctId: data.id,
+          properties: {
+            email: email ?? undefined,
+            firstName: data.first_name ?? undefined,
+            lastName: data.last_name ?? undefined,
+          },
+        });
+        posthog.capture({
+          distinctId: data.id,
+          event: 'user_created',
+          properties: {
+            provider: 'clerk',
+            email: email ?? undefined,
+          },
+        });
+      }
     }
 
     if (event.type === "user.deleted") {
