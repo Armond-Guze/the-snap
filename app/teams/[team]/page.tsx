@@ -10,6 +10,8 @@ import { getActiveSeason } from '@/lib/season';
 import { fetchNFLStandingsWithFallback, type ProcessedTeamData } from '@/lib/nfl-api';
 import { TEAM_COLORS } from '@/app/components/teamLogos';
 import { SITE_URL } from '@/lib/site-config';
+import { fetchTeamPlayerWatch } from '@/lib/sportsdata-news-images';
+import TeamPlayerWatch from '@/app/components/TeamPlayerWatch';
 
 interface TeamPageProps {
   params: Promise<{ team: string }>;
@@ -157,10 +159,11 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
     redirect(`/teams/${canonicalSlug}`);
   }
 
-  const [season, games, standings] = await Promise.all([
+  const [season, games, standings, playerWatchItems] = await Promise.all([
     getActiveSeason(),
     getTeamSeasonSchedule(abbr),
     fetchNFLStandingsWithFallback(),
+    fetchTeamPlayerWatch(abbr),
   ]);
 
   const teamStanding = standings.find((t) => t.teamName.toLowerCase() === meta.name.toLowerCase());
@@ -182,59 +185,77 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   const upcomingGames = games.filter((g) => Date.parse(g.dateUTC) >= now).slice(0, 5);
   const recentGames = games.filter((g) => Date.parse(g.dateUTC) < now).slice(-3).reverse();
 
-  const teamTag = await client.fetch<{ _id: string } | null>(
-    `*[
-      _type == "tag" && (
-        title == $title ||
-        slug.current == $slug ||
-        lower(title) == lower($abbr) ||
-        $abbr in coalesce(aliases, [])
-      )
-    ][0]{ _id }`,
-    { title: meta.name, slug: canonicalSlug, abbr }
-  );
+  let latestNews: {
+    _id: string;
+    title: string;
+    homepageTitle?: string;
+    summary?: string;
+    slug: { current: string };
+    _type?: string;
+    publishedAt?: string;
+    date?: string;
+    coverImage?: { asset?: { url?: string } };
+    featuredImage?: { asset?: { url?: string } };
+    image?: { asset?: { url?: string } };
+  }[] = [];
 
-  const latestNews = teamTag?._id
-    ? await client.fetch<
-        {
-          _id: string;
-          title: string;
-          homepageTitle?: string;
-          summary?: string;
-          slug: { current: string };
-          _type?: string;
-          publishedAt?: string;
-          date?: string;
-          coverImage?: { asset?: { url?: string } };
-          featuredImage?: { asset?: { url?: string } };
-          image?: { asset?: { url?: string } };
-        }[]
-      >(
-        `*[
-          _type in ["article", "headline", "rankings"] &&
-          published == true &&
-          defined(slug.current) &&
-          (
-            (defined(teams) && $tagId in teams[]._ref) ||
-            (defined(tagRefs) && $tagId in tagRefs[]._ref)
-          )
-        ]
-        | order(coalesce(publishedAt, date, _createdAt) desc)[0...20]{
-          _id,
-          title,
-          homepageTitle,
-          summary,
-          slug,
-          _type,
-          publishedAt,
-          date,
-          coverImage{asset->{url}},
-          featuredImage{asset->{url}},
-          image{asset->{url}}
-        }`,
-        { tagId: teamTag._id }
-      )
-    : [];
+  try {
+    const teamTag = await client.fetch<{ _id: string } | null>(
+      `*[
+        _type == "tag" && (
+          title == $title ||
+          slug.current == $slug ||
+          lower(title) == lower($abbr) ||
+          $abbr in coalesce(aliases, [])
+        )
+      ][0]{ _id }`,
+      { title: meta.name, slug: canonicalSlug, abbr }
+    );
+
+    latestNews = teamTag?._id
+      ? await client.fetch<
+          {
+            _id: string;
+            title: string;
+            homepageTitle?: string;
+            summary?: string;
+            slug: { current: string };
+            _type?: string;
+            publishedAt?: string;
+            date?: string;
+            coverImage?: { asset?: { url?: string } };
+            featuredImage?: { asset?: { url?: string } };
+            image?: { asset?: { url?: string } };
+          }[]
+        >(
+          `*[
+            _type in ["article", "headline", "rankings"] &&
+            published == true &&
+            defined(slug.current) &&
+            (
+              (defined(teams) && $tagId in teams[]._ref) ||
+              (defined(tagRefs) && $tagId in tagRefs[]._ref)
+            )
+          ]
+          | order(coalesce(publishedAt, date, _createdAt) desc)[0...20]{
+            _id,
+            title,
+            homepageTitle,
+            summary,
+            slug,
+            _type,
+            publishedAt,
+            date,
+            coverImage{asset->{url}},
+            featuredImage{asset->{url}},
+            image{asset->{url}}
+          }`,
+          { tagId: teamTag._id }
+        )
+      : [];
+  } catch (error) {
+    console.warn(`Team hub news fetch failed for ${abbr}:`, error);
+  }
 
   const dedupedNews = (() => {
     const seen = new Set<string>();
@@ -443,6 +464,8 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         </main>
 
         <aside className="space-y-6">
+          <TeamPlayerWatch teamName={meta.name} items={playerWatchItems} />
+
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Division Snapshot</h2>
             {divisionStandings.length === 0 ? (
