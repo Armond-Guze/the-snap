@@ -568,7 +568,7 @@ export const portableTextComponents: PortableTextComponents = {
 
       return (
         <article
-          className={`relative my-8 max-w-4xl overflow-hidden rounded-[22px] border bg-zinc-950/95 shadow-[0_18px_48px_rgba(0,0,0,0.34)] ${teamColors ? '' : 'border-white/12'} mx-auto`}
+          className={`relative my-8 max-w-3xl overflow-hidden rounded-[22px] border bg-zinc-950/95 shadow-[0_18px_48px_rgba(0,0,0,0.34)] ${teamColors ? '' : 'border-white/12'} mx-auto`}
           style={cardStyle}
         >
           <div
@@ -600,7 +600,7 @@ export const portableTextComponents: PortableTextComponents = {
                 )}
 
                 <div className="min-w-0">
-                  <h3 className="truncate text-xl font-extrabold leading-tight text-white sm:text-[1.6rem]">
+                  <h3 className="truncate text-lg font-extrabold leading-tight text-white sm:text-[1.35rem]">
                     {fallbackName}
                   </h3>
                   {(descriptor || position) && (

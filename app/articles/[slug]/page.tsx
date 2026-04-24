@@ -28,6 +28,129 @@ import { client } from '@/sanity/lib/client';
 
 export const revalidate = 300;
 
+type PortableTextChild = {
+	text?: string;
+};
+
+type PortableTextBlock = {
+	_key?: string;
+	_type?: string;
+	style?: string;
+	children?: PortableTextChild[];
+	[key: string]: unknown;
+};
+
+const DRAFT_GRADES_CARD_SLUGS = new Set([
+	'2026-nfl-draft-grades-arvell-reese-headlines-a-loaded-first-round',
+]);
+
+const TEAM_NICKNAME_TO_FULL_NAME: Record<string, string> = {
+	raiders: 'Las Vegas Raiders',
+	jets: 'New York Jets',
+	cardinals: 'Arizona Cardinals',
+	titans: 'Tennessee Titans',
+	giants: 'New York Giants',
+	chiefs: 'Kansas City Chiefs',
+	commanders: 'Washington Commanders',
+	saints: 'New Orleans Saints',
+	browns: 'Cleveland Browns',
+	cowboys: 'Dallas Cowboys',
+	dolphins: 'Miami Dolphins',
+	rams: 'Los Angeles Rams',
+	ravens: 'Baltimore Ravens',
+	buccaneers: 'Tampa Bay Buccaneers',
+	lions: 'Detroit Lions',
+	vikings: 'Minnesota Vikings',
+	panthers: 'Carolina Panthers',
+	eagles: 'Philadelphia Eagles',
+	steelers: 'Pittsburgh Steelers',
+	chargers: 'Los Angeles Chargers',
+	bears: 'Chicago Bears',
+	texans: 'Houston Texans',
+	patriots: 'New England Patriots',
+	seahawks: 'Seattle Seahawks',
+};
+
+const extractPortableText = (block: PortableTextBlock): string => {
+	if (!Array.isArray(block.children)) return '';
+	return block.children
+		.map((child) => (typeof child?.text === 'string' ? child.text : ''))
+		.join('')
+		.trim();
+};
+
+const sanitizeDraftLead = (text: string): string => {
+	if (/^[a-z][A-Z][a-z]+:/.test(text)) {
+		return text.slice(1);
+	}
+	return text;
+};
+
+const buildDraftRankingCard = (
+	text: string,
+	pickNumber: number,
+): PortableTextBlock | null => {
+	const sanitized = sanitizeDraftLead(text);
+	const match = sanitized.match(
+		/^([A-Za-z .()'/-]+):\s+([^,]+),\s+([^,]+),\s+(.+?)\s+[—-]\s+([A-F][+-]?)$/,
+	);
+
+	if (!match) return null;
+
+	const [, teamNickname, playerName, position, school, grade] = match;
+	const normalizedTeamNickname = teamNickname.trim().toLowerCase();
+	const fullTeamName =
+		TEAM_NICKNAME_TO_FULL_NAME[normalizedTeamNickname] || teamNickname.trim();
+
+	return {
+		_key: `draft-ranking-card-${pickNumber}`,
+		_type: 'rankingCard',
+		rank: pickNumber,
+		name: playerName.trim(),
+		position: position.trim(),
+		descriptor: `${position.trim()} • ${school.trim()}`,
+		grade: grade.trim(),
+		teamContext: `Round 1 • No. ${pickNumber} overall`,
+		team: {
+			title: fullTeamName,
+		},
+	};
+};
+
+const injectDraftRankingCards = (
+	body: PortableTextBlock[] | undefined,
+	slug: string,
+): PortableTextBlock[] | undefined => {
+	if (!Array.isArray(body) || !DRAFT_GRADES_CARD_SLUGS.has(slug)) return body;
+
+	const transformed: PortableTextBlock[] = [];
+	let pickNumber = 1;
+
+	for (const block of body) {
+		const blockType = typeof block?._type === 'string' ? block._type : '';
+		const previousBlockType =
+			transformed.length > 0 && typeof transformed[transformed.length - 1]?._type === 'string'
+				? transformed[transformed.length - 1]._type
+				: '';
+
+		if (blockType === 'block' && block.style === 'normal') {
+			const text = extractPortableText(block);
+			const rankingCard = buildDraftRankingCard(text, pickNumber);
+
+			if (rankingCard) {
+				if (previousBlockType !== 'rankingCard') {
+					transformed.push(rankingCard);
+				}
+				pickNumber += 1;
+			}
+		}
+
+		transformed.push(block);
+	}
+
+	return transformed;
+};
+
 export async function generateStaticParams() {
 	const docs = await client.fetch<Array<{ slug?: string }>>(
 		`*[
@@ -250,6 +373,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	}
 
 	const publishedDate = article.date || article.publishedAt;
+	const articleBody = injectDraftRankingCards(article.body as PortableTextBlock[] | undefined, trimmedSlug);
 
 	return (
 		<>
@@ -334,7 +458,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					</section>
 					<section className="w-full mb-8">
 						<div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-							{Array.isArray(article.body) && <PortableText value={article.body} components={portableTextComponents} />}
+							{Array.isArray(articleBody) && <PortableText value={articleBody} components={portableTextComponents} />}
 						</div>
 					</section>
 					{moreArticles.length > 0 && (
