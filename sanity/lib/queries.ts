@@ -133,8 +133,9 @@ export const headlineDetailQuery = `
       },
       _type == 'rankingCard' => {
         ...,
-        player->{name, team, position},
-        team->{title, slug}
+        headshot{asset->{url}, alt},
+        player->{name, team, position, headshot{asset->{url}, alt}},
+        team->{title, slug, teamLogo{asset->{url}, alt}}
       }
     },
     youtubeVideoId,
@@ -325,8 +326,9 @@ export const articleDetailQuery = `
       },
       _type == 'rankingCard' => {
         ...,
-        player->{name, team, position},
-        team->{title, slug}
+        headshot{asset->{url}, alt},
+        player->{name, team, position, headshot{asset->{url}, alt}},
+        team->{title, slug, teamLogo{asset->{url}, alt}}
       }
     },
     youtubeVideoId,

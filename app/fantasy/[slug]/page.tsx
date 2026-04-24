@@ -84,8 +84,9 @@ export default async function FantasyArticlePage(props: PageProps) {
         },
         _type == "rankingCard" => {
           ...,
-          player->{ name, team, position },
-          team->{ title, slug }
+          headshot{asset->{url}, alt},
+          player->{ name, team, position, headshot{asset->{url}, alt} },
+          team->{ title, slug, teamLogo{asset->{url}, alt} }
         }
       },
       body[]{
@@ -98,8 +99,9 @@ export default async function FantasyArticlePage(props: PageProps) {
         },
         _type == "rankingCard" => {
           ...,
-          player->{ name, team, position },
-          team->{ title, slug }
+          headshot{asset->{url}, alt},
+          player->{ name, team, position, headshot{asset->{url}, alt} },
+          team->{ title, slug, teamLogo{asset->{url}, alt} }
         }
       },
       coverImage{asset->{url}},

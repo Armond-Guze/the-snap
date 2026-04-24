@@ -334,11 +334,10 @@ export const blockContentType = defineType({
         },
         {
           name: 'team',
-          title: 'Team Tag (reference)',
+          title: 'Associated Team',
           type: 'reference',
           to: [{ type: 'tag' }],
-          description: 'Pick your canonical team tag.',
-          hidden: ({ parent }) => parent?.entityType !== 'team',
+          description: 'Optional. Use the player’s drafted team, current team, or associated team for the card.',
         },
         {
           name: 'name',
@@ -354,6 +353,50 @@ export const blockContentType = defineType({
           description: 'Optional. If blank, uses the referenced player position.',
           validation: Rule => Rule.max(12),
         },
+        {
+          name: 'descriptor',
+          title: 'Descriptor',
+          type: 'string',
+          description: 'Optional. Example: Ohio State • LB/EDGE • Junior',
+          validation: Rule => Rule.max(120),
+        },
+        {
+          name: 'teamContext',
+          title: 'Team Context',
+          type: 'string',
+          description: 'Optional. Example: Round 1 • No. 5 overall',
+          validation: Rule => Rule.max(80),
+        },
+        {
+          name: 'grade',
+          title: 'Grade / Badge',
+          type: 'string',
+          description: 'Optional short badge like A-, Value Pick, or Best Fit.',
+          validation: Rule => Rule.max(24),
+        },
+        {
+          name: 'note',
+          title: 'Supporting Note',
+          type: 'text',
+          rows: 2,
+          description: 'Optional short note shown below the card.',
+          validation: Rule => Rule.max(220),
+        },
+        {
+          name: 'headshot',
+          title: 'Image Override',
+          type: 'image',
+          options: { hotspot: true },
+          description: 'Optional. Use if no player reference image is available.',
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt Text',
+              type: 'string',
+              validation: Rule => Rule.max(100),
+            }),
+          ],
+        },
       ],
       preview: {
         select: {
@@ -362,14 +405,16 @@ export const blockContentType = defineType({
           name: 'name',
           playerName: 'player.name',
           teamName: 'team.title',
+          grade: 'grade',
         },
         prepare(sel) {
           const rank = typeof sel.rank === 'number' ? `No. ${sel.rank}` : 'No. ?'
           const displayName = sel.name || sel.playerName || sel.teamName || 'Ranking Entry'
           const entityType = sel.entityType ? ` • ${String(sel.entityType).toUpperCase()}` : ''
+          const grade = sel.grade ? ` • ${sel.grade}` : ''
           return {
             title: `${rank} - ${displayName}`,
-            subtitle: `Ranking card${entityType}`,
+            subtitle: `Ranking card${entityType}${grade}`,
           }
         },
       },

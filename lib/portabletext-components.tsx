@@ -4,6 +4,7 @@ import { PortableTextComponents } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import SnapGraphicCard from '@/app/components/SnapGraphicCard'
+import { TEAM_META } from '@/lib/schedule'
 // NOTE: We avoid runtime fetching in portable text render to keep it static.
 // Player reference data should be GROQ-populated when querying the document.
 type SanityImageRef = { asset?: { _ref?: string, url?: string }; alt?: string }
@@ -12,8 +13,13 @@ type RankingCardValue = {
   rank?: number
   name?: string
   position?: string
-  player?: { name?: string; team?: string; position?: string }
-  team?: { title?: string; slug?: { current?: string } }
+  descriptor?: string
+  teamContext?: string
+  grade?: string
+  note?: string
+  headshot?: SanityImageRef
+  player?: { name?: string; team?: string; position?: string; headshot?: SanityImageRef }
+  team?: { title?: string; slug?: { current?: string }; teamLogo?: SanityImageRef }
 }
 type DataTableRowValue = {
   _key?: string
@@ -167,6 +173,14 @@ const isNumericTableCell = (value: string): boolean => {
   const compact = value.replace(/[\s,]/g, '')
   return /^[-+]?[$]?\d+(\.\d+)?%?$/.test(compact) || /^\(\d+(\.\d+)?\)$/.test(compact)
 }
+
+const initialsFromName = (value: string): string =>
+  value
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('')
 
 // Utility to create deterministic slug IDs from heading text (TOC + deep links)
 const slugify = (text: string) =>
@@ -526,8 +540,34 @@ export const portableTextComponents: PortableTextComponents = {
         (typeof rankingValue.player?.position === 'string' && rankingValue.player.position.trim()) ||
         (typeof rankingValue.position === 'string' && rankingValue.position.trim()) ||
         ''
+      const descriptor =
+        (typeof rankingValue.descriptor === 'string' && rankingValue.descriptor.trim()) ||
+        [position].filter(Boolean).join(' • ')
       const teamCode = resolveTeamCode(rankingValue)
       const teamColors = teamCode ? TEAM_COLORS[teamCode] : null
+      const teamLabel =
+        (typeof rankingValue.team?.title === 'string' && rankingValue.team.title.trim()) ||
+        (teamCode ? TEAM_META[teamCode]?.name : '') ||
+        ''
+      const teamContext =
+        (typeof rankingValue.teamContext === 'string' && rankingValue.teamContext.trim()) ||
+        ''
+      const grade =
+        (typeof rankingValue.grade === 'string' && rankingValue.grade.trim()) ||
+        ''
+      const note =
+        (typeof rankingValue.note === 'string' && rankingValue.note.trim()) ||
+        ''
+      const playerHeadshot = rankingValue.headshot?.asset?.url
+        ? rankingValue.headshot
+        : rankingValue.player?.headshot?.asset?.url
+          ? rankingValue.player.headshot
+          : undefined
+      const teamLogo = rankingValue.team?.teamLogo?.asset?.url
+        ? rankingValue.team.teamLogo.asset.url
+        : teamCode
+          ? TEAM_META[teamCode]?.logo
+          : undefined
       const cardStyle = teamColors
         ? {
             backgroundImage: `linear-gradient(145deg, ${hexToRgba(teamColors.bg, 0.96)} 0%, ${hexToRgba(teamColors.bg, 0.88)} 52%, ${hexToRgba(teamColors.accent, 0.66)} 100%)`,
@@ -537,25 +577,94 @@ export const portableTextComponents: PortableTextComponents = {
 
       return (
         <article
-          className={`my-8 overflow-hidden rounded-2xl border shadow-xl ${teamColors ? '' : 'border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black'}`}
+          className={`relative my-8 overflow-hidden rounded-[26px] border shadow-[0_24px_70px_rgba(0,0,0,0.45)] ${teamColors ? '' : 'border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black'}`}
           style={cardStyle}
         >
-          <div className="px-5 py-5 sm:px-6 sm:py-6">
-            <div className="flex flex-col items-center justify-center gap-2 text-center">
-              <div className="text-4xl font-black leading-none text-white">
-                {rank !== null ? rank : '?'}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_35%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_42%)]" />
+          <div
+            className="absolute bottom-0 right-0 top-0 w-1.5"
+            style={{ backgroundColor: teamColors ? teamColors.accent : 'rgba(255,255,255,0.4)' }}
+          />
+          <div className="relative px-5 py-5 sm:px-6 sm:py-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <div className="flex items-end gap-3 sm:min-w-[112px] sm:flex-col sm:items-start sm:gap-1">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/58">
+                  Rank
+                </span>
+                <span className="text-5xl font-black leading-none text-white sm:text-6xl">
+                  {rank !== null ? rank : '?'}
+                </span>
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-                <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-                  {fallbackName}
-                </h3>
-                {position && (
-                  <span className="text-sm font-bold uppercase tracking-wide text-white/85">
-                    {position.toUpperCase()}
-                  </span>
+
+              <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white/10 shadow-lg sm:h-24 sm:w-24">
+                  {playerHeadshot?.asset?.url ? (
+                    <Image
+                      src={playerHeadshot.asset.url}
+                      alt={playerHeadshot.alt || fallbackName}
+                      fill
+                      sizes="96px"
+                      className="object-cover object-center"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-2xl font-black text-white/90">
+                      {initialsFromName(fallbackName) || '?'}
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <h3 className="truncate text-2xl font-extrabold leading-tight text-white sm:text-[2rem]">
+                    {fallbackName}
+                  </h3>
+                  {(descriptor || position) && (
+                    <p className="mt-1 text-sm font-medium tracking-[0.02em] text-white/72 sm:text-[15px]">
+                      {descriptor || position}
+                    </p>
+                  )}
+                  {grade && (
+                    <div className="mt-3 inline-flex items-center rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white/90">
+                      Grade {grade}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 sm:min-w-[250px] sm:justify-end">
+                <div className="min-w-0 text-left sm:text-right">
+                  {teamLabel && (
+                    <div className="truncate text-lg font-extrabold leading-tight text-white sm:text-xl">
+                      {teamLabel}
+                    </div>
+                  )}
+                  {teamContext && (
+                    <div className="mt-1 text-sm font-medium text-white/68">
+                      {teamContext}
+                    </div>
+                  )}
+                </div>
+
+                {teamLogo && (
+                  <div className="relative h-14 w-14 shrink-0 rounded-2xl border border-white/12 bg-white/8 sm:h-16 sm:w-16">
+                    <Image
+                      src={teamLogo}
+                      alt={teamLabel ? `${teamLabel} logo` : `${teamCode || 'Team'} logo`}
+                      fill
+                      sizes="64px"
+                      className="object-contain p-2"
+                    />
+                  </div>
                 )}
               </div>
             </div>
+
+            {note && (
+              <div className="mt-5 border-t border-white/12 pt-4">
+                <p className="text-sm leading-relaxed text-white/82 sm:text-[15px]">
+                  {note}
+                </p>
+              </div>
+            )}
           </div>
         </article>
       )
