@@ -7,6 +7,7 @@ type ArticleHeroCoverProps = {
   alt: string;
   sizes: string;
   priority?: boolean;
+  fit?: 'contain' | 'cover';
 };
 
 export default function ArticleHeroCover({
@@ -14,6 +15,7 @@ export default function ArticleHeroCover({
   alt,
   sizes,
   priority = false,
+  fit = 'contain',
 }: ArticleHeroCoverProps) {
   return (
     <div className="relative -mx-6 overflow-hidden bg-zinc-950 sm:-mx-5">
@@ -23,7 +25,7 @@ export default function ArticleHeroCover({
           alt={alt}
           fill
           sizes={sizes}
-          className="object-contain object-center"
+          className={fit === 'cover' ? 'object-cover object-center' : 'object-contain object-center'}
           priority={priority}
         />
       </div>

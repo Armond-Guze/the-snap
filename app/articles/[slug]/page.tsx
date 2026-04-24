@@ -1,4 +1,4 @@
-import { PortableText } from '@portabletext/react';
+import { PortableText, type PortableTextComponents } from '@portabletext/react';
 import { notFound, redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -150,6 +150,35 @@ const injectDraftRankingCards = (
 
 	return transformed;
 };
+
+const articlePortableTextComponents = {
+	...portableTextComponents,
+	types: {
+		...portableTextComponents.types,
+		image: ({ value }: { value?: { asset?: { url?: string }; alt?: string } }) => {
+			if (!value?.asset?.url) return null;
+
+			return (
+				<div className="my-8">
+					<div className="relative h-96 w-full overflow-hidden rounded-lg bg-zinc-950">
+						<Image
+							src={value.asset.url}
+							alt={value.alt || 'Article image'}
+							fill
+							className="object-cover object-center"
+							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+						/>
+					</div>
+					{value.alt && (
+						<p className="mt-2 text-center text-sm italic text-gray-400">
+							{value.alt}
+						</p>
+					)}
+				</div>
+			);
+		},
+	},
+} satisfies PortableTextComponents;
 
 export async function generateStaticParams() {
 	const docs = await client.fetch<Array<{ slug?: string }>>(
@@ -379,8 +408,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		<>
 			<main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
 			{articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
-			<div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-				<article className="lg:col-span-2 flex flex-col">
+			<div className="mx-auto grid max-w-[92rem] grid-cols-1 gap-10 px-6 py-10 md:px-12 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,320px)] xl:grid-cols-[minmax(0,1.75fr)_340px] xl:gap-12">
+				<article className="min-w-0 flex flex-col">
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
@@ -437,6 +466,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 								alt={(article.coverImage as { alt?: string })?.alt || article.title}
 								sizes={ARTICLE_COVER_SIZES}
 								priority
+								fit="cover"
 							/>
 						)}
 						{article.summary && (
@@ -458,7 +488,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					</section>
 					<section className="w-full mb-8">
 						<div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-							{Array.isArray(articleBody) && <PortableText value={articleBody} components={portableTextComponents} />}
+							{Array.isArray(articleBody) && <PortableText value={articleBody} components={articlePortableTextComponents} />}
 						</div>
 					</section>
 					{moreArticles.length > 0 && (
@@ -509,7 +539,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					)}
 				</article>
 
-				<aside className="space-y-8 lg:sticky lg:top-24 self-start">
+				<aside className="mt-8 w-full space-y-8 self-start lg:mt-0 lg:max-w-[340px] lg:justify-self-end lg:sticky lg:top-24">
 					{/* Media embeds */}
 					{article.youtubeVideoId && (
 						<div className="w-full">
@@ -539,7 +569,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				</aside>
 			</div>
 		</main>
-		<div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
+		<div className="mx-auto max-w-[92rem] px-6 pb-12 md:px-12">
 			<SocialShare url={shareUrl} title={article.title} description={article.summary || ''} variant="compact" />
 		</div>
 		<ArticleViewTracker slug={trimmedSlug} headlineId={article._id} title={article.title} category={article.category?.title} author={article.author?.name} readingTime={readingTime} className="hidden" />
