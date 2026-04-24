@@ -174,14 +174,6 @@ const isNumericTableCell = (value: string): boolean => {
   return /^[-+]?[$]?\d+(\.\d+)?%?$/.test(compact) || /^\(\d+(\.\d+)?\)$/.test(compact)
 }
 
-const initialsFromName = (value: string): string =>
-  value
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() || '')
-    .join('')
-
 // Utility to create deterministic slug IDs from heading text (TOC + deep links)
 const slugify = (text: string) =>
   text
@@ -570,87 +562,81 @@ export const portableTextComponents: PortableTextComponents = {
           : undefined
       const cardStyle = teamColors
         ? {
-            backgroundImage: `linear-gradient(145deg, ${hexToRgba(teamColors.bg, 0.96)} 0%, ${hexToRgba(teamColors.bg, 0.88)} 52%, ${hexToRgba(teamColors.accent, 0.66)} 100%)`,
-            borderColor: hexToRgba(teamColors.accent, 0.46),
+            borderColor: hexToRgba(teamColors.accent, 0.32),
           }
         : undefined
 
       return (
         <article
-          className={`relative my-8 overflow-hidden rounded-[26px] border shadow-[0_24px_70px_rgba(0,0,0,0.45)] ${teamColors ? '' : 'border-white/15 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black'}`}
+          className={`relative my-8 max-w-4xl overflow-hidden rounded-[22px] border bg-zinc-950/95 shadow-[0_18px_48px_rgba(0,0,0,0.34)] ${teamColors ? '' : 'border-white/12'} mx-auto`}
           style={cardStyle}
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_35%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_42%)]" />
           <div
-            className="absolute bottom-0 right-0 top-0 w-1.5"
-            style={{ backgroundColor: teamColors ? teamColors.accent : 'rgba(255,255,255,0.4)' }}
+            className="absolute bottom-0 right-0 top-0 w-1"
+            style={{ backgroundColor: teamColors ? teamColors.accent : 'rgba(255,255,255,0.24)' }}
           />
-          <div className="relative px-5 py-5 sm:px-6 sm:py-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div className="flex items-end gap-3 sm:min-w-[112px] sm:flex-col sm:items-start sm:gap-1">
+          <div className="relative px-4 py-4 sm:px-5 sm:py-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex items-end gap-3 sm:min-w-[82px] sm:flex-col sm:items-start sm:gap-1">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/58">
                   Rank
                 </span>
-                <span className="text-5xl font-black leading-none text-white sm:text-6xl">
+                <span className="text-4xl font-black leading-none text-white sm:text-5xl">
                   {rank !== null ? rank : '?'}
                 </span>
               </div>
 
-              <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white/10 shadow-lg sm:h-24 sm:w-24">
-                  {playerHeadshot?.asset?.url ? (
+              <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                {playerHeadshot?.asset?.url && (
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[18px] border border-white/12 bg-white/6 sm:h-18 sm:w-18">
                     <Image
                       src={playerHeadshot.asset.url}
                       alt={playerHeadshot.alt || fallbackName}
                       fill
-                      sizes="96px"
+                      sizes="72px"
                       className="object-cover object-center"
                     />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-2xl font-black text-white/90">
-                      {initialsFromName(fallbackName) || '?'}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
 
                 <div className="min-w-0">
-                  <h3 className="truncate text-2xl font-extrabold leading-tight text-white sm:text-[2rem]">
+                  <h3 className="truncate text-xl font-extrabold leading-tight text-white sm:text-[1.6rem]">
                     {fallbackName}
                   </h3>
                   {(descriptor || position) && (
-                    <p className="mt-1 text-sm font-medium tracking-[0.02em] text-white/72 sm:text-[15px]">
+                    <p className="mt-1 text-xs font-medium tracking-[0.02em] text-white/68 sm:text-sm">
                       {descriptor || position}
                     </p>
                   )}
                   {grade && (
-                    <div className="mt-3 inline-flex items-center rounded-full border border-white/18 bg-white/12 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white/90">
+                    <div className="mt-2 inline-flex items-center rounded-full border border-white/14 bg-white/6 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/88">
                       Grade {grade}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 sm:min-w-[250px] sm:justify-end">
+              <div className="flex items-center justify-between gap-3 sm:min-w-[200px] sm:justify-end">
                 <div className="min-w-0 text-left sm:text-right">
                   {teamLabel && (
-                    <div className="truncate text-lg font-extrabold leading-tight text-white sm:text-xl">
+                    <div className="truncate text-base font-extrabold leading-tight text-white sm:text-lg">
                       {teamLabel}
                     </div>
                   )}
                   {teamContext && (
-                    <div className="mt-1 text-sm font-medium text-white/68">
+                    <div className="mt-1 text-xs font-medium text-white/60 sm:text-sm">
                       {teamContext}
                     </div>
                   )}
                 </div>
 
                 {teamLogo && (
-                  <div className="relative h-14 w-14 shrink-0 rounded-2xl border border-white/12 bg-white/8 sm:h-16 sm:w-16">
+                  <div className="relative h-12 w-12 shrink-0 rounded-xl border border-white/10 bg-white/6 sm:h-14 sm:w-14">
                     <Image
                       src={teamLogo}
                       alt={teamLabel ? `${teamLabel} logo` : `${teamCode || 'Team'} logo`}
                       fill
-                      sizes="64px"
+                      sizes="56px"
                       className="object-contain p-2"
                     />
                   </div>
@@ -659,8 +645,8 @@ export const portableTextComponents: PortableTextComponents = {
             </div>
 
             {note && (
-              <div className="mt-5 border-t border-white/12 pt-4">
-                <p className="text-sm leading-relaxed text-white/82 sm:text-[15px]">
+              <div className="mt-4 border-t border-white/10 pt-3">
+                <p className="text-sm leading-relaxed text-white/78">
                   {note}
                 </p>
               </div>
