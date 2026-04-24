@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
 import { sanityFetchDynamic } from '@/sanity/lib/fetch';
-import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
+import type { Headline, HeadlineListItem, HeadlinePageProps, TypedObject } from '@/types';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import SocialShare from '@/app/components/SocialShare';
 import ReadingTime from '@/app/components/ReadingTime';
@@ -29,15 +29,15 @@ import { client } from '@/sanity/lib/client';
 export const revalidate = 300;
 
 type PortableTextChild = {
+	_type: string;
 	text?: string;
+	[key: string]: unknown;
 };
 
-type PortableTextBlock = {
+type PortableTextBlock = TypedObject & {
 	_key?: string;
-	_type?: string;
 	style?: string;
 	children?: PortableTextChild[];
-	[key: string]: unknown;
 };
 
 const DRAFT_GRADES_CARD_SLUGS = new Set([
