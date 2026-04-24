@@ -408,7 +408,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		<>
 			<main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
 			{articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
-			<div className="mx-auto grid max-w-[92rem] grid-cols-1 gap-10 px-6 py-10 md:px-12 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,320px)] xl:grid-cols-[minmax(0,1.75fr)_340px] xl:gap-12">
+			<div className="mx-auto grid max-w-[84rem] grid-cols-1 gap-10 px-6 py-10 md:px-12 lg:grid-cols-[minmax(0,1fr)_minmax(272px,304px)] xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-10">
 				<article className="min-w-0 flex flex-col">
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
@@ -539,7 +539,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					)}
 				</article>
 
-				<aside className="mt-8 w-full space-y-8 self-start lg:mt-0 lg:max-w-[340px] lg:justify-self-end lg:sticky lg:top-24">
+				<aside className="mt-8 w-full space-y-8 self-start lg:mt-0 lg:max-w-[320px] lg:justify-self-end lg:sticky lg:top-24">
 					{/* Media embeds */}
 					{article.youtubeVideoId && (
 						<div className="w-full">
@@ -569,7 +569,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				</aside>
 			</div>
 		</main>
-		<div className="mx-auto max-w-[92rem] px-6 pb-12 md:px-12">
+		<div className="mx-auto max-w-[84rem] px-6 pb-12 md:px-12">
 			<SocialShare url={shareUrl} title={article.title} description={article.summary || ''} variant="compact" />
 		</div>
 		<ArticleViewTracker slug={trimmedSlug} headlineId={article._id} title={article.title} category={article.category?.title} author={article.author?.name} readingTime={readingTime} className="hidden" />
