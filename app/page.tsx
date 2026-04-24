@@ -83,7 +83,7 @@ export default async function Home() {
       </div>
       <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-14" style={deferredSectionStyle}>
     <div className="mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
-      <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
+      <div className="home-archive-panel rounded-2xl bg-white/[0.03] p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Headlines Archive</p>
@@ -91,13 +91,13 @@ export default async function Home() {
               {totalPages > 1 ? `Browse ${totalPages} pages of headline history` : "You are viewing the latest page"}
             </p>
           </div>
-          <Link href="/headlines" className="text-xs text-white/60 hover:text-white transition-colors">
+          <Link href="/headlines" className="home-archive-link text-xs text-white/60 hover:text-white transition-colors">
             View all
           </Link>
         </div>
         {totalPages > 1 && (
           <nav aria-label="Homepage headlines pagination" className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="rounded-lg bg-white/10 px-2.5 py-1.5 text-white/70">Page</span>
+            <span className="home-archive-pill rounded-lg bg-white/10 px-2.5 py-1.5 text-white/70">Page</span>
             {pages.map((page, idx) => {
               const prev = pages[idx - 1];
               const showGap = idx > 0 && prev && page - prev > 1;
@@ -109,8 +109,8 @@ export default async function Home() {
                     aria-current={page === 1 ? "page" : undefined}
                     className={
                       page === 1
-                        ? "rounded-lg bg-white px-3 py-1.5 font-semibold text-black"
-                        : "rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+                        ? "home-archive-pill-active rounded-lg bg-white px-3 py-1.5 font-semibold text-black"
+                        : "home-archive-pill rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
                     }
                   >
                     {page}
@@ -120,13 +120,13 @@ export default async function Home() {
             })}
             <Link
               href={archiveHref(2)}
-              className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+              className="home-archive-pill rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
             >
               Next
             </Link>
             <Link
               href={archiveHref(totalPages)}
-              className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+              className="home-archive-pill rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
             >
               Last
             </Link>

@@ -83,34 +83,58 @@
 }
 
 :root[data-theme="light"] {
-  --background: hsl(0 0% 99%);
-  --foreground: hsl(220 13% 10%);
+  --ph-cream-bg: #f3f4f0;
+  --ph-cream-surface: #ffffff;
+  --ph-cream-surface-2: #eff0ea;
+  --ph-cream-surface-3: #e5e7df;
+  --ph-cream-border: #dbded4;
+  --ph-cream-border-strong: #abad9f;
+  --ph-cream-text: #0d0d0d;
+  --ph-cream-text-muted: #404040;
+  --ph-cream-text-soft: #666666;
+  --ph-cream-accent: #f54e00;
+  --ph-cream-accent-soft: rgba(245, 78, 0, 0.1);
+  --ph-cream-accent-strong: rgba(245, 78, 0, 0.2);
+  --background: var(--ph-cream-bg);
+  --foreground: var(--ph-cream-text);
   --home-gradient:
-    radial-gradient(130% 90% at 50% 0%, rgba(0, 0, 0, 0.045) 0%, transparent 62%),
-    linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 56%, hsl(0 0% 97%) 100%);
-  --nav-background: hsl(0 0% 100%);
-  --footer-background: hsl(0 0% 99%);
-  --theme-toggle-border: rgba(0, 0, 0, 0.18);
-  --theme-toggle-bg: rgba(0, 0, 0, 0.045);
-  --theme-toggle-hover: rgba(0, 0, 0, 0.085);
-  --focus-ring: rgba(0, 0, 0, 0.55);
-  --trim-color: rgba(0, 0, 0, 0.2);
+    radial-gradient(120% 90% at 50% 0%, rgba(245, 78, 0, 0.06) 0%, transparent 52%),
+    linear-gradient(180deg, #f7f7f4 0%, var(--ph-cream-bg) 56%, var(--ph-cream-surface-2) 100%);
+  --nav-background: var(--ph-cream-surface-2);
+  --footer-background: var(--ph-cream-surface-2);
+  --theme-toggle-border: var(--ph-cream-border);
+  --theme-toggle-bg: var(--ph-cream-surface);
+  --theme-toggle-hover: var(--ph-cream-surface-3);
+  --focus-ring: rgba(245, 78, 0, 0.35);
+  --trim-color: rgba(171, 173, 159, 0.55);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --background: hsl(0 0% 99%);
-    --foreground: hsl(220 13% 10%);
+    --ph-cream-bg: #f3f4f0;
+    --ph-cream-surface: #ffffff;
+    --ph-cream-surface-2: #eff0ea;
+    --ph-cream-surface-3: #e5e7df;
+    --ph-cream-border: #dbded4;
+    --ph-cream-border-strong: #abad9f;
+    --ph-cream-text: #0d0d0d;
+    --ph-cream-text-muted: #404040;
+    --ph-cream-text-soft: #666666;
+    --ph-cream-accent: #f54e00;
+    --ph-cream-accent-soft: rgba(245, 78, 0, 0.1);
+    --ph-cream-accent-strong: rgba(245, 78, 0, 0.2);
+    --background: var(--ph-cream-bg);
+    --foreground: var(--ph-cream-text);
     --home-gradient:
-      radial-gradient(130% 90% at 50% 0%, rgba(0, 0, 0, 0.045) 0%, transparent 62%),
-      linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 99%) 56%, hsl(0 0% 97%) 100%);
-    --nav-background: hsl(0 0% 100%);
-    --footer-background: hsl(0 0% 99%);
-    --theme-toggle-border: rgba(0, 0, 0, 0.18);
-    --theme-toggle-bg: rgba(0, 0, 0, 0.045);
-    --theme-toggle-hover: rgba(0, 0, 0, 0.085);
-    --focus-ring: rgba(0, 0, 0, 0.55);
-    --trim-color: rgba(0, 0, 0, 0.2);
+      radial-gradient(120% 90% at 50% 0%, rgba(245, 78, 0, 0.06) 0%, transparent 52%),
+      linear-gradient(180deg, #f7f7f4 0%, var(--ph-cream-bg) 56%, var(--ph-cream-surface-2) 100%);
+    --nav-background: var(--ph-cream-surface-2);
+    --footer-background: var(--ph-cream-surface-2);
+    --theme-toggle-border: var(--ph-cream-border);
+    --theme-toggle-bg: var(--ph-cream-surface);
+    --theme-toggle-hover: var(--ph-cream-surface-3);
+    --focus-ring: rgba(245, 78, 0, 0.35);
+    --trim-color: rgba(171, 173, 159, 0.55);
   }
 }
 
@@ -304,7 +328,7 @@ img[class*="hover:scale"] {
 
 html[data-theme="light"] .theme-nav {
   border-bottom: 1px solid var(--trim-color);
-  box-shadow: 0 14px 30px -28px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 14px 30px -28px rgba(13, 13, 13, 0.16);
 }
 
 html[data-theme="light"] .theme-footer {
@@ -312,66 +336,126 @@ html[data-theme="light"] .theme-footer {
 }
 
 html[data-theme="light"] .theme-toggle {
-  color: hsl(220 13% 10%) !important;
+  color: var(--ph-cream-text) !important;
 }
 
 html[data-theme="light"] .theme-nav .text-white,
-html[data-theme="light"] .theme-nav [class*="text-white/"],
+html[data-theme="light"] .theme-nav [class*="text-white"] {
+  color: var(--ph-cream-text) !important;
+}
+
 html[data-theme="light"] .theme-nav [class*="text-gray-"] {
-  color: hsl(220 13% 10%) !important;
+  color: var(--ph-cream-text-muted) !important;
 }
 
 html[data-theme="light"] .theme-footer [class*="text-white"],
 html[data-theme="light"] .theme-footer [class*="text-gray-"] {
-  color: hsl(220 10% 18%) !important;
+  color: var(--ph-cream-text-muted) !important;
 }
 
 html[data-theme="light"] .theme-nav [class*="bg-[#1f1f1f]"],
 html[data-theme="light"] .theme-nav [class*="bg-[hsl(0_0%_3.9%)]"] {
-  background-color: hsl(0 0% 100%) !important;
+  background-color: var(--ph-cream-surface-2) !important;
 }
 
 html[data-theme="light"] .theme-nav .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.08) !important;
+  background-color: var(--ph-cream-surface) !important;
+  border-color: var(--ph-cream-border) !important;
 }
 
 html[data-theme="light"] .theme-nav .hover\:bg-white\/10:hover,
 html[data-theme="light"] .theme-nav .hover\:bg-white\/\[0\.08\]:hover {
-  background-color: rgba(0, 0, 0, 0.08) !important;
+  background-color: var(--ph-cream-surface-3) !important;
 }
 
 html[data-theme="light"] .theme-nav :is(a:hover, button:hover) {
-  color: hsl(220 15% 6%) !important;
+  color: var(--ph-cream-accent) !important;
 }
 
-html[data-theme="light"] .home-shell [class*="text-white"],
+html[data-theme="light"] .home-shell {
+  color: var(--ph-cream-text);
+}
+
+html[data-theme="light"] .home-shell [class*="text-white/"] {
+  color: var(--ph-cream-text-muted) !important;
+}
+
+html[data-theme="light"] .home-shell [class*="text-white"] {
+  color: var(--ph-cream-text) !important;
+}
+
 html[data-theme="light"] .home-shell [class*="text-gray-"] {
-  color: hsl(220 13% 10%) !important;
+  color: var(--ph-cream-text-muted) !important;
 }
 
 html[data-theme="light"] .home-shell [class*="bg-white/"] {
-  background-color: rgba(0, 0, 0, 0.06) !important;
+  background-color: var(--ph-cream-surface) !important;
 }
 
 html[data-theme="light"] .home-shell .home-section-surface {
-  background-color: rgba(0, 0, 0, 0.06) !important;
+  background-color: var(--ph-cream-surface-2) !important;
 }
 
 html[data-theme="light"] .home-shell .home-section-fade {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.06) 100%) !important;
+  background: linear-gradient(180deg, rgba(243, 244, 240, 0) 0%, rgba(243, 244, 240, 0.5) 60%, rgba(243, 244, 240, 0.9) 100%) !important;
 }
 
 html[data-theme="light"] .home-shell [class*="border-white/"] {
-  border-color: rgba(0, 0, 0, 0.18) !important;
+  border-color: var(--ph-cream-border) !important;
+}
+
+html[data-theme="light"] .home-shell [class*="bg-[linear-gradient"] {
+  background: var(--ph-cream-surface) !important;
+  box-shadow: 0 20px 45px -32px rgba(13, 13, 13, 0.16) !important;
+}
+
+html[data-theme="light"] .home-shell [class*="hover:bg-white/"]:hover,
+html[data-theme="light"] .home-shell [class*="hover:bg-white"]:hover {
+  background-color: var(--ph-cream-surface-3) !important;
 }
 
 html[data-theme="light"] .home-shell :is(a:hover, button:hover) {
-  color: hsl(220 15% 6%) !important;
+  color: var(--ph-cream-accent) !important;
 }
 
 html[data-theme="light"] .home-shell .thumbnail-overlay-text,
 html[data-theme="light"] .home-shell .thumbnail-overlay-text :is(h1, h2, h3, h4, h5, h6, p, span, a) {
   color: #ffffff !important;
+}
+
+html[data-theme="light"] .home-shell .home-archive-panel {
+  background-color: var(--ph-cream-surface) !important;
+  border: 1px solid var(--ph-cream-border);
+  box-shadow: 0 20px 45px -34px rgba(13, 13, 13, 0.14);
+}
+
+html[data-theme="light"] .home-shell .home-archive-panel p:first-child {
+  color: var(--ph-cream-text-soft) !important;
+}
+
+html[data-theme="light"] .home-shell .home-archive-panel :is(p, a, span) {
+  color: var(--ph-cream-text-muted);
+}
+
+html[data-theme="light"] .home-shell .home-archive-link:hover {
+  color: var(--ph-cream-accent) !important;
+}
+
+html[data-theme="light"] .home-shell .home-archive-pill {
+  background-color: var(--ph-cream-surface-2) !important;
+  color: var(--ph-cream-text-muted) !important;
+  border: 1px solid var(--ph-cream-border);
+}
+
+html[data-theme="light"] .home-shell .home-archive-pill:hover {
+  background-color: var(--ph-cream-surface-3) !important;
+  color: var(--ph-cream-text) !important;
+}
+
+html[data-theme="light"] .home-shell .home-archive-pill-active {
+  background-color: var(--ph-cream-text) !important;
+  color: var(--ph-cream-surface) !important;
+  border: 1px solid var(--ph-cream-text);
 }
 
 @theme inline {
