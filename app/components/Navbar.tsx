@@ -46,6 +46,7 @@ import { TEAM_META } from "@/lib/schedule";
 import { BRAND_LOGO_ALT, BRAND_LOGO_PATH } from "@/lib/site-config";
 import { TEAM_COLORS } from "./teamLogos";
 
+const HOMEPAGE_LOGO_PATH = "/images/the-snap-homepage-logo-transparent-v2.png";
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
   { title: "AFC East", teams: ["BUF", "MIA", "NE", "NYJ"] },
   { title: "AFC North", teams: ["BAL", "CIN", "CLE", "PIT"] },
@@ -100,8 +101,20 @@ function resolveTeamCode(pathname: string): string | undefined {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const isHomepage = pathname === "/";
   const teamCode = resolveTeamCode(pathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
+  const activeLogoPath = isHomepage ? HOMEPAGE_LOGO_PATH : BRAND_LOGO_PATH;
+  const activeLogoAlt = isHomepage ? "The Snap homepage logo" : BRAND_LOGO_ALT;
+  const mobileLogoWrapperClass = isHomepage
+    ? "relative -my-1 block h-[2.8rem] w-[136px]"
+    : "relative -my-1 block h-[2.8rem] w-[120px]";
+  const desktopLogoWrapperClass = isHomepage
+    ? "relative -my-0.5 block h-[2.3rem] w-[142px] md:h-[2.55rem] md:w-[158px]"
+    : "relative -my-0.5 block h-[2.1rem] w-[112px] md:h-[2.35rem] md:w-[128px]";
+  const logoImageClass = "object-contain";
+  const mobileLogoSizes = isHomepage ? "136px" : "140px";
+  const desktopLogoSizes = isHomepage ? "(min-width: 768px) 158px, 142px" : "(min-width: 768px) 128px, 112px";
 
   const homeNavItem: NavItem = { key: "home", label: "Home", href: "/" };
   const desktopBaseNavItems: NavItem[] = [homeNavItem, ...NAV_ITEMS];
@@ -171,13 +184,13 @@ export default function Navbar() {
               <div className="border-b border-white/10 px-4 py-4">
                 <SheetClose asChild>
                   <Link href="/" className="inline-flex items-center overflow-visible">
-                    <span className="relative -my-1 block h-[2.8rem] w-[120px]">
+                    <span className={mobileLogoWrapperClass}>
                       <Image
-                        src={BRAND_LOGO_PATH}
-                        alt={BRAND_LOGO_ALT}
+                        src={activeLogoPath}
+                        alt={activeLogoAlt}
                         fill
-                        sizes="140px"
-                        className="object-contain"
+                        sizes={mobileLogoSizes}
+                        className={logoImageClass}
                       />
                     </span>
                   </Link>
@@ -313,13 +326,13 @@ export default function Navbar() {
 
         <div className="flex flex-1 justify-center md:justify-start">
           <Link href="/" className="group inline-flex items-center overflow-visible">
-            <span className="relative -my-0.5 block h-[2.1rem] w-[112px] md:h-[2.35rem] md:w-[128px]">
+            <span className={desktopLogoWrapperClass}>
               <Image
-                src={BRAND_LOGO_PATH}
-                alt={BRAND_LOGO_ALT}
+                src={activeLogoPath}
+                alt={activeLogoAlt}
                 fill
-                sizes="(min-width: 768px) 128px, 112px"
-                className="object-contain"
+                sizes={desktopLogoSizes}
+                className={logoImageClass}
               />
             </span>
           </Link>
