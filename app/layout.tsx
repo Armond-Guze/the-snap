@@ -105,7 +105,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
       { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
       { url: '/favicon-512.png', type: 'image/png', sizes: '512x512' }
