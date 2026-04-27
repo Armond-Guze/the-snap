@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { BRAND_LOGO_ALT, BRAND_LOGO_PATH } from '@/lib/site-config'
 
 interface AuthShellProps {
   title: string
@@ -28,12 +29,12 @@ export default function AuthShell({ title, subtitle, children }: AuthShellProps)
         <div className="w-full max-w-[500px]">
           <div className="mb-5 flex justify-center">
             <Image
-              src="/images/thesnap-logo-website.png"
-              alt="The Snap"
-              width={170}
-              height={56}
+              src={BRAND_LOGO_PATH}
+              alt={BRAND_LOGO_ALT}
+              width={220}
+              height={57}
               priority
-              className="h-auto w-[124px] sm:w-[142px]"
+              className="h-auto w-[144px] sm:w-[168px]"
             />
           </div>
 

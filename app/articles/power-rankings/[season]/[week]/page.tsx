@@ -16,45 +16,6 @@ import { gradientClassForTeam, teamCodeFromName, teamNameFromCode } from '@/lib/
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
 import { SITE_URL } from '@/lib/site-config';
 
-const TEAM_COLOR_CLASSES: Record<string, string> = {
-  '#97233F': 'text-[#97233F]',
-  '#A71930': 'text-[#A71930]',
-  '#241773': 'text-[#241773]',
-  '#00338D': 'text-[#00338D]',
-  '#0085CA': 'text-[#0085CA]',
-  '#0B162A': 'text-[#0B162A]',
-  '#FB4F14': 'text-[#FB4F14]',
-  '#311D00': 'text-[#311D00]',
-  '#041E42': 'text-[#041E42]',
-  '#0076B6': 'text-[#0076B6]',
-  '#203731': 'text-[#203731]',
-  '#03202F': 'text-[#03202F]',
-  '#002C5F': 'text-[#002C5F]',
-  '#006778': 'text-[#006778]',
-  '#E31837': 'text-[#E31837]',
-  '#000000': 'text-[#000000]',
-  '#0080C6': 'text-[#0080C6]',
-  '#003594': 'text-[#003594]',
-  '#008E97': 'text-[#008E97]',
-  '#4F2683': 'text-[#4F2683]',
-  '#002244': 'text-[#002244]',
-  '#D3BC8D': 'text-[#D3BC8D]',
-  '#0B2265': 'text-[#0B2265]',
-  '#125740': 'text-[#125740]',
-  '#004C54': 'text-[#004C54]',
-  '#FFB612': 'text-[#FFB612]',
-  '#AA0000': 'text-[#AA0000]',
-  '#D50A0A': 'text-[#D50A0A]',
-  '#0C2340': 'text-[#0C2340]',
-  '#5A1414': 'text-[#5A1414]',
-};
-
-const getTeamColorClass = (color?: string | null) => {
-  if (!color) return 'text-white';
-  const normalized = color.toUpperCase();
-  return TEAM_COLOR_CLASSES[normalized] ?? 'text-white';
-};
-
 const PLAYOFF_LABELS: Record<string, string> = {
   WC: 'Wild Card',
   DIV: 'Divisional',
@@ -339,7 +300,6 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                 const teamName = resolveTeamDisplayName(team);
                 const teamCode = resolveTeamCode(team, teamName);
                 const teamLogo = team.teamLogo || team.team?.teamLogo;
-                const teamNameClass = getTeamColorClass(team.teamColor);
 	                const key = `${teamCode || teamName}-${rank}-${index}`;
 	                const prevRank =
 	                  typeof team.previousRank === 'number'
@@ -383,7 +343,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <div className="flex flex-col items-start">
-                              <h2 className={`text-xl sm:text-2xl font-bold truncate ${teamNameClass}`}>{teamName}</h2>
+                              <h2 className="text-xl sm:text-2xl font-bold truncate text-white">{teamName}</h2>
                               {(() => {
                                 const abbr = teamCode || teamCodeFromName(teamName);
                                 const rec = shortRecord(abbr ? records.get(abbr) : undefined);

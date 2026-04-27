@@ -15,7 +15,9 @@ export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 export const SITE_BRAND = "The Game Snap";
 export const SITE_NAME = "The Snap";
 export const SITE_TWITTER = "@thesnapfootball";
-export const DEFAULT_OG_IMAGE_PATH = "/images/thesnap-logo-website.png";
+export const BRAND_LOGO_PATH = "/images/thesnap-logo-website.png";
+export const BRAND_LOGO_ALT = "The Snap";
+export const DEFAULT_OG_IMAGE_PATH = BRAND_LOGO_PATH;
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`;
 
 export function toAbsoluteSiteUrl(path: string): string {

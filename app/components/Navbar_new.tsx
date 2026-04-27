@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SmartSearch from "./SmartSearch";
+import { BRAND_LOGO_ALT, BRAND_LOGO_PATH } from "@/lib/site-config";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -55,10 +56,10 @@ export default function Navbar() {
           {/* Centered Logo for mobile */}
           <Link href="/" className="inline-flex items-center space-x-2 group absolute left-1/2 transform -translate-x-1/2">
             <Image
-              src="/images/thesnap-logo-transparent.png"
-              alt="FootballNews Logo"
+              src={BRAND_LOGO_PATH}
+              alt={BRAND_LOGO_ALT}
               width={160}
-              height={160}
+              height={41}
               className="h-10 w-auto md:h-12 lg:h-14 transition-transform group-hover:scale-105"
               priority
             />
@@ -95,10 +96,10 @@ export default function Navbar() {
           {/* Logo - Now serves as Home link */}
           <Link href="/" className="inline-flex items-center space-x-2 group">
             <Image
-              src="/images/thesnap-logo-new copy.jpg"
-              alt="FootballNews Logo"
+              src={BRAND_LOGO_PATH}
+              alt={BRAND_LOGO_ALT}
               width={220}
-              height={220}
+              height={57}
               className="h-12 md:h-14 lg:h-16 w-auto transition-transform group-hover:scale-105"
               priority
             />

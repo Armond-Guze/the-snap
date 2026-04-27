@@ -242,7 +242,6 @@ function RankingTeamCard({ team }: { team: RankingTeam }) {
         <div className="flex-1">
           <h3
             className="text-xl font-bold text-white"
-            style={team.teamColor ? { color: team.teamColor } : undefined}
           >
             {team.teamName}
           </h3>
@@ -321,7 +320,6 @@ function PowerRankingTeamCard({ team }: { team: RankingTeam }) {
             <div className="flex items-center justify-between">
               <h2
                 className="text-xl sm:text-2xl font-bold text-white truncate"
-                style={team.teamColor ? { color: team.teamColor } : undefined}
               >
                 {team.teamName}
               </h2>

@@ -43,6 +43,7 @@ import ProfileMenu from "./ProfileMenu";
 import SmartSearch from "./SmartSearch";
 import ThemeToggle from "./ThemeToggle";
 import { TEAM_META } from "@/lib/schedule";
+import { BRAND_LOGO_ALT, BRAND_LOGO_PATH } from "@/lib/site-config";
 import { TEAM_COLORS } from "./teamLogos";
 
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
@@ -170,12 +171,12 @@ export default function Navbar() {
               <div className="border-b border-white/10 px-4 py-4">
                 <SheetClose asChild>
                   <Link href="/" className="inline-flex items-center overflow-visible">
-                    <span className="relative -my-1 block h-[2.7rem] w-[102px]">
+                    <span className="relative -my-1 block h-[2.8rem] w-[120px]">
                       <Image
-                        src="/images/thesnap-logo-new%20copy123.png"
-                        alt="The Snap Logo"
+                        src={BRAND_LOGO_PATH}
+                        alt={BRAND_LOGO_ALT}
                         fill
-                        sizes="120px"
+                        sizes="140px"
                         className="object-contain"
                       />
                     </span>
@@ -312,12 +313,12 @@ export default function Navbar() {
 
         <div className="flex flex-1 justify-center md:justify-start">
           <Link href="/" className="group inline-flex items-center overflow-visible">
-            <span className="relative -my-0.5 block h-[2rem] w-[78px] md:h-[2.2rem] md:w-[86px]">
+            <span className="relative -my-0.5 block h-[2.1rem] w-[112px] md:h-[2.35rem] md:w-[128px]">
               <Image
-                src="/images/thesnap-logo-new%20copy123.png"
-                alt="The Snap Logo"
+                src={BRAND_LOGO_PATH}
+                alt={BRAND_LOGO_ALT}
                 fill
-                sizes="(min-width: 768px) 140px, 120px"
+                sizes="(min-width: 768px) 128px, 112px"
                 className="object-contain"
               />
             </span>
