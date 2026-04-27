@@ -153,7 +153,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
     try {
       const rawId = typeof doc._id === 'string' ? doc._id : ''
       const publishedId = rawId.replace(/^drafts\./, '')
-      const draftId = publishedId ? `drafts.${publishedId}` : ''
+      const liveDraftId = publishedId ? `drafts.${publishedId}` : ''
       const latestDoc = publishedId
         ? await client.fetch<LivePowerRankingDoc | null>(
             `coalesce(
@@ -179,7 +179,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
               tagRefs,
               seo
             }`,
-            { draftId, publishedId }
+            { draftId: liveDraftId, publishedId }
           )
         : doc
       const sourceDoc = latestDoc || doc
