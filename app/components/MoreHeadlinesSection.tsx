@@ -24,8 +24,9 @@ const homepageHeadlinesQuery = `
 // Fetch newest articles for Latest Articles (used to skip duplicates below)
 const latestArticlesQuery = `
   *[
-    _type == "article" && published == true && (
-      format in ["feature","ranking","analysis"] || (format == "powerRankings" && rankingType == "snapshot")
+    _type == "article" && (
+      (published == true && format in ["feature","ranking","analysis"]) ||
+      (format == "powerRankings" && rankingType == "snapshot")
     )
   ]
     | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc)[0...8] {
@@ -36,8 +37,9 @@ const latestArticlesQuery = `
 const moreHeadlinesQuery = `
   *[
     (
-      _type == "article" && published == true && (
-        format in ["feature","ranking","analysis","headline"] || (format == "powerRankings" && rankingType == "snapshot")
+      _type == "article" && (
+        (published == true && format in ["feature","ranking","analysis","headline"]) ||
+        (format == "powerRankings" && rankingType == "snapshot")
       )
     ) || _type == "headline" || _type == "rankings"
   ]

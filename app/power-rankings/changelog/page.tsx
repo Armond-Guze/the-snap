@@ -18,10 +18,10 @@ export const metadata: Metadata = {
 export const revalidate = 600;
 
 export default async function PowerRankingsChangeLogPage() {
-  const latestSeason: number | null = await client.fetch(`*[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true] | order(seasonYear desc)[0].seasonYear`);
+  const latestSeason: number | null = await client.fetch(`*[_type == "article" && format == "powerRankings" && rankingType == "snapshot"] | order(seasonYear desc)[0].seasonYear`);
   if (!latestSeason) return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No rankings history yet.</div>;
   const docs: RankingDoc[] = await client.fetch(
-    `*[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true && seasonYear == $season] | order(weekNumber desc){ _id, seasonYear, weekNumber, playoffRound, rankings[]{ rank, teamName, teamAbbr, team->{ title } } }`,
+    `*[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && seasonYear == $season] | order(weekNumber desc){ _id, seasonYear, weekNumber, playoffRound, rankings[]{ rank, teamName, teamAbbr, team->{ title } } }`,
     { season: latestSeason }
   );
   if (!docs.length) return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No rankings history yet.</div>;

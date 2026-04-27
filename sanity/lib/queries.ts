@@ -491,7 +491,7 @@ export const playOfWeekDetailQuery = `
 `;
 
 export const powerRankingsQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "live" && published == true]
+  *[_type == "article" && format == "powerRankings" && rankingType == "live"]
     | order(seasonYear desc, date desc)[0]{
       _id,
       title,

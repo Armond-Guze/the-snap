@@ -44,8 +44,8 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
 
   const articlesQuery = `*[
     (
-      _type == "article" && published == true && (
-        format in ["feature","ranking","analysis"] ||
+      _type == "article" && (
+        (published == true && format in ["feature","ranking","analysis"]) ||
         (format == "powerRankings" && coalesce(rankingType, "snapshot") in ["snapshot", "live"])
       )
     ) ||

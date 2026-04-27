@@ -1,5 +1,5 @@
 export const powerRankingsLiveQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "live" && published == true]
+  *[_type == "article" && format == "powerRankings" && rankingType == "live"]
     | order(seasonYear desc, date desc)[0]{
       _id,
       title,
@@ -37,7 +37,7 @@ export const powerRankingsLiveQuery = `
 `;
 
 export const powerRankingsSnapshotByParamsQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true && seasonYear == $season && (
+  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && seasonYear == $season && (
       (defined($week) && weekNumber == $week) ||
       (defined($playoffRound) && playoffRound == $playoffRound)
     )][0]{
@@ -77,7 +77,7 @@ export const powerRankingsSnapshotByParamsQuery = `
 `;
 
 export const powerRankingsSnapshotSlugsQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true]
+  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot"]
     | order(seasonYear desc, weekNumber desc){
       seasonYear,
       weekNumber,
@@ -87,7 +87,7 @@ export const powerRankingsSnapshotSlugsQuery = `
 `;
 
 export const powerRankingsLatestSnapshotForSeasonQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true && seasonYear == $season]
+  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && seasonYear == $season]
     | order(
         coalesce(weekNumber, select(playoffRound == "WC" => 19, playoffRound == "DIV" => 20, playoffRound == "CONF" => 21, playoffRound == "SB" => 22, playoffRound == "OFF" => 23, 0)) desc,
         date desc
@@ -100,7 +100,7 @@ export const powerRankingsLatestSnapshotForSeasonQuery = `
 `;
 
 export const powerRankingsLatestSnapshotQuery = `
-  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true]
+  *[_type == "article" && format == "powerRankings" && rankingType == "snapshot"]
     | order(
         seasonYear desc,
         coalesce(weekNumber, select(playoffRound == "WC" => 19, playoffRound == "DIV" => 20, playoffRound == "CONF" => 21, playoffRound == "SB" => 22, playoffRound == "OFF" => 23, 0)) desc,

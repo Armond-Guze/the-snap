@@ -94,7 +94,7 @@ export const structure: StructureResolver = (S) => {
                         S.documentTypeList('article')
                           .title('Power Rankings — This Week')
                           .filter(
-                            '_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true && coalesce(date, _updatedAt) >= $weekStart'
+                            '_type == "article" && format == "powerRankings" && rankingType == "snapshot" && coalesce(date, _updatedAt) >= $weekStart'
                           )
                           .params({ weekStart: weekStartIso })
                           .defaultOrdering([
