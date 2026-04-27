@@ -80,6 +80,7 @@ type RankingRow = {
 }
 
 type LivePowerRankingDoc = {
+  _id?: string
   _type?: string
   format?: string
   rankingType?: string
@@ -150,7 +151,39 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
 
   const handleCreate = async (season: number, target: SnapshotTarget) => {
     try {
-      const liveRankings = Array.isArray(doc.rankings) ? doc.rankings : []
+      const rawId = typeof doc._id === 'string' ? doc._id : ''
+      const publishedId = rawId.replace(/^drafts\./, '')
+      const draftId = publishedId ? `drafts.${publishedId}` : ''
+      const latestDoc = publishedId
+        ? await client.fetch<LivePowerRankingDoc | null>(
+            `coalesce(
+              *[_id == $draftId][0],
+              *[_id == $publishedId][0]
+            ){
+              _id,
+              _type,
+              format,
+              rankingType,
+              seasonYear,
+              rankings,
+              title,
+              homepageTitle,
+              summary,
+              coverImage,
+              author,
+              category,
+              methodology,
+              rankingIntro,
+              rankingConclusion,
+              teams,
+              tagRefs,
+              seo
+            }`,
+            { draftId, publishedId }
+          )
+        : doc
+      const sourceDoc = latestDoc || doc
+      const liveRankings = Array.isArray(sourceDoc.rankings) ? sourceDoc.rankings : []
       if (liveRankings.length !== 32) {
         throw new Error(`Expected 32 teams on the Live Power Rankings doc. Found ${liveRankings.length}.`)
       }
@@ -226,7 +259,7 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
         seasonYear: season,
         weekNumber: target.weekNumber,
         playoffRound,
-        summary: doc.summary,
+        summary: sourceDoc.summary,
       })
 
       await client.createOrReplace({
@@ -239,17 +272,17 @@ const SnapshotFromLivePowerRankingsAction: DocumentActionComponent = (props: Doc
         playoffRound,
         title: generatedTitle,
         slug: { _type: 'slug', current: generatedSlug },
-        homepageTitle: doc.homepageTitle || undefined,
-        summary: doc.summary || undefined,
-        coverImage: doc.coverImage || undefined,
-        author: doc.author || undefined,
-        category: doc.category || undefined,
-        methodology: doc.methodology || undefined,
-        rankingIntro: Array.isArray(doc.rankingIntro) ? doc.rankingIntro : undefined,
-        rankingConclusion: Array.isArray(doc.rankingConclusion) ? doc.rankingConclusion : undefined,
-        teams: Array.isArray(doc.teams) ? doc.teams : undefined,
-        tagRefs: Array.isArray(doc.tagRefs) ? doc.tagRefs : undefined,
-        seo: { ...(doc.seo || {}), ...seo },
+        homepageTitle: sourceDoc.homepageTitle || undefined,
+        summary: sourceDoc.summary || undefined,
+        coverImage: sourceDoc.coverImage || undefined,
+        author: sourceDoc.author || undefined,
+        category: sourceDoc.category || undefined,
+        methodology: sourceDoc.methodology || undefined,
+        rankingIntro: Array.isArray(sourceDoc.rankingIntro) ? sourceDoc.rankingIntro : undefined,
+        rankingConclusion: Array.isArray(sourceDoc.rankingConclusion) ? sourceDoc.rankingConclusion : undefined,
+        teams: Array.isArray(sourceDoc.teams) ? sourceDoc.teams : undefined,
+        tagRefs: Array.isArray(sourceDoc.tagRefs) ? sourceDoc.tagRefs : undefined,
+        seo: { ...(sourceDoc.seo || {}), ...seo },
         date: new Date().toISOString(),
         published: false,
         editorialStatus: 'draft',
