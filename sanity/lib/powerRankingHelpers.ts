@@ -78,11 +78,16 @@ function getMovement(item: PowerRankingEntryLike): number {
 export function normalizePowerRankingItems(items: unknown[]): PowerRankingEntryLike[] {
   return items
     .filter((item): item is PowerRankingEntryLike => !!item && typeof item === 'object')
-    .map((item) => {
+    .map((item, index) => {
+      const rank = index + 1
       const previousRank = getPreviousRank(item)
-      const movement = getMovement(item)
+      const movement =
+        typeof previousRank === 'number'
+          ? previousRank - rank
+          : getMovement({ ...item, rank })
       return {
         ...item,
+        rank,
         team: sanitizeTeamReference(item.team),
         summary: item.summary || item.note || '',
         note: item.note || item.summary || '',
