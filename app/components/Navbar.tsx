@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -101,8 +101,18 @@ function resolveTeamCode(pathname: string): string | undefined {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const isHomepage = pathname === "/";
-  const teamCode = resolveTeamCode(pathname);
+  const [resolvedPathname, setResolvedPathname] = useState(pathname);
+
+  useEffect(() => {
+    const browserPathname = window.location.pathname || "/";
+    if (browserPathname !== resolvedPathname) {
+      setResolvedPathname(browserPathname);
+    }
+  }, [resolvedPathname]);
+
+  const activePathname = resolvedPathname || pathname || "/";
+  const isHomepage = activePathname === "/";
+  const teamCode = resolveTeamCode(activePathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
   const activeLogoPath = isHomepage ? HOMEPAGE_LOGO_PATH : versionedAssetPath(BRAND_LOGO_PATH);
   const activeLogoAlt = isHomepage ? "The Snap homepage logo" : BRAND_LOGO_ALT;
@@ -118,7 +128,7 @@ export default function Navbar() {
 
   const homeNavItem: NavItem = { key: "home", label: "Home", href: "/" };
   const desktopBaseNavItems: NavItem[] = [homeNavItem, ...NAV_ITEMS];
-  const mobileBaseNavItems: NavItem[] = pathname === "/" ? NAV_ITEMS : [homeNavItem, ...NAV_ITEMS];
+  const mobileBaseNavItems: NavItem[] = activePathname === "/" ? NAV_ITEMS : [homeNavItem, ...NAV_ITEMS];
 
   const showFantasyInMainNav = shouldKeepFantasyInMainNav();
   const navItems = showFantasyInMainNav
@@ -217,7 +227,7 @@ export default function Navbar() {
                 <div className="space-y-1.5">
                   <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Menu</p>
                   {mobileMenuItems.map(({ label, href, key }) => {
-                    const isActive = isPathActive(pathname, href);
+                    const isActive = isPathActive(activePathname, href);
                     const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                     return (
                       <SheetClose asChild key={key || label}>
@@ -247,7 +257,7 @@ export default function Navbar() {
                   <div className="space-y-1.5">
                     <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">More</p>
                     {moreItems.map(({ key, label, href }) => {
-                      const isActive = isPathActive(pathname, href);
+                      const isActive = isPathActive(activePathname, href);
                       const itemKey = key || label.toLowerCase().replace(/\s+/g, "-");
                       return (
                         <SheetClose asChild key={key || label}>
@@ -346,9 +356,9 @@ export default function Navbar() {
 
                 if (key === "standings") {
                   const isTeamsActive =
-                    pathname.startsWith("/standings") ||
-                    pathname.startsWith("/schedule") ||
-                    pathname.startsWith("/teams");
+                    activePathname.startsWith("/standings") ||
+                    activePathname.startsWith("/schedule") ||
+                    activePathname.startsWith("/teams");
 
                   return (
                     <NavigationMenuItem key="teams">
@@ -392,7 +402,7 @@ export default function Navbar() {
                             href="/standings"
 	                            className={cn(
 	                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
-	                              pathname.startsWith("/standings")
+	                              activePathname.startsWith("/standings")
 	                                ? "border-white/30 bg-white/10 text-white"
 	                                : "border-white/10 text-white hover:border-white/20 hover:bg-white/5 hover:text-white"
 	                            )}
@@ -403,7 +413,7 @@ export default function Navbar() {
                             href="/schedule"
 	                            className={cn(
 	                              "rounded-xl border px-4 py-3 text-sm font-semibold transition-colors",
-	                              pathname.startsWith("/schedule")
+	                              activePathname.startsWith("/schedule")
 	                                ? "border-white/30 bg-white/10 text-white"
 	                                : "border-white/10 text-white hover:border-white/20 hover:bg-white/5 hover:text-white"
 	                            )}
@@ -416,7 +426,7 @@ export default function Navbar() {
                   );
                 }
 
-                const isActive = isPathActive(pathname, href);
+                const isActive = isPathActive(activePathname, href);
                 return (
                   <NavigationMenuItem key={key || label}>
                     <NavigationMenuLink asChild>
@@ -443,7 +453,7 @@ export default function Navbar() {
 		                      className={cn(
 		                        navigationMenuTriggerStyle(),
 		                        "px-4 text-[13px] font-bold",
-		                        isPathActive(pathname, singleMoreItem.href)
+		                        isPathActive(activePathname, singleMoreItem.href)
 		                          ? "bg-white/10 text-white"
 		                          : "text-white hover:bg-white/10 hover:text-white"
 		                      )}
@@ -465,7 +475,7 @@ export default function Navbar() {
                           href={item.href}
 		                          className={cn(
 		                            "rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
-		                            isPathActive(pathname, item.href)
+		                            isPathActive(activePathname, item.href)
 		                              ? "bg-white/10 text-white"
 		                              : "text-white hover:bg-white/[0.08] hover:text-white"
 		                          )}
