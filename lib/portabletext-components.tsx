@@ -174,6 +174,19 @@ const isNumericTableCell = (value: string): boolean => {
   return /^[-+]?[$]?\d+(\.\d+)?%?$/.test(compact) || /^\(\d+(\.\d+)?\)$/.test(compact)
 }
 
+const slugifyTeamName = (name: string): string =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '')
+
+const resolveTeamHrefFromTableCell = (value: string): string | null => {
+  const normalized = value.trim().toLowerCase()
+  const teamCode = TEAM_NAME_TO_CODE[normalized]
+  const teamName = teamCode ? TEAM_META[teamCode]?.name : null
+  return teamName ? `/teams/${slugifyTeamName(teamName)}` : null
+}
+
 // Utility to create deterministic slug IDs from heading text (TOC + deep links)
 const slugify = (text: string) =>
   text
@@ -367,6 +380,7 @@ export const portableTextComponents: PortableTextComponents = {
                     >
                       {columns.map((_, columnIndex) => {
                         const cellValue = row.cells?.[columnIndex] ?? ''
+                        const teamHref = resolveTeamHrefFromTableCell(cellValue)
                         const alignmentClass = numericColumns[columnIndex]
                           ? 'text-right font-semibold tabular-nums text-white'
                           : 'text-left text-white/90'
@@ -376,7 +390,16 @@ export const portableTextComponents: PortableTextComponents = {
                             key={`${row._key || rowIndex}-${columnIndex}`}
                             className={`border-b border-white/8 px-3 py-2.5 align-top text-[13px] leading-snug sm:px-3.5 sm:py-2.5 sm:text-[13.5px] ${alignmentClass}`}
                           >
-                            <span className="whitespace-pre-wrap">{cellValue}</span>
+                            {teamHref ? (
+                              <Link
+                                href={teamHref}
+                                className="whitespace-pre-wrap underline decoration-white/30 underline-offset-2 transition-colors hover:text-blue-300 hover:decoration-blue-300"
+                              >
+                                {cellValue}
+                              </Link>
+                            ) : (
+                              <span className="whitespace-pre-wrap">{cellValue}</span>
+                            )}
                           </td>
                         )
                       })}

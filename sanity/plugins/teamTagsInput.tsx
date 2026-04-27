@@ -46,10 +46,13 @@ type TeamTagDoc = {
 
 type TeamReference = ReferenceValue & {_key: string}
 
-export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
+export function TeamTagsInput(props: ArrayOfObjectsInputProps<TeamReference>) {
   const client = useClient({apiVersion})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSelectedTeams, setShowSelectedTeams] = useState(false)
+  const selectedCount = Array.isArray(props.value) ? props.value.length : 0
+  const allTeamsSelected = selectedCount >= TEAM_TITLES.length
 
   const fetchTeamRefs = useCallback(async () => {
     const docs = await client.fetch<TeamTagDoc[]>(
@@ -64,6 +67,7 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
   const handleSelectAll = useCallback(async () => {
     setLoading(true)
     setError(null)
+    setShowSelectedTeams(false)
     try {
       const {refs, missing} = await fetchTeamRefs()
       props.onChange(set(refs))
@@ -79,6 +83,7 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
   }, [fetchTeamRefs, props])
 
   const handleClear = useCallback(() => {
+    setShowSelectedTeams(false)
     props.onChange(set([]))
   }, [props])
 
@@ -93,6 +98,14 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
             loading={loading}
           />
           <Button text="Clear teams" tone="caution" onClick={handleClear} disabled={loading} />
+          {allTeamsSelected ? (
+            <Button
+              text={showSelectedTeams ? 'Hide selected teams' : 'Edit selected teams'}
+              mode="ghost"
+              onClick={() => setShowSelectedTeams((current) => !current)}
+              disabled={loading}
+            />
+          ) : null}
           {error ? (
             <Text size={1} style={{whiteSpace: 'pre-wrap'}} className="text-red-400">
               {error}
@@ -100,7 +113,18 @@ export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
           ) : null}
         </Flex>
       </Card>
-      {props.renderDefault(props)}
+      {allTeamsSelected && !showSelectedTeams ? (
+        <Card padding={3} radius={2} tone="transparent" border>
+          <Text size={1} weight="semibold">
+            All 32 teams selected
+          </Text>
+          <Text size={1} muted>
+            Expand this field only if you want to review or remove individual team tags.
+          </Text>
+        </Card>
+      ) : (
+        props.renderDefault(props)
+      )}
     </Stack>
   )
 }
