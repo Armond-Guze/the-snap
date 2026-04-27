@@ -2,7 +2,7 @@
 // Usage: <StructuredData data={{ ...jsonLd }} />
 // Works in both Server and Client components
 import Script from 'next/script'
-import { toAbsoluteSiteUrl } from '@/lib/site-config'
+import { BRAND_LOGO_PATH, toAbsoluteSiteUrl, versionedAssetPath } from '@/lib/site-config'
 
 interface StructuredDataProps {
   data: Record<string, unknown>
@@ -32,12 +32,12 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
   )
 }
 
-const PUBLISHER_LOGO_URL = toAbsoluteSiteUrl('/apple-touch-icon.png');
+const PUBLISHER_LOGO_URL = toAbsoluteSiteUrl(versionedAssetPath(BRAND_LOGO_PATH));
 const PUBLISHER_LOGO = {
   '@type': 'ImageObject',
   url: PUBLISHER_LOGO_URL,
-  width: 180,
-  height: 180,
+  width: 1200,
+  height: 630,
 };
 
 // Helper functions for common structured data

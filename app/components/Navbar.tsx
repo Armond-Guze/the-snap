@@ -43,10 +43,10 @@ import ProfileMenu from "./ProfileMenu";
 import SmartSearch from "./SmartSearch";
 import ThemeToggle from "./ThemeToggle";
 import { TEAM_META } from "@/lib/schedule";
-import { BRAND_LOGO_ALT, BRAND_LOGO_PATH } from "@/lib/site-config";
+import { BRAND_LOGO_ALT, BRAND_LOGO_PATH, versionedAssetPath } from "@/lib/site-config";
 import { TEAM_COLORS } from "./teamLogos";
 
-const HOMEPAGE_LOGO_PATH = "/images/the-snap-homepage-logo-transparent-v2.png";
+const HOMEPAGE_LOGO_PATH = versionedAssetPath("/images/the-snap-homepage-logo-transparent-v2.png");
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
   { title: "AFC East", teams: ["BUF", "MIA", "NE", "NYJ"] },
   { title: "AFC North", teams: ["BAL", "CIN", "CLE", "PIT"] },
@@ -104,7 +104,7 @@ export default function Navbar() {
   const isHomepage = pathname === "/";
   const teamCode = resolveTeamCode(pathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
-  const activeLogoPath = isHomepage ? HOMEPAGE_LOGO_PATH : BRAND_LOGO_PATH;
+  const activeLogoPath = isHomepage ? HOMEPAGE_LOGO_PATH : versionedAssetPath(BRAND_LOGO_PATH);
   const activeLogoAlt = isHomepage ? "The Snap homepage logo" : BRAND_LOGO_ALT;
   const mobileLogoWrapperClass = isHomepage
     ? "relative -my-1 block h-[2.8rem] w-[136px]"

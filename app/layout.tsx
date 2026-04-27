@@ -9,11 +9,14 @@ import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
+  BRAND_LOGO_PATH,
   DEFAULT_OG_IMAGE_URL,
+  FAVICON_PATH,
   SITE_BRAND,
   SITE_NAME,
   SITE_TWITTER,
   SITE_URL,
+  versionedAssetPath,
 } from "@/lib/site-config";
 
 // Centralized config (build-time evaluated)
@@ -105,14 +108,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/favicon-192.png', type: 'image/png', sizes: '192x192' },
-      { url: '/favicon-512.png', type: 'image/png', sizes: '512x512' }
+      { url: versionedAssetPath(FAVICON_PATH), type: 'image/svg+xml' }
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+      { url: versionedAssetPath(BRAND_LOGO_PATH), type: 'image/png' }
     ],
-    shortcut: ['/favicon-32.png']
+    shortcut: [versionedAssetPath(FAVICON_PATH)]
   },
   robots: {
     index: true,
