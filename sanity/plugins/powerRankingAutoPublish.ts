@@ -44,6 +44,7 @@ export function withPowerRankingAutoPublishHelpers(action: DocumentActionCompone
           biggestRiser: movers.biggestRiser,
           biggestFaller: movers.biggestFaller,
           editorialStatus: 'published',
+          published: true,
         }
 
         const shouldAutoSeo = !powerDoc.seo || powerDoc.seo.autoGenerate !== false
