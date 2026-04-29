@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
 import { apiVersion } from "../env";
 import { createXAutopostFields } from './shared/xAutopostFields';
@@ -411,7 +411,7 @@ export default defineType({
       name: "teams",
       title: "Teams",
       type: "array",
-      of: [{ type: "reference", to: [{ type: "tag" }] }],
+      of: [defineArrayMember({ type: "reference", to: [{ type: "tag" }] })],
       options: { layout: "tags" },
       components: { input: TeamTagsInput },
       description: "Pick the team tags (32 NFL teams) for precise team pages/search. Uses your existing Tag docs.",

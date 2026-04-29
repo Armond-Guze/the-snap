@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/page-metadata";
+
 import { SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
 
-export const metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Terms of Use | The Game Snap",
   description: "Terms of Use governing access to and use of The Game Snap website.",
-};
+  path: "/terms",
+});
 
 const sections = [
   {

@@ -1,10 +1,11 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
 // Enforce canonical host (non-www) and prepare room for future header tweaks.
 const CANONICAL_HOST = 'thegamesnap.com';
+const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
-export default clerkMiddleware((_, req) => {
+export default clerkMiddleware(async (auth, req) => {
   const { nextUrl } = req;
   const url = nextUrl.clone();
   let redirectNeeded = false;
@@ -21,6 +22,10 @@ export default clerkMiddleware((_, req) => {
   if (redirectNeeded) {
     url.pathname = url.pathname || '/';
     return NextResponse.redirect(url, 308);
+  }
+
+  if (isAdminRoute(req)) {
+    await auth.protect();
   }
 
   return NextResponse.next();

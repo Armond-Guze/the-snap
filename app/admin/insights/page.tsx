@@ -1,8 +1,17 @@
 import 'server-only';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
 import { aggregateLast7Days } from '../../../lib/analytics-store';
+import { buildPageMetadata } from '@/lib/page-metadata';
 
 export const dynamic = 'force-dynamic';
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Editorial Insights | The Snap Admin',
+  description: 'Internal editorial insights and article engagement signals for The Snap.',
+  path: '/admin/insights',
+  noIndex: true,
+});
 
 function formatLatency(ms?: number) {
   if (ms == null) return '—';

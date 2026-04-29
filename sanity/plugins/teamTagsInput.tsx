@@ -1,5 +1,12 @@
 import {useCallback, useState} from 'react'
-import {ArrayOfObjectsInputProps, ReferenceValue, set, useClient} from 'sanity'
+import {
+  ArrayOfObjectsInputProps,
+  ArrayOfPrimitivesInputProps,
+  isArrayOfObjectsInputProps,
+  ReferenceValue,
+  set,
+  useClient,
+} from 'sanity'
 import {Button, Card, Flex, Stack, Text} from '@sanity/ui'
 import {apiVersion} from '../env'
 
@@ -44,9 +51,16 @@ type TeamTagDoc = {
   title: string
 }
 
+type TeamTagsInputProps =
+  | ArrayOfObjectsInputProps
+  | ArrayOfPrimitivesInputProps<string | number | boolean>
 type TeamReference = ReferenceValue & {_key: string}
 
-export function TeamTagsInput(props: ArrayOfObjectsInputProps<TeamReference>) {
+export function TeamTagsInput(props: TeamTagsInputProps) {
+  if (!isArrayOfObjectsInputProps(props)) {
+    return props.renderDefault(props)
+  }
+
   const client = useClient({apiVersion})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

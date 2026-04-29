@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/page-metadata";
+
 import NewsletterSignup from "../components/NewsletterSignup";
 import { SimpleCard, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
 
@@ -15,6 +19,13 @@ const benefits = [
     body: "Fantasy, betting, and content product updates when there is something worth opening.",
   },
 ];
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "The Snap Newsletter | Weekly NFL Rankings and Analysis",
+  description:
+    "Subscribe to The Snap newsletter for weekly rankings, analysis, and product updates without the usual sports-media noise.",
+  path: "/newsletter",
+});
 
 export default function NewsletterPage() {
   return (

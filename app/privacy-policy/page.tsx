@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/page-metadata";
+
 import { SimpleList, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
 
-export const metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: "Privacy Policy | The Game Snap",
   description: "Privacy practices, data collection, cookies, and user rights for The Game Snap.",
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicy() {
   return (

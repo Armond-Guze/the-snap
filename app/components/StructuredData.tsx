@@ -49,7 +49,7 @@ export const createWebsiteStructuredData = (siteName: string, url: string, alter
   url: url,
   potentialAction: {
     '@type': 'SearchAction',
-    target: `${url}/search?q={search_term_string}`,
+    target: `${url}/headlines?search={search_term_string}`,
     'query-input': 'required name=search_term_string',
   },
 })

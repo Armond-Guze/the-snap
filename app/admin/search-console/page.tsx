@@ -1,10 +1,23 @@
 import "server-only";
 
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { getGscAuditConfig, runGscAudit } from "@/lib/gsc-audit";
+import { buildPageMetadata } from "@/lib/page-metadata";
+
+const GOOGLE_SITE_VERIFICATION =
+  process.env.GOOGLE_SITE_VERIFICATION ||
+  process.env.GSC_SITE_VERIFICATION ||
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = buildPageMetadata({
+  title: "Search Console Audit | The Snap Admin",
+  description: "Internal Search Console auditing for sitemap, indexing, canonical, and page health checks.",
+  path: "/admin/search-console",
+  noIndex: true,
+});
 
 function formatTimestamp(value?: string | null) {
   if (!value) return "—";
@@ -24,9 +37,50 @@ function severityClasses(severity: "info" | "warn" | "error") {
   return "border-blue-500/30 bg-blue-500/10 text-blue-200";
 }
 
-export default async function SearchConsoleAdminPage() {
-  const config = getGscAuditConfig();
-  const report = config.configured ? await runGscAudit({ emitAlerts: false }) : null;
+function firstValue(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePositiveInt(value: string | undefined, fallbackValue: number) {
+  if (!value) return fallbackValue;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackValue;
+}
+
+type SearchConsoleAdminPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function SearchConsoleAdminPage({
+  searchParams,
+}: SearchConsoleAdminPageProps) {
+  const resolvedSearchParams = (searchParams ? await searchParams : {}) || {};
+  const defaultConfig = getGscAuditConfig();
+  const requestedContentLimit = parsePositiveInt(
+    firstValue(resolvedSearchParams.contentLimit),
+    defaultConfig.contentLimit
+  );
+  const requestedLookbackDays = parsePositiveInt(
+    firstValue(resolvedSearchParams.lookbackDays),
+    defaultConfig.lookbackDays
+  );
+  const config = getGscAuditConfig({
+    contentLimit: requestedContentLimit,
+    lookbackDays: requestedLookbackDays,
+  });
+  const report = config.configured
+    ? await runGscAudit({
+        emitAlerts: false,
+        contentLimit: requestedContentLimit,
+        lookbackDays: requestedLookbackDays,
+      })
+    : null;
+  const usesDomainProperty = config.propertyUri.startsWith("sc-domain:");
+  const verificationMode = usesDomainProperty
+    ? "DNS domain verification"
+    : GOOGLE_SITE_VERIFICATION
+      ? "HTML meta verification configured"
+      : "HTML meta verification missing";
 
   return (
     <div className="min-h-screen bg-black px-6 py-10 text-white">
@@ -44,6 +98,53 @@ export default async function SearchConsoleAdminPage() {
           <Link href="/admin" className="text-sm text-gray-400 hover:text-white">
             ← Admin
           </Link>
+        </div>
+
+        <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <h2 className="text-xl font-semibold">Audit Scope</h2>
+              <p className="mt-2 text-sm text-gray-400">
+                Run the audit against a wider set of recent content or a longer performance window without
+                changing deployment env vars.
+              </p>
+              <p className="mt-3 text-sm text-gray-400">
+                Property type: {usesDomainProperty ? "Domain property" : "URL-prefix property"}.
+                {" "}
+                Verification: {verificationMode}.
+                {usesDomainProperty && " Domain properties are DNS-verified, so the public meta tag is optional."}
+              </p>
+            </div>
+
+            <form method="get" className="grid gap-3 sm:grid-cols-2 lg:min-w-[360px]">
+              <label className="grid gap-2 text-sm text-gray-300">
+                Content pages
+                <input
+                  type="number"
+                  name="contentLimit"
+                  min={1}
+                  defaultValue={requestedContentLimit}
+                  className="rounded-xl border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-white/30"
+                />
+              </label>
+              <label className="grid gap-2 text-sm text-gray-300">
+                Lookback days
+                <input
+                  type="number"
+                  name="lookbackDays"
+                  min={1}
+                  defaultValue={requestedLookbackDays}
+                  className="rounded-xl border border-white/10 bg-black px-3 py-2 text-white outline-none focus:border-white/30"
+                />
+              </label>
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-white/90 sm:col-span-2"
+              >
+                Run audit
+              </button>
+            </form>
+          </div>
         </div>
 
         {!config.configured && (
@@ -95,8 +196,11 @@ export default async function SearchConsoleAdminPage() {
                 <div className="mt-4 space-y-2 text-sm text-gray-300">
                   <p>Accessible: {report.property.accessible ? "Yes" : "No"}</p>
                   <p>Permission: {report.property.permissionLevel || "—"}</p>
+                  <p>Property Type: {usesDomainProperty ? "Domain property" : "URL-prefix property"}</p>
+                  <p>Verification: {verificationMode}</p>
                   <p>Generated: {formatTimestamp(report.generatedAt)}</p>
                   <p>Lookback: {report.config.lookbackDays} days</p>
+                  <p>Content sample: {report.config.contentLimit} recent content URLs</p>
                 </div>
               </div>
 

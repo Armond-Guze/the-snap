@@ -1,9 +1,13 @@
 import { Metadata } from 'next';
 
-export const metadata: Metadata = {
+import { buildPageMetadata } from '@/lib/page-metadata';
+
+export const metadata: Metadata = buildPageMetadata({
   title: 'Analytics Dashboard | The Snap Admin',
-  description: 'View website analytics and performance metrics',
-};
+  description: 'View website analytics and performance metrics.',
+  path: '/admin/analytics',
+  noIndex: true,
+});
 
 export default function AnalyticsPage() {
   return (

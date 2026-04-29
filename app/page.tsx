@@ -17,6 +17,9 @@ import { DEFAULT_OG_IMAGE_URL, SITE_BRAND, SITE_NAME, SITE_URL } from "@/lib/sit
 export const metadata: Metadata = {
   title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings, Standings & Analysis`,
   description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.`,
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
     title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings & Analysis`,
     description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.`,

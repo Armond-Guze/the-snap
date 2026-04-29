@@ -4,6 +4,12 @@ import { runGscAudit } from "@/lib/gsc-audit";
 
 const AUTH_HEADER = "x-gsc-audit-secret";
 
+function parsePositiveIntParam(rawValue: string | null) {
+  if (!rawValue) return undefined;
+  const parsed = Number.parseInt(rawValue, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 function verifySecret(req: NextRequest): { ok: boolean; status?: number; error?: string } {
   const isVercelCron = Boolean(req.headers.get("x-vercel-cron"));
   if (isVercelCron) return { ok: true };
@@ -40,7 +46,15 @@ async function handleAudit(req: NextRequest) {
     });
   }
 
-  const report = await runGscAudit({ emitAlerts: true });
+  const contentLimit = parsePositiveIntParam(req.nextUrl.searchParams.get("contentLimit"));
+  const lookbackDays = parsePositiveIntParam(req.nextUrl.searchParams.get("lookbackDays"));
+  const emitAlerts = req.nextUrl.searchParams.get("emitAlerts") !== "false";
+
+  const report = await runGscAudit({
+    emitAlerts,
+    contentLimit,
+    lookbackDays,
+  });
   const status = report.config.configured && report.issues.every((issue) => issue.severity !== "error")
     ? 200
     : report.config.configured

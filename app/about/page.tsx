@@ -1,5 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/page-metadata";
+
 import { SimpleCard, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "About The Snap | NFL Coverage Without the Filler",
+  description:
+    "Learn what The Snap covers, how the site approaches NFL content, and where power rankings, analysis, and utility tools fit into the editorial mix.",
+  path: "/about",
+});
 
 const offerings = [
   {

@@ -1,5 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { SignedIn, SignedOut, SignOutButton, UserButton } from "@clerk/nextjs";
+
+import { buildPageMetadata } from "@/lib/page-metadata";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Account | The Snap",
+  description: "Manage your account and personalize your experience on The Snap.",
+  path: "/account",
+  noIndex: true,
+});
 
 export default function AccountPage() {
   return (

@@ -14,6 +14,7 @@ const URL_INSPECTION_ENDPOINT =
 const SEARCH_CONSOLE_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
 const DEFAULT_LOOKBACK_DAYS = 14;
 const DEFAULT_CONTENT_LIMIT = 6;
+const DEFAULT_SITEMAP_STALE_DAYS = 14;
 const DEFAULT_SITEMAP_URL = toAbsoluteSiteUrl("/sitemap.xml");
 
 type AuditSeverity = "info" | "warn" | "error";
@@ -168,8 +169,19 @@ interface GscAuditConfig {
   lookbackDays: number;
 }
 
+interface GscAuditConfigOverrides {
+  propertyUri?: string;
+  sitemapUrl?: string;
+  contentLimit?: number;
+  lookbackDays?: number;
+}
+
 interface RunGscAuditOptions {
   emitAlerts?: boolean;
+  propertyUri?: string;
+  sitemapUrl?: string;
+  contentLimit?: number;
+  lookbackDays?: number;
 }
 
 function getPropertyUriFromSiteUrl() {
@@ -187,13 +199,40 @@ function parsePositiveInt(rawValue: string | undefined, fallbackValue: number) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallbackValue;
 }
 
-export function getGscAuditConfig(): GscAuditConfig {
+function getPositiveIntOverride(value: number | undefined, fallbackValue: number) {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? Math.floor(value)
+    : fallbackValue;
+}
+
+function getAgeInDays(timestamp?: string | null) {
+  if (!timestamp) return null;
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(parsed.getTime())) return null;
+  const ageMs = Date.now() - parsed.getTime();
+  if (ageMs < 0) return 0;
+  return Math.floor(ageMs / (1000 * 60 * 60 * 24));
+}
+
+export function getGscAuditConfig(overrides: GscAuditConfigOverrides = {}): GscAuditConfig {
   const serviceAccountEmail = process.env.GSC_SERVICE_ACCOUNT_EMAIL?.trim() || "";
   const serviceAccountPrivateKey = process.env.GSC_SERVICE_ACCOUNT_PRIVATE_KEY?.trim() || "";
-  const propertyUri = process.env.GSC_PROPERTY_URI?.trim() || getPropertyUriFromSiteUrl();
-  const sitemapUrl = process.env.GSC_SITEMAP_URL?.trim() || DEFAULT_SITEMAP_URL;
-  const contentLimit = parsePositiveInt(process.env.GSC_AUDIT_CONTENT_LIMIT, DEFAULT_CONTENT_LIMIT);
-  const lookbackDays = parsePositiveInt(process.env.GSC_AUDIT_LOOKBACK_DAYS, DEFAULT_LOOKBACK_DAYS);
+  const propertyUri =
+    overrides.propertyUri?.trim() ||
+    process.env.GSC_PROPERTY_URI?.trim() ||
+    getPropertyUriFromSiteUrl();
+  const sitemapUrl =
+    overrides.sitemapUrl?.trim() ||
+    process.env.GSC_SITEMAP_URL?.trim() ||
+    DEFAULT_SITEMAP_URL;
+  const contentLimit = getPositiveIntOverride(
+    overrides.contentLimit,
+    parsePositiveInt(process.env.GSC_AUDIT_CONTENT_LIMIT, DEFAULT_CONTENT_LIMIT)
+  );
+  const lookbackDays = getPositiveIntOverride(
+    overrides.lookbackDays,
+    parsePositiveInt(process.env.GSC_AUDIT_LOOKBACK_DAYS, DEFAULT_LOOKBACK_DAYS)
+  );
   const missing: string[] = [];
 
   if (!serviceAccountEmail) missing.push("GSC_SERVICE_ACCOUNT_EMAIL");
@@ -735,7 +774,7 @@ async function auditPage(
 export async function runGscAudit(
   options: RunGscAuditOptions = {}
 ): Promise<GscAuditReport> {
-  const config = getGscAuditConfig();
+  const config = getGscAuditConfig(options);
   const generatedAt = new Date().toISOString();
   const topLevelIssues: GscAuditIssue[] = [];
 
@@ -825,6 +864,20 @@ export async function runGscAudit(
         message: "No sitemap entry was found in Search Console for this property",
         context: { sitemapUrl: config.sitemapUrl },
       });
+    } else {
+      const sitemapAgeDays = getAgeInDays(sitemapEntry.lastDownloaded || null);
+      if (typeof sitemapAgeDays === "number" && sitemapAgeDays > DEFAULT_SITEMAP_STALE_DAYS) {
+        topLevelIssues.push({
+          severity: "warn",
+          code: "SITEMAP_STALE_IN_GSC",
+          message: `Search Console last downloaded the sitemap ${sitemapAgeDays} day(s) ago`,
+          context: {
+            sitemapUrl: config.sitemapUrl,
+            lastDownloaded: sitemapEntry.lastDownloaded,
+            thresholdDays: DEFAULT_SITEMAP_STALE_DAYS,
+          },
+        });
+      }
     }
 
     const pages = await Promise.all(

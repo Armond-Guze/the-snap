@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
 
-export const metadata: Metadata = {
+import { buildPageMetadata } from '@/lib/page-metadata';
+
+export const metadata: Metadata = buildPageMetadata({
   title: 'Admin Dashboard | The Snap',
-  description: 'Administration panel for The Snap website',
-};
+  description: 'Administration panel for The Snap website.',
+  path: '/admin',
+  noIndex: true,
+});
 
 export default function AdminPage() {
   return (
