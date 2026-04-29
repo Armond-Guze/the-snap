@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appendEvent } from '../../../../lib/analytics-store';
+import { appendEvent, type ArticleClickEvent } from '../../../../lib/analytics-store';
+
+type ArticleClickRequestBody = Omit<ArticleClickEvent, 'type' | 'timestamp'> & {
+  timestamp?: string;
+  isOwner?: boolean;
+};
 
 function isExcludedRequest(request: NextRequest, body?: { isOwner?: boolean }) {
   const cookieExcluded = request.cookies.get('va-exclude')?.value === '1';
@@ -8,13 +13,17 @@ function isExcludedRequest(request: NextRequest, body?: { isOwner?: boolean }) {
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
+    const data = (await request.json()) as ArticleClickRequestBody;
 
     if (isExcludedRequest(request, data)) {
       return NextResponse.json({ success: true, skipped: 'excluded_visitor' });
     }
-    
-    await appendEvent({
+
+    if (!data.articleId || !data.articleSlug) {
+      return NextResponse.json({ error: 'Missing article analytics identifiers' }, { status: 400 });
+    }
+
+    const event: ArticleClickEvent = {
       type: 'article_click',
       articleId: data.articleId,
       articleSlug: data.articleSlug,
@@ -24,8 +33,10 @@ export async function POST(request: NextRequest) {
       readingTime: data.readingTime,
       timestamp: data.timestamp || new Date().toISOString(),
       source: data.source,
-      position: data.position
-    } as any); // retained any due to dynamic shape; can refine later
+      position: data.position,
+    };
+    
+    await appendEvent(event);
 
     return NextResponse.json({ success: true });
   } catch (error) {

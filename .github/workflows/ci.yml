@@ -70,7 +70,8 @@ jobs:
 
       - name: No unit tests configured
         if: steps.detect.outputs.has_unit != 'true'
-        run: echo "Skipping unit tests: add a test:unit script to package.json to enable this stage."
+        run: |
+          echo "Skipping unit tests: add a test:unit script to package.json to enable this stage."
 
   integration_tests:
     name: Integration Tests
@@ -104,7 +105,8 @@ jobs:
 
       - name: No integration tests configured
         if: steps.detect.outputs.has_integration != 'true'
-        run: echo "Skipping integration tests: add a test:integration script to package.json to enable this stage."
+        run: |
+          echo "Skipping integration tests: add a test:integration script to package.json to enable this stage."
 
   build:
     name: Build

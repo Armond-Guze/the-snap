@@ -17,19 +17,6 @@ export default function TwitterEmbed({
   const [hasError, setHasError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const cleanUrl = (url: string): string => {
-    try {
-      const cleanedUrl = url.replace(/x\.com/g, 'twitter.com');
-      const urlObj = new URL(cleanedUrl);
-      const cleanPath = urlObj.pathname;
-
-      return `https://twitter.com${cleanPath}`;
-    } catch (error) {
-      console.error('Error cleaning URL:', error);
-      return url;
-    }
-  };
-
   const getTweetId = (url: string): string | null => {
     try {
       const patterns = [
@@ -54,10 +41,10 @@ export default function TwitterEmbed({
   };
 
   const tweetId = getTweetId(twitterUrl);
-  const cleanedUrl = cleanUrl(twitterUrl);
 
   useEffect(() => {
     let cancelled = false;
+    const containerNode = containerRef.current;
 
     const loadTwitterScript = async () => {
       if (window.twttr?.widgets?.createTweet) return;
@@ -148,8 +135,8 @@ export default function TwitterEmbed({
 
     return () => {
       cancelled = true;
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+      if (containerNode) {
+        containerNode.innerHTML = '';
       }
     };
   }, [tweetId]);

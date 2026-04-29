@@ -57,15 +57,13 @@ type TeamTagsInputProps =
 type TeamReference = ReferenceValue & {_key: string}
 
 export function TeamTagsInput(props: TeamTagsInputProps) {
-  if (!isArrayOfObjectsInputProps(props)) {
-    return props.renderDefault(props)
-  }
-
+  const isArrayInput = isArrayOfObjectsInputProps(props)
+  const arrayProps = isArrayInput ? props : null
   const client = useClient({apiVersion})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showSelectedTeams, setShowSelectedTeams] = useState(false)
-  const selectedCount = Array.isArray(props.value) ? props.value.length : 0
+  const selectedCount = arrayProps && Array.isArray(arrayProps.value) ? arrayProps.value.length : 0
   const allTeamsSelected = selectedCount >= TEAM_TITLES.length
 
   const fetchTeamRefs = useCallback(async () => {
@@ -79,12 +77,13 @@ export function TeamTagsInput(props: TeamTagsInputProps) {
   }, [client])
 
   const handleSelectAll = useCallback(async () => {
+    if (!arrayProps) return
     setLoading(true)
     setError(null)
     setShowSelectedTeams(false)
     try {
       const {refs, missing} = await fetchTeamRefs()
-      props.onChange(set(refs))
+      arrayProps.onChange(set(refs))
       if (missing.length) {
         setError(`Missing team tags in CMS: ${missing.join(', ')}`)
       }
@@ -94,12 +93,17 @@ export function TeamTagsInput(props: TeamTagsInputProps) {
     } finally {
       setLoading(false)
     }
-  }, [fetchTeamRefs, props])
+  }, [arrayProps, fetchTeamRefs])
 
   const handleClear = useCallback(() => {
+    if (!arrayProps) return
     setShowSelectedTeams(false)
-    props.onChange(set([]))
-  }, [props])
+    arrayProps.onChange(set([]))
+  }, [arrayProps])
+
+  if (!arrayProps) {
+    return props.renderDefault(props)
+  }
 
   return (
     <Stack space={3}>
@@ -137,7 +141,7 @@ export function TeamTagsInput(props: TeamTagsInputProps) {
           </Text>
         </Card>
       ) : (
-        props.renderDefault(props)
+        arrayProps.renderDefault(arrayProps)
       )}
     </Stack>
   )

@@ -35,6 +35,28 @@ interface ScheduleRow {
   venue?: string;
 }
 
+interface GameDocument {
+  _id: string;
+  _type: 'game';
+  week: number;
+  homeTeam: string;
+  awayTeam: string;
+  homeRecord: undefined;
+  awayRecord: undefined;
+  gameDate: string;
+  tvNetwork?: string;
+  gameType: 'regular';
+  featured: false;
+  gameImportance: 'regular';
+  preview: undefined;
+  published: true;
+  season: string;
+}
+
+interface GameMutation {
+  createOrReplace: GameDocument;
+}
+
 function loadSchedule(): ScheduleRow[] {
   const candidate = path.join(process.cwd(), 'data', `nfl-${season}-schedule.json`);
   if (!fs.existsSync(candidate)) {
@@ -54,7 +76,8 @@ const client = createClient({ projectId, dataset, apiVersion, token, useCdn: fal
 
 async function run() {
   const schedule = loadSchedule();
-  const mutations = schedule.map((row) => {
+  const mutations = schedule
+    .map((row): GameMutation | null => {
     const gameDate = new Date(row.dateUTC);
     if (Number.isNaN(gameDate.getTime())) {
       console.warn('Skipping row with invalid date', row);
@@ -79,8 +102,9 @@ async function run() {
         published: true,
         season: String(season)
       }
-    } as const;
-  }).filter(Boolean) as { createOrReplace: any }[];
+    };
+  })
+    .filter((mutation): mutation is GameMutation => mutation !== null);
 
   if (!mutations.length) {
     console.error('No schedule rows parsed');

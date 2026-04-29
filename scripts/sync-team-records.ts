@@ -29,6 +29,21 @@ if (!Number.isFinite(season)) {
 
 const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
 
+interface TeamRecordDocument {
+  _id: string;
+  _type: 'teamRecord';
+  teamAbbr: string;
+  season: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  streak: undefined;
+}
+
+interface TeamRecordMutation {
+  createOrReplace: TeamRecordDocument;
+}
+
 function mapNameToAbbr(): Map<string, string> {
   const map = new Map<string, string>();
   Object.entries(TEAM_META).forEach(([abbr, meta]) => {
@@ -41,7 +56,7 @@ async function run() {
   const nameToAbbr = mapNameToAbbr();
   const standings = await fetchNFLStandingsWithFallback();
   const mutations = standings
-    .map((team: ProcessedTeamData) => {
+    .map((team: ProcessedTeamData): TeamRecordMutation | null => {
       const abbr = nameToAbbr.get(team.teamName);
       if (!abbr) {
         console.warn('Skipping unmapped teamName', team.teamName);
@@ -59,9 +74,9 @@ async function run() {
           ties: team.ties || 0,
           streak: undefined,
         },
-      } as const;
+      };
     })
-    .filter(Boolean) as { createOrReplace: any }[];
+    .filter((mutation): mutation is TeamRecordMutation => mutation !== null);
 
   if (!mutations.length) {
     console.error('No mutations prepared. Exiting.');

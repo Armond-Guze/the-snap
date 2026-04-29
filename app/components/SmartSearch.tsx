@@ -274,7 +274,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                           <span>{results.length} result{results.length !== 1 ? 's' : ''} found</span>
                         </div>
                         <div className="py-2">
-                          {results.map((result, index) => (
+                          {results.map((result) => (
                             <button
                               key={result._id}
                               onClick={() => handleResultClick(result)}

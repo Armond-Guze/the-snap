@@ -23,6 +23,8 @@ export interface SyncTeamRecordsResult {
   errors: string[];
 }
 
+type TeamRecordDoc = ReturnType<typeof toRecordDoc>;
+
 function guessAbbr(teamName: string): string | null {
   if (NAME_TO_ABBR[teamName]) return NAME_TO_ABBR[teamName];
   const normalized = teamName.replace(/[^a-z0-9]/gi, '').toLowerCase();
@@ -91,7 +93,7 @@ export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeam
         result.created++;
       }
 
-      tx = tx.createOrReplace(doc as any);
+      tx = tx.createOrReplace(doc as TeamRecordDoc);
       pending++;
     }
 

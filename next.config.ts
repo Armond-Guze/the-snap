@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
-  transpilePackages: ['framer-motion'],
   skipTrailingSlashRedirect: true,
   async rewrites() {
     return [

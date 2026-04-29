@@ -243,6 +243,10 @@ async function trySportsDataStandings(): Promise<ProcessedTeamData[] | null> {
   }
 }
 
+type EspnConference = ESPNStandingsResponse['children'][number]
+type EspnStandingEntry = EspnConference['standings']['entries'][number]
+type EspnStandingStat = EspnStandingEntry['stats'][number]
+
 async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
   const seasonYear = Number(process.env.NFL_SEASON) || new Date().getFullYear();
   const endpoint = new URL('https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings');
@@ -268,13 +272,13 @@ async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
 
   const processedData: ProcessedTeamData[] = [];
 
-  data.children.forEach((conference: any) => {
+  data.children.forEach((conference: EspnConference) => {
     if (!conference.standings || !conference.standings.entries) {
       console.log('Conference missing standings/entries:', conference);
       return;
     }
 
-    conference.standings.entries.forEach((entry: any) => {
+    conference.standings.entries.forEach((entry: EspnStandingEntry) => {
       const teamData = processESPNTeamEntry(entry);
       if (teamData) processedData.push(teamData);
     });
@@ -288,7 +292,7 @@ async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
   return processedData;
 }
 
-function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
+function processESPNTeamEntry(entry: EspnStandingEntry): ProcessedTeamData | null {
   const teamName = entry.team?.displayName;
   if (!teamName) {
     console.log('Entry missing team name:', entry);
@@ -303,7 +307,7 @@ function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
   }
 
   // Extract stats from ESPN format
-  const stats = entry.stats?.reduce((acc: Record<string, number>, stat: any) => {
+  const stats = entry.stats?.reduce((acc: Record<string, number>, stat: EspnStandingStat) => {
     acc[stat.name] = stat.value;
     return acc;
   }, {} as Record<string, number>) || {};

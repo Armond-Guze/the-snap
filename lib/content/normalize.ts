@@ -4,19 +4,53 @@
  */
 
 import { 
+  BaseContent,
+  isLegacyHeadline,
+  isUnifiedContent,
   UnifiedContent, 
   LegacyHeadline, 
   LegacyRanking, 
   NormalizedContent,
-  ContentType 
+  ContentType,
+  SEOData,
 } from '@/types/content';
+
+type UnifiedArticleContent = Extract<UnifiedContent, { contentType: 'article' }>;
+type UnifiedRankingContent = Extract<UnifiedContent, { contentType: 'ranking' }>;
+
+type LegacyHeadlineInput = LegacyHeadline & {
+  summary?: string;
+  date?: string;
+  coverImage?: BaseContent['featuredImage'];
+  seo?: SEOData;
+};
+
+type LegacyRankingInput = Omit<LegacyRanking, '_type'> & {
+  _type: 'powerRanking' | 'rankings';
+  summary?: string;
+  date?: string;
+  coverImage?: BaseContent['featuredImage'];
+  articleImage?: NormalizedContent['articleImage'];
+  seo?: SEOData;
+};
+
+type NormalizableContent = UnifiedContent | LegacyHeadlineInput | LegacyRankingInput;
+
+function isLegacyRankingInput(content: unknown): content is LegacyRankingInput {
+  if (!content || typeof content !== 'object' || !('_type' in content)) {
+    return false;
+  }
+
+  const type = (content as { _type?: string })._type;
+  return type === 'powerRanking' || type === 'rankings';
+}
 
 /**
  * Normalizes any content type into a consistent format
  */
-export function normalizeContent(content: UnifiedContent | LegacyHeadline | LegacyRanking | any): NormalizedContent {
+export function normalizeContent(content: NormalizableContent): NormalizedContent {
   // Handle unified content (new system)
-  if ('contentType' in content) {
+  if (isUnifiedContent(content)) {
     const base = {
       _id: content._id,
       _type: content._type,
@@ -32,23 +66,25 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
 
     // Article-specific fields
     if (content.contentType === 'article') {
+      const articleContent = content as UnifiedArticleContent;
       return {
         ...base,
-        content: (content as any).content,
-        category: (content as any).category,
-        tags: (content as any).tags,
-        readingTime: (content as any).readingTime,
-        viewCount: (content as any).viewCount,
+        content: articleContent.content,
+        category: articleContent.category,
+        tags: articleContent.tags,
+        readingTime: articleContent.readingTime,
+        viewCount: articleContent.viewCount,
       };
     }
     
     // Rankings-specific fields
     if (content.contentType === 'ranking') {
+      const rankingContent = content as UnifiedRankingContent;
       return {
         ...base,
-        week: (content as any).week,
-        season: (content as any).season,
-        teams: (content as any).teams,
+        week: rankingContent.week,
+        season: rankingContent.season,
+        teams: rankingContent.teams,
       };
     }
 
@@ -56,14 +92,14 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
   }
   
   // Handle legacy headlines
-  if (content._type === 'headline') {
+  if (isLegacyHeadline(content)) {
     return {
       _id: content._id,
       _type: content._type,
       title: content.title,
       slug: content.slug,
       excerpt: content.excerpt || content.summary || '',
-      publishedAt: content.publishedAt || content.date,
+      publishedAt: content.publishedAt || content.date || '',
       featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'article' as ContentType,
@@ -77,14 +113,14 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
   }
   
   // Handle legacy rankings (both powerRanking and rankings types)
-  if (content._type === 'powerRanking' || content._type === 'rankings') {
+  if (isLegacyRankingInput(content)) {
     return {
       _id: content._id,
       _type: content._type,
       title: content.title,
       slug: content.slug,
       excerpt: content.excerpt || content.summary || '',
-      publishedAt: content.publishedAt || content.date,
+      publishedAt: content.publishedAt || content.date || '',
       featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'ranking' as ContentType,
@@ -96,7 +132,8 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
     };
   }
   
-  throw new Error(`Unknown content type: ${content._type}`);
+  const unresolvedContent = content as { _type?: string };
+  throw new Error(`Unknown content type: ${unresolvedContent._type ?? 'unknown'}`);
 }
 
 /**

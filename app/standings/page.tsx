@@ -199,7 +199,7 @@ export default async function StandingsPage() {
   } else {
     // Fallback: fetch live/ESPN + hardcoded backup so the page is never empty
     const apiData: ProcessedTeamData[] = await fetchNFLStandingsWithFallback();
-    enriched = apiData.map((t, idx) => {
+    enriched = apiData.map((t) => {
       const abbr = nameToAbbr[t.teamName] || t.teamName.slice(0,3).toUpperCase();
       return mapToStandingsTeam(abbr, t.teamName, t.wins, t.losses, t.ties, undefined);
     });

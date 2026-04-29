@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
@@ -38,12 +39,12 @@ export default function WeekDropdown({ currentWeek, className = "", showAutoWeek
       </select>
 
       {showAutoWeekLink ? (
-        <a
+        <Link
           href="/schedule"
           className="ml-auto text-xs text-white/50 hover:text-white/80 underline-offset-2 hover:underline"
         >
           Auto Week
-        </a>
+        </Link>
       ) : null}
     </div>
   );

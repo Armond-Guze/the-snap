@@ -1,10 +1,33 @@
-import { DocumentActionComponent } from 'sanity'
-import { generateHeadlineSeo, generateRankingsSeo } from '../../lib/auto-seo-generator'
+import type { DocumentActionComponent } from 'sanity'
+import {
+  generateHeadlineSeo,
+  generateRankingsSeo,
+  type AutoSeoResult,
+} from '../../lib/auto-seo-generator'
+
+type SeoState = Partial<AutoSeoResult> & {
+  autoGenerate?: boolean
+  lastGenerated?: string
+}
+
+type SeoActionDoc = {
+  _type: 'headline' | 'rankings' | 'category'
+  title?: string
+  summary?: string
+  description?: string
+  body?: Array<{children?: Array<{text?: string}>}>
+  category?: {title?: string}
+  tags?: string[]
+  seo?: SeoState
+}
+
+type PatchableActionProps = {
+  patch?: (mutation: {set: {seo: SeoState}}) => void
+}
 
 // Custom document action to regenerate SEO fields when autoGenerate is enabled.
 export const seoRegenerateAction: DocumentActionComponent = (props) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const doc: any = props.draft || props.published
+  const doc = (props.draft || props.published) as SeoActionDoc | null
   if (!doc) return null
   const seo = doc.seo
   if (!seo || seo.autoGenerate === false) return null
@@ -13,8 +36,7 @@ export const seoRegenerateAction: DocumentActionComponent = (props) => {
   return {
     label: 'Regenerate SEO',
     onHandle: () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let updated: any
+      let updated: AutoSeoResult | undefined
       if (doc._type === 'headline') {
         updated = generateHeadlineSeo(doc)
       } else if (doc._type === 'rankings') {
@@ -27,11 +49,11 @@ export const seoRegenerateAction: DocumentActionComponent = (props) => {
           tags: [],
           body: [],
           seo: doc.seo
-        } as any)
+        })
       }
       if (updated) {
-        // Expose patch via returned object pattern
-        ;(props as any).patch?.({
+        const patchableProps = props as typeof props & PatchableActionProps
+        patchableProps.patch?.({
           set: {
             seo: {
               ...(doc.seo || {}),
