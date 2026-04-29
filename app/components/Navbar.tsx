@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ReactNode, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,9 +10,11 @@ import {
   BarChart3,
   BookOpen,
   CalendarDays,
+  CircleUserRound,
   Home as HomeIcon,
   Menu,
   Newspaper,
+  Search,
   Sparkles,
   Target,
   TrendingUp,
@@ -39,12 +42,38 @@ import {
 } from "@/components/ui/sheet";
 
 import { NAV_ITEMS, type NavItem } from "./navConfig";
-import ProfileMenu from "./ProfileMenu";
-import SmartSearch from "./SmartSearch";
 import ThemeToggle from "./ThemeToggle";
 import { TEAM_META } from "@/lib/schedule";
 import { BRAND_LOGO_ALT, BRAND_LOGO_PATH, versionedAssetPath } from "@/lib/site-config";
 import { TEAM_COLORS } from "./teamLogos";
+
+const SmartSearch = dynamic(() => import("./SmartSearch"), {
+  ssr: false,
+  loading: () => (
+    <button
+      type="button"
+      disabled
+      aria-label="Loading search"
+      className="rounded-lg p-2 text-gray-300/80"
+    >
+      <Search className="h-5 w-5" />
+    </button>
+  ),
+});
+
+const ProfileMenu = dynamic(() => import("./ProfileMenu"), {
+  ssr: false,
+  loading: () => (
+    <button
+      type="button"
+      disabled
+      aria-label="Loading profile"
+      className="relative flex h-9 w-9 items-center justify-center text-white/80 md:h-10 md:w-10"
+    >
+      <CircleUserRound className="h-5 w-5 md:h-6 md:w-6" />
+    </button>
+  ),
+});
 
 const HOMEPAGE_LOGO_PATH = versionedAssetPath("/images/the-snap-homepage-logo-transparent-v2.png");
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [

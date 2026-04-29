@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaEnvelope, FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import type { SVGProps } from "react";
 
 const mainLinks = [
   { label: "Contact & Support", href: "/contact" },
@@ -11,31 +11,74 @@ const mainLinks = [
   { label: "Newsletter", href: "/newsletter" },
 ];
 
+function InstagramIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TikTokIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M14.7 3c.3 2 1.4 3.4 3.3 4.1v2.7a8 8 0 0 1-3.2-1.1v5.8a5.2 5.2 0 1 1-4.2-5.1v2.8a2.5 2.5 0 1 0 1.5 2.3V3h2.6Z" />
+    </svg>
+  );
+}
+
+function XIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M18.9 3H22l-6.8 7.8L23 21h-6.1l-4.8-6.2L6.7 21H3.6l7.3-8.4L3.3 3h6.2l4.3 5.6L18.9 3Zm-1.1 16h1.7L8.7 4.9H7l10.8 14.1Z" />
+    </svg>
+  );
+}
+
+function YouTubeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M21.6 7.2a2.8 2.8 0 0 0-2-2A42.5 42.5 0 0 0 12 4.8c-3 0-5.6.1-7.6.4a2.8 2.8 0 0 0-2 2A30.7 30.7 0 0 0 2 12c0 1.9.1 3.5.4 4.8a2.8 2.8 0 0 0 2 2c2 .3 4.6.4 7.6.4s5.6-.1 7.6-.4a2.8 2.8 0 0 0 2-2A30.7 30.7 0 0 0 22 12c0-1.9-.1-3.5-.4-4.8ZM10 15.6V8.4l6.2 3.6L10 15.6Z" />
+    </svg>
+  );
+}
+
+function EmailIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" />
+      <path d="m5 7 7 5 7-5" />
+    </svg>
+  );
+}
+
 const socials = [
   {
     label: "Instagram",
     href: "https://www.instagram.com/thesnapfootball",
-    icon: FaInstagram,
+    icon: InstagramIcon,
   },
   {
     label: "TikTok",
     href: "https://www.tiktok.com/@thesnapfootball",
-    icon: FaTiktok,
+    icon: TikTokIcon,
   },
   {
     label: "X",
     href: "https://twitter.com/thesnapfootball",
-    icon: FaXTwitter,
+    icon: XIcon,
   },
   {
     label: "YouTube",
     href: "https://www.youtube.com/@thesnapfootball",
-    icon: FaYoutube,
+    icon: YouTubeIcon,
   },
   {
     label: "Email",
     href: "mailto:TheGameSnap@yahoo.com",
-    icon: FaEnvelope,
+    icon: EmailIcon,
   },
 ];
 

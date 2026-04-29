@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import posthog from 'posthog-js';
+
+import { capturePosthogEvent, capturePosthogException } from '@/lib/posthog-browser';
 
 interface NewsletterSignupProps {
   variant?: 'default' | 'compact' | 'sidebar' | 'footer';
@@ -53,7 +54,7 @@ export default function NewsletterSignup({
       } else {
         setMessage('Subscribed!');
       }
-      posthog.capture('newsletter_subscribed', {
+      void capturePosthogEvent('newsletter_subscribed', {
         variant,
         already_subscribed: alreadySubscribed,
       });
@@ -63,11 +64,11 @@ export default function NewsletterSignup({
       if (error instanceof Error) {
         const msg = error.message === 'Failed to subscribe' ? 'Subscription failed. Try again later.' : error.message;
         setMessage(msg);
-        posthog.capture('newsletter_subscribe_failed', { variant, error: error.message });
-        posthog.captureException(error);
+        void capturePosthogEvent('newsletter_subscribe_failed', { variant, error: error.message });
+        void capturePosthogException(error);
       } else {
         setMessage('Something went wrong. Please try again later.');
-        posthog.capture('newsletter_subscribe_failed', { variant });
+        void capturePosthogEvent('newsletter_subscribe_failed', { variant });
       }
     }
   };

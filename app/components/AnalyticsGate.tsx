@@ -3,9 +3,12 @@ import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 
+import { disablePosthog } from "@/lib/posthog-browser";
+
 // Dynamically import analytics so bundle excluded when user opted out
 const VercelAnalytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics), { ssr: false, loading: () => null });
 const GoogleAnalytics = dynamic(() => import("./GoogleAnalytics"), { ssr: false, loading: () => null });
+const PostHogBootstrap = dynamic(() => import("./PostHogBootstrap"), { ssr: false, loading: () => null });
 
 // Only load GA when explicitly configured.
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -116,6 +119,13 @@ export default function AnalyticsGate() {
     return () => window.removeEventListener('keydown', handler);
   }, [toggle]);
 
+  useEffect(() => {
+    if (excluded === null || hasConsent === null) return;
+    if (excluded || !hasConsent) {
+      void disablePosthog();
+    }
+  }, [excluded, hasConsent]);
+
   if (hideOnRoute) return null;
   if (excluded === null || hasConsent === null) return null;
 
@@ -125,6 +135,7 @@ export default function AnalyticsGate() {
     <>
       {analyticsEnabled && (
         <>
+          <PostHogBootstrap />
           <VercelAnalytics />
           {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}
         </>

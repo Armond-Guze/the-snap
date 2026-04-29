@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, TrendingUp, Clock } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { client } from '@/sanity/lib/client';
 
 interface SearchResult {
   _id: string;
@@ -91,43 +90,34 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
 
   // Search function with debouncing
   useEffect(() => {
+    const controller = new AbortController();
+
     const searchArticles = async () => {
       if (query.length < 2) {
+        setIsLoading(false);
         setResults([]);
         return;
       }
 
       setIsLoading(true);
-      try {
-        const searchQuery = `
-          *[_type == "headline" && published == true && (
-            title match "*${query}*" ||
-            summary match "*${query}*" ||
-            category->title match "*${query}*" ||
-            author->name match "*${query}*"
-          )] | order(_createdAt desc)[0...8] {
-            _id,
-            title,
-            slug,
-            summary,
-            coverImage {
-              asset->{ url }
-            },
-            category-> {
-              title,
-              slug
-            },
-            author-> {
-              name
-            },
-            date,
-            _type
-          }
-        `;
 
-        const searchResults = await client.fetch<SearchResult[]>(searchQuery);
-        setResults(searchResults);
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`, {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          throw new Error(`Search failed with ${response.status}`);
+        }
+
+        const payload = (await response.json()) as { items?: SearchResult[] };
+        setResults(payload.items || []);
       } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+
         console.error('Search error:', error);
         setResults([]);
       } finally {
@@ -135,8 +125,14 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
       }
     };
 
-    const debounceTimer = setTimeout(searchArticles, 300);
-    return () => clearTimeout(debounceTimer);
+    const debounceTimer = setTimeout(() => {
+      void searchArticles();
+    }, 300);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      controller.abort();
+    };
   }, [query]);
 
   // Mobile-first design - keyboard navigation removed
