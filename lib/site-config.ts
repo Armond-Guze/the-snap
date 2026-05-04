@@ -20,10 +20,14 @@ export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 export const SITE_BRAND = "The Game Snap";
 export const SITE_NAME = "The Snap";
 export const SITE_TWITTER = "@thesnapfootball";
-export const BRAND_LOGO_PATH = "/images/thesnap-logo-website.png";
+export const BRAND_LOGO_PATH = "/images/the-snap-homepage-logo-transparent-v2.png";
 export const BRAND_LOGO_ALT = "The Snap";
 export const DEFAULT_OG_IMAGE_PATH = "/images/thesnap-logo-website.orig.png";
 export const FAVICON_PATH = "/favicon.svg";
+export const FAVICON_32_PATH = "/favicon-32.png";
+export const FAVICON_192_PATH = "/favicon-192.png";
+export const FAVICON_512_PATH = "/favicon-512.png";
+export const APPLE_TOUCH_ICON_PATH = "/apple-touch-icon.png";
 
 export function versionedAssetPath(path: string): string {
   if (!path || !DEPLOYMENT_ASSET_VERSION) return path;

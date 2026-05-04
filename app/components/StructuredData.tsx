@@ -36,8 +36,8 @@ const PUBLISHER_LOGO_URL = toAbsoluteSiteUrl(versionedAssetPath(BRAND_LOGO_PATH)
 const PUBLISHER_LOGO = {
   '@type': 'ImageObject',
   url: PUBLISHER_LOGO_URL,
-  width: 1200,
-  height: 630,
+  width: 1580,
+  height: 317,
 };
 
 // Helper functions for common structured data
