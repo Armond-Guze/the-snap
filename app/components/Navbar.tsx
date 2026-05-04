@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -75,7 +75,6 @@ const ProfileMenu = dynamic(() => import("./ProfileMenu"), {
   ),
 });
 
-const HOMEPAGE_LOGO_PATH = versionedAssetPath("/images/the-snap-homepage-logo-transparent-v2.png");
 const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = [
   { title: "AFC East", teams: ["BUF", "MIA", "NE", "NYJ"] },
   { title: "AFC North", teams: ["BAL", "CIN", "CLE", "PIT"] },
@@ -130,21 +129,12 @@ function resolveTeamCode(pathname: string): string | undefined {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const [resolvedPathname, setResolvedPathname] = useState(pathname);
-
-  useEffect(() => {
-    const browserPathname = window.location.pathname || "/";
-    if (browserPathname !== resolvedPathname) {
-      setResolvedPathname(browserPathname);
-    }
-  }, [resolvedPathname]);
-
-  const activePathname = resolvedPathname || pathname || "/";
+  const activePathname = pathname || "/";
   const isHomepage = activePathname === "/";
   const teamCode = resolveTeamCode(activePathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
-  const activeLogoPath = isHomepage ? HOMEPAGE_LOGO_PATH : versionedAssetPath(BRAND_LOGO_PATH);
-  const activeLogoAlt = isHomepage ? "The Snap homepage logo" : BRAND_LOGO_ALT;
+  const activeLogoPath = versionedAssetPath(BRAND_LOGO_PATH);
+  const activeLogoAlt = BRAND_LOGO_ALT;
   const mobileLogoWrapperClass = isHomepage
     ? "relative -my-1 block h-[2.8rem] w-[136px]"
     : "relative -my-1 block h-[2.8rem] w-[120px]";
