@@ -73,7 +73,7 @@ export default function FilteredHeadlines({
               rankingType,
               author->{ name },
               category->{ title, slug, color },
-              tags[]->{ title }
+              "tags": coalesce(tagRefs[]->{ title, slug }, [])
             }
           `);
         } else if (selectedCategory) {

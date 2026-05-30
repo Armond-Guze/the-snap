@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
@@ -39,29 +40,90 @@ interface FantasyDetail {
   instagramTitle?: string;
   tiktokUrl?: string;
   tiktokTitle?: string;
+  seo?: { noIndex?: boolean };
 }
 
 interface PageProps { params: Promise<{ slug: string }> }
 
 export const revalidate = 300;
 
-export async function generateMetadata(props: PageProps) {
+const canonicalFantasyArticleFilter = `
+  _type == "article" &&
+  published == true &&
+  !(_id in path("drafts.**")) &&
+  (!defined(seo.noIndex) || seo.noIndex == false) &&
+  (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+`;
+
+function fantasyArticlePath(slug: string): string {
+  return `/articles/${encodeURIComponent(slug)}`;
+}
+
+function legacyFantasyPath(slug: string): string {
+  return `/fantasy/${encodeURIComponent(slug)}`;
+}
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   if (!params?.slug) return {};
   const slug = decodeURIComponent(params.slug).trim();
-  const article = await sanityFetchDynamic<FantasyDetail>(
+
+  const canonicalArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
+    `*[${canonicalFantasyArticleFilter} && slug.current == $slug][0]{ slug }`,
+    { slug },
+    300,
+    null
+  );
+  const canonicalArticleSlug = canonicalArticle?.slug?.current?.trim();
+  if (canonicalArticleSlug) {
+    return {
+      alternates: {
+        canonical: `${SITE_URL}${fantasyArticlePath(canonicalArticleSlug)}`,
+      },
+      robots: {
+        index: false,
+        follow: true,
+      },
+    };
+  }
+
+  const article = await sanityFetchDynamic<FantasyDetail | null>(
     `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
-      _id, title, summary, coverImage{asset->{url}}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
+      _id, title, slug, summary, coverImage{asset->{url}},
+      youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle,
+      seo{ noIndex }
     }`,
     { slug },
     300,
-    null as unknown as FantasyDetail
+    null
   );
   if (!article) return {};
+
+  const cleanSlug = article.slug?.current?.trim() || slug;
+  const canonical = `${SITE_URL}${legacyFantasyPath(cleanSlug)}`;
+  const description = article.summary || undefined;
+
   return {
     title: article.title,
-    description: article.summary,
-    openGraph: { title: article.title, description: article.summary, images: article.coverImage?.asset?.url ? [article.coverImage.asset.url] : [] }
+    description,
+    alternates: { canonical },
+    robots: {
+      index: article.seo?.noIndex !== true,
+      follow: true,
+    },
+    openGraph: {
+      title: article.title,
+      description,
+      url: canonical,
+      type: 'article',
+      images: article.coverImage?.asset?.url ? [article.coverImage.asset.url] : [],
+    },
+    twitter: {
+      card: article.coverImage?.asset?.url ? 'summary_large_image' : 'summary',
+      title: article.title,
+      description,
+      images: article.coverImage?.asset?.url ? [article.coverImage.asset.url] : [],
+    },
   };
 }
 
@@ -69,8 +131,20 @@ export default async function FantasyArticlePage(props: PageProps) {
   const params = await props.params;
   const slug = decodeURIComponent(params.slug).trim();
 
+  const canonicalArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
+    `*[${canonicalFantasyArticleFilter} && slug.current == $slug][0]{ slug }`,
+    { slug },
+    300,
+    null
+  );
+
+  const canonicalArticleSlug = canonicalArticle?.slug?.current?.trim();
+  if (canonicalArticleSlug) {
+    permanentRedirect(fantasyArticlePath(canonicalArticleSlug));
+  }
+
   const [article, otherContent] = await Promise.all([
-  sanityFetchDynamic<FantasyDetail>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
+    sanityFetchDynamic<FantasyDetail | null>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
       _id, title, slug, summary,
       // Expand both body & content arrays (support legacy / new)
       content[]{
@@ -108,8 +182,8 @@ export default async function FantasyArticlePage(props: PageProps) {
       author->{name, image{asset->{url}}},
       publishedAt, date,
       category->{title, slug},
-  youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
-    }`, { slug }, 300, null as unknown as FantasyDetail),
+      youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
+    }`, { slug }, 300, null),
     sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
       _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
     }`, {}, 300, [])
@@ -161,7 +235,7 @@ export default async function FantasyArticlePage(props: PageProps) {
               {blocks && <PortableText value={blocks as unknown as TypedObject[]} components={portableTextComponents} />}
             </div>
           </section>
-          <SocialShare url={`${SITE_URL}/fantasy/${slug}`} title={article.title} description={article.summary || ''} variant="compact" className="mb-8" />
+          <SocialShare url={`${SITE_URL}${legacyFantasyPath(article.slug?.current?.trim() || slug)}`} title={article.title} description={article.summary || ''} variant="compact" className="mb-8" />
         </article>
 
         {/* Sidebar */}

@@ -10,6 +10,7 @@ import { fetchSanitySeasonGames } from '@/lib/schedule';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
+export const dynamicParams = false;
 
 interface PageProps {
   params: Promise<{ gameId: string }>;
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: 'Game not found | The Snap',
       description: 'Unable to locate this matchup in the current schedule.',
-      robots: { index: true, follow: true },
+      robots: { index: false, follow: false },
     };
   }
   const url = `${siteUrl}/game-center/${gameId}`;

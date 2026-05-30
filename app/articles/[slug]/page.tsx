@@ -275,7 +275,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				image { asset->{ url } },
 				category->{ title, slug, color },
 				format,
-				tags[]->{ title }
+				"tags": coalesce(tagRefs[]->{ title, slug }, [])
 			}`,
 			{},
 			300,

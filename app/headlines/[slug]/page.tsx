@@ -89,7 +89,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         featuredImage { asset->{ url } },
         image { asset->{ url } },
         category->{ title, slug, color },
-        tags[]->{ title }
+        "tags": coalesce(tagRefs[]->{ title, slug }, [])
       }`,
       {},
       300,

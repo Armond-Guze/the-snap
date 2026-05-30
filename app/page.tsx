@@ -72,6 +72,7 @@ export default async function Home() {
 
   return (
     <main className="home-gradient home-shell min-h-screen">
+      <h1 className="sr-only">The Snap NFL News, Rankings, and Analysis</h1>
       <GameSchedule games={games} />
       <Headlines hideSummaries />
       <GoogleAds />

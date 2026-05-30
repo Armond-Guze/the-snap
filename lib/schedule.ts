@@ -310,7 +310,7 @@ async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null>
   try {
     const { client } = await import('../sanity/lib/client');
     const docs = await client.fetch<SanityGameDoc[]>(
-      `*[_type == "game" && _id in $ids][0...1] {
+      `*[_type == "game" && published == true && _id in $ids][0...1] {
         _id,
         week,
         gameDate,

@@ -56,7 +56,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articles, headlines, fantasy, categories, topicHubs] = await Promise.all([
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[
-        (_type in ["article","headline","rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
+        (
+          _type == "headline" ||
+          _type == "rankings" ||
+          (_type == "article" && format != "powerRankings")
+        ) &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
       ]{ slug, _updatedAt }`
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
@@ -67,7 +73,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ]{ slug, _updatedAt }`
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
-      `*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`
+      `*[
+        _type == "fantasyFootball" &&
+        published == true &&
+        !(_id in path("drafts.**")) &&
+        (!defined(seo.noIndex) || seo.noIndex == false) &&
+        !(slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (!defined(seo.noIndex) || seo.noIndex == false) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current)
+      ]{ slug, _updatedAt }`
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[_type == "category"]{ slug, _updatedAt }`

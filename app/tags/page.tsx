@@ -1,180 +1,199 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+import StructuredData from '@/app/components/StructuredData';
+import { buildPageMetadata } from '@/lib/page-metadata';
+import { SITE_URL } from '@/lib/site-config';
 import { client } from '@/sanity/lib/client';
-import { tagsQuery } from '@/sanity/lib/queries';
-import { Tag } from '@/types';
 
-export default function TagsPage() {
-  const [tags, setTags] = useState<(Tag & { articleCount: number })[]>([]);
-  const [loading, setLoading] = useState(true);
+export const revalidate = 600;
 
-  useEffect(() => {
-    async function fetchTags() {
-      try {
-        const data = await client.fetch(tagsQuery);
-        setTags(data);
-      } catch (error) {
-        console.error('Error fetching tags:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+export const metadata: Metadata = buildPageMetadata({
+  title: 'NFL Tags | Topics, Teams, and Coverage Hubs | The Snap',
+  description:
+    'Browse The Snap by NFL topic tags and team tags, including draft, fantasy football, free agency, power rankings, and team-specific coverage.',
+  path: '/tags',
+});
 
-    fetchTags();
-  }, []);
+type TagSummary = {
+  _id: string;
+  _type: 'advancedTag' | 'tag';
+  title: string;
+  slug?: { current?: string };
+  description?: string;
+  articleCount: number;
+};
 
-  const getTagSize = (articleCount: number) => {
-    if (articleCount >= 20) return 'text-2xl p-4';
-    if (articleCount >= 10) return 'text-xl p-3';
-    if (articleCount >= 5) return 'text-lg p-3';
-    return 'text-base p-2';
-  };
-
-  const groupedTags = {
-    trending: tags.filter(tag => tag.trending),
-    popular: tags.filter(tag => !tag.trending && tag.articleCount >= 5),
-    other: tags.filter(tag => !tag.trending && tag.articleCount < 5)
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-12 bg-gray-800 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-800 rounded w-2/3"></div>
-            <div className="flex flex-wrap gap-3">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="h-8 w-20 bg-gray-800 rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+const tagSummaryQuery = `
+{
+  "topicTags": *[_type == "advancedTag" && defined(title)] | order(title asc) {
+    _id,
+    _type,
+    title,
+    slug,
+    description,
+    "articleCount": count(*[
+      published == true &&
+      _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+      (
+        (defined(tagRefs) && references(^._id)) ||
+        (defined(tags) && tags match "*" + ^.title + "*")
+      )
+    ])
+  },
+  "teamTags": *[_type == "tag" && defined(title)] | order(title asc) {
+    _id,
+    _type,
+    title,
+    slug,
+    description,
+    "articleCount": count(*[
+      published == true &&
+      _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+      (
+        (defined(teams) && references(^._id)) ||
+        (defined(tags) && tags match "*" + ^.title + "*")
+      )
+    ])
   }
+}
+`;
+
+function tagSize(articleCount: number) {
+  if (articleCount >= 20) return 'px-4 py-3 text-lg';
+  if (articleCount >= 10) return 'px-4 py-2.5 text-base';
+  if (articleCount >= 5) return 'px-3.5 py-2 text-sm';
+  return 'px-3 py-1.5 text-sm';
+}
+
+function topicHref(tag: TagSummary) {
+  return `/headlines?tag=${encodeURIComponent(tag.title)}`;
+}
+
+function teamHref(tag: TagSummary) {
+  const slug = tag.slug?.current?.trim();
+  return slug ? `/teams/${encodeURIComponent(slug)}` : topicHref(tag);
+}
+
+function TagPill({ tag, href, featured = false }: { tag: TagSummary; href: string; featured?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={[
+        'inline-flex items-center gap-2 rounded-lg border font-semibold transition-colors',
+        tagSize(tag.articleCount),
+        featured
+          ? 'border-white/20 bg-white text-black hover:bg-white/90'
+          : 'border-white/10 bg-white/[0.04] text-white/85 hover:border-white/25 hover:bg-white/[0.08] hover:text-white',
+      ].join(' ')}
+      title={tag.description || `View ${tag.title} coverage`}
+    >
+      <span>{tag.title}</span>
+      <span className={featured ? 'text-black/55' : 'text-white/45'}>{tag.articleCount}</span>
+    </Link>
+  );
+}
+
+export default async function TagsPage() {
+  const { topicTags, teamTags } = await client.fetch<{
+    topicTags: TagSummary[];
+    teamTags: TagSummary[];
+  }>(tagSummaryQuery);
+
+  const activeTopicTags = topicTags.filter((tag) => tag.articleCount > 0);
+  const highCoverageTags = activeTopicTags.filter((tag) => tag.articleCount >= 5);
+  const moreTopicTags = activeTopicTags.filter((tag) => tag.articleCount < 5);
+  const activeTeamTags = teamTags.filter((tag) => tag.articleCount > 0);
+  const itemListTags = [...highCoverageTags, ...moreTopicTags].slice(0, 30);
+
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'NFL Topic Tags',
+    itemListElement: itemListTags.map((tag, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: tag.title,
+      url: `${SITE_URL}${topicHref(tag)}`,
+    })),
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Browse by Tags
-          </h1>
-          <div className="w-24 h-1 bg-white mb-6"></div>
-          <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
-            Explore NFL content by topic. Larger tags indicate more articles available.
+    <main className="min-h-screen bg-black py-12 text-white">
+      <StructuredData id="sd-tags-itemlist" data={itemListSchema} />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-10 max-w-3xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-white/45">Tags</p>
+          <h1 className="text-4xl font-bold tracking-tight text-white md:text-5xl">NFL Tags</h1>
+          <p className="mt-4 text-lg leading-relaxed text-gray-300">
+            Browse The Snap by recurring NFL topics, team tags, and coverage areas.
           </p>
-        </div>
+        </header>
 
-        {/* Breadcrumbs */}
-        <nav className="mb-8">
-          <ol className="flex items-center space-x-2 text-sm">
-            <li>
-              <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                Home
-              </Link>
-            </li>
-            <li className="text-gray-600">/</li>
-            <li>
-              <Link href="/headlines" className="text-gray-400 hover:text-white transition-colors">
-                Headlines
-              </Link>
-            </li>
-            <li className="text-gray-600">/</li>
-            <li className="text-white">Tags</li>
-          </ol>
+        <nav className="mb-10 text-sm text-white/55" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-white">
+            Home
+          </Link>
+          <span className="mx-2 text-white/25">/</span>
+          <span className="text-white">Tags</span>
         </nav>
 
         <div className="space-y-12">
-          {/* Trending Tags */}
-          {groupedTags.trending.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                🔥 Trending Tags
-              </h2>
+          <section>
+            <div className="mb-5 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-white">High Coverage Tags</h2>
+                <p className="mt-1 text-sm text-white/50">Topics with the deepest current archive.</p>
+              </div>
+              <Link href="/headlines" className="hidden text-sm font-semibold text-white/65 hover:text-white sm:inline">
+                Latest Headlines
+              </Link>
+            </div>
+            {highCoverageTags.length ? (
               <div className="flex flex-wrap gap-3">
-                {groupedTags.trending.map((tag) => (
+                {highCoverageTags.map((tag) => (
+                  <TagPill key={tag._id} tag={tag} href={topicHref(tag)} featured />
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-white/55">
+                No high coverage tags yet.
+              </p>
+            )}
+          </section>
+
+          {moreTopicTags.length ? (
+            <section>
+              <h2 className="mb-5 text-2xl font-semibold text-white">More Topic Tags</h2>
+              <div className="flex flex-wrap gap-2.5">
+                {moreTopicTags.map((tag) => (
+                  <TagPill key={tag._id} tag={tag} href={topicHref(tag)} />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {activeTeamTags.length ? (
+            <section>
+              <h2 className="mb-5 text-2xl font-semibold text-white">Team Tags</h2>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {activeTeamTags.map((tag) => (
                   <Link
                     key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className={`inline-block rounded-lg bg-gradient-to-r from-yellow-600 to-red-600 hover:from-yellow-500 hover:to-red-500 text-white font-medium transition-all duration-300 transform hover:scale-105 ${getTagSize(
-                      tag.articleCount
-                    )}`}
-                    title={tag.description || `View articles tagged with ${tag.title}`}
+                    href={teamHref(tag)}
+                    className="rounded-lg border border-white/10 bg-white/[0.03] p-4 transition-colors hover:border-white/25 hover:bg-white/[0.07]"
                   >
-                    #{tag.title}
-                    <span className="ml-2 text-sm opacity-90">
-                      ({tag.articleCount})
+                    <span className="block text-base font-semibold text-white">{tag.title}</span>
+                    <span className="mt-1 block text-sm text-white/45">
+                      {tag.articleCount} article{tag.articleCount === 1 ? '' : 's'}
                     </span>
                   </Link>
                 ))}
               </div>
             </section>
-          )}
-
-          {/* Popular Tags */}
-          {groupedTags.popular.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6">Popular Tags</h2>
-              <div className="flex flex-wrap gap-3">
-                {groupedTags.popular.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className={`inline-block rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-medium transition-colors ${getTagSize(
-                      tag.articleCount
-                    )}`}
-                    title={tag.description || `View articles tagged with ${tag.title}`}
-                  >
-                    #{tag.title}
-                    <span className="ml-2 text-sm opacity-75">
-                      ({tag.articleCount})
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Other Tags */}
-          {groupedTags.other.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6">All Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {groupedTags.other.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className="inline-block px-3 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white text-sm transition-colors"
-                    title={tag.description || `View articles tagged with ${tag.title}`}
-                  >
-                    #{tag.title}
-                    {tag.articleCount > 0 && (
-                      <span className="ml-1 text-xs opacity-75">
-                        ({tag.articleCount})
-                      </span>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center">
-          <Link
-            href="/headlines"
-            className="inline-block px-8 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
-          >
-            Browse All Headlines
-          </Link>
+          ) : null}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

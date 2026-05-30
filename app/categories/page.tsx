@@ -66,8 +66,36 @@ function getContentUrl(item: CategoryTopItem): string {
 export default async function CategoriesIndexPage() {
   const categories: CategoryLite[] = await client.fetch(`*[_type=='category']|order(priority asc, title asc){
     _id,title,slug,description,color,
-    "articleCount": count(*[_type in ["article","headline","rankings","fantasyFootball"] && published==true && category._ref == ^._id]),
-    "topArticles": *[_type in ["article","headline","rankings","fantasyFootball"] && published==true && category._ref == ^._id]|order(coalesce(date,publishedAt,_createdAt) desc)[0...3]{_id,_type,title,slug,format,rankingType,seasonYear,weekNumber,playoffRound}
+    "articleCount": count(*[
+      _type in ["article","headline","rankings","fantasyFootball"] &&
+      published==true &&
+      category._ref == ^._id &&
+      !(
+        _type == "fantasyFootball" &&
+        slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (!defined(seo.noIndex) || seo.noIndex == false) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current
+      )
+    ]),
+    "topArticles": *[
+      _type in ["article","headline","rankings","fantasyFootball"] &&
+      published==true &&
+      category._ref == ^._id &&
+      !(
+        _type == "fantasyFootball" &&
+        slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (!defined(seo.noIndex) || seo.noIndex == false) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current
+      )
+    ]|order(coalesce(date,publishedAt,_createdAt) desc)[0...3]{_id,_type,title,slug,format,rankingType,seasonYear,weekNumber,playoffRound}
   }`);
 
   return (

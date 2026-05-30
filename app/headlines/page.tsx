@@ -130,7 +130,7 @@ async function fetchHeadlines(filters: { category?: string; tag?: string; search
         rankingType,
         author->{ name },
         category->{ title, slug, color },
-        tags[]->{ title }
+        "tags": coalesce(tagRefs[]->{ title, slug }, [])
       }
       `,
       { searchPattern }

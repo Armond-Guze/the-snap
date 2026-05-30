@@ -1,12 +1,15 @@
 // Simple helper to render JSON-LD structured data
 // Usage: <StructuredData data={{ ...jsonLd }} />
 // Works in both Server and Client components
-import Script from 'next/script'
 import { BRAND_LOGO_PATH, toAbsoluteSiteUrl, versionedAssetPath } from '@/lib/site-config'
 
 interface StructuredDataProps {
   data: Record<string, unknown>
   id?: string // allow multiple distinct structured data blocks
+}
+
+function serializeStructuredData(data: Record<string, unknown>): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
 export default function StructuredData({ data, id }: StructuredDataProps) {
@@ -24,10 +27,10 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
   const derivedId = id || `sd-${typeSegment}-${headlineSegment}`;
 
   return (
-    <Script
+    <script
       id={derivedId}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeStructuredData(data) }}
     />
   )
 }

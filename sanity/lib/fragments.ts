@@ -75,11 +75,11 @@ export const articleFields = `
     title,
     slug
   },
-  tags[]-> {
+  "tags": coalesce(tagRefs[]-> {
     _id,
     title,
     slug
-  },
+  }, []),
   readingTime,
   viewCount,
   ${seoFields}
@@ -140,11 +140,11 @@ export const unifiedContentFields = `
     title,
     slug
   },
-  tags[]-> {
+  "tags": coalesce(tagRefs[]-> {
     _id,
     title,
     slug
-  },
+  }, []),
   readingTime,
   viewCount,
   

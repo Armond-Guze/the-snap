@@ -67,7 +67,7 @@ async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]
 
   const baseFields = `{
     _id,_type,format,rankingType,seasonYear,weekNumber,playoffRound,title,homepageTitle,slug,summary,
-    coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},tags[]->{title}
+    coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},"tags": coalesce(tagRefs[]->{title,slug}, [])
   }`;
 
   if (filters.search) {
@@ -98,7 +98,11 @@ async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]
   if (filters.tag) {
     return client.fetch(
       `
-      *[${baseFilter} && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))]
+      *[${baseFilter} && (
+        (defined(tags) && tags match "*" + $tagTitle + "*") ||
+        (defined(tagRefs) && $tagTitle in tagRefs[]->title) ||
+        (defined(teams) && $tagTitle in teams[]->title)
+      )]
       | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) ${baseFields}
       `,
       { tagTitle: filters.tag }

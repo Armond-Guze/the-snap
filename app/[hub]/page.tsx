@@ -192,6 +192,16 @@ async function fetchHubArticles(hub: TopicHubDoc): Promise<HubArticle[]> {
     `*[
       published == true &&
       _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+      !(
+        _type == "fantasyFootball" &&
+        slug.current in *[
+          _type == "article" &&
+          published == true &&
+          !(_id in path("drafts.**")) &&
+          (!defined(seo.noIndex) || seo.noIndex == false) &&
+          (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+        ].slug.current
+      ) &&
       (
         (defined(topicHubs) && $hubId in topicHubs[]._ref) ||
         (defined(category) && category->slug.current in $categorySlugs) ||

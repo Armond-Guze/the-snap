@@ -29,7 +29,7 @@ export const headlineQuery = `
     author->{
       name
     },
-  tags,
+  "tags": coalesce(tagRefs[]->{ title, slug }, []),
   twitterUrl,
   instagramUrl,
   tiktokUrl
@@ -92,10 +92,10 @@ export const headlineDetailQuery = `
       title,
       slug
     },
-    tags[]->{
+    "tags": coalesce(tagRefs[]->{
       title,
       slug
-    },
+    }, []),
     seo {
       metaTitle,
       metaDescription,
@@ -155,7 +155,7 @@ export const headlineDetailQuery = `
 export const relatedHeadlinesQuery = `
   *[
     ((_type == "article" && format == "headline") || _type == "headline") && published == true && _id != $currentId && 
-    (category._ref == $categoryId || count((tags[]._ref)[@ in $tagIds]) > 0)
+    (category._ref == $categoryId || count((tagRefs[]._ref)[@ in $tagIds]) > 0)
   ] 
   | order(coalesce(publishedAt, _createdAt) desc)[0...6] {
     _id,
@@ -207,7 +207,17 @@ export const categoryContentQuery = `
   *[
     _type in ["article", "headline", "rankings", "fantasyFootball"] &&
     published == true &&
-    category->slug.current == $categorySlug
+    category->slug.current == $categorySlug &&
+    !(
+      _type == "fantasyFootball" &&
+      slug.current in *[
+        _type == "article" &&
+        published == true &&
+        !(_id in path("drafts.**")) &&
+        (!defined(seo.noIndex) || seo.noIndex == false) &&
+        (format == "fantasy" || "fantasy" in coalesce(additionalFormats, []))
+      ].slug.current
+    )
   ]
   | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
@@ -226,7 +236,7 @@ export const categoryContentQuery = `
     image { asset->{ url } },
     author->{ name },
     category->{ title, slug, color },
-    tags[]->{ title },
+    "tags": coalesce(tagRefs[]->{ title, slug }, []),
     date,
     publishedAt
   }
@@ -285,10 +295,10 @@ export const articleDetailQuery = `
       title,
       slug
     },
-    tags[]->{
+    "tags": coalesce(tagRefs[]->{
       title,
       slug
-    },
+    }, []),
     seo {
       metaTitle,
       metaDescription,
@@ -342,28 +352,51 @@ export const articleDetailQuery = `
   }
 `;
 
-// Tags query - fixed to work with string tags in headlines
+const tagArticleCountFilter = `
+  (published == true) &&
+  _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+  (
+    (
+      ^._type == "advancedTag" &&
+      (
+        (defined(tagRefs) && references(^._id)) ||
+        (defined(tags) && tags match "*" + ^.title + "*")
+      )
+    ) ||
+    (
+      ^._type == "tag" &&
+      (
+        (defined(teams) && ^._id in teams[]._ref) ||
+        (defined(tags) && tags match "*" + ^.title + "*")
+      )
+    )
+  )
+`;
+
+// Canonical topic and team tag cloud query. Falls back to legacy string tags while backfill catches up.
 export const tagsQuery = `
-  *[_type == "tag"] | order(trending desc, title asc) {
+  *[_type in ["advancedTag", "tag"] && defined(slug.current)] {
     _id,
+    _type,
     title,
     slug,
     description,
-    trending,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
-  }
+    "trending": coalesce(trending, false),
+    "articleCount": count(*[${tagArticleCountFilter}])
+  } | order(articleCount desc, title asc)
 `;
 
-// Trending tags query - fixed to work with string tags
+// Popular canonical tags for sidebar modules.
 export const trendingTagsQuery = `
-  *[_type == "tag" && trending == true] | order(title asc) {
+  *[_type in ["advancedTag", "tag"] && defined(slug.current)] {
     _id,
+    _type,
     title,
     slug,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
-  }
+    description,
+    "trending": true,
+    "articleCount": count(*[${tagArticleCountFilter}])
+  } | order(articleCount desc, title asc)[0...24]
 `;
 
 // Headlines by category - fixed to work without requiring category references
@@ -390,15 +423,20 @@ export const headlinesByCategoryQuery = `
       title,
       color
     },
-    tags,
+    "tags": coalesce(tagRefs[]->{ title, slug }, []),
     date
   }
 `;
 
-// Headlines by tag - fixed to work with string tags
+// Headlines by canonical tag title, with a legacy string-tag fallback while older docs are migrated.
 export const headlinesByTagQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true && ((defined(tags) && tags match "*" + $tagTitle + "*") || (defined(tagRefs) && $tagTitle in tagRefs[]->title))
+    ((_type == "article" && format == "headline") || _type == "headline") && published == true &&
+    (
+      (defined(tags) && tags match "*" + $tagTitle + "*") ||
+      (defined(tagRefs) && $tagTitle in tagRefs[]->title) ||
+      (defined(teams) && $tagTitle in teams[]->title)
+    )
   ] 
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
@@ -419,7 +457,7 @@ export const headlinesByTagQuery = `
       title,
       color
     },
-    tags,
+    "tags": coalesce(tagRefs[]->{ title, slug }, []),
     date
   }
 `;
