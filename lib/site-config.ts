@@ -1,9 +1,7 @@
 const FALLBACK_SITE_URL = "https://thegamesnap.com";
-const DEPLOYMENT_ASSET_VERSION =
-  process.env.NEXT_PUBLIC_ASSET_VERSION?.trim() ||
-  process.env.VERCEL_GIT_COMMIT_SHA?.trim() ||
-  process.env.VERCEL_DEPLOYMENT_ID?.trim() ||
-  "";
+// This module is imported by both server and client components. Keep the asset
+// version client-visible so hydrated UI does not swap between two asset URLs.
+const PUBLIC_ASSET_VERSION = process.env.NEXT_PUBLIC_ASSET_VERSION?.trim() || "";
 
 function normalizeSiteUrl(url?: string | null): string {
   const candidate = (url || "").trim();
@@ -30,9 +28,9 @@ export const FAVICON_512_PATH = "/favicon-512.png";
 export const APPLE_TOUCH_ICON_PATH = "/apple-touch-icon.png";
 
 export function versionedAssetPath(path: string): string {
-  if (!path || !DEPLOYMENT_ASSET_VERSION) return path;
+  if (!path || !PUBLIC_ASSET_VERSION) return path;
   const separator = path.includes("?") ? "&" : "?";
-  return `${path}${separator}v=${DEPLOYMENT_ASSET_VERSION}`;
+  return `${path}${separator}v=${PUBLIC_ASSET_VERSION}`;
 }
 
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${versionedAssetPath(DEFAULT_OG_IMAGE_PATH)}`;

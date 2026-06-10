@@ -1,361 +1,63 @@
-import { PortableText } from '@portabletext/react';
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
+import type { Metadata } from 'next';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { sanityFetchDynamic } from '@/sanity/lib/fetch';
-import type { Headline, HeadlineListItem, HeadlinePageProps } from '@/types';
-import RelatedArticles from '@/app/components/RelatedArticles';
-import SocialShare from '@/app/components/SocialShare';
-import ReadingTime from '@/app/components/ReadingTime';
-import Breadcrumb from '@/app/components/Breadcrumb';
-import ArticleViewTracker from '@/app/components/ArticleViewTracker';
-import { generateSEOMetadata } from '@/lib/seo';
 import { headlineDetailQuery } from '@/sanity/lib/queries';
-import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time';
-import { formatArticleDate } from '@/lib/date-utils';
-import { portableTextComponents } from '@/lib/portabletext-components';
-import { Metadata } from 'next';
-import StructuredData, { createEnhancedArticleStructuredData } from '@/app/components/StructuredData';
-import YouTubeEmbed from '@/app/components/YoutubeEmbed';
-import TwitterEmbed from '@/app/components/TwitterEmbed';
-import InstagramEmbed from '@/app/components/InstagramEmbed';
-import TikTokEmbed from '@/app/components/TikTokEmbed';
-import MostRead from '@/app/components/MostRead';
-import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
 
+interface HeadlinePageProps {
+  params: Promise<{ slug?: string }>;
+}
+
+type LegacyHeadlineRedirect = {
+  slug?: {
+    current?: string;
+  };
+};
+
+function normalizeSlug(slug?: string) {
+  if (!slug) return '';
+  return decodeURIComponent(slug).trim().replace(/^\/+|\/+$/g, '');
+}
+
+async function getPublishedHeadline(slug: string) {
+  return sanityFetchDynamic<LegacyHeadlineRedirect>(
+    headlineDetailQuery,
+    { slug },
+    300,
+    null as unknown as LegacyHeadlineRedirect
+  );
+}
+
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
   const params = await props.params;
-  if (!params?.slug) return {};
+  const fallbackSlug = normalizeSlug(params?.slug);
+  if (!fallbackSlug) {
+    return {
+      robots: { index: false, follow: true },
+    };
+  }
 
-  const trimmedSlug = decodeURIComponent(params.slug).trim();
+  const headline = await getPublishedHeadline(fallbackSlug);
+  const articleSlug = normalizeSlug(headline?.slug?.current) || fallbackSlug;
+  const canonical = `${SITE_URL}/articles/${articleSlug}`;
 
-  const headline = await sanityFetchDynamic<Headline>(
-    headlineDetailQuery,
-    { slug: trimmedSlug },
-    300,
-    null as unknown as Headline
-  );
-
-  if (!headline) return {};
-
-  const metadata = generateSEOMetadata(headline, '/articles');
-  // Safety: enforce canonical exactly once (avoid double slash issues)
-  const canonicalBase = `${SITE_URL}/articles`;
-  const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
   return {
-    ...metadata,
-    alternates: {
-      ...metadata.alternates,
-      canonical: `${canonicalBase}/${cleanSlug}`,
-    },
+    title: 'Redirecting to article | The Snap',
+    alternates: { canonical },
+    robots: { index: false, follow: true },
   };
 }
 
 export default async function HeadlinePage(props: HeadlinePageProps) {
   const params = await props.params;
-  if (!params?.slug) return notFound();
+  const fallbackSlug = normalizeSlug(params?.slug);
+  if (!fallbackSlug) notFound();
 
-  const trimmedSlug = decodeURIComponent(params.slug).trim();
-
-  const [headline, otherHeadlines] = await Promise.all([
-    sanityFetchDynamic<Headline>(
-      headlineDetailQuery,
-      { slug: trimmedSlug },
-      300,
-      null as unknown as Headline
-    ),
-    sanityFetchDynamic<HeadlineListItem[]>(
-      `*[
-        ((_type == "article" && format == "headline") || _type == "headline") && published == true
-      ] | order(_createdAt desc)[0...24]{
-        _id,
-        _type,
-        title,
-        homepageTitle,
-        slug,
-        date,
-        format,
-        rankingType,
-        seasonYear,
-        weekNumber,
-        playoffRound,
-        summary,
-        author-> { name },
-        coverImage { asset->{ url } },
-        featuredImage { asset->{ url } },
-        image { asset->{ url } },
-        category->{ title, slug, color },
-        "tags": coalesce(tagRefs[]->{ title, slug }, [])
-      }`,
-      {},
-      300,
-      []
-    ),
-  ]);
-
+  const headline = await getPublishedHeadline(fallbackSlug);
   if (!headline) notFound();
 
-  const tagList = Array.isArray(headline.tags)
-    ? headline.tags
-        .map((tag) => {
-          const title = typeof tag?.title === 'string' ? tag.title.trim() : ''
-          if (!title) return null
-          const slug = tag?.slug?.current
-          return typeof slug === 'string' && slug.length > 0 ? { title, slug } : { title }
-        })
-        .filter((tag): tag is { title: string; slug?: string } => tag !== null)
-    : [];
-
-  const topicHubLinks = Array.isArray(headline.topicHubs)
-    ? headline.topicHubs
-        .map((hub) => {
-          const title = typeof hub?.title === 'string' ? hub.title.trim() : '';
-          const slug = hub?.slug?.current?.trim();
-          if (!title || !slug) return null;
-          return { title, slug };
-        })
-        .filter((hub): hub is { title: string; slug: string } => hub !== null)
-    : [];
-  const primaryTopicHub = topicHubLinks[0];
-
-  const categorySlug = headline.category?.slug?.current;
-  const relatedHeadlinePool = otherHeadlines.filter(
-    (article) =>
-      article.slug.current !== trimmedSlug &&
-      !(article._type === 'article' && article.format === 'powerRankings')
-  );
-  const prioritizedMoreArticles = categorySlug
-    ? [
-        ...relatedHeadlinePool.filter((article) => article.category?.slug?.current === categorySlug),
-        ...relatedHeadlinePool.filter((article) => article.category?.slug?.current !== categorySlug),
-      ]
-    : relatedHeadlinePool;
-  const moreArticles = prioritizedMoreArticles.slice(0, 3);
-  const moreArticleIds = new Set(moreArticles.map((article) => article._id));
-  const sidebarArticles = relatedHeadlinePool.filter((article) => !moreArticleIds.has(article._id));
-
-  // Calculate reading time
-  const textContent = extractTextFromBlocks(headline.body || []);
-  const readingTime = calculateReadingTime(textContent);
-
-  // Build breadcrumb items
-  const breadcrumbItems = [
-    { label: 'Articles', href: '/articles' },
-    ...(headline.category?.title ? [{ label: headline.category.title, href: `/categories/${headline.category.slug?.current}` }] : []),
-    ...(primaryTopicHub ? [{ label: primaryTopicHub.title, href: `/${primaryTopicHub.slug}` }] : []),
-    { label: headline.title }
-  ];
-
-
-  const shareUrl = `${SITE_URL}/articles/${trimmedSlug}`;
-  const ogFallback = `${SITE_URL}/api/og?${new URLSearchParams({
-    title: headline.title,
-    subtitle: headline.summary || headline.title,
-    category: headline.category?.title || '',
-    author: headline.author?.name || '',
-    date: headline.date || headline.publishedAt || '',
-  }).toString()}`;
-
-  // Structured Data
-  let articleSD; // wrap in try/catch to avoid hard crash
-  try {
-  // Safely derive keyword strings from tags; guard against null/invalid entries coming from Sanity
-  const keywordList = Array.isArray(headline.tags)
-    ? headline.tags
-      .map(t => (t && typeof t.title === 'string' ? t.title.trim() : null))
-      .filter((t): t is string => !!t && t.length > 0)
-    : undefined;
-    articleSD = createEnhancedArticleStructuredData({
-      headline: headline.title,
-      description: headline.summary || headline.title,
-      canonicalUrl: shareUrl,
-      images: [
-        ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : [{ url: ogFallback }]),
-      ],
-      datePublished: headline.date || '',
-      dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date || '',
-      author: { name: headline.author?.name || 'Staff Writer' },
-      articleSection: headline.category?.title || primaryTopicHub?.title,
-      keywords: keywordList && keywordList.length ? keywordList : undefined,
-      speakableSelectors: ['h1','meta[name="description"]'],
-    });
-  } catch (e) {
-    console.error('Structured data generation failed', e);
-  }
-
-  return (
-    <main className="bg-black text-white min-h-screen">
-      {articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
-      <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main Article */}
-        <article className="lg:col-span-2 flex flex-col">
-          <div className="hidden sm:block">
-            <Breadcrumb items={breadcrumbItems} className="mb-4" />
-          </div>
-          <section className="mb-8 rounded-2xl bg-zinc-900/85 px-4 py-5 sm:px-6 sm:py-6">
-            {/* Extend headline title width similar to fantasy article (remove strict 20ch max) */}
-            <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{headline.title}</h1>
-            <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
-              {headline.author?.image?.asset?.url && (
-                <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                  <Image
-                    src={headline.author.image.asset.url}
-                    alt={(headline.author.image as { alt?: string })?.alt || headline.author.name || 'Author'}
-                    fill
-                    sizes={AVATAR_SIZES}
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              {headline.author?.name && <span className="font-medium text-white/90">By {headline.author.name}</span>}
-              <span>• {formatArticleDate(headline.date)}</span>
-              <span className="text-gray-500">•</span>
-              <ReadingTime minutes={readingTime} />
-              {headline.category?.slug?.current && headline.category?.title && (
-                <Link
-                  href={`/categories/${headline.category.slug.current}`}
-                  className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
-                >
-                  {headline.category.title}
-                </Link>
-              )}
-              {topicHubLinks.map((hub) => (
-                <Link
-                  key={hub.slug}
-                  href={`/${hub.slug}`}
-                  className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
-                >
-                  {hub.title}
-                </Link>
-              ))}
-              {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
-                <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
-              )}
-            </div>
-            {headline.coverImage?.asset?.url && (
-              <ArticleHeroCover
-                src={headline.coverImage.asset.url}
-                alt={(headline.coverImage as { alt?: string })?.alt || headline.title}
-                sizes={ARTICLE_COVER_SIZES}
-                priority
-              />
-            )}
-            {headline.summary && (
-              <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">{headline.summary}</p>
-            )}
-            {tagList.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {tagList.map((tag) => (
-                  <Link
-                    key={tag.slug || tag.title}
-                    href={`/articles?tag=${encodeURIComponent(tag.title)}`}
-                    className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
-                  >
-                    #{tag.title}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-          <section className="w-full mb-8">
-            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
-              {Array.isArray(headline.body) && <PortableText value={headline.body} components={portableTextComponents} />}
-            </div>
-          </section>
-          {moreArticles.length > 0 && (
-            <section className="mt-12 -mx-6 rounded-[2rem] bg-white/[0.03] px-6 py-8 sm:-mx-5 sm:px-5">
-              <div className="mb-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
-                  More articles
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">
-                  More Articles
-                </h2>
-              </div>
-              <div className="grid gap-6 md:grid-cols-3">
-                {moreArticles.map((article) => {
-                  const img =
-                    article.coverImage?.asset?.url ||
-                    article.featuredImage?.asset?.url ||
-                    article.image?.asset?.url ||
-                    null;
-                  return (
-                    <Link
-                      key={article._id}
-                      href={`/articles/${article.slug.current}`}
-                      className="group block"
-                    >
-                      {img && (
-                        <div className="relative mb-4 h-44 overflow-hidden rounded-[1.35rem] sm:h-48">
-                          <Image
-                            src={img}
-                            alt={article.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                      )}
-                      <p className="mb-2 text-xs uppercase tracking-[0.24em] text-white/45">
-                        {formatArticleDate(article.date || article.publishedAt)}
-                      </p>
-                      <h3 className="text-xl font-semibold leading-snug text-white line-clamp-2 transition-colors group-hover:text-white/80">
-                        {article.homepageTitle || article.title}
-                      </h3>
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-        </article>
-        {/* Sidebar */}
-        <aside className="lg:col-span-1 lg:sticky lg:top-16 lg:self-start lg:h-fit mt-8">
-          {/* Media embeds */}
-          {headline.youtubeVideoId && (
-            <div className="mb-4">
-              <YouTubeEmbed
-                videoId={headline.youtubeVideoId}
-                title={headline.videoTitle || `Video: ${headline.title}`}
-                variant="article"
-              />
-            </div>
-          )}
-          {!headline.youtubeVideoId && headline.twitterUrl && (
-            <div className="mb-4 w-full">
-              <TwitterEmbed twitterUrl={headline.twitterUrl} />
-            </div>
-          )}
-          {!headline.youtubeVideoId && !headline.twitterUrl && headline.instagramUrl && (
-            <div className="mb-4 w-full">
-              <InstagramEmbed url={headline.instagramUrl} title={headline.instagramTitle} />
-            </div>
-          )}
-          {!headline.youtubeVideoId && !headline.twitterUrl && !headline.instagramUrl && headline.tiktokUrl && (
-            <div className="mb-4 w-full">
-              <TikTokEmbed url={headline.tiktokUrl} title={headline.tiktokTitle} />
-            </div>
-          )}
-          {/* Use homepageTitle if present for shorter sidebar list titles */}
-          <RelatedArticles
-            currentSlug={trimmedSlug}
-            articles={sidebarArticles.map((h) => ({ ...h, title: h.homepageTitle || h.title }))}
-          />
-          <div className="mt-6">
-            {/* Async server component renders most recent headlines for broader recirculation */}
-            <MostRead limit={6} />
-          </div>
-        </aside>
-      </div>
-      {/* Add social share section for consistency with fantasy articles */}
-      <div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto">
-        <SocialShare url={shareUrl} title={headline.title} description={headline.summary || ''} variant="compact" />
-      </div>
-      <ArticleViewTracker slug={trimmedSlug} headlineId={headline._id} title={headline.title} category={headline.category?.title} author={headline.author?.name} readingTime={readingTime} className="hidden" />
-    </main>
-  );
+  const articleSlug = normalizeSlug(headline.slug?.current) || fallbackSlug;
+  permanentRedirect(`/articles/${articleSlug}`);
 }

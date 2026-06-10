@@ -130,20 +130,15 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const activePathname = pathname || "/";
-  const isHomepage = activePathname === "/";
   const teamCode = resolveTeamCode(activePathname);
   const teamAccent = teamCode && TEAM_COLORS[teamCode] ? TEAM_COLORS[teamCode] : null;
   const activeLogoPath = versionedAssetPath(BRAND_LOGO_PATH);
   const activeLogoAlt = BRAND_LOGO_ALT;
-  const mobileLogoWrapperClass = isHomepage
-    ? "relative -my-1 block h-[2.8rem] w-[136px]"
-    : "relative -my-1 block h-[2.8rem] w-[120px]";
-  const desktopLogoWrapperClass = isHomepage
-    ? "relative -my-0.5 block h-[2.3rem] w-[142px] md:h-[2.55rem] md:w-[158px]"
-    : "relative -my-0.5 block h-[2.1rem] w-[112px] md:h-[2.35rem] md:w-[128px]";
-  const logoImageClass = "object-contain";
-  const mobileLogoSizes = isHomepage ? "136px" : "140px";
-  const desktopLogoSizes = isHomepage ? "(min-width: 768px) 158px, 142px" : "(min-width: 768px) 128px, 112px";
+  const mobileLogoWrapperClass = "block h-[2.8rem] w-[136px]";
+  const desktopLogoWrapperClass = "block h-[2.3rem] w-[142px] md:h-[2.55rem] md:w-[158px]";
+  const logoImageClass = "h-full w-full object-contain";
+  const mobileLogoSizes = "136px";
+  const desktopLogoSizes = "(min-width: 768px) 158px, 142px";
 
   const homeNavItem: NavItem = { key: "home", label: "Home", href: "/" };
   const desktopBaseNavItems: NavItem[] = [homeNavItem, ...NAV_ITEMS];
@@ -217,8 +212,10 @@ export default function Navbar() {
                       <Image
                         src={activeLogoPath}
                         alt={activeLogoAlt}
-                        fill
+                        width={1580}
+                        height={317}
                         sizes={mobileLogoSizes}
+                        priority
                         className={logoImageClass}
                       />
                     </span>
@@ -359,8 +356,10 @@ export default function Navbar() {
               <Image
                 src={activeLogoPath}
                 alt={activeLogoAlt}
-                fill
+                width={1580}
+                height={317}
                 sizes={desktopLogoSizes}
+                priority
                 className={logoImageClass}
               />
             </span>
