@@ -112,6 +112,11 @@ export const headlineDetailQuery = `
       title,
       slug
     },
+    teams[]->{
+      _id,
+      title,
+      slug
+    },
     "tags": coalesce(tagRefs[]->{
       title,
       slug
@@ -241,6 +246,16 @@ export const categoryContentQuery = `
   *[
     _type in ["article", "headline", "rankings", "fantasyFootball"] &&
     published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false) &&
+    (
+      _type != "headline" ||
+      !(slug.current in *[
+        _type == "article" &&
+        format == "headline" &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
+      ].slug.current)
+    ) &&
     category->slug.current == $categorySlug &&
     !(
       _type == "fantasyFootball" &&
@@ -331,6 +346,11 @@ export const articleDetailQuery = `
       }
     },
     topicHubs[]->{
+      title,
+      slug
+    },
+    teams[]->{
+      _id,
       title,
       slug
     },

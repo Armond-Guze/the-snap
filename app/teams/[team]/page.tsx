@@ -231,7 +231,17 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
           `*[
             _type in ["article", "headline", "rankings"] &&
             published == true &&
+            (!defined(seo.noIndex) || seo.noIndex == false) &&
             defined(slug.current) &&
+            (
+              _type != "headline" ||
+              !(slug.current in *[
+                _type == "article" &&
+                format == "headline" &&
+                published == true &&
+                (!defined(seo.noIndex) || seo.noIndex == false)
+              ].slug.current)
+            ) &&
             (
               (defined(teams) && $tagId in teams[]._ref) ||
               (defined(tagRefs) && $tagId in tagRefs[]._ref)

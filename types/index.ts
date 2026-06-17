@@ -120,6 +120,7 @@ export interface Headline {
   coverImage?: SanityImageWithUrl;
   category?: Category;
   topicHubs?: TopicHubRef[];
+  teams?: TeamRef[];
   tags?: Pick<Tag, 'title' | 'slug'>[];
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;
@@ -157,7 +158,8 @@ export interface HeadlineListItem {
   author?: Pick<Author, 'name'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
   topicHubs?: TopicHubRef[];
-  tags?: Pick<Tag, 'title'>[];
+  teams?: TeamRef[];
+  tags?: Pick<Tag, 'title' | 'slug'>[];
 }
 
 export interface PlayOfWeek {
@@ -209,6 +211,12 @@ export interface Category {
 }
 
 export interface TopicHubRef {
+  title?: string;
+  slug?: SanitySlug;
+}
+
+export interface TeamRef {
+  _id?: string;
   title?: string;
   slug?: SanitySlug;
 }

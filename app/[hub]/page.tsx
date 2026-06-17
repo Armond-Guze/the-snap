@@ -33,6 +33,7 @@ interface HubArticle {
   author?: { name?: string }
   category?: { title?: string; slug?: { current?: string }; color?: string }
   published?: boolean
+  seo?: { noIndex?: boolean }
 }
 
 interface TopicHubDoc {
@@ -84,7 +85,7 @@ function toContentUrl(item: HubArticle): string {
 
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`
   if (item._type === 'headline') return `/articles/${slug}`
-  if (item._type === 'rankings') return `/rankings/${slug}`
+  if (item._type === 'rankings') return `/articles/${slug}`
 
   if (item._type === 'article' && item.format === 'powerRankings') {
     if (item.rankingType === 'snapshot' && item.seasonYear) {
@@ -159,7 +160,8 @@ async function fetchTopicHubBySlug(slug: string): Promise<TopicHubDoc | null> {
         featuredImage{asset->{url}},
         image{asset->{url}},
         author->{name},
-        category->{title, slug, color}
+        category->{title, slug, color},
+        seo { noIndex }
       },
       seo {
         metaTitle,
@@ -191,7 +193,17 @@ async function fetchHubArticles(hub: TopicHubDoc): Promise<HubArticle[]> {
   return client.fetch<HubArticle[]>(
     `*[
       published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
       _type in ["article", "headline", "rankings", "fantasyFootball"] &&
+      (
+        _type != "headline" ||
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      ) &&
       !(
         _type == "fantasyFootball" &&
         slug.current in *[
@@ -307,7 +319,9 @@ export default async function TopicHubPage({ params }: TopicHubPageProps) {
 
   const [feedItems] = await Promise.all([fetchHubArticles(topicHub)])
 
-  const featured = dedupeBySlug((topicHub.featuredArticles || []).filter((item) => item?.published !== false))
+  const featured = dedupeBySlug(
+    (topicHub.featuredArticles || []).filter((item) => item?.published !== false && item?.seo?.noIndex !== true)
+  )
   const featuredSlugs = new Set(featured.map((item) => item.slug?.current?.trim()).filter(Boolean) as string[])
   const feed = dedupeBySlug(feedItems).filter((item) => {
     const contentSlug = item.slug?.current?.trim()

@@ -45,7 +45,7 @@ export default function RelatedArticles({
   return (
     <div className="bg-black/60 backdrop-blur-sm rounded-2xl p-2 border border-white/5 shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
       <h2 className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
-        Keep Reading
+        Related Coverage
       </h2>
       <div className="space-y-1.5">
         {relatedArticles.map((article) => {

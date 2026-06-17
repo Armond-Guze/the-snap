@@ -45,7 +45,7 @@ function getContentUrl(item: CategoryTopItem): string {
   if (!slug) return '#';
 
   if (item._type === 'headline') return `/articles/${slug}`;
-  if (item._type === 'rankings') return `/rankings/${slug}`;
+  if (item._type === 'rankings') return `/articles/${slug}`;
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
 
   if (item._type === 'article' && item.format === 'powerRankings') {
@@ -69,6 +69,16 @@ export default async function CategoriesIndexPage() {
     "articleCount": count(*[
       _type in ["article","headline","rankings","fantasyFootball"] &&
       published==true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
+      (
+        _type != "headline" ||
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      ) &&
       category._ref == ^._id &&
       !(
         _type == "fantasyFootball" &&
@@ -84,6 +94,16 @@ export default async function CategoriesIndexPage() {
     "topArticles": *[
       _type in ["article","headline","rankings","fantasyFootball"] &&
       published==true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
+      (
+        _type != "headline" ||
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      ) &&
       category._ref == ^._id &&
       !(
         _type == "fantasyFootball" &&

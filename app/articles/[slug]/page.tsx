@@ -151,6 +151,99 @@ const injectDraftRankingCards = (
 	return transformed;
 };
 
+type LinkableRef = {
+	title?: string;
+	slug?: { current?: string };
+};
+
+type RelatedArticleCandidate = Omit<HeadlineListItem, 'topicHubs' | 'teams' | 'tags'> & {
+	topicHubs?: LinkableRef[];
+	teams?: LinkableRef[];
+	tags?: LinkableRef[];
+};
+
+const cleanRefSlug = (ref?: LinkableRef | null): string => ref?.slug?.current?.trim() || '';
+
+const normalizedKey = (value?: string | null): string =>
+	(value || '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, ' ')
+		.trim();
+
+const collectRefSlugs = (refs?: Array<LinkableRef | null>): Set<string> =>
+	new Set((refs || []).map(cleanRefSlug).filter(Boolean));
+
+const collectRefTitles = (refs?: Array<LinkableRef | null>): Set<string> =>
+	new Set((refs || []).map((ref) => normalizedKey(ref?.title)).filter(Boolean));
+
+const getDateTime = (item: { date?: string; publishedAt?: string }): number => {
+	const value = item.date || item.publishedAt;
+	if (!value) return 0;
+	const time = new Date(value).getTime();
+	return Number.isFinite(time) ? time : 0;
+};
+
+const countSetOverlap = (left: Set<string>, right: Set<string>): number => {
+	let matches = 0;
+	for (const value of left) {
+		if (right.has(value)) matches += 1;
+	}
+	return matches;
+};
+
+const rankRelatedArticles = (
+	article: Headline,
+	items: RelatedArticleCandidate[],
+	currentSlug: string,
+): RelatedArticleCandidate[] => {
+	const currentCategorySlug = article.category?.slug?.current?.trim();
+	const currentTopicSlugs = collectRefSlugs(article.topicHubs);
+	const currentTopicTitles = collectRefTitles(article.topicHubs);
+	const currentTeamSlugs = collectRefSlugs(article.teams);
+	const currentTeamTitles = collectRefTitles(article.teams);
+	const currentTagSlugs = collectRefSlugs(article.tags);
+	const currentTagTitles = collectRefTitles(article.tags);
+
+	return items
+		.filter((item) => item.slug.current !== currentSlug)
+		.filter((item) => !(item._type === 'article' && item.format === 'powerRankings'))
+		.map((item, index) => {
+			let score = 0;
+			if (currentCategorySlug && item.category?.slug?.current === currentCategorySlug) score += 2;
+			if (article.format && item.format === article.format) score += 1;
+			score += countSetOverlap(currentTopicSlugs, collectRefSlugs(item.topicHubs)) * 5;
+			score += countSetOverlap(currentTopicTitles, collectRefTitles(item.topicHubs)) * 4;
+			score += countSetOverlap(currentTeamSlugs, collectRefSlugs(item.teams)) * 6;
+			score += countSetOverlap(currentTeamTitles, collectRefTitles(item.teams)) * 5;
+			score += countSetOverlap(currentTagSlugs, collectRefSlugs(item.tags)) * 3;
+			score += countSetOverlap(currentTagTitles, collectRefTitles(item.tags)) * 2;
+
+			return { item, score, index };
+		})
+		.sort((a, b) => {
+			if (b.score !== a.score) return b.score - a.score;
+			const dateDelta = getDateTime(b.item) - getDateTime(a.item);
+			if (dateDelta !== 0) return dateDelta;
+			return a.index - b.index;
+		})
+		.map(({ item }) => item);
+};
+
+const buildTeamLinks = (article: Headline): Array<{ title: string; slug: string }> => {
+	const seen = new Set<string>();
+	const links: Array<{ title: string; slug: string }> = [];
+
+	for (const team of article.teams || []) {
+		const title = typeof team?.title === 'string' ? team.title.trim() : '';
+		const slug = cleanRefSlug(team);
+		if (!title || !slug || seen.has(slug)) continue;
+		seen.add(slug);
+		links.push({ title, slug });
+	}
+
+	return links.slice(0, 3);
+};
+
 const articlePortableTextComponents = {
 	...portableTextComponents,
 	types: {
@@ -275,6 +368,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				featuredImage { asset->{ url } },
 				image { asset->{ url } },
 				category->{ title, slug, color },
+				topicHubs[]->{ title, slug },
+				teams[]->{ _id, title, slug },
 				format,
 				"tags": coalesce(tagRefs[]->{ title, slug }, [])
 			}`,
@@ -348,9 +443,17 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				...relatedArticlePool.filter((item) => item.category?.slug?.current !== categorySlug),
 			]
 		: relatedArticlePool;
-	const moreArticles = prioritizedMoreArticles.slice(0, 3);
+	const rankedRelatedArticles = rankRelatedArticles(
+		article,
+		prioritizedMoreArticles as RelatedArticleCandidate[],
+		trimmedSlug,
+	);
+	const moreArticles = rankedRelatedArticles.slice(0, 3);
 	const moreArticleIds = new Set(moreArticles.map((item) => item._id));
-	const sidebarArticles = relatedArticlePool.filter((item) => !moreArticleIds.has(item._id));
+	const sidebarArticles = rankedRelatedArticles.filter((item) => !moreArticleIds.has(item._id));
+	const teamLinks = buildTeamLinks(article);
+	const exploreTopicHubLinks = topicHubLinks.slice(0, 3);
+	const showExplorePanel = Boolean(article.category?.slug?.current || teamLinks.length || exploreTopicHubLinks.length);
 
 	const textContent = extractTextFromBlocks(article.body || []);
 	const readingTime = calculateReadingTime(textContent);
@@ -486,6 +589,44 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 								))}
 							</div>
 						)}
+						{showExplorePanel && (
+							<nav
+								aria-label="Article topic links"
+								className="mt-4 rounded-xl border border-white/10 bg-black/25 px-3 py-3"
+							>
+								<p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
+									Explore this story
+								</p>
+								<div className="flex flex-wrap gap-2">
+									{article.category?.slug?.current && article.category?.title && (
+										<Link
+											href={`/categories/${article.category.slug.current}`}
+											className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 hover:border-white/30 hover:bg-white/15"
+										>
+											{article.category.title}
+										</Link>
+									)}
+									{teamLinks.map((team) => (
+										<Link
+											key={team.slug}
+											href={`/teams/${team.slug}`}
+											className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 hover:border-white/30 hover:bg-white/15"
+										>
+											{team.title}
+										</Link>
+									))}
+									{exploreTopicHubLinks.map((hub) => (
+										<Link
+											key={hub.slug}
+											href={`/${hub.slug}`}
+											className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 hover:border-white/30 hover:bg-white/15"
+										>
+											{hub.title}
+										</Link>
+									))}
+								</div>
+							</nav>
+						)}
 					</section>
 					<section className="w-full mb-8">
 						<div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
@@ -496,10 +637,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 						<section className="mt-12 -mx-6 rounded-[2rem] bg-white/[0.03] px-6 py-8 sm:-mx-5 sm:px-5">
 							<div className="mb-5">
 								<p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/35">
-									More articles
+									Related coverage
 								</p>
 								<h2 className="mt-2 text-2xl font-semibold text-white">
-									More Articles
+									More on this story
 								</h2>
 							</div>
 							<div className="grid gap-6 md:grid-cols-3">
