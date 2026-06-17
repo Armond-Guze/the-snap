@@ -88,7 +88,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 
   const article = await sanityFetchDynamic<FantasyDetail | null>(
-    `*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
+    `*[_type == "fantasyFootball" && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false)][0]{
       _id, title, slug, summary, coverImage{asset->{url}},
       youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle,
       seo{ noIndex }
@@ -144,7 +144,7 @@ export default async function FantasyArticlePage(props: PageProps) {
   }
 
   const [article, otherContent] = await Promise.all([
-    sanityFetchDynamic<FantasyDetail | null>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true][0]{
+    sanityFetchDynamic<FantasyDetail | null>(`*[_type == "fantasyFootball" && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false)][0]{
       _id, title, slug, summary,
       // Expand both body & content arrays (support legacy / new)
       content[]{
@@ -184,7 +184,7 @@ export default async function FantasyArticlePage(props: PageProps) {
       category->{title, slug},
       youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`, { slug }, 300, null),
-    sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
+    sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(_createdAt desc)[0...24]{
       _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
     }`, {}, 300, [])
   ]);

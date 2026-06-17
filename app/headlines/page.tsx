@@ -106,8 +106,22 @@ async function fetchHeadlines(filters: { category?: string; tag?: string; search
     return client.fetch<HeadlineListItem[]>(
       `
       *[
-        (( _type == "article" && format == "headline" ) || _type == "headline" || _type == "rankings") &&
-        published == true && (
+        (
+          (_type == "article" && format == "headline") ||
+          (
+            _type == "headline" &&
+            !(slug.current in *[
+              _type == "article" &&
+              format == "headline" &&
+              published == true &&
+              (!defined(seo.noIndex) || seo.noIndex == false)
+            ].slug.current)
+          ) ||
+          _type == "rankings"
+        ) &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false) &&
+        (
           title match $searchPattern ||
           summary match $searchPattern ||
           category->title match $searchPattern ||

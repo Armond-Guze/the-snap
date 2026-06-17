@@ -32,7 +32,7 @@ interface HeadlinesProps {
 
 export default async function Headlines({ hideSummaries = false }: HeadlinesProps) {
   const homepageFeaturesQuery = `*[
-    _type == "article" && published == true
+    _type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
   ]
     | order(
       select(format == "feature" => 0, 1) asc,
@@ -54,7 +54,20 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     }`;
 
   const newestHeadlinesQuery = `*[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false)
   ]
     | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...6]{
       _id,

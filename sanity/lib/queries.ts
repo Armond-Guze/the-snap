@@ -1,8 +1,23 @@
 // Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
 export const headlineQuery = `
   *[
-    ( _type == "article" && format == "headline" && published == true ) ||
-    ( _type == "headline" && published == true )
+    (
+      _type == "article" &&
+      format == "headline" &&
+      published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false)
+    ) ||
+    (
+      _type == "headline" &&
+      published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
+      !(slug.current in *[
+        _type == "article" &&
+        format == "headline" &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
+      ].slug.current)
+    )
   ]
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
@@ -39,9 +54,14 @@ export const headlineQuery = `
 // Detailed headline query for individual articles
 export const headlineDetailQuery = `
   *[
-    (_type == "article" && format == "headline" && slug.current == $slug && published == true) ||
-    (_type == "headline" && slug.current == $slug && published == true)
-  ][0] {
+    (_type == "article" && format == "headline" && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false)) ||
+    (_type == "headline" && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false))
+  ]
+  | order(
+    select(_type == "article" => 0, _type == "headline" => 1, 2) asc,
+    coalesce(date, publishedAt, _createdAt) desc,
+    _createdAt desc
+  )[0] {
     _id,
     title,
   homepageTitle,
@@ -154,7 +174,21 @@ export const headlineDetailQuery = `
 // Query for related articles based on category and tags
 export const relatedHeadlinesQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true && _id != $currentId && 
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false) &&
+    _id != $currentId && 
     (category._ref == $categoryId || count((tagRefs[]._ref)[@ in $tagIds]) > 0)
   ] 
   | order(coalesce(publishedAt, _createdAt) desc)[0...6] {
@@ -245,9 +279,14 @@ export const categoryContentQuery = `
 // Detailed article query for all article formats (feature, ranking, analysis, fantasy, headline)
 export const articleDetailQuery = `
   *[
-    ((_type in ["article","rankings"] && slug.current == $slug && published == true)) ||
-    (_type == "headline" && slug.current == $slug && published == true)
-  ][0] {
+    ((_type in ["article","rankings"] && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false))) ||
+    (_type == "headline" && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false))
+  ]
+  | order(
+    select(_type == "article" => 0, _type == "rankings" => 1, _type == "headline" => 2, 3) asc,
+    coalesce(date, publishedAt, _createdAt) desc,
+    _createdAt desc
+  )[0] {
     _id,
     _type,
     format,
@@ -402,7 +441,21 @@ export const trendingTagsQuery = `
 // Headlines by category - fixed to work without requiring category references
 export const headlinesByCategoryQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true && category->slug.current == $categorySlug
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false) &&
+    category->slug.current == $categorySlug
   ] 
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
@@ -431,7 +484,20 @@ export const headlinesByCategoryQuery = `
 // Headlines by canonical tag title, with a legacy string-tag fallback while older docs are migrated.
 export const headlinesByTagQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true &&
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false) &&
     (
       (defined(tags) && tags match "*" + $tagTitle + "*") ||
       (defined(tagRefs) && $tagTitle in tagRefs[]->title) ||
@@ -613,7 +679,7 @@ export const upcomingGamesQuery = `
 `;
 
 export const articlesQuery = `
-  *[_type in ["article","rankings"] && published == true] | order(publishedAt desc) [0..2] {
+  *[_type in ["article","rankings"] && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(publishedAt desc) [0..2] {
     _id,
     title,
     slug,

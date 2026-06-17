@@ -184,6 +184,7 @@ export async function generateStaticParams() {
 	const docs = await client.fetch<Array<{ slug?: string }>>(
 		`*[
 			published == true &&
+			(!defined(seo.noIndex) || seo.noIndex == false) &&
 			defined(slug.current) &&
 			(
 				_type == "headline" ||
@@ -255,7 +256,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	const [article, otherArticles] = await Promise.all([
 		sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline),
 		sanityFetchDynamic<HeadlineListItem[]>(
-			`*[_type == "article" && published == true] | order(coalesce(date, publishedAt, _createdAt) desc)[0...24]{
+			`*[_type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(coalesce(date, publishedAt, _createdAt) desc)[0...24]{
 				_id,
 				_type,
 				title,
@@ -285,7 +286,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 	if (!article) {
 		const aliasDoc = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
-			`*[_type == "article" && published == true && $slug in slugHistory][0]{ slug }`,
+			`*[_type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false) && $slug in slugHistory][0]{ slug }`,
 			{ slug: trimmedSlug },
 			300,
 			null

@@ -50,7 +50,7 @@ const rankingsDetailQuery = `
 
 // Legacy rankings query for backward compatibility
 const legacyRankingsDetailQuery = `
-  *[_type in ["article","rankings"] && slug.current == $slug && published == true][0]{
+  *[_type in ["article","rankings"] && slug.current == $slug && published == true && (!defined(seo.noIndex) || seo.noIndex == false)][0]{
     ${rankingFields},
     format,
     seasonYear,
@@ -162,7 +162,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
       null
     ),
     sanityFetch(
-      `*[(_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
+      `*[(_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(_createdAt desc)[0...8]{
         _id,
         _type,
         title,

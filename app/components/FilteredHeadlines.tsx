@@ -51,7 +51,22 @@ export default function FilteredHeadlines({
           // Search query - fetch data using client.fetch
           data = await client.fetch(`
             *[
-              ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && published == true && (
+              (
+                (_type == "article" && format == "headline") ||
+                (
+                  _type == "headline" &&
+                  !(slug.current in *[
+                    _type == "article" &&
+                    format == "headline" &&
+                    published == true &&
+                    (!defined(seo.noIndex) || seo.noIndex == false)
+                  ].slug.current)
+                ) ||
+                _type == "rankings"
+              ) &&
+              published == true &&
+              (!defined(seo.noIndex) || seo.noIndex == false) &&
+              (
               title match "*${searchQuery}*" ||
               summary match "*${searchQuery}*" ||
               category->title match "*${searchQuery}*" ||

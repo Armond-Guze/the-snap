@@ -32,7 +32,7 @@ interface RankingsSectionProps {
 
 export default async function RankingsSection({ hideSummaries = false }: RankingsSectionProps) {
   const homepageFeaturesQuery = `*[
-    _type == "article" && published == true
+    _type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
   ]
     | order(
       select(format == "feature" => 0, 1) asc,
@@ -45,11 +45,11 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   const articlesQuery = `*[
     (
       _type == "article" && (
-        (published == true && format in ["feature","ranking","analysis"]) ||
-        (format == "powerRankings" && coalesce(rankingType, "snapshot") in ["snapshot", "live"])
+        (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format in ["feature","ranking","analysis"]) ||
+        (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format == "powerRankings" && coalesce(rankingType, "snapshot") in ["snapshot", "live"])
       )
     ) ||
-    ( _type == "rankings" && published == true && coalesce(rankingType, "snapshot") != "live" )
+    ( _type == "rankings" && published == true && (!defined(seo.noIndex) || seo.noIndex == false) && coalesce(rankingType, "snapshot") != "live" )
   ]
     | order(
       select(

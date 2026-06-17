@@ -63,7 +63,7 @@ type ArticleListItem = HeadlineListItem & {
 };
 
 async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]> {
-  const baseFilter = 'published == true && (_type == "rankings" || (_type == "article" && format != "headline"))';
+  const baseFilter = 'published == true && (!defined(seo.noIndex) || seo.noIndex == false) && (_type == "rankings" || (_type == "article" && format != "headline"))';
 
   const baseFields = `{
     _id,_type,format,rankingType,seasonYear,weekNumber,playoffRound,title,homepageTitle,slug,summary,

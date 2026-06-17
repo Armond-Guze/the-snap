@@ -10,7 +10,7 @@ import { formatArticleDate } from "@/lib/date-utils";
 
 // Query specifically for rankings
 const rankingsQuery = `
-  *[_type == "rankings" && published == true] | order(publishedAt desc) {
+  *[_type == "rankings" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(publishedAt desc) {
     _id,
     _type,
     title,

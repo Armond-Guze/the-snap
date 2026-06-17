@@ -5,7 +5,22 @@ export const revalidate = 300;
 interface Item { _id: string; title: string; homepageTitle?: string; slug: { current: string }; _type: string; }
 
 export default async function MostRead({ limit = 6 }: { limit?: number }) {
-  const items: Item[] = await client.fetch(`*[_type == "headline" && published == true] | order(_createdAt desc)[0...${limit}] { _id,title,homepageTitle,slug,_type }`);
+  const items: Item[] = await client.fetch(`*[
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false)
+  ] | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...${limit}] { _id,title,homepageTitle,slug,_type }`);
   if (!items.length) return null;
   return (
     <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">

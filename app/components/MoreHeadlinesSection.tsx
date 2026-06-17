@@ -2,7 +2,7 @@ import { client } from "@/sanity/lib/client";
 // Fetch homepage feature cards so they can be skipped below.
 const homepageFeaturesQuery = `
   *[
-    _type == "article" && published == true
+    _type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
   ]
     | order(
       select(format == "feature" => 0, 1) asc,
@@ -15,7 +15,20 @@ const homepageFeaturesQuery = `
 // Fetch newest headlines for the homepage sidebar (used to skip duplicates below).
 const homepageHeadlinesQuery = `
   *[
-    ((_type == "article" && format == "headline") || _type == "headline") && published == true
+    (
+      (_type == "article" && format == "headline") ||
+      (
+        _type == "headline" &&
+        !(slug.current in *[
+          _type == "article" &&
+          format == "headline" &&
+          published == true &&
+          (!defined(seo.noIndex) || seo.noIndex == false)
+        ].slug.current)
+      )
+    ) &&
+    published == true &&
+    (!defined(seo.noIndex) || seo.noIndex == false)
   ]
     | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...6] {
       _id
@@ -25,8 +38,8 @@ const homepageHeadlinesQuery = `
 const latestArticlesQuery = `
   *[
     _type == "article" && (
-      (published == true && format in ["feature","ranking","analysis"]) ||
-      (format == "powerRankings" && rankingType == "snapshot")
+      (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format in ["feature","ranking","analysis"]) ||
+      (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format == "powerRankings" && rankingType == "snapshot")
     )
   ]
     | order(coalesce(date, publishedAt, _createdAt) desc, _createdAt desc)[0...8] {
@@ -38,10 +51,26 @@ const moreHeadlinesQuery = `
   *[
     (
       _type == "article" && (
-        (published == true && format in ["feature","ranking","analysis","headline"]) ||
-        (format == "powerRankings" && rankingType == "snapshot")
+        (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format in ["feature","ranking","analysis","headline"]) ||
+        (published == true && (!defined(seo.noIndex) || seo.noIndex == false) && format == "powerRankings" && rankingType == "snapshot")
       )
-    ) || _type == "headline" || _type == "rankings"
+    ) ||
+    (
+      _type == "headline" &&
+      published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
+      !(slug.current in *[
+        _type == "article" &&
+        format == "headline" &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
+      ].slug.current)
+    ) ||
+    (
+      _type == "rankings" &&
+      published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false)
+    )
   ]
     | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...40] {
       _type,
