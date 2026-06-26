@@ -36,6 +36,8 @@
     "backfill:thin-article-context:dry": "node scripts/backfill-thin-article-context.mjs",
     "dedupe:content": "node scripts/mark-duplicate-content-noindex.mjs --write",
     "dedupe:content:dry": "node scripts/mark-duplicate-content-noindex.mjs",
+    "import:nfl-headline": "node scripts/import-latest-nfl-headline.mjs",
+    "import:sharp-headline": "node scripts/import-latest-nfl-headline.mjs --site=sharp",
     "seed:primetime": "node scripts/seed-primetime-tags.mjs",
     "seed:topic-hubs": "node scripts/seed-topic-hubs.mjs"
   },

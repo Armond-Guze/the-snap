@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 
 import { client } from "@/sanity/lib/client";
 
-export const revalidate = 60;
+export const revalidate = 600;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+        "Cache-Control": "s-maxage=600, stale-while-revalidate=900",
       },
     });
   }
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
     status: 200,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+      "Cache-Control": "s-maxage=600, stale-while-revalidate=900",
     },
   });
 }

@@ -84,8 +84,8 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
     }`;
 
   const [featurePool, headlines] = await Promise.all([
-    sanityFetch<HeadlineItem[]>(homepageFeaturesQuery, {}, { next: { revalidate: 180 } }, []),
-    sanityFetch<HeadlineItem[]>(newestHeadlinesQuery, {}, { next: { revalidate: 180 } }, []),
+    sanityFetch<HeadlineItem[]>(homepageFeaturesQuery, {}, { next: { revalidate: 900 } }, []),
+    sanityFetch<HeadlineItem[]>(newestHeadlinesQuery, {}, { next: { revalidate: 900 } }, []),
   ]);
 
   if (!featurePool.length && !headlines?.length) {

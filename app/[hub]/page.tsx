@@ -307,7 +307,7 @@ export async function generateMetadata({ params }: TopicHubPageProps): Promise<M
   }
 }
 
-export const revalidate = 300
+export const revalidate = 3600
 
 export default async function TopicHubPage({ params }: TopicHubPageProps) {
   const { hub } = await params

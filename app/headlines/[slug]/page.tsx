@@ -4,7 +4,7 @@ import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import { headlineDetailQuery } from '@/sanity/lib/queries';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 interface HeadlinePageProps {
   params: Promise<{ slug?: string }>;
@@ -25,7 +25,7 @@ async function getPublishedHeadline(slug: string) {
   return sanityFetchDynamic<LegacyHeadlineRedirect>(
     headlineDetailQuery,
     { slug },
-    300,
+    21600,
     null as unknown as LegacyHeadlineRedirect
   );
 }

@@ -8,6 +8,7 @@ interface Props {
 }
 
 const VIEW_DEDUPE_WINDOW_MS = 12 * 60 * 60 * 1000;
+const VIEW_COUNTS_ENABLED = process.env.NEXT_PUBLIC_VIEW_COUNTS_ENABLED === 'true';
 
 const isExcludedEnvironment = () => {
   if (typeof window === 'undefined') return true;
@@ -40,7 +41,7 @@ function shouldIncrementView(slug: string) {
   }
 }
 
-export default function ArticleViewCount({ slug, className }: Props) {
+function ArticleViewCountInner({ slug, className }: Props) {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -92,4 +93,9 @@ export default function ArticleViewCount({ slug, className }: Props) {
   const text = count === null ? '— views' : `${count.toLocaleString()} view${count === 1 ? '' : 's'}`;
 
   return <span className={clsx('text-xs text-white/60', className)}>{text}</span>;
+}
+
+export default function ArticleViewCount(props: Props) {
+  if (!VIEW_COUNTS_ENABLED) return null;
+  return <ArticleViewCountInner {...props} />;
 }

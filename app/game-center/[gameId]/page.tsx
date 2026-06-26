@@ -9,7 +9,7 @@ import { buildGameCenterPayload } from '@/lib/game-center';
 import { fetchSanitySeasonGames } from '@/lib/schedule';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 300;
+export const revalidate = 1800;
 export const dynamicParams = false;
 
 interface PageProps {

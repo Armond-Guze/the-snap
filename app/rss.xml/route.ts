@@ -2,7 +2,7 @@ import { client } from '@/sanity/lib/client';
 import { SITE_URL } from '@/lib/site-config';
 
 // Revalidate every 10 minutes
-export const revalidate = 600;
+export const revalidate = 1800;
 
 interface FeedItem {
   _id: string;
@@ -40,7 +40,7 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'application/rss+xml; charset=UTF-8',
-      'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=300'
+      'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=1800'
     }
   });
 }

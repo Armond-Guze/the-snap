@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 120;
+export const revalidate = 1800;
 
 interface HeadlinesPageProps {
   searchParams: Promise<{

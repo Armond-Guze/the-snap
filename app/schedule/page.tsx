@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const revalidate = 300; // updated frequently in season
+export const revalidate = 1800; // Sanity/sync routes can force-refresh when needed.
 
 interface ScheduleLandingProps {
   searchParams: Promise<{

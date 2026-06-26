@@ -6,7 +6,7 @@ import { buildPageMetadata } from '@/lib/page-metadata';
 import { SITE_URL } from '@/lib/site-config';
 import { client } from '@/sanity/lib/client';
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'NFL Tags | Topics, Teams, and Coverage Hubs | The Snap',

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 
-import { getGameById, TEAM_META } from '@/lib/schedule';
+import { fetchSanitySeasonGames, getGameById, TEAM_META } from '@/lib/schedule';
 import { formatGameDateParts } from '@/lib/schedule-format';
 import { SITE_URL } from '@/lib/site-config';
 
@@ -9,7 +9,12 @@ interface MatchupPageProps {
   params: Promise<{ gameId: string }>;
 }
 
-export const revalidate = 300;
+export const revalidate = 1800;
+
+export async function generateStaticParams() {
+  const games = await fetchSanitySeasonGames();
+  return games.map((game) => ({ gameId: game.gameId }));
+}
 
 export async function generateMetadata({ params }: MatchupPageProps): Promise<Metadata> {
   const { gameId } = await params;

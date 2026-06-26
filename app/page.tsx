@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   },
 }
 
-// Keep the homepage reasonably fresh during the season; adjust higher in offseason
-export const revalidate = 60;
+// Sanity webhooks refresh on publish; keep time-based ISR wider to reduce Vercel write churn.
+export const revalidate = 600;
 const HEADLINES_PAGE_SIZE = 24;
 const HEADLINE_ARCHIVE_COUNT_QUERY = `
   count(*[

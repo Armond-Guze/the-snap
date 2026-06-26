@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { appendEvent, type ArticleClickEvent } from '../../../../lib/analytics-store';
 
+const INTERNAL_ANALYTICS_ENABLED =
+  process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED === 'true' ||
+  process.env.INTERNAL_ANALYTICS_ENABLED === 'true';
+
 type ArticleClickRequestBody = Omit<ArticleClickEvent, 'type' | 'timestamp'> & {
   timestamp?: string;
   isOwner?: boolean;
@@ -13,6 +17,10 @@ function isExcludedRequest(request: NextRequest, body?: { isOwner?: boolean }) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!INTERNAL_ANALYTICS_ENABLED) {
+      return NextResponse.json({ success: true, skipped: 'internal_analytics_disabled' });
+    }
+
     const data = (await request.json()) as ArticleClickRequestBody;
 
     if (isExcludedRequest(request, data)) {

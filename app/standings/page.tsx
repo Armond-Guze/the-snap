@@ -122,7 +122,7 @@ export default async function StandingsPage() {
     docs = await noCdnClient.fetch(
       `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak, "updatedAt": _updatedAt }`,
       { season },
-      { next: { tags: ['standings'], revalidate: 120 } }
+      { next: { tags: ['standings'], revalidate: 1800 } }
     );
   } catch (error) {
     console.warn('[standings] teamRecord fetch failed, falling back to live API', error);

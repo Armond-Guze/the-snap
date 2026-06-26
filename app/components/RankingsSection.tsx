@@ -70,8 +70,8 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
     }`;
 
   const [homepageFeatures, articles] = await Promise.all([
-    sanityFetch<{ _id: string }[]>(homepageFeaturesQuery, {}, { next: { revalidate: 300 } }, []),
-    sanityFetch<ArticleItem[]>(articlesQuery, {}, { next: { revalidate: 300 } }, []),
+    sanityFetch<{ _id: string }[]>(homepageFeaturesQuery, {}, { next: { revalidate: 1800 } }, []),
+    sanityFetch<ArticleItem[]>(articlesQuery, {}, { next: { revalidate: 1800 } }, []),
   ]);
 
   if (!articles?.length) return null;

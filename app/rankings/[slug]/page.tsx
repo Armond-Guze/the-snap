@@ -39,7 +39,7 @@ interface RankingsPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 60;
+export const revalidate = 21600;
 
 // Updated query: ensure slug filter applies to unified ranking content too
 const rankingsDetailQuery = `
@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
     ranking = await sanityFetch<UnifiedContent | LegacyRanking | null>(
       rankingsDetailQuery,
       { slug },
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 21600 } },
       null
     );
   } catch (err) {
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
   const legacyRanking = await sanityFetch<RankingsType | null>(
       legacyRankingsDetailQuery,
       { slug },
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 21600 } },
       null
     );
     
@@ -138,6 +138,42 @@ export async function generateMetadata({ params }: RankingsPageProps): Promise<M
 export default async function RankingDetailPage({ params }: RankingsPageProps) {
   const { slug } = await params;
 
+  const legacyRedirectDoc = await sanityFetch<RankingsType | null>(
+    legacyRankingsDetailQuery,
+    { slug },
+    { next: { revalidate: 21600 } },
+    null
+  );
+
+  if (legacyRedirectDoc && isLegacyArticle(legacyRedirectDoc)) {
+    const legacy = legacyRedirectDoc as Omit<RankingsType, 'rankingType'> & {
+      format?: string;
+      seasonYear?: number;
+      weekNumber?: number;
+      playoffRound?: string;
+      rankingType?: string;
+    };
+
+    if (legacy._type === 'article' && legacy.format === 'powerRankings') {
+      if (legacy.rankingType === 'live' || !legacy.rankingType) {
+        redirect('/articles/power-rankings');
+      }
+
+      const season = legacy.seasonYear || new Date().getFullYear();
+      const weekPart = legacy.playoffRound
+        ? legacy.playoffRound.toLowerCase()
+        : typeof legacy.weekNumber === 'number'
+          ? `week-${legacy.weekNumber}`
+          : null;
+
+      if (weekPart) {
+        redirect(`/articles/power-rankings/${season}/${weekPart}`);
+      }
+
+      redirect('/articles/power-rankings');
+    }
+  }
+
   redirect(`/articles/${slug}`);
   
   // Fetch article content and related content in parallel
@@ -147,7 +183,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         return await sanityFetch<UnifiedContent | LegacyRanking | null>(
           rankingsDetailQuery,
           { slug },
-          { next: { revalidate: 300 } },
+          { next: { revalidate: 21600 } },
           null
         );
       } catch (e) {
@@ -158,7 +194,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
   sanityFetch<RankingsType | null>(
       legacyRankingsDetailQuery,
       { slug },
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 21600 } },
       null
     ),
     sanityFetch(
@@ -187,7 +223,7 @@ export default async function RankingDetailPage({ params }: RankingsPageProps) {
         image { asset->{ url } }
       }`,
       {},
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 21600 } },
       []
     )
   ]);

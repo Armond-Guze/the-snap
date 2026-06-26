@@ -23,7 +23,7 @@ export const metadata = {
   },
 };
 
-export const revalidate = 120;
+export const revalidate = 1800;
 
 interface ArticlesPageProps {
   searchParams: Promise<{

@@ -19,6 +19,7 @@ const ROUTE_NAME = 'api/webhooks/sanity';
 const SECRET = process.env.SANITY_WEBHOOK_SECRET ?? process.env.REVALIDATE_SECRET;
 const SANITY_SIGNATURE_HEADER = 'sanity-webhook-signature';
 const RECENT_EVENT_TTL_MS = 90 * 1000;
+const RECENT_CONTENT_INDEX_REFRESH_MS = 3 * 24 * 60 * 60 * 1000;
 const AUTPOST_METADATA_FIELDS = new Set([
   'autoPostToX',
   'xPostCustomText',
@@ -414,15 +415,62 @@ function buildDetailPath(doc: NormalizedDoc | null) {
   return `/articles/${slug}`;
 }
 
-function addArticlePaths(paths: Set<string>, doc: NormalizedDoc | null, previousDoc: NormalizedDoc | null) {
-  paths.add('/articles');
-  paths.add('/');
+function getPublishTimestamp(doc: NormalizedDoc | null) {
+  const value = doc?.publishedAt ?? doc?.date ?? doc?._updatedAt;
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
 
+function isRecentlyPublishedContent(doc: NormalizedDoc | null) {
+  const timestamp = getPublishTimestamp(doc);
+  return typeof timestamp === 'number' && Date.now() - timestamp <= RECENT_CONTENT_INDEX_REFRESH_MS;
+}
+
+function isLifecycleTransition(transition: string | null) {
+  return transition === 'appear' || transition === 'disappear';
+}
+
+function hasIndexAffectingMetadataChange(doc: NormalizedDoc | null, previousDoc: NormalizedDoc | null) {
+  if (!doc || !previousDoc) return false;
+  return (
+    doc.slug !== previousDoc.slug ||
+    doc.format !== previousDoc.format ||
+    doc.rankingType !== previousDoc.rankingType ||
+    doc.categorySlug !== previousDoc.categorySlug ||
+    doc.published !== previousDoc.published ||
+    doc.seasonYear !== previousDoc.seasonYear ||
+    doc.weekNumber !== previousDoc.weekNumber ||
+    doc.playoffRound !== previousDoc.playoffRound
+  );
+}
+
+function shouldRefreshContentIndexes(
+  doc: NormalizedDoc | null,
+  previousDoc: NormalizedDoc | null,
+  transition: string | null,
+) {
+  if (isLifecycleTransition(transition)) return true;
+  if (hasIndexAffectingMetadataChange(doc, previousDoc)) return true;
+  return isRecentlyPublishedContent(doc) || isRecentlyPublishedContent(previousDoc);
+}
+
+function addArticlePaths(
+  paths: Set<string>,
+  doc: NormalizedDoc | null,
+  previousDoc: NormalizedDoc | null,
+  includeIndexPaths: boolean,
+) {
   const currentDetail = buildDetailPath(doc);
   if (currentDetail) paths.add(currentDetail);
 
   const previousDetail = buildDetailPath(previousDoc);
   if (previousDetail) paths.add(previousDetail);
+
+  if (!includeIndexPaths) return;
+
+  paths.add('/articles');
+  paths.add('/');
 
   if (doc?._type === 'headline' || doc?.format === 'headline' || previousDoc?._type === 'headline' || previousDoc?.format === 'headline') {
     paths.add('/headlines');
@@ -448,19 +496,22 @@ function addArticlePaths(paths: Set<string>, doc: NormalizedDoc | null, previous
   }
 }
 
-function buildRevalidationPaths(doc: NormalizedDoc | null, previousDoc: NormalizedDoc | null) {
+function buildRevalidationPaths(doc: NormalizedDoc | null, previousDoc: NormalizedDoc | null, transition: string | null) {
   const paths = new Set<string>();
   const effectiveType = doc?._type ?? previousDoc?._type;
+  const includeIndexPaths = shouldRefreshContentIndexes(doc, previousDoc, transition);
 
   switch (effectiveType) {
     case 'article':
     case 'headline':
     case 'rankings':
-      addArticlePaths(paths, doc, previousDoc);
+      addArticlePaths(paths, doc, previousDoc, includeIndexPaths);
       break;
     case 'fantasyFootball':
-      paths.add('/');
-      paths.add('/fantasy');
+      if (includeIndexPaths) {
+        paths.add('/');
+        paths.add('/fantasy');
+      }
       if (doc?.slug) paths.add(`/fantasy/${encodeURIComponent(doc.slug)}`);
       if (previousDoc?.slug) paths.add(`/fantasy/${encodeURIComponent(previousDoc.slug)}`);
       break;
@@ -589,7 +640,7 @@ export async function POST(request: NextRequest) {
       return respondSkipped(webhookLogId, 'draft-or-unpublished-document', { documentId });
     }
 
-    const paths = buildRevalidationPaths(effectiveDoc, previousDoc);
+    const paths = buildRevalidationPaths(effectiveDoc, previousDoc, transition);
     if (paths.length === 0) {
       return respondSkipped(webhookLogId, 'no-target-paths', { documentId });
     }

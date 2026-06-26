@@ -12,9 +12,9 @@ interface ArticleClickData {
   source?: string; // Where the click came from (homepage, category, search, etc.)
 }
 
-const INTERNAL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED !== 'false';
-const INTERNAL_VIEW_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_VIEW_SAMPLE_RATE, 0.25);
-const INTERNAL_CLICK_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_CLICK_SAMPLE_RATE, 0.2);
+const INTERNAL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED === 'true';
+const INTERNAL_VIEW_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_VIEW_SAMPLE_RATE, 0.05);
+const INTERNAL_CLICK_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_CLICK_SAMPLE_RATE, 0.05);
 const CLICK_DEDUPE_WINDOW_MS = 20 * 1000;
 
 function parseSampleRate(value: string | undefined, fallback: number) {

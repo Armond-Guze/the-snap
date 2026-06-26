@@ -7,10 +7,21 @@ import { playOfWeekDetailQuery } from '@/sanity/lib/queries'
 import { portableTextComponents } from '@/lib/portabletext-components'
 import type { PlayOfWeek } from '@/types'
 
-export const revalidate = 120
+export const revalidate = 21600
 
 type PageProps = {
   params: Promise<{ slug: string }>
+}
+
+export async function generateStaticParams() {
+  const docs = await client.fetch<Array<{ slug?: string }>>(
+    `*[_type == "playOfWeek" && published == true && defined(slug.current)]{ "slug": slug.current }`
+  )
+
+  return docs
+    .map((doc) => doc.slug?.trim())
+    .filter((slug): slug is string => Boolean(slug))
+    .map((slug) => ({ slug }))
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

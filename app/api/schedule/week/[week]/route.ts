@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getScheduleWeekOrCurrent } from '@/lib/schedule';
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 interface Params { week: string }
 

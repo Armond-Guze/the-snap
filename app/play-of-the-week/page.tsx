@@ -4,7 +4,7 @@ import { sanityFetch } from '@/sanity/lib/fetch'
 import { playOfWeekListQuery } from '@/sanity/lib/queries'
 import type { PlayOfWeek } from '@/types'
 
-export const revalidate = 120
+export const revalidate = 1800
 
 export const metadata: Metadata = {
   title: 'Play of the Week | The Snap',
@@ -15,7 +15,7 @@ export default async function PlayOfTheWeekPage() {
   const plays = await sanityFetch<PlayOfWeek[]>(
     playOfWeekListQuery,
     {},
-    { next: { revalidate: 120 } },
+    { next: { revalidate: 1800 } },
     []
   )
 

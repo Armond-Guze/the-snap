@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Historical movement in our NFL power rankings: track how each team rises or falls week to week throughout the current season.'
 };
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export default async function PowerRankingsChangeLogPage() {
   const latestSeason: number | null = await client.fetch(`*[_type == "article" && format == "powerRankings" && rankingType == "snapshot"] | order(seasonYear desc)[0].seasonYear`);

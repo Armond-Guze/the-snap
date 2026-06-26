@@ -6,7 +6,7 @@ import type { HeadlineListItem } from '@/types';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 120;
+export const revalidate = 3600;
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
   const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
   const canonical = `${SITE_URL}${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;

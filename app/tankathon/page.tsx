@@ -4,7 +4,7 @@ import { computeDraftOrder } from '@/lib/draft-order';
 import { TEAM_META } from '@/lib/schedule';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 900; // 15 minutes; cron/API revalidation will force-refresh sooner
+export const revalidate = 3600; // Cron/API revalidation will force-refresh sooner when needed.
 
 export const metadata: Metadata = {
   title: 'NFL Draft Order Tracker | Tank-a-thon | The Snap',

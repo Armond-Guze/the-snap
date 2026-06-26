@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
+import { client } from '@/sanity/lib/client';
 import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import RelatedArticles from '@/app/components/RelatedArticles';
 import YouTubeEmbed from '@/app/components/YoutubeEmbed';
@@ -45,7 +46,7 @@ interface FantasyDetail {
 
 interface PageProps { params: Promise<{ slug: string }> }
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 const canonicalFantasyArticleFilter = `
   _type == "article" &&
@@ -63,6 +64,23 @@ function legacyFantasyPath(slug: string): string {
   return `/fantasy/${encodeURIComponent(slug)}`;
 }
 
+export async function generateStaticParams() {
+  const docs = await client.fetch<Array<{ slug?: string }>>(
+    `*[
+      _type == "fantasyFootball" &&
+      published == true &&
+      !(_id in path("drafts.**")) &&
+      defined(slug.current) &&
+      (!defined(seo.noIndex) || seo.noIndex == false)
+    ]{ "slug": slug.current }`
+  );
+
+  return docs
+    .map((doc) => doc.slug?.trim())
+    .filter((slug): slug is string => Boolean(slug))
+    .map((slug) => ({ slug }));
+}
+
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
   if (!params?.slug) return {};
@@ -71,7 +89,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const canonicalArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
     `*[${canonicalFantasyArticleFilter} && slug.current == $slug][0]{ slug }`,
     { slug },
-    300,
+    21600,
     null
   );
   const canonicalArticleSlug = canonicalArticle?.slug?.current?.trim();
@@ -94,7 +112,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       seo{ noIndex }
     }`,
     { slug },
-    300,
+    21600,
     null
   );
   if (!article) return {};
@@ -134,7 +152,7 @@ export default async function FantasyArticlePage(props: PageProps) {
   const canonicalArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
     `*[${canonicalFantasyArticleFilter} && slug.current == $slug][0]{ slug }`,
     { slug },
-    300,
+    21600,
     null
   );
 
@@ -183,10 +201,10 @@ export default async function FantasyArticlePage(props: PageProps) {
       publishedAt, date,
       category->{title, slug},
       youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
-    }`, { slug }, 300, null),
+    }`, { slug }, 21600, null),
     sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(_createdAt desc)[0...24]{
       _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
-    }`, {}, 300, [])
+    }`, {}, 21600, [])
   ]);
 
   if (!article) notFound();

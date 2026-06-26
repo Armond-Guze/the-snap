@@ -11,7 +11,7 @@ import WeekDropdown from '../../WeekDropdown';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 interface Params { week: string }
 interface WeekPageProps {

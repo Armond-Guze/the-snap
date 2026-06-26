@@ -4,7 +4,7 @@ import { SITE_URL } from '@/lib/site-config'
 import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule'
 
 const baseUrl = SITE_URL
-export const revalidate = 3600
+export const revalidate = 86400
 
 // Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
 // You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).
@@ -57,18 +57,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[
         (
-          _type == "headline" ||
+          (
+            _type == "headline" &&
+            !(slug.current in *[
+              _type == "article" &&
+              format == "headline" &&
+              published == true &&
+              !(_id in path("drafts.**")) &&
+              (!defined(seo.noIndex) || seo.noIndex == false)
+            ].slug.current)
+          ) ||
           _type == "rankings" ||
           (_type == "article" && format != "powerRankings")
         ) &&
         published == true &&
+        !(_id in path("drafts.**")) &&
         (!defined(seo.noIndex) || seo.noIndex == false)
       ]{ slug, _updatedAt }`
     ),
     client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
       `*[
-        ((_type == "article" && format == "headline") || _type == "headline") &&
+        (
+          (_type == "article" && format == "headline") ||
+          (
+            _type == "headline" &&
+            !(slug.current in *[
+              _type == "article" &&
+              format == "headline" &&
+              published == true &&
+              !(_id in path("drafts.**")) &&
+              (!defined(seo.noIndex) || seo.noIndex == false)
+            ].slug.current)
+          )
+        ) &&
         published == true &&
+        !(_id in path("drafts.**")) &&
         (!defined(seo.noIndex) || seo.noIndex == false)
       ]{ slug, _updatedAt }`
     ),
@@ -163,7 +186,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Power Rankings weekly snapshots
   const rankingWeekDocs: { seasonYear?: number; weekNumber?: number; playoffRound?: string; _updatedAt?: string }[] =
-    await client.fetch(`*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && published==true]{ seasonYear, weekNumber, playoffRound, _updatedAt }`);
+    await client.fetch(`*[
+      _type == "article" &&
+      format == "powerRankings" &&
+      rankingType == "snapshot" &&
+      published == true &&
+      !(_id in path("drafts.**")) &&
+      (!defined(seo.noIndex) || seo.noIndex == false)
+    ]{ seasonYear, weekNumber, playoffRound, _updatedAt }`);
   const rankingWeekEntries: MetadataRoute.Sitemap = dedupeEntries(
     rankingWeekDocs
       .map((s) => {

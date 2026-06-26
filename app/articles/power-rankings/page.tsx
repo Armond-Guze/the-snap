@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/articles/power-rankings` },
 };
 
-export const revalidate = 60;
+export const revalidate = 1800;
 
 type LatestSnapshotTarget = {
   seasonYear: number;

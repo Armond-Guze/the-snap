@@ -26,7 +26,7 @@ import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { SITE_URL } from '@/lib/site-config';
 import { client } from '@/sanity/lib/client';
 
-export const revalidate = 300;
+export const revalidate = 21600;
 
 type PortableTextChild = {
 	_type: string;
@@ -302,7 +302,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 	const trimmedSlug = decodeURIComponent(params.slug).trim();
 
 	// Prefer full article query, fall back to headline-only for legacy docs
-	const article = await sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline)
+	const article = await sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 21600, null as unknown as Headline)
 		.catch(() => null);
 
 	if (!article) return {};
@@ -346,8 +346,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	const trimmedSlug = decodeURIComponent(params.slug).trim();
 
 	// Fetch article (any format) and a small feed for sidebar/related
-	const [article, otherArticles] = await Promise.all([
-		sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline),
+		const [article, otherArticles] = await Promise.all([
+			sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 21600, null as unknown as Headline),
 		sanityFetchDynamic<HeadlineListItem[]>(
 			`*[_type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false)] | order(coalesce(date, publishedAt, _createdAt) desc)[0...24]{
 				_id,
@@ -373,8 +373,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				format,
 				"tags": coalesce(tagRefs[]->{ title, slug }, [])
 			}`,
-			{},
-			300,
+				{},
+				21600,
 			[]
 		),
 	]);
@@ -382,8 +382,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	if (!article) {
 		const aliasDoc = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
 			`*[_type == "article" && published == true && (!defined(seo.noIndex) || seo.noIndex == false) && $slug in slugHistory][0]{ slug }`,
-			{ slug: trimmedSlug },
-			300,
+				{ slug: trimmedSlug },
+				21600,
 			null
 		);
 		const targetSlug = aliasDoc?.slug?.current?.trim();

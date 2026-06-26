@@ -12,6 +12,9 @@ function getEnv(key: string) {
 
 const KV_BASE = getEnv('KV_REST_API_URL');
 const KV_TOKEN = getEnv('KV_REST_API_TOKEN');
+const VIEW_COUNTS_ENABLED =
+  process.env.NEXT_PUBLIC_VIEW_COUNTS_ENABLED === 'true' ||
+  process.env.VIEW_COUNTS_ENABLED === 'true';
 
 async function kvGet(key: string): Promise<number> {
   if (!KV_BASE || !KV_TOKEN) return 0;
@@ -84,12 +87,22 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
+  if (!VIEW_COUNTS_ENABLED) {
+    return NextResponse.json(
+      { count: 0, skipped: 'view_counts_disabled' },
+      {
+        headers: {
+          'Cache-Control': 's-maxage=3600, stale-while-revalidate=86400'
+        }
+      }
+    );
+  }
   const count = await kvGet(`views:${slug}`);
   return NextResponse.json(
     { count },
     {
       headers: {
-        'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
+        'Cache-Control': 's-maxage=1800, stale-while-revalidate=3600'
       }
     }
   );
@@ -98,6 +111,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const slug = decodeURIComponent(extractSlug(req.url)).trim();
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
+  if (!VIEW_COUNTS_ENABLED) {
+    return NextResponse.json(
+      { skipped: 'view_counts_disabled' },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store'
+        }
+      }
+    );
+  }
 
   if (!KV_BASE || !KV_TOKEN) {
     return NextResponse.json(

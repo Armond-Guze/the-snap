@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { appendEvent } from '../../../../lib/analytics-store';
 
+const INTERNAL_ANALYTICS_ENABLED =
+  process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED === 'true' ||
+  process.env.INTERNAL_ANALYTICS_ENABLED === 'true';
+
 function isExcludedRequest(request: NextRequest, body?: { isOwner?: boolean }) {
   const cookieExcluded = request.cookies.get('va-exclude')?.value === '1';
   return cookieExcluded || body?.isOwner === true;
@@ -8,6 +12,10 @@ function isExcludedRequest(request: NextRequest, body?: { isOwner?: boolean }) {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!INTERNAL_ANALYTICS_ENABLED) {
+      return NextResponse.json({ success: true, skipped: 'internal_analytics_disabled' });
+    }
+
     const body = await request.json();
     const { 
       articleId, 

@@ -87,11 +87,11 @@ export async function fetchSportsDataStandings(season?: number): Promise<SportsD
 
 export async function fetchSportsDataScoresByWeek(week: number, season?: number): Promise<SportsDataScore[]> {
   const seasonToUse = season ?? sportsDataConfig.defaultSeason;
-  return sportsDataFetch<SportsDataScore[]>(`scores/json/ScoresByWeek/${seasonToUse}/${week}`, { revalidateSeconds: 300 });
+  return sportsDataFetch<SportsDataScore[]>(`scores/json/ScoresByWeek/${seasonToUse}/${week}`, { revalidateSeconds: 900 });
 }
 
 export async function fetchSportsDataCurrentWeek(): Promise<number> {
-  return sportsDataFetch<number>('scores/json/CurrentWeek', { revalidateSeconds: 300 });
+  return sportsDataFetch<number>('scores/json/CurrentWeek', { revalidateSeconds: 900 });
 }
 
 function buildUrl(path: string, query?: QueryRecord): string {

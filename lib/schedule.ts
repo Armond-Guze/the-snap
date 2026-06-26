@@ -46,8 +46,8 @@ export async function loadStaticSchedule(): Promise<StaticGame[]> {
 // Determine smart revalidate seconds (shorter during Thu-Mon game windows)
 export function computeRevalidate(now = new Date()): number {
   const day = now.getUTCDay(); // 0 Sun ... 6 Sat
-  // Game heavy windows (Thu-Mon) -> 5 min, otherwise 6h
-  return [4,5,6,0,1].includes(day) ? 300 : 21600;
+  // Game heavy windows (Thu-Mon) -> 15 min, otherwise 6h
+  return [4,5,6,0,1].includes(day) ? 900 : 21600;
 }
 
 // Fetch live week data from ESPN public API (best-effort / no key)

@@ -1,6 +1,6 @@
 import { client } from '@/sanity/lib/client';
 // Simple heuristic: most recent 10 for now; could be replaced with analytics-based popularity.
-export const revalidate = 300;
+export const revalidate = 1800;
 
 interface Item { _id: string; title: string; homepageTitle?: string; slug: { current: string }; _type: string; }
 

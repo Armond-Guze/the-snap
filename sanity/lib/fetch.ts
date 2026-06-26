@@ -102,7 +102,7 @@ export async function sanityFetch<T>(
 export async function sanityFetchDynamic<T>(
   query: string,
   params: Record<string, unknown> = {},
-  revalidateSeconds: number = 60,
+  revalidateSeconds: number = 3600,
   fallback: T = [] as T
 ): Promise<T> {
   return sanityFetch(query, params, {
