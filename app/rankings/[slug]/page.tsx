@@ -397,8 +397,8 @@ function LegacyRankingsRenderer({ ranking, slug, otherContent }: { ranking: Rank
           )}
           {ranking.articleImage?.asset?.url && (
             <div className="w-full mb-8">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
-                <Image src={ranking.articleImage.asset.url} alt={`${ranking.title} - Article Image`} fill className="object-cover w-full h-full" />
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none bg-zinc-950 md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+                <Image src={ranking.articleImage.asset.url} alt={`${ranking.title} - Article Image`} fill className="object-contain object-center" />
               </div>
             </div>
           )}
@@ -553,13 +553,13 @@ function UnifiedRankingRenderer({
           {/* Cover Image */}
           {ranking.featuredImage?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none bg-zinc-950 md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
                   src={ranking.featuredImage.asset.url}
                   alt={(ranking.featuredImage as { alt?: string })?.alt || ranking.title}
                   fill
                   sizes={ARTICLE_COVER_SIZES}
-                  className="object-cover w-full h-full"
+                  className="object-contain object-center"
                   priority
                 />
               </div>
@@ -583,12 +583,12 @@ function UnifiedRankingRenderer({
           {/* Article Image */}
           {ranking.articleImage?.asset?.url && (
             <div className="w-full mb-8">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden rounded-none bg-zinc-950 md:rounded-lg shadow-lg md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
                   src={ranking.articleImage.asset.url}
                   alt={`${ranking.title} - Article Image`}
                   fill
-                  className="object-cover w-full h-full"
+                  className="object-contain object-center"
                 />
               </div>
             </div>

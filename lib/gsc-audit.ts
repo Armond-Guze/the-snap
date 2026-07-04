@@ -11,7 +11,7 @@ const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const SEARCH_CONSOLE_API_BASE = "https://www.googleapis.com";
 const URL_INSPECTION_ENDPOINT =
   "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
-const SEARCH_CONSOLE_SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
+const SEARCH_CONSOLE_SCOPE = "https://www.googleapis.com/auth/webmasters";
 const DEFAULT_LOOKBACK_DAYS = 14;
 const DEFAULT_CONTENT_LIMIT = 6;
 const DEFAULT_SITEMAP_STALE_DAYS = 14;
@@ -184,6 +184,23 @@ interface RunGscAuditOptions {
   lookbackDays?: number;
 }
 
+interface SubmitGscSitemapOptions {
+  propertyUri?: string;
+  sitemapUrl?: string;
+}
+
+export interface GscSitemapSubmitResult {
+  ok: boolean;
+  configured: boolean;
+  propertyUri: string;
+  sitemapUrl: string;
+  submittedAt?: string;
+  skipped?: boolean;
+  reason?: string;
+  missing?: string[];
+  error?: string;
+}
+
 function getPropertyUriFromSiteUrl() {
   try {
     const hostname = new URL(SITE_URL).hostname.replace(/^www\./i, "");
@@ -323,7 +340,10 @@ async function searchConsoleRequest<T>(
     throw new Error(`Search Console request failed: ${response.status} ${errorText}`);
   }
 
-  return (await response.json()) as T;
+  const responseText = await response.text();
+  if (!responseText) return undefined as T;
+
+  return JSON.parse(responseText) as T;
 }
 
 async function inspectUrl(
@@ -586,6 +606,52 @@ async function fetchPerformanceMap(
   }
 
   return performanceMap;
+}
+
+export async function submitConfiguredSitemapToGoogle(
+  options: SubmitGscSitemapOptions = {}
+): Promise<GscSitemapSubmitResult> {
+  const config = getGscAuditConfig(options);
+
+  if (!config.configured) {
+    return {
+      ok: false,
+      configured: false,
+      skipped: true,
+      reason: "missing-gsc-config",
+      missing: config.missing,
+      propertyUri: config.propertyUri,
+      sitemapUrl: config.sitemapUrl,
+    };
+  }
+
+  try {
+    const accessToken = await getAccessToken(config);
+    const encodedProperty = encodeURIComponent(config.propertyUri);
+    const encodedSitemapUrl = encodeURIComponent(config.sitemapUrl);
+
+    await searchConsoleRequest<void>(
+      accessToken,
+      `/webmasters/v3/sites/${encodedProperty}/sitemaps/${encodedSitemapUrl}`,
+      { method: "PUT" }
+    );
+
+    return {
+      ok: true,
+      configured: true,
+      propertyUri: config.propertyUri,
+      sitemapUrl: config.sitemapUrl,
+      submittedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      configured: true,
+      propertyUri: config.propertyUri,
+      sitemapUrl: config.sitemapUrl,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 async function auditPage(

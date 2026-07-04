@@ -252,13 +252,13 @@ export default async function RankingsWeekPage({ params }: PageProps) {
 
 	          {displayCover?.asset?.url && (
             <div className="w-full mb-6">
-              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
+              <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[240px] sm:h-[350px] md:h-[500px] overflow-hidden rounded-none bg-zinc-950 md:rounded-md shadow-sm md:w-full md:left-0 md:right-0 md:ml-0 md:mr-0">
                 <Image
                   src={displayCover.asset.url}
                   alt={(displayCover as { alt?: string })?.alt || displayTitle}
                   fill
                   sizes={ARTICLE_COVER_SIZES}
-                  className="object-cover w-full h-full"
+                  className="object-contain object-center"
                   priority
                 />
               </div>

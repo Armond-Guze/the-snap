@@ -258,7 +258,7 @@ const articlePortableTextComponents = {
 							src={value.asset.url}
 							alt={value.alt || 'Article image'}
 							fill
-							className="object-cover object-center"
+							className="object-contain object-center"
 							sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
 						/>
 					</div>
@@ -570,7 +570,6 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 								alt={(article.coverImage as { alt?: string })?.alt || article.title}
 								sizes={ARTICLE_COVER_SIZES}
 								priority
-								fit="cover"
 							/>
 						)}
 						{article.summary && (

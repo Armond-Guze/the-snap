@@ -4,6 +4,7 @@ import { WebhookProvider } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { parseBody } from 'next-sanity/webhook';
 
+import { submitConfiguredSitemapToGoogle, type GscSitemapSubmitResult } from '@/lib/gsc-audit';
 import { autopostDocumentToX } from '@/lib/social/x-autopost';
 import {
   beginWebhookEventProcessing,
@@ -471,6 +472,7 @@ function addArticlePaths(
 
   paths.add('/articles');
   paths.add('/');
+  paths.add('/sitemap.xml');
 
   if (doc?._type === 'headline' || doc?.format === 'headline' || previousDoc?._type === 'headline' || previousDoc?.format === 'headline') {
     paths.add('/headlines');
@@ -511,16 +513,19 @@ function buildRevalidationPaths(doc: NormalizedDoc | null, previousDoc: Normaliz
       if (includeIndexPaths) {
         paths.add('/');
         paths.add('/fantasy');
+        paths.add('/sitemap.xml');
       }
       if (doc?.slug) paths.add(`/fantasy/${encodeURIComponent(doc.slug)}`);
       if (previousDoc?.slug) paths.add(`/fantasy/${encodeURIComponent(previousDoc.slug)}`);
       break;
     case 'category':
       paths.add('/categories');
+      paths.add('/sitemap.xml');
       if (doc?.slug) paths.add(`/categories/${encodeURIComponent(doc.slug)}`);
       if (previousDoc?.slug) paths.add(`/categories/${encodeURIComponent(previousDoc.slug)}`);
       break;
     case 'topicHub':
+      paths.add('/sitemap.xml');
       if (doc?.slug) paths.add(`/${encodeURIComponent(doc.slug)}`);
       if (previousDoc?.slug) paths.add(`/${encodeURIComponent(previousDoc.slug)}`);
       break;
@@ -529,6 +534,20 @@ function buildRevalidationPaths(doc: NormalizedDoc | null, previousDoc: Normaliz
   }
 
   return Array.from(paths);
+}
+
+function shouldSubmitSitemapToGoogle(
+  doc: NormalizedDoc | null,
+  previousDoc: NormalizedDoc | null,
+  transition: string | null,
+  paths: string[],
+) {
+  const effectiveType = doc?._type ?? previousDoc?._type;
+  return (
+    isPublicContentDocType(effectiveType) &&
+    shouldRefreshContentIndexes(doc, previousDoc, transition) &&
+    paths.includes('/sitemap.xml')
+  );
 }
 
 async function beginProcessing(eventId: string, eventType: string, payload: unknown) {
@@ -647,6 +666,19 @@ export async function POST(request: NextRequest) {
 
     await Promise.all(paths.map((path) => revalidatePath(path)));
 
+    let sitemapSubmission: GscSitemapSubmitResult | null = null;
+    if (shouldSubmitSitemapToGoogle(effectiveDoc, previousDoc, transition, paths)) {
+      sitemapSubmission = await submitConfiguredSitemapToGoogle();
+      if (!sitemapSubmission.ok) {
+        console.warn(`[${ROUTE_NAME}] Google sitemap submission did not complete`, {
+          documentId: documentId ? cleanDocumentId(documentId) : null,
+          reason: sitemapSubmission.reason,
+          missing: sitemapSubmission.missing,
+          error: sitemapSubmission.error,
+        });
+      }
+    }
+
     let social: Awaited<ReturnType<typeof autopostDocumentToX>> | null = null;
     const shouldAttemptSocial =
       !!documentId &&
@@ -672,13 +704,14 @@ export async function POST(request: NextRequest) {
       type: effectiveDoc._type,
       transition,
       paths,
+      sitemapStatus: sitemapSubmission?.reason ?? (sitemapSubmission?.ok ? 'submitted' : sitemapSubmission?.error ?? null),
       socialStatus: social?.reason ?? (social?.ok ? 'processed' : social?.error ?? null),
     });
 
     await updateWebhookLog('processed', webhookLogId);
 
     return NextResponse.json(
-      { ok: true, revalidated: true, paths, social },
+      { ok: true, revalidated: true, paths, sitemapSubmission, social },
       { status: 200 },
     );
   } catch (error) {

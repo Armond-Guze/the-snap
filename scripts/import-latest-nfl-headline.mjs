@@ -4,6 +4,7 @@
 // Dry-run by default:
 //   npm run import:nfl-headline
 //   npm run import:nfl-headline -- --site=sharp
+//   npm run import:daily-sources
 //   npm run import:nfl-headline -- --source-url=https://www.profootballnetwork.com/example/
 //
 // Create the draft:
@@ -27,19 +28,24 @@ const FORCE = args.includes('--force')
 const INCLUDE_ARTICLE_BODY =
   args.includes('--include-article-body') || process.env.NFL_IMPORT_INCLUDE_ARTICLE_BODY === 'true'
 const siteArg = (valueArg('--site') || process.env.NFL_IMPORT_SITE || 'nfl').toLowerCase()
+const DAILY_BATCH = args.includes('--daily') || valueArg('--batch') === 'daily' || siteArg === 'daily'
 
 const projectId =
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
+  process.env.NFL_IMPORT_SANITY_PROJECT_ID ||
   process.env.SANITY_STUDIO_PROJECT_ID ||
-  process.env.SANITY_PROJECT_ID
+  process.env.SANITY_PROJECT_ID ||
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 const dataset =
-  process.env.NEXT_PUBLIC_SANITY_DATASET ||
+  process.env.NFL_IMPORT_SANITY_DATASET ||
   process.env.SANITY_STUDIO_DATASET ||
   process.env.SANITY_DATASET ||
+  process.env.NEXT_PUBLIC_SANITY_DATASET ||
   'production'
 const apiVersion =
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION ||
+  process.env.NFL_IMPORT_SANITY_API_VERSION ||
   process.env.SANITY_STUDIO_API_VERSION ||
+  process.env.SANITY_API_VERSION ||
+  process.env.NEXT_PUBLIC_SANITY_API_VERSION ||
   '2024-06-01'
 const sanityToken = process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN
 const openaiApiKey = process.env.OPENAI_API_KEY
@@ -47,6 +53,9 @@ const openaiModel = process.env.OPENAI_MODEL || 'gpt-5-mini'
 const newsIndexUrl = process.env.NFL_HEADLINE_SOURCE_URL || 'https://www.nfl.com/news/'
 const sourceUrlArg = valueArg('--source-url')
 const MIN_BODY_CHARS = Number.parseInt(process.env.NFL_IMPORT_MIN_BODY_CHARS || '1200', 10)
+const DAILY_NFL_LIMIT = Number.parseInt(valueArg('--nfl-limit') || process.env.NFL_IMPORT_DAILY_NFL_LIMIT || '3', 10)
+const DAILY_OTHER_LIMIT = Number.parseInt(valueArg('--other-limit') || process.env.NFL_IMPORT_DAILY_OTHER_LIMIT || '1', 10)
+const CANDIDATE_LIMIT = Number.parseInt(valueArg('--candidate-limit') || process.env.NFL_IMPORT_CANDIDATE_LIMIT || '12', 10)
 
 const WORDPRESS_FIELDS = '_fields=link,title,excerpt,date,modified,yoast_head_json,categories,tags'
 const SOURCE_CONFIGS = {
@@ -57,12 +66,12 @@ const SOURCE_CONFIGS = {
   },
   sharp: {
     displayName: 'Sharp Football Analysis',
-    latestUrl: `https://www.sharpfootballanalysis.com/wp-json/wp/v2/posts?per_page=1&${WORDPRESS_FIELDS}`,
+    latestUrl: `https://www.sharpfootballanalysis.com/wp-json/wp/v2/posts?per_page=${CANDIDATE_LIMIT}&${WORDPRESS_FIELDS}`,
     type: 'wordpress-latest',
   },
   pfn: {
     displayName: 'Pro Football Network',
-    latestUrl: `https://www.profootballnetwork.com/wp-json/wp/v2/posts?per_page=1&${WORDPRESS_FIELDS}`,
+    latestUrl: `https://www.profootballnetwork.com/wp-json/wp/v2/posts?per_page=${CANDIDATE_LIMIT}&${WORDPRESS_FIELDS}`,
     type: 'wordpress-latest',
   },
 }
@@ -154,6 +163,12 @@ const TRAILING_TITLE_STOP_WORDS = new Set([
   'to',
   'with',
 ])
+const PROMO_OR_AD_PATTERN =
+  /\b(advertisement|sponsored|sponsor|partner content|promo|promotion|discount|coupon|sale|shop|merch|tickets?|giveaway|sweepstakes|subscribe|subscription|newsletter|sign up|download|available now|now available|new book|ebook|course|webinar|book excerpt|excerpt from|warren sharp'?s \d{4} football)\b/i
+const LOW_VALUE_STORY_PATTERN =
+  /\b(relationship|dating|romance|personal life|knew about|bodycam|traffic stop|reporter|media personality|fabricated|rips?|reacts? to|nfl world reacts)\b/i
+const FOOTBALL_RELEVANCE_PATTERN =
+  /\b(nfl|football|quarterback|qb|running back|wide receiver|receiver|tight end|offensive line|defensive line|cornerback|safety|linebacker|coach|coordinator|roster|depth chart|training camp|minicamp|preseason|regular season|playoffs?|super bowl|draft|free agency|trade|contract|injury|fantasy|betting|odds|rankings?|analysis|seahawks?|rams?|bills?|chiefs?|cowboys?|eagles?|ravens?|bengals?|lions?|packers?|49ers?|niners?|steelers?|patriots?|jets?|giants?|dolphins?|bears?|vikings?|saints?|falcons?|buccaneers?|bucs?|chargers?|raiders?|broncos?|texans?|colts?|jaguars?|titans?|browns?|cardinals?|panthers?|commanders?)\b/i
 
 if (!projectId || !dataset) {
   console.error('Missing Sanity projectId/dataset in env.')
@@ -429,6 +444,38 @@ async function fetchNewestSource() {
   throw new Error(`Unsupported source type "${config.type}"`)
 }
 
+async function fetchCandidateSources(site, limit) {
+  const config = SOURCE_CONFIGS[site]
+  if (!config) throw new Error(`Unsupported site "${site}"`)
+
+  if (config.type === 'nfl-latest') return fetchNflCandidateSources(config, limit)
+  if (config.type === 'wordpress-latest') return fetchWordPressCandidateSources(config, limit)
+
+  throw new Error(`Unsupported source type "${config.type}"`)
+}
+
+async function fetchNflCandidateSources(config, limit) {
+  const indexHtml = await fetchText(config.latestUrl)
+  const latestCards = parseLatestCards(indexHtml).slice(0, limit)
+  const sources = []
+
+  for (const card of latestCards) {
+    try {
+      sources.push(await fetchArticleSource(card.url, { listingTitle: card.title, sourceName: config.displayName }))
+    } catch (error) {
+      console.log(`Skipped ${card.url}: ${error.message || error}`)
+    }
+  }
+
+  return sources
+}
+
+async function fetchWordPressCandidateSources(config, limit) {
+  const payload = JSON.parse(await fetchText(config.latestUrl))
+  const posts = (Array.isArray(payload) ? payload : []).slice(0, limit)
+  return posts.map((post) => sourceFromWordPressPost(post, config.displayName)).filter((source) => source.url)
+}
+
 async function fetchWordPressLatestSource(config) {
   const payload = JSON.parse(await fetchText(config.latestUrl))
   const post = Array.isArray(payload) ? payload[0] : null
@@ -468,6 +515,15 @@ function sourceFromWordPressPost(post, sourceName) {
     sourceName,
     bodyExcerpt: '',
   }
+}
+
+function sourceSkipReason(source) {
+  const text = `${source.title || ''} ${source.description || ''} ${source.articleSection || ''} ${source.url || ''}`
+  if (!compact(source.title) || !compact(source.url)) return 'missing title or URL'
+  if (PROMO_OR_AD_PATTERN.test(text)) return 'promo/ad-like source'
+  if (LOW_VALUE_STORY_PATTERN.test(text)) return 'low-football-value source'
+  if (!FOOTBALL_RELEVANCE_PATTERN.test(text)) return 'not clearly football-related'
+  return ''
 }
 
 async function fetchHtmlArticleSource(articleUrl, fallback = {}) {
@@ -975,7 +1031,7 @@ async function uniqueSlug(baseSlug, docId) {
 
 async function findExisting(docId) {
   return client.fetch(
-    `*[_type == "article" && _id in [$id, $draftId]][0]{_id,title,"slug":slug.current,published}`,
+    `*[_type in ["article","headline","rankings"] && _id in [$id, $draftId]][0]{_id,_type,title,"slug":slug.current,published}`,
     { id: docId, draftId: `drafts.${docId}` }
   )
 }
@@ -1047,43 +1103,101 @@ function printDraft(doc, draft) {
   console.log(`Body blocks: ${(doc.body || []).length}`)
 }
 
-async function main() {
-  const config = SOURCE_CONFIGS[siteArg]
-  const sourceLabel = sourceUrlArg ? sourceNameForUrl(sourceUrlArg) : config?.displayName || siteArg
-  console.log(`Checking ${sourceLabel} source (${WRITE ? 'write' : 'dry-run'} mode)...`)
-
-  const source = await fetchNewestSource()
+async function processSource(source, indexes) {
   printSource(source)
+
+  const skipReason = sourceSkipReason(source)
+  if (skipReason) {
+    console.log(`Skipped source: ${skipReason}.`)
+    return { status: 'filtered', source, reason: skipReason }
+  }
 
   const docId = sourceBaseId(source.url)
   const existing = await findExisting(docId)
   if (existing && !FORCE) {
     console.log(`Existing draft/article found: ${existing.title} (${existing._id})`)
-    return
+    return { status: 'existing', source, existing }
   }
 
   if (SOURCE_ONLY) {
     console.log('Source-only check complete. Remove --source-only to generate a draft.')
-    return
+    return { status: 'source-only', source }
   }
 
-  const indexes = await fetchSanityIndexes()
   const draft = await generateDraft(source, indexes)
   const qualityIssue = draftQualityIssue(draft)
   if (qualityIssue) {
     console.log(qualityIssue)
-    return
+    return { status: 'quality-skip', source, reason: qualityIssue }
   }
+
   const doc = await buildSanityDoc(source, draft, indexes)
   printDraft(doc, draft)
 
   if (!WRITE) {
     console.log('Dry run complete. Add --write to create the unpublished Sanity draft.')
-    return
+    return { status: 'generated', source, doc }
   }
 
   const created = FORCE ? await client.createOrReplace(doc) : await client.createIfNotExists(doc)
   console.log(`${FORCE ? 'Upserted' : 'Created'} draft: ${created._id}`)
+  return { status: FORCE ? 'upserted' : 'created', source, doc: created }
+}
+
+async function runDailyBatch() {
+  console.log(`Running daily source batch (${WRITE ? 'write' : 'dry-run'} mode)...`)
+  console.log(`Sanity target: project ${projectId}, dataset ${dataset}, document type article drafts.`)
+  console.log(`Targets: ${DAILY_NFL_LIMIT} NFL.com, ${DAILY_OTHER_LIMIT} Sharp, ${DAILY_OTHER_LIMIT} PFN.`)
+
+  const indexes = SOURCE_ONLY ? null : await fetchSanityIndexes()
+  const targets = [
+    { site: 'nfl', quota: DAILY_NFL_LIMIT },
+    { site: 'sharp', quota: DAILY_OTHER_LIMIT },
+    { site: 'pfn', quota: DAILY_OTHER_LIMIT },
+  ]
+  const summary = []
+
+  for (const target of targets) {
+    const config = SOURCE_CONFIGS[target.site]
+    console.log(`\nScanning ${config.displayName}...`)
+    const sources = await fetchCandidateSources(target.site, CANDIDATE_LIMIT)
+    let accepted = 0
+    const counts = {}
+
+    for (const source of sources) {
+      if (accepted >= target.quota) break
+      console.log('')
+      const result = await processSource(source, indexes)
+      counts[result.status] = (counts[result.status] || 0) + 1
+      if (['created', 'upserted', 'generated', 'source-only'].includes(result.status)) accepted += 1
+    }
+
+    summary.push({ site: config.displayName, accepted, quota: target.quota, counts })
+  }
+
+  console.log('\nDaily batch summary:')
+  for (const item of summary) {
+    const countText = Object.entries(item.counts)
+      .map(([status, count]) => `${status}:${count}`)
+      .join(', ') || 'none'
+    console.log(`- ${item.site}: ${item.accepted}/${item.quota} accepted (${countText})`)
+  }
+}
+
+async function main() {
+  if (DAILY_BATCH) {
+    await runDailyBatch()
+    return
+  }
+
+  const config = SOURCE_CONFIGS[siteArg]
+  const sourceLabel = sourceUrlArg ? sourceNameForUrl(sourceUrlArg) : config?.displayName || siteArg
+  console.log(`Checking ${sourceLabel} source (${WRITE ? 'write' : 'dry-run'} mode)...`)
+  console.log(`Sanity target: project ${projectId}, dataset ${dataset}, document type article drafts.`)
+
+  const source = await fetchNewestSource()
+  const indexes = SOURCE_ONLY ? null : await fetchSanityIndexes()
+  await processSource(source, indexes)
 }
 
 main().catch((error) => {

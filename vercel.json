@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/seo/gsc-audit",
-      "schedule": "20 13 * * 1"
+      "schedule": "20 13 * * *"
     }
   ]
 }
