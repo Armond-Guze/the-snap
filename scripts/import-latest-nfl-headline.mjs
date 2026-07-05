@@ -56,6 +56,9 @@ const MIN_BODY_CHARS = Number.parseInt(process.env.NFL_IMPORT_MIN_BODY_CHARS || 
 const DAILY_NFL_LIMIT = Number.parseInt(valueArg('--nfl-limit') || process.env.NFL_IMPORT_DAILY_NFL_LIMIT || '3', 10)
 const DAILY_OTHER_LIMIT = Number.parseInt(valueArg('--other-limit') || process.env.NFL_IMPORT_DAILY_OTHER_LIMIT || '1', 10)
 const CANDIDATE_LIMIT = Number.parseInt(valueArg('--candidate-limit') || process.env.NFL_IMPORT_CANDIDATE_LIMIT || '12', 10)
+const OPENAI_MAX_RETRIES = Number.parseInt(process.env.NFL_IMPORT_OPENAI_MAX_RETRIES || '2', 10)
+const OPENAI_RETRY_BASE_MS = Number.parseInt(process.env.NFL_IMPORT_OPENAI_RETRY_BASE_MS || '1500', 10)
+const OPENAI_TIMEOUT_MS = Number.parseInt(process.env.NFL_IMPORT_OPENAI_TIMEOUT_MS || '90000', 10)
 
 const WORDPRESS_FIELDS = '_fields=link,title,excerpt,date,modified,yoast_head_json,categories,tags'
 const SOURCE_CONFIGS = {
@@ -209,6 +212,66 @@ function compact(value) {
 
 function redactSecrets(value) {
   return String(value || '').replace(/sk-[A-Za-z0-9_*.-]+/g, 'sk-REDACTED')
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function retryDelayMs(attempt) {
+  const jitter = Math.floor(Math.random() * 250)
+  return OPENAI_RETRY_BASE_MS * 2 ** Math.max(0, attempt - 1) + jitter
+}
+
+function retryableOpenAIStatus(status) {
+  return status === 408 || status === 409 || status === 429 || status >= 500
+}
+
+function retryableOpenAIError(error) {
+  if (error?.name === 'AbortError' || error?.cause?.name === 'AbortError') return true
+  return /fetch failed|network|timeout|timed out|econnreset|etimedout|socket|aborted/i.test(String(error?.message || error))
+}
+
+async function fetchOpenAIResponse(body) {
+  const attempts = Math.max(1, OPENAI_MAX_RETRIES + 1)
+  let lastError
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS)
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${openaiApiKey}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (response.ok || !retryableOpenAIStatus(response.status) || attempt === attempts) {
+        return { response, payload }
+      }
+
+      const delay = retryDelayMs(attempt)
+      console.warn(`OpenAI request failed with retryable status ${response.status}; retrying in ${delay}ms (${attempt}/${attempts - 1}).`)
+      await sleep(delay)
+    } catch (error) {
+      lastError = error
+      if (!retryableOpenAIError(error) || attempt === attempts) throw error
+
+      const delay = retryDelayMs(attempt)
+      console.warn(`OpenAI request failed: ${redactSecrets(error.message || error)}; retrying in ${delay}ms (${attempt}/${attempts - 1}).`)
+      await sleep(delay)
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  throw lastError || new Error('OpenAI request failed.')
 }
 
 function decodeHtmlEntities(value) {
@@ -782,49 +845,41 @@ async function generateDraft(source, indexes) {
     },
   }
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${openaiApiKey}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: openaiModel,
-      input: [
-        {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text:
-                'You create original THE SNAP NFL article drafts for Sanity. Use the source only as factual signal. Do not copy sentence structure, paragraph order, or distinctive phrasing from the source. Do not add facts not supported by the source metadata. Drafts should be substantive enough for editor review, usually 1,200-1,800 body characters before source attribution. Body headings must be real h2/h3 style values, never Markdown syntax. Do not include raw URLs in body text.',
-            },
-          ],
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text:
-                `Create an original unpublished THE SNAP article draft from this ${source.sourceName || 'NFL'} source. Return only JSON that matches the schema. Choose the best format: headline for quick news, ranking for ranked/list pieces, analysis for interpretation/context pieces, fantasy for fantasy pieces, feature for broader evergreen or reported-style context. Prefer 5-8 tight paragraphs plus 2-3 h2 sections. Use existing category/tag/team/topic hub slugs only.\n\n` +
-                JSON.stringify(promptPayload),
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'snap_headline_draft',
-          strict: true,
-          schema: draftSchema(allowed),
-        },
+  const { response, payload } = await fetchOpenAIResponse({
+    model: openaiModel,
+    input: [
+      {
+        role: 'system',
+        content: [
+          {
+            type: 'input_text',
+            text:
+              'You create original THE SNAP NFL article drafts for Sanity. Use the source only as factual signal. Do not copy sentence structure, paragraph order, or distinctive phrasing from the source. Do not add facts not supported by the source metadata. Drafts should be substantive enough for editor review, usually 1,200-1,800 body characters before source attribution. Body headings must be real h2/h3 style values, never Markdown syntax. Do not include raw URLs in body text.',
+          },
+        ],
       },
-    }),
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'input_text',
+            text:
+              `Create an original unpublished THE SNAP article draft from this ${source.sourceName || 'NFL'} source. Return only JSON that matches the schema. Choose the best format: headline for quick news, ranking for ranked/list pieces, analysis for interpretation/context pieces, fantasy for fantasy pieces, feature for broader evergreen or reported-style context. Prefer 5-8 tight paragraphs plus 2-3 h2 sections. Use existing category/tag/team/topic hub slugs only.\n\n` +
+              JSON.stringify(promptPayload),
+          },
+        ],
+      },
+    ],
+    text: {
+      format: {
+        type: 'json_schema',
+        name: 'snap_headline_draft',
+        strict: true,
+        schema: draftSchema(allowed),
+      },
+    },
   })
 
-  const payload = await response.json()
   if (!response.ok) {
     throw new Error(redactSecrets(payload?.error?.message || `OpenAI request failed with status ${response.status}`))
   }
