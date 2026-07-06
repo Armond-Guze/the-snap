@@ -20,7 +20,6 @@ const ROUTE_NAME = 'api/webhooks/sanity';
 const SECRET = process.env.SANITY_WEBHOOK_SECRET ?? process.env.REVALIDATE_SECRET;
 const SANITY_SIGNATURE_HEADER = 'sanity-webhook-signature';
 const RECENT_EVENT_TTL_MS = 90 * 1000;
-const RECENT_CONTENT_INDEX_REFRESH_MS = 3 * 24 * 60 * 60 * 1000;
 const AUTPOST_METADATA_FIELDS = new Set([
   'autoPostToX',
   'xPostCustomText',
@@ -416,18 +415,6 @@ function buildDetailPath(doc: NormalizedDoc | null) {
   return `/articles/${slug}`;
 }
 
-function getPublishTimestamp(doc: NormalizedDoc | null) {
-  const value = doc?.publishedAt ?? doc?.date ?? doc?._updatedAt;
-  if (!value) return null;
-  const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-function isRecentlyPublishedContent(doc: NormalizedDoc | null) {
-  const timestamp = getPublishTimestamp(doc);
-  return typeof timestamp === 'number' && Date.now() - timestamp <= RECENT_CONTENT_INDEX_REFRESH_MS;
-}
-
 function isLifecycleTransition(transition: string | null) {
   return transition === 'appear' || transition === 'disappear';
 }
@@ -453,7 +440,7 @@ function shouldRefreshContentIndexes(
 ) {
   if (isLifecycleTransition(transition)) return true;
   if (hasIndexAffectingMetadataChange(doc, previousDoc)) return true;
-  return isRecentlyPublishedContent(doc) || isRecentlyPublishedContent(previousDoc);
+  return false;
 }
 
 function addArticlePaths(

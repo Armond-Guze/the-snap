@@ -10,6 +10,7 @@ interface MatchupPageProps {
 }
 
 export const revalidate = 1800;
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const games = await fetchSanitySeasonGames();

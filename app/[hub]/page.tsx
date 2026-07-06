@@ -259,6 +259,7 @@ export async function generateStaticParams() {
   return Array.from(new Set(rows)).map((slug) => ({ hub: slug }))
 }
 
+export const dynamicParams = false
 export async function generateMetadata({ params }: TopicHubPageProps): Promise<Metadata> {
   const { hub } = await params
   const slug = decodeURIComponent(hub).trim().toLowerCase()

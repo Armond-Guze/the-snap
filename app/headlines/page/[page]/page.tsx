@@ -2,13 +2,15 @@ import { client } from '@/sanity/lib/client';
 import { headlineQuery } from '@/sanity/lib/queries';
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import type { HeadlineListItem } from '@/types';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 3600;
+export const dynamicParams = false;
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
-  const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
+  const p = await params; const pageNum = Number(p.page);
   const canonical = `${SITE_URL}${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
   return {
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
 }
 
 const PAGE_SIZE = 24;
+const headlineCountQuery = 'count(' + headlineQuery.replace(/\s+/g,' ') + ')';
 
 function formatDate(date?: string) {
   if (!date || isNaN(new Date(date).getTime())) return '';
@@ -27,11 +30,14 @@ function formatDate(date?: string) {
 }
 
 export default async function HeadlinesPaginatedPage({ params }: { params: Promise<{ page: string }> }) {
-  const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
+  const p = await params;
+  const pageNum = Number(p.page);
+  if (!Number.isInteger(pageNum) || pageNum < 1) notFound();
   const start = (pageNum - 1) * PAGE_SIZE; const end = start + PAGE_SIZE;
   const items: HeadlineListItem[] = await client.fetch(`${headlineQuery}[${start}...${end}]`);
-  const total: number = await client.fetch('count(' + headlineQuery.replace(/\s+/g,' ') + ')');
+  const total: number = await client.fetch(headlineCountQuery);
   const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  if (pageNum > totalPages) notFound();
   return (
     <div className="min-h-screen bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -86,6 +92,7 @@ function PaginationNav({ current, total }: { current: number; total: number }) {
 }
 
 export async function generateStaticParams() {
-  // Pre-render first 3 pages to seed the archive; rest on demand
-  return [{ page: '1'}, { page: '2'}, { page: '3'}];
+  const total: number = await client.fetch(headlineCountQuery);
+  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  return Array.from({ length: totalPages }, (_, index) => ({ page: String(index + 1) }));
 }

@@ -12,6 +12,7 @@ import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 1800;
+export const dynamicParams = false;
 
 interface Params { week: string }
 interface WeekPageProps {

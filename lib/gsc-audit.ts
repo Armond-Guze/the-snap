@@ -16,6 +16,7 @@ const DEFAULT_LOOKBACK_DAYS = 14;
 const DEFAULT_CONTENT_LIMIT = 6;
 const DEFAULT_SITEMAP_STALE_DAYS = 14;
 const DEFAULT_SITEMAP_URL = toAbsoluteSiteUrl("/sitemap.xml");
+const DEFAULT_PAGE_FETCH_CONCURRENCY = 2;
 
 type AuditSeverity = "info" | "warn" | "error";
 
@@ -464,6 +465,28 @@ function toNumericCount(value: string | number | undefined) {
   return 0;
 }
 
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>
+) {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
+  const workerCount = Math.max(1, Math.min(concurrency, items.length));
+
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (nextIndex < items.length) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+        results[currentIndex] = await mapper(items[currentIndex]);
+      }
+    })
+  );
+
+  return results;
+}
+
 function buildContentUrl(doc: RecentContentDoc) {
   const slug = doc.slug?.current?.trim();
   if (!slug) return null;
@@ -546,7 +569,6 @@ async function fetchRecentTargets(limit: number): Promise<GscAuditTarget[]> {
 async function fetchSitemapSnapshot(sitemapUrl: string) {
   const response = await fetch(sitemapUrl, {
     headers: { "user-agent": "TheSnap-GSCAudit/1.0" },
-    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -683,7 +705,6 @@ async function auditPage(
     const pageResponse = await fetch(normalizedUrl, {
       headers: { "user-agent": "TheSnap-GSCAudit/1.0" },
       redirect: "manual",
-      cache: "no-store",
     });
 
     statusCode = pageResponse.status;
@@ -946,10 +967,14 @@ export async function runGscAudit(
       }
     }
 
-    const pages = await Promise.all(
-      targets.map((target) =>
-        auditPage(accessToken, config.propertyUri, target, sitemapSnapshot.urls, performanceMap)
-      )
+    const pageFetchConcurrency = parsePositiveInt(
+      process.env.GSC_AUDIT_PAGE_FETCH_CONCURRENCY,
+      DEFAULT_PAGE_FETCH_CONCURRENCY
+    );
+    const pages = await mapWithConcurrency(
+      targets,
+      pageFetchConcurrency,
+      (target) => auditPage(accessToken, config.propertyUri, target, sitemapSnapshot.urls, performanceMap)
     );
 
     const flattenedPageIssues = pages.flatMap((page) => page.issues);

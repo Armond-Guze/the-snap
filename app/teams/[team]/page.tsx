@@ -112,6 +112,8 @@ export async function generateStaticParams() {
   });
 }
 
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: TeamPageProps): Promise<Metadata> {
   const { team } = await params;
   const resolved = teamBySlugOrAbbr(team);
