@@ -30,9 +30,6 @@ export default function StandingsLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <nav className="text-lg"> {/* Tailwind class for font size */}
-      {children}
-    </nav>
-  )
+  return <>{children}</>
+
 }

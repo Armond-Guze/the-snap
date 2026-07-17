@@ -52,7 +52,9 @@ const openaiApiKey = process.env.OPENAI_API_KEY
 const openaiModel = process.env.OPENAI_MODEL || 'gpt-5-mini'
 const newsIndexUrl = process.env.NFL_HEADLINE_SOURCE_URL || 'https://www.nfl.com/news/'
 const sourceUrlArg = valueArg('--source-url')
-const MIN_BODY_CHARS = Number.parseInt(process.env.NFL_IMPORT_MIN_BODY_CHARS || '1200', 10)
+const MIN_BODY_CHARS = Number.parseInt(process.env.NFL_IMPORT_MIN_BODY_CHARS || '1800', 10)
+const TARGET_BODY_CHARS_MIN = Number.parseInt(process.env.NFL_IMPORT_TARGET_BODY_CHARS_MIN || '1800', 10)
+const TARGET_BODY_CHARS_MAX = Number.parseInt(process.env.NFL_IMPORT_TARGET_BODY_CHARS_MAX || '2600', 10)
 const DAILY_NFL_LIMIT = Number.parseInt(valueArg('--nfl-limit') || process.env.NFL_IMPORT_DAILY_NFL_LIMIT || '3', 10)
 const DAILY_OTHER_LIMIT = Number.parseInt(valueArg('--other-limit') || process.env.NFL_IMPORT_DAILY_OTHER_LIMIT || '1', 10)
 const CANDIDATE_LIMIT = Number.parseInt(valueArg('--candidate-limit') || process.env.NFL_IMPORT_CANDIDATE_LIMIT || '12', 10)
@@ -854,7 +856,7 @@ async function generateDraft(source, indexes) {
           {
             type: 'input_text',
             text:
-              'You create original THE SNAP NFL article drafts for Sanity. Use the source only as factual signal. Do not copy sentence structure, paragraph order, or distinctive phrasing from the source. Do not add facts not supported by the source metadata. Drafts should be substantive enough for editor review, usually 1,200-1,800 body characters before source attribution. Body headings must be real h2/h3 style values, never Markdown syntax. Do not include raw URLs in body text.',
+              `You create original THE SNAP NFL article drafts for Sanity. Use the source only as factual signal. Do not copy sentence structure, paragraph order, or distinctive phrasing from the source. Do not add facts not supported by the source metadata. Drafts should be substantive enough for editor review, usually ${TARGET_BODY_CHARS_MIN.toLocaleString('en-US')}-${TARGET_BODY_CHARS_MAX.toLocaleString('en-US')} body characters before source attribution. Body headings must be real h2/h3 style values, never Markdown syntax. Do not include raw URLs in body text.`,
           },
         ],
       },
@@ -864,7 +866,7 @@ async function generateDraft(source, indexes) {
           {
             type: 'input_text',
             text:
-              `Create an original unpublished THE SNAP article draft from this ${source.sourceName || 'NFL'} source. Return only JSON that matches the schema. Choose the best format: headline for quick news, ranking for ranked/list pieces, analysis for interpretation/context pieces, fantasy for fantasy pieces, feature for broader evergreen or reported-style context. Prefer 5-8 tight paragraphs plus 2-3 h2 sections. Use existing category/tag/team/topic hub slugs only.\n\n` +
+              `Create an original unpublished THE SNAP article draft from this ${source.sourceName || 'NFL'} source. Return only JSON that matches the schema. Choose the best format: headline for quick news, ranking for ranked/list pieces, analysis for interpretation/context pieces, fantasy for fantasy pieces, feature for broader evergreen or reported-style context. Prefer 7-10 tight paragraphs plus 2-3 h2 sections, and use the longer end of the target range for rankings, fantasy, analysis, and feature drafts. Use existing category/tag/team/topic hub slugs only.\n\n` +
               JSON.stringify(promptPayload),
           },
         ],

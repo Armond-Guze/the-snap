@@ -9,30 +9,31 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.35);
+  background: rgba(128, 128, 128, 0.45);
   border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.15);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.55);
+  background: rgba(128, 128, 128, 0.65);
 }
 
-/* Focus styles for better accessibility */
-button:focus,
-a:focus {
-  outline: 2px solid #ffffff;
+/* Focus styles for better accessibility (keyboard only — no outline flash on mouse clicks) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--focus-ring, rgba(255, 255, 255, 0.45));
   outline-offset: 2px;
 }
 
 /* Smooth transitions for interactive elements */
 button,
 a {
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out,
+    opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
 /* Print styles for professional article printing */
@@ -78,9 +79,9 @@ a {
   }
 }
 
-/* Improved focus indicators */
-*:focus {
-  outline: 2px solid #ffffff;
+/* Improved focus indicators (keyboard navigation only) */
+*:focus-visible {
+  outline: 2px solid var(--focus-ring, rgba(255, 255, 255, 0.45));
   outline-offset: 2px;
   border-radius: 2px;
 }
