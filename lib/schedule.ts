@@ -1,6 +1,8 @@
 // Lightweight schedule utilities (initial scaffold)
 // Designed to be extended later with automatic ingestion.
 
+import { getScheduleSeason } from './season';
+
 // Schedule data now sourced from Sanity only.
 
 export interface StaticGame {
@@ -11,6 +13,7 @@ export interface StaticGame {
   away: string; // team abbreviation (BAL)
   network?: string;
   venue?: string;
+  dateTimeTBD?: boolean;
 }
 
 export interface LiveGameUpdate {
@@ -54,7 +57,10 @@ export function computeRevalidate(now = new Date()): number {
 export async function fetchLiveWeek(week: number, seasonYear = 2025): Promise<LiveGameUpdate[]> {
   try {
     const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}&dates=${seasonYear}&seasontype=2`;
-    const res = await fetch(url, { next: { revalidate: computeRevalidate() } });
+    const res = await fetch(url, {
+      next: { revalidate: computeRevalidate() },
+      signal: AbortSignal.timeout(8000),
+    });
     if (!res.ok) throw new Error('bad status ' + res.status);
     interface ESPNEventCompetitor { homeAway: 'home' | 'away'; score?: string; }
     interface ESPNEventCompetition { competitors?: ESPNEventCompetitor[]; status?: { period?: number; displayClock?: string; type?: { name?: string } }; }
@@ -88,8 +94,7 @@ export async function fetchLiveWeek(week: number, seasonYear = 2025): Promise<Li
 }
 
 export async function getEnrichedWeek(week: number): Promise<EnrichedGame[]> {
-  const sanityGames = await fetchSanityWeekGames(week);
-  return sanityGames || [];
+  return (await getScheduleWeekOrCurrent(week)).games;
 }
 
 // Team abbreviation metadata (paths for logos supplied by user later)
@@ -147,6 +152,8 @@ function nameToAbbr(name?: string | null): string | undefined {
 export interface GroupedGamesBucket { label: string; games: EnrichedGame[] }
 
 export function bucketLabelFor(game: EnrichedGame): string {
+  if (game.dateTimeTBD) return 'Date and Time TBD';
+
   // Compute weekday/hour in Eastern Time to avoid UTC day crossover issues.
   const d = new Date(game.dateUTC);
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -213,8 +220,8 @@ export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): 
   return 1;
 }
 
-async function resolveCurrentWeek(): Promise<number> {
-  const schedule = await fetchSanitySeasonGames();
+async function resolveCurrentWeek(seasonInput?: string): Promise<number> {
+  const schedule = await fetchSanitySeasonGames(seasonInput);
   if (schedule.length === 0) return 1;
   return determineCurrentWeek(schedule);
 }
@@ -228,6 +235,7 @@ interface SanityGameDoc {
   awayTeam?: string;
   venue?: string;
   season?: string;
+  dateTimeTBD?: boolean;
 }
 
 function normalizeGameId(rawId: string): string {
@@ -249,12 +257,19 @@ function mapSanityDocToGame(doc: SanityGameDoc): EnrichedGame | null {
     away,
     network: doc.tvNetwork,
     venue: doc.venue,
+    dateTimeTBD: doc.dateTimeTBD === true,
     status: 'SCHEDULED'
   };
 }
 
+async function resolveScheduleSeasonInput(seasonInput?: string): Promise<string> {
+  const normalized = seasonInput?.trim();
+  if (normalized) return normalized;
+  return String(await getScheduleSeason());
+}
+
 async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise<EnrichedGame[] | null> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeasonInput(seasonInput ?? process.env.NFL_SEASON);
   try {
     const { client } = await import('../sanity/lib/client');
     const docs = await client.fetch<SanityGameDoc[]>(
@@ -266,7 +281,8 @@ async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise
         homeTeam,
         awayTeam,
         venue,
-        season
+        season,
+        dateTimeTBD
       }`,
       { week, season: String(season) }
     );
@@ -279,7 +295,7 @@ async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise
 }
 
 async function fetchSanityTeamGames(teamAbbr: string, seasonInput?: string): Promise<EnrichedGame[] | null> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeasonInput(seasonInput ?? process.env.NFL_SEASON);
   const teamName = TEAM_META[teamAbbr]?.name;
   if (!teamName) return null;
   try {
@@ -293,7 +309,8 @@ async function fetchSanityTeamGames(teamAbbr: string, seasonInput?: string): Pro
         homeTeam,
         awayTeam,
         venue,
-        season
+        season,
+        dateTimeTBD
       }`,
       { season: String(season), name: teamName }
     );
@@ -318,7 +335,8 @@ async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null>
         homeTeam,
         awayTeam,
         venue,
-        season
+        season,
+        dateTimeTBD
       }`,
       { ids }
     );
@@ -331,7 +349,7 @@ async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null>
 }
 
 export async function fetchSanitySeasonGames(seasonInput?: string): Promise<EnrichedGame[]> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeasonInput(seasonInput ?? process.env.NFL_SEASON);
   try {
     const { client } = await import('../sanity/lib/client');
     const docs = await client.fetch<SanityGameDoc[]>(
@@ -343,7 +361,8 @@ export async function fetchSanitySeasonGames(seasonInput?: string): Promise<Enri
         homeTeam,
         awayTeam,
         venue,
-        season
+        season,
+        dateTimeTBD
       }`,
       { season: String(season) }
     );
@@ -354,19 +373,29 @@ export async function fetchSanitySeasonGames(seasonInput?: string): Promise<Enri
   }
 }
 
-export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
-  const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek();
-  const sanityGames = await fetchSanityWeekGames(resolvedWeek);
-  return { week: resolvedWeek, games: sanityGames ?? [] };
+export async function getScheduleWeekOrCurrent(weekParam?: number, seasonInput?: string): Promise<{ week: number; games: EnrichedGame[] }> {
+  const season = await resolveScheduleSeasonInput(seasonInput ?? process.env.NFL_SEASON);
+  const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek(season);
+  const sanityGames = await fetchSanityWeekGames(resolvedWeek, season);
+  const games = sanityGames ?? [];
+  if (!games.length) return { week: resolvedWeek, games };
+
+  const liveUpdates = await fetchLiveWeek(resolvedWeek, Number(season));
+  const liveById = new Map(liveUpdates.map((update) => [update.gameId, update]));
+  return {
+    week: resolvedWeek,
+    games: games.map((game) => ({ ...game, ...liveById.get(game.gameId) })),
+  };
 }
 
 // Return all games (enriched) for a given team across the season
-export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[]> {
-  const key = team.toUpperCase();
+export async function getTeamSeasonSchedule(team: string, seasonInput?: string): Promise<EnrichedGame[]> {
+  const season = await resolveScheduleSeasonInput(seasonInput ?? process.env.NFL_SEASON);
+  const key = `${season}:${team.toUpperCase()}`;
   let pending = _teamSeasonCache.get(key);
   if (!pending) {
     pending = (async () => {
-      const sanityGames = await fetchSanityTeamGames(key);
+      const sanityGames = await fetchSanityTeamGames(team.toUpperCase(), season);
       if (sanityGames && sanityGames.length) {
         return sanityGames.sort((a, b) => a.week - b.week);
       }

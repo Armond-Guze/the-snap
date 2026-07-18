@@ -99,3 +99,29 @@ For the consolidated guide, compare the same page and query group after:
 - 8 weeks: whether the consolidated URL gained positions/clicks and whether the retired URL disappeared from performance reporting.
 
 Do not reverse the consolidation based on day-to-day volatility. Search systems need time to crawl, process redirects, combine signals, and reevaluate the page.
+
+## Improvement batch 2: standings, schedule, and NFL rules guides
+
+Completed July 18, 2026.
+
+Page-level Search Console evidence for April 17 through July 16:
+
+| Page | Impressions | Average position | Highest-confidence query signal |
+| --- | ---: | ---: | --- |
+| `/standings` | 861 | 51.1 | `nfl standings` — 194 impressions |
+| Salary-cap explainer | 672 | 42.7 | `nfl salary cap explained` and related cap-space queries |
+| Franchise-tag explainer | 499 | 60.1 | `franchise tag`, `franchise tag nfl`, and definition queries |
+| `/schedule/week/17` | 443 | 50.5 | `nfl 2026 week 17 schedule` averaged position 17.1 |
+| `/schedule` | 244 | 57.2 | `nfl schedule` and related generic schedule queries |
+
+Changes made:
+
+- Loaded and validated all 272 games in the official 2026 regular-season slate; each of the 32 teams has 17 games and Week 17 has 16 matchups.
+- Marked 24 league-held flexible games as date/time TBD so placeholder timestamps are never presented as official kickoffs.
+- Rebuilt the schedule templates around the 2026 season, working timezone controls, weekly titles and descriptions, live status enrichment, and shared rendering.
+- Corrected the active-standings-season query. The page now labels the final 2025 records as 2025 instead of falling back to the current calendar year, includes ties, and explains its sorting limits.
+- Updated team hubs to show the 2026 schedule alongside clearly labeled 2025 standings context.
+- Rewrote search metadata for the salary-cap and franchise-tag guides, added official NFL Football Operations references, removed the franchise guide's duplicated opening, and added a focused franchise-tag FAQ.
+- Added schedule-source modification dates to the sitemap so data refreshes generate meaningful crawl signals.
+
+Recheck these five URLs at the same 2-, 4-, and 8-week intervals. Week 17 is the best early ranking-movement indicator because Google had already tested the page near page two for a precise 2026 query before the page contained its schedule.

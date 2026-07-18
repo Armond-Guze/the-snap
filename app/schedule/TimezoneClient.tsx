@@ -1,13 +1,13 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { TIMEZONE_CODES } from '@/lib/schedule-format';
+import { normalizeTimezoneCode, TIMEZONE_CODES } from '@/lib/schedule-format';
 import { useState, useTransition, useEffect } from 'react';
 
 export default function TimezoneClient() {
   const search = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const initial = (search.get('tz') || 'ET').toUpperCase();
+  const initial = normalizeTimezoneCode(search.get('tz') || undefined);
   const [value, setValue] = useState(initial);
   const [, startTransition] = useTransition();
 

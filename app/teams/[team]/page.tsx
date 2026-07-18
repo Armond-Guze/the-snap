@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import StructuredData from '@/app/components/StructuredData';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { client } from '@/sanity/lib/client';
-import { getActiveSeason } from '@/lib/season';
+import { getActiveSeason, getScheduleSeason } from '@/lib/season';
 import { fetchNFLStandingsWithFallback, type ProcessedTeamData } from '@/lib/nfl-api';
 import { TEAM_COLORS } from '@/app/components/teamLogos';
 import { SITE_URL } from '@/lib/site-config';
@@ -118,7 +118,7 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
     return { title: 'NFL Team Hub | The Snap' };
   }
 
-  const season = await getActiveSeason();
+  const season = await getScheduleSeason();
   const slug = slugifyTeamName(resolved.meta.name);
   const title = `${resolved.meta.name} Hub (${season}) – News, Schedule & Division Snapshot | The Snap`;
   const description = `Everything for the ${resolved.meta.name} in one place: latest stories, season schedule, and live division context.`;
@@ -157,9 +157,10 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
     redirect(`/teams/${canonicalSlug}`);
   }
 
-  const [season, games, standings] = await Promise.all([
+  const scheduleSeason = await getScheduleSeason();
+  const [standingsSeason, games, standings] = await Promise.all([
     getActiveSeason(),
-    getTeamSeasonSchedule(abbr),
+    getTeamSeasonSchedule(abbr, String(scheduleSeason)),
     fetchNFLStandingsWithFallback(),
   ]);
 
@@ -252,7 +253,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   })();
 
   const eventSchemaEnabled = process.env.ENABLE_EVENT_SCHEMA === 'true';
-  const eventList = eventSchemaEnabled ? buildSportsEventList(games, { country: 'US' }).slice(0, 50) : [];
+  const eventList = eventSchemaEnabled ? buildSportsEventList(games.filter((game) => !game.dateTimeTBD), { country: 'US' }).slice(0, 50) : [];
 
   const teamSchema = eventSchemaEnabled && eventList.length
     ? {
@@ -261,7 +262,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         name: meta.name,
         sport: 'American Football',
         memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
-        season: String(season),
+        season: String(scheduleSeason),
         url: `${SITE_URL}/teams/${canonicalSlug}`,
         hasPart: eventList,
       }
@@ -295,13 +296,13 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">Team Hub</p>
               <h1 className="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl">{meta.name}</h1>
-              <p className="mt-2 text-sm text-white/75">{season} coverage center: schedule, standings context, and latest team stories.</p>
+              <p className="mt-2 text-sm text-white/75">{scheduleSeason} coverage center: schedule, {standingsSeason} standings context, and latest team stories.</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:min-w-[280px]">
             <div className="rounded-xl border border-white/15 bg-black/25 p-3">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">Record</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">{standingsSeason} Record</p>
               <p className="mt-1 text-lg font-bold text-white">{formatRecord(teamStanding)}</p>
             </div>
             <div className="rounded-xl border border-white/15 bg-black/25 p-3">
@@ -384,7 +385,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
 
           <section>
             <div className="mb-4">
-              <h2 className="text-2xl font-bold text-white">{season} Schedule Snapshot</h2>
+              <h2 className="text-2xl font-bold text-white">{scheduleSeason} Schedule Snapshot</h2>
               <p className="mt-1 text-sm text-white/60">Next up and recent results view for quick team tracking.</p>
             </div>
 
@@ -403,7 +404,9 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                         <li key={game.gameId} className="rounded-xl border border-white/10 bg-black/25 p-3">
                           <div className="flex items-center justify-between gap-2">
                             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/55">Week {game.week}</p>
-                            <p className="text-xs text-white/55">{formatGameDateLabel(game.dateUTC)} • {formatGameTimeLabel(game.dateUTC)} ET</p>
+                            <p className="text-xs text-white/55">
+                              {game.dateTimeTBD ? 'Date/time TBD' : `${formatGameDateLabel(game.dateUTC)} · ${formatGameTimeLabel(game.dateUTC)} ET`}
+                            </p>
                           </div>
                           <p className="mt-1 text-sm font-semibold text-white">{isHome ? 'vs' : '@'} {oppMeta?.name || oppAbbr}</p>
                           <div className="mt-1 text-xs text-white/55">{game.network || 'Network TBD'}{game.venue ? ` • ${game.venue}` : ''}</div>

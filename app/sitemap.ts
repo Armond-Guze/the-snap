@@ -68,11 +68,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
   ]);
 
-  // Latest update time for standings page from teamRecord documents
-  const latestTeamRecordUpdatedAt = await client.fetch<string | null>(
-    `*[_type == "teamRecord" && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
-  );
+  // Use source-document timestamps for evergreen data pages.
+  const [latestTeamRecordUpdatedAt, latestGameUpdatedAt] = await Promise.all([
+    client.fetch<string | null>(
+      `*[_type == "teamRecord" && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
+    ),
+    client.fetch<string | null>(
+      `*[_type == "game" && published == true && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
+    ),
+  ]);
   const standingsLastMod = toValidDate(latestTeamRecordUpdatedAt);
+  const scheduleLastMod = toValidDate(latestGameUpdatedAt);
 
   const dynamicEntries: MetadataRoute.Sitemap = dedupeEntries([
     // Detail pages: always point to final articles path to avoid sitemap URLs that redirect
@@ -199,6 +205,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/schedule`,
+      lastModified: scheduleLastMod,
       changeFrequency: 'weekly',
       priority: 0.75,
     },
@@ -250,6 +257,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,
+      lastModified: scheduleLastMod,
       changeFrequency: 'weekly' as const,
       priority: 0.55,
     })),

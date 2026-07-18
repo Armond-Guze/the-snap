@@ -1,13 +1,13 @@
-import { getScheduleWeekOrCurrent, groupGamesByBucket, TEAM_META, EnrichedGame } from '@/lib/schedule';
-import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
-import { getActiveSeason } from '@/lib/season';
-import type { TeamRecordDoc } from '@/lib/team-records';
-import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
-import TimezoneClient from '../../TimezoneClient';
-import Image from 'next/image';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import StructuredData from '../../../components/StructuredData';
 import WeekDropdown from '../../WeekDropdown';
+import TimezoneClient from '../../TimezoneClient';
+import { GamesBuckets } from '../../ScheduleContent';
+import { getScheduleWeekOrCurrent } from '@/lib/schedule';
+import { getScheduleSeason } from '@/lib/season';
+import { fetchTeamRecords } from '@/lib/team-records';
+import { normalizeTimezoneCode } from '@/lib/schedule-format';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { SITE_URL } from '@/lib/site-config';
 
@@ -16,147 +16,88 @@ export const revalidate = 300;
 interface Params { week: string }
 interface WeekPageProps {
   params: Promise<Params>;
-  searchParams: Promise<{ team?: string | string[] }>;
+  searchParams: Promise<{
+    team?: string | string[];
+    tz?: string | string[];
+  }>;
 }
 
 function toSingleParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
-    const candidate = value.find((entry) => typeof entry === 'string' && entry.trim().length > 0);
-    return candidate?.trim();
+    return value.find((entry) => entry.trim().length > 0)?.trim();
   }
-  if (typeof value !== 'string') return undefined;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
+  const trimmed = value?.trim();
+  return trimmed || undefined;
 }
 
-// Week-level metadata (dynamic per param) – ensures unique keyword rich titles
-export async function generateMetadata(p: { params: Promise<Params> }): Promise<Metadata> {
-  const params = await p.params;
-  const rawWeek = Number(params.week);
-  const week = isNaN(rawWeek) || rawWeek < 1 || rawWeek > 18 ? undefined : rawWeek;
-  const weekLabel = week ? `Week ${week}` : 'Week';
-  const season = await getActiveSeason();
-  const baseTitle = `NFL Schedule ${weekLabel} ${season} – Matchups, Times (ET) & TV Channels`;
-  const desc = `Complete NFL ${weekLabel} ${season} schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { week: rawWeek } = await params;
+  const parsedWeek = Number(rawWeek);
+  const week = Number.isInteger(parsedWeek) && parsedWeek >= 1 && parsedWeek <= 18 ? parsedWeek : undefined;
+  const season = await getScheduleSeason();
   const canonical = `${SITE_URL}${week ? `/schedule/week/${week}` : '/schedule'}`;
+  const title = week
+    ? `${season} NFL Week ${week} Schedule: Times & TV | The Snap`
+    : `${season} NFL Schedule | The Snap`;
+  const description = week
+    ? `Complete ${season} NFL Week ${week} schedule with every matchup, kickoff time, TV network, flexible game, live status and final score.`
+    : `Full ${season} NFL schedule with weekly matchups, kickoff times and TV networks.`;
   return {
-    title: baseTitle + ' | The Snap',
-    description: desc,
+    title,
+    description,
     alternates: { canonical },
-    openGraph: {
-      title: baseTitle + ' | The Snap',
-      description: desc,
-      url: canonical,
-      type: 'website'
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: baseTitle,
-      description: desc
-    },
-    robots: { index: true, follow: true }
+    openGraph: { title, description, url: canonical, type: 'website' },
+    twitter: { card: 'summary_large_image', title, description },
+    robots: { index: Boolean(week), follow: true },
   };
 }
 
-// In Next.js 15, dynamic route params are provided as a Promise
 export default async function WeekSchedulePage({ params, searchParams }: WeekPageProps) {
-  const resolved = await params;
-  const query = await searchParams;
+  const [{ week: rawWeek }, query] = await Promise.all([params, searchParams]);
+  const requestedWeek = Number(rawWeek);
   const teamParam = toSingleParam(query.team)?.toUpperCase();
-  const weekNum = Number(resolved.week);
-  const { week, games } = await getScheduleWeekOrCurrent(weekNum);
-  const season = await getActiveSeason();
+  const timezoneCode = normalizeTimezoneCode(toSingleParam(query.tz));
+  const season = await getScheduleSeason();
+  const { week, games } = await getScheduleWeekOrCurrent(requestedWeek, String(season));
   const recordsMap = await fetchTeamRecords(season);
-  const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
+  const filteredGames = teamParam
+    ? games.filter((game) => game.home === teamParam || game.away === teamParam)
+    : games;
+  const flexibleGameCount = filteredGames.filter((game) => game.dateTimeTBD).length;
+
   const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';
-  const events = enableEventSchema ? buildSportsEventList(filteredGames, { country: 'US' }).slice(0, 25) : [];
-  const sd = enableEventSchema && events.length
-    ? { '@context':'https://schema.org', '@type':'ItemList', name:`NFL Schedule Week ${week}`, itemListElement: events }
+  const events = enableEventSchema
+    ? buildSportsEventList(filteredGames.filter((game) => !game.dateTimeTBD), { country: 'US' }).slice(0, 25)
+    : [];
+  const scheduleSchema = events.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: `${season} NFL Week ${week} Schedule`,
+        itemListElement: events,
+      }
     : null;
+
   return (
-    <div className="max-w-5xl mx-auto px-4 pt-3 pb-8 md:pt-8 text-white">
-      {sd && <StructuredData data={sd} id={`sd-week-${week}`} />}
-      <h1 className="text-3xl font-bold mb-2">NFL Schedule - Week {week}</h1>
-  <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
-  <TimezoneClient />
-  <GamesBuckets games={filteredGames} recordsMap={recordsMap} />
+    <div className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-white md:pt-8">
+      {scheduleSchema && <StructuredData data={scheduleSchema} id={`sd-${season}-week-${week}`} />}
+      <h1 className="mb-2 text-3xl font-bold">{season} NFL Schedule – Week {week}</h1>
+      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-white/65">
+        All {filteredGames.length} Week {week} matchups with kickoff times, TV networks and game status.
+        {flexibleGameCount > 0 && ` ${flexibleGameCount} late-season matchup${flexibleGameCount === 1 ? ' is' : 's are'} awaiting an official date and kickoff time.`}
+      </p>
+      <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
+      <TimezoneClient />
+      <GamesBuckets games={filteredGames} recordsMap={recordsMap} timezoneCode={timezoneCode} />
+      <p className="mt-10 text-sm text-white/65">
+        <Link href="/schedule" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">
+          Return to the full {season} NFL schedule
+        </Link>
+      </p>
     </div>
-  );
-}
-
-interface GameProps { games: EnrichedGame[]; recordsMap?: Map<string, TeamRecordDoc> }
-
-function GamesBuckets({ games, recordsMap }: GameProps) {
-  if (!games.length) return <p className="text-white/60">No games found for this week (expand schedule JSON).</p>;
-  const buckets = groupGamesByBucket(games);
-  return (
-    <div className="space-y-8">
-      {buckets.map(b => (
-        <div key={b.label}>
-          <h2 className="text-lg font-semibold mb-3 tracking-wide text-white/80">{b.label}</h2>
-          <div className="space-y-3">
-            {b.games.map(g => <GameRow key={g.gameId} game={g} recordsMap={recordsMap} />)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-
-function GameRow({ game, recordsMap }: { game: EnrichedGame; recordsMap?: Map<string, TeamRecordDoc> }) {
-  const { dateLabel, timeLabel } = formatGameDateParts(game.dateUTC, { timezoneCode: 'ET', includeRelative: false });
-  return (
-    <div className="border border-white/10 rounded-lg p-4 sm:p-5 flex items-center justify-between bg-white/5">
-  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-        {/* Kickoff info column (left of away team) */}
-        <div className="w-28 sm:w-40 shrink-0 text-white/70 leading-tight">
-          <div className="text-[12px] font-medium">{dateLabel}</div>
-          <div className="text-[12px]">
-            {timeLabel} •
-            <span className="sm:hidden">{shortNetworkLabel(game.network)}</span>
-            <span className="hidden sm:inline">{game.network || 'TBD'}</span>
-          </div>
-        </div>
-
-        {/* Teams: left-aligned on mobile; allow truncation if extremely narrow */}
-        <div className="leading-[1.15] text-[16px] sm:text-[20px] flex-1 min-w-0">
-          <span className="flex font-semibold items-center gap-2 truncate">
-            <TeamBadge abbr={game.away} />
-            {(() => { const rec = shortRecord(recordsMap?.get(game.away)); return rec ? (<span className="text-white/50 text-[14px] hidden sm:inline">({rec})</span>) : null; })()}
-            <span>@</span>
-            <TeamBadge abbr={game.home} />
-            {(() => { const rec = shortRecord(recordsMap?.get(game.home)); return rec ? (<span className="text-white/50 text-[14px] hidden sm:inline">({rec})</span>) : null; })()}
-          </span>
-        </div>
-      </div>
-      <div className="text-right text-base min-w-[120px] ml-4 hidden sm:block">
-        {game.status === 'FINAL' && game.scores ? (
-          <span className="font-bold">{game.scores.away}-{game.scores.home} <span className="text-white/50 font-normal">Final</span></span>
-        ) : game.status === 'IN_PROGRESS' ? (
-          <span className="text-amber-400 animate-pulse">Live {game.quarter} {game.clock}</span>
-        ) : (
-          <span className="text-white/50">Scheduled</span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function TeamBadge({ abbr }: { abbr: string }) {
-  const meta = TEAM_META[abbr];
-  if (!meta) return <span>{abbr}</span>;
-  return (
-    <span className="inline-flex items-center gap-1.5 min-w-0">
-      <span className="relative w-6 h-6 sm:w-7 sm:h-7 inline-block shrink-0">
-        <Image src={meta.logo} alt={meta.name} fill sizes="24px, (min-width: 640px) 28px" className="object-contain" />
-      </span>
-      <span className="truncate">{abbr}</span>
-    </span>
   );
 }
 
 export async function generateStaticParams() {
-  // Pre-render all 18 weeks for SEO
-  return Array.from({ length: 18 }, (_, i) => ({ week: String(i + 1) }));
+  return Array.from({ length: 18 }, (_, index) => ({ week: String(index + 1) }));
 }

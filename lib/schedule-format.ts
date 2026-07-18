@@ -10,6 +10,11 @@ export const TIMEZONE_MAP: Record<string, string> = {
 
 export const TIMEZONE_CODES = Object.keys(TIMEZONE_MAP);
 
+export function normalizeTimezoneCode(value?: string): string {
+  const code = value?.trim().toUpperCase();
+  return code && TIMEZONE_CODES.includes(code) ? code : 'ET';
+}
+
 export interface FormatOptions {
   timezoneCode?: string; // e.g. 'ET'
   now?: Date; // injection for tests

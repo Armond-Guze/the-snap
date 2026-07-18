@@ -64,6 +64,13 @@ export const gameType = defineType({
       description: 'When the game is scheduled'
     }),
     defineField({
+      name: 'dateTimeTBD',
+      title: 'Date/Time TBD',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Use when the league has announced the matchup but has not finalized its date and kickoff time.'
+    }),
+    defineField({
       name: 'tvNetwork',
       title: 'TV Network',
       type: 'string',
@@ -73,6 +80,10 @@ export const gameType = defineType({
           { title: 'FOX', value: 'FOX' },
           { title: 'NBC', value: 'NBC' },
           { title: 'ESPN', value: 'ESPN' },
+          { title: 'ESPN / ABC', value: 'ESPN/ABC' },
+          { title: 'Prime Video', value: 'Prime Video' },
+          { title: 'Netflix', value: 'Netflix' },
+          { title: 'TBD', value: 'TBD' },
           { title: 'Monday Night Football', value: 'MNF' },
           { title: 'Thursday Night Football', value: 'TNF' },
           { title: 'Sunday Night Football', value: 'SNF' },

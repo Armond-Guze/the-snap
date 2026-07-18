@@ -74,6 +74,17 @@ The next priority is improving what Google and readers find after the technical 
 - Unpublished the redundant document without deleting it and added its slug to the retained article's redirect history.
 - Verified the retired URL returns a permanent 308 redirect, the retained URL is index/follow with a self-canonical, and only the retained URL appears in the sitemap.
 
+### Second improvement batch completed
+
+- Repaired the empty schedule experience and published a validated 272-game 2026 regular-season dataset.
+- Rebuilt the root and Week 1–18 schedule templates with season-specific metadata, accurate flexible-game handling, working timezone changes, and shared UI.
+- Fixed the standings-season lookup that was silently falling back to the calendar year. The final 2025 records are now labeled 2025 rather than 2026.
+- Added ties, last-updated context, an accuracy note about official tiebreakers, structured data, and useful schedule/team links to the standings page.
+- Improved the two highest-impression NFL rules explainers: salary cap (672 impressions) and franchise tag (499 impressions).
+- Added manual intent-aligned metadata and primary NFL Football Operations references to both guides; removed duplicated franchise-tag copy and added an FAQ plus a related salary-cap link.
+- Added guarded, repeatable scripts for future schedule syncs and evergreen-guide maintenance.
+- Full lint, TypeScript, and 150-page production build completed successfully.
+
 ## Iteration 3: topic architecture and internal links
 
 - Define a small set of priority franchises such as NFL rules, betting education, fantasy, draft, schedule, standings, and power rankings.

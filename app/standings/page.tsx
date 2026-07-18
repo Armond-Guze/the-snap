@@ -1,29 +1,34 @@
 import { client } from "@/sanity/lib/client";
 import Image from "next/image";
 import Link from "next/link";
+import StructuredData from "../components/StructuredData";
 import { TEAM_META } from "@/lib/schedule";
-import { getActiveSeason } from "@/lib/season";
+import { getActiveSeason, getScheduleSeason } from "@/lib/season";
 import { fetchNFLStandingsWithFallback, ProcessedTeamData } from "@/lib/nfl-api";
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-config";
 
 export const revalidate = 3600; // allow ISR; tag-based revalidation will refresh instantly when triggered
 
-export const metadata: Metadata = {
-  title: "NFL Standings | The Snap",
-  description:
-    "Live NFL standings, division races, and conference tables with updated records from The Snap.",
-  alternates: {
-    canonical: `${SITE_URL}/standings`,
-  },
-  openGraph: {
-    title: "NFL Standings | The Snap",
-    description:
-      "Live NFL standings, division races, and conference tables with updated records from The Snap.",
-    url: `${SITE_URL}/standings`,
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const season = await getActiveSeason();
+  const title = `${season} NFL Standings: AFC, NFC & Division Records | The Snap`;
+  const description = `${season} NFL standings with AFC and NFC division records, win percentages, streaks and links to every team hub. Updated throughout the season.`;
+  return {
+    title,
+    description,
+    keywords: [
+      `${season} NFL standings`,
+      'NFL standings',
+      'AFC standings',
+      'NFC standings',
+      'NFL division standings',
+    ],
+    alternates: { canonical: `${SITE_URL}/standings` },
+    openGraph: { title, description, url: `${SITE_URL}/standings`, type: "website" },
+    twitter: { card: 'summary_large_image', title, description },
+  };
+}
 
 interface StandingsTeam {
   _id: string;
@@ -62,11 +67,13 @@ function DivisionTable({
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
+          <caption className="sr-only">{division} standings</caption>
           <thead>
             <tr className="bg-[hsl(0_0%_3.9%)/0.8]">
               <th className="px-2.5 py-1.5 text-left text-[10px] font-bold text-gray-300 uppercase tracking-wider">Team</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">W</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">L</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">T</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Win %</th>
               <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Strk</th>
             </tr>
@@ -98,6 +105,7 @@ function DivisionTable({
                 </td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.wins}</td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.losses}</td>
+                <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.ties}</td>
                 <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{(team.winPercentage * 100).toFixed(1)}%</td>
                 <td className="px-2.5 py-2.5 text-center text-white/80 font-medium text-xs">{team.streak || '—'}</td>
               </tr>
@@ -114,7 +122,7 @@ function DivisionTable({
 
 export default async function StandingsPage() {
   // Fetch standings data (server-side) with tag for instant revalidation
-  const season = await getActiveSeason();
+  const [season, scheduleSeason] = await Promise.all([getActiveSeason(), getScheduleSeason()]);
   const noCdnClient = client.withConfig({ useCdn: false });
   const docs: Array<{ _id: string; teamAbbr: string; wins: number; losses: number; ties?: number; streak?: string; updatedAt: string }>
     = await noCdnClient.fetch(
@@ -215,17 +223,37 @@ export default async function StandingsPage() {
 
   const afcDivisions = divisions.slice(0, 4);
   const nfcDivisions = divisions.slice(4, 8);
+  const isFinal = enriched.length === 32 && enriched.every((team) => team.wins + team.losses + team.ties >= 17);
+  const standingsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${season} NFL Standings`,
+    url: `${SITE_URL}/standings`,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: enriched.length,
+      itemListElement: divisions.flatMap((division) => standingsByDivision[division] || []).map((team, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: `${team.teamName} ${team.wins}-${team.losses}${team.ties ? `-${team.ties}` : ''}`,
+        url: `${SITE_URL}/teams/${slugifyTeamName(team.teamName)}`,
+      })),
+    },
+  };
 
   return (
     <div className="bg-[hsl(0_0%_3.9%)] min-h-screen text-white">
+      <StructuredData id={`standings-${season}`} data={standingsSchema} />
       {/* Compact Header / Tagline */}
       <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-gray-800/60 bg-[hsl(0_0%_3.9%)/0.9] backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            NFL STANDINGS
+            {season} NFL STANDINGS
           </h1>
           <p className="text-sm md:text-base text-gray-400 leading-relaxed max-w-3xl">
-            Stay updated on the NFL standings with the latest rankings and team performance insights from <span className="text-gray-200 font-semibold">The Snap</span>.
+            {isFinal
+              ? `Final ${season} regular-season records for every AFC and NFC division.`
+              : `${season} regular-season records for every AFC and NFC division, updated as games finish.`}
           </p>
           {lastUpdatedDisplay && (
             <p className="text-xs text-gray-500 mt-2">Last updated {lastUpdatedDisplay}.</p>
@@ -259,6 +287,25 @@ export default async function StandingsPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      <section className="border-t border-gray-800/70 px-4 py-10 sm:px-6 lg:px-8" aria-labelledby="standings-guide">
+        <div className="mx-auto max-w-4xl">
+          <h2 id="standings-guide" className="text-2xl font-bold">How to read NFL standings</h2>
+          <p className="mt-3 text-sm leading-relaxed text-white/65">
+            W, L and T show wins, losses and ties. Win percentage counts a tie as half a win, while Strk shows a team&apos;s current winning or losing streak. Teams on this page are sorted by record and winning percentage; the NFL applies additional official tiebreakers when records are equal.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold">
+            <Link href="/schedule" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+              View the {scheduleSeason} NFL schedule
+            </Link>
+            <Link href="/teams" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+              Browse all team hubs
+            </Link>
+            <Link href="/articles/power-rankings" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+              NFL power rankings
+            </Link>
           </div>
         </div>
       </section>
