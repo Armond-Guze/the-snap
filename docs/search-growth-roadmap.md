@@ -101,6 +101,14 @@ The next priority is improving what Google and readers find after the technical 
 - Added guarded, repeatable scripts for future schedule syncs and evergreen-guide maintenance.
 - Full lint, TypeScript, and 150-page production build completed successfully.
 
+### Third improvement batch completed
+
+- Selected the Hero RB strategy guide using Search Console evidence: 256 impressions, zero clicks, average position 30.4, and a Round 3 strategy query already tested at position 4.8.
+- Reworked the title, description, opening order, round-by-round plan, anchor-back criteria, comparison, FAQs, and internal links while preserving its canonical URL.
+- Expanded the useful body from 82 to 100 blocks and recorded a substantive update date.
+- Fixed the shared article renderer so 17 Sanity `dataTable` blocks across 13 published articles display as responsive, accessible HTML tables instead of disappearing.
+- Kept the low-demand excluded news URLs in the review queue rather than padding or mass-deleting them; their highest three-month impression count was only 21.
+
 ## Iteration 3: topic architecture and internal links
 
 - Define a small set of priority franchises such as NFL rules, betting education, fantasy, draft, schedule, standings, and power rankings.

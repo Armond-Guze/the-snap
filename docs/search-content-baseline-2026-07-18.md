@@ -150,3 +150,21 @@ Changes made:
 - Added schedule-source modification dates to the sitemap so data refreshes generate meaningful crawl signals.
 
 Recheck these five URLs at the same 2-, 4-, and 8-week intervals. Week 17 is the best early ranking-movement indicator because Google had already tested the page near page two for a precise 2026 query before the page contained its schedule.
+
+## Improvement batch 3: Hero RB fantasy strategy
+
+Completed July 18, 2026.
+
+Search Console showed 256 impressions, zero clicks, and an average position of 30.4 for `/articles/what-hero-rb-means-in-fantasy-football`. The most actionable query was `hero_rb fantasy football draft strategy round 3`: 25 impressions at an average position of 4.8, but no clicks.
+
+Changes made:
+
+- Preserved the canonical URL and changed the search title to `Hero RB Strategy: Round-by-Round Draft Plan | The Snap`.
+- Reworked the summary and description around the demonstrated Hero RB strategy and Round 3 intent.
+- Moved the comparison table out of the opening position so the page now answers the reader before presenting supporting detail.
+- Added a round-by-round 12-team redraft framework, an explicit Round 3 answer, anchor-back selection criteria, and two focused FAQs.
+- Added working internal links to the complete fantasy draft strategy guide and mock draft simulator.
+- Expanded the body from 82 to 100 blocks and from roughly 6,600 to 8,600 text characters without changing the publication date; the substantive update date is July 18.
+- Added a shared responsive renderer for Sanity `dataTable` blocks after production verification revealed that article tables were stored correctly but silently omitted by the frontend. The fix restores 17 valid tables across 13 published articles.
+
+Measure clicks, CTR, average position, and the Round 3 query group after 2, 4, and 8 weeks. Do not interpret the unusual underscore-form query as a reason to stuff that exact syntax into the page.

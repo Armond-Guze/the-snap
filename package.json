@@ -26,6 +26,7 @@
     "consolidate:betting-guides": "node scripts/consolidate-betting-guides.mjs",
     "sync:schedule": "node scripts/sync-espn-schedule.mjs",
     "improve:evergreen": "node scripts/improve-evergreen-articles.mjs",
+    "improve:hero-rb": "node scripts/improve-hero-rb-guide.mjs",
     "seed:primetime": "node scripts/seed-primetime-tags.mjs",
     "seed:topic-hubs": "node scripts/seed-topic-hubs.mjs"
   },

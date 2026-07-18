@@ -15,6 +15,10 @@ type RankingCardValue = {
   player?: { name?: string; team?: string; position?: string }
   team?: { title?: string; slug?: { current?: string } }
 }
+type DataTableValue = {
+  columns?: unknown[]
+  rows?: Array<{ _key?: string; cells?: unknown[] }>
+}
 
 // Basic NFL team color map (primary, secondary)
 const TEAM_COLORS: Record<string, { bg: string; accent: string }> = {
@@ -284,6 +288,48 @@ export const portableTextComponents: PortableTextComponents = {
 
   // Custom types
   types: {
+    dataTable: ({ value }) => {
+      const table = value as DataTableValue
+      const columns = Array.isArray(table?.columns)
+        ? table.columns.map((column) => String(column ?? '').trim())
+        : []
+      const rows = Array.isArray(table?.rows) ? table.rows : []
+      if (!columns.length || !rows.length) return null
+
+      return (
+        <div className="my-8 overflow-x-auto rounded-xl border border-white/15 bg-white/[0.03]">
+          <table className="w-full min-w-[720px] border-collapse text-left text-sm text-gray-200">
+            <thead className="bg-white/10 text-xs uppercase tracking-wide text-white">
+              <tr>
+                {columns.map((column, index) => (
+                  <th
+                    key={`${column || 'column'}-${index}`}
+                    scope="col"
+                    className="border-b border-white/15 px-4 py-3 align-top font-semibold"
+                  >
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr key={row?._key || `row-${rowIndex}`} className="border-b border-white/10 last:border-b-0">
+                  {columns.map((_, cellIndex) => (
+                    <td
+                      key={`${row?._key || rowIndex}-${cellIndex}`}
+                      className="px-4 py-3 align-top leading-relaxed first:font-semibold first:text-white"
+                    >
+                      {String(row?.cells?.[cellIndex] ?? '').trim()}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    },
     image: ({ value }) => {
       if (!value?.asset?.url) return null
       
