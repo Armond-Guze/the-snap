@@ -21,6 +21,9 @@
     "sync:games": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/sync-games.ts",
     "backfill:tagRefs": "node scripts/backfill-tag-refs.mjs",
     "backfill:tagRefs:dry": "node scripts/backfill-tag-refs.mjs --dry-run",
+    "audit:search-content": "node scripts/audit-search-content.mjs",
+    "audit:betting-content": "node scripts/audit-search-content.mjs --betting-details",
+    "consolidate:betting-guides": "node scripts/consolidate-betting-guides.mjs",
     "seed:primetime": "node scripts/seed-primetime-tags.mjs",
     "seed:topic-hubs": "node scripts/seed-topic-hubs.mjs"
   },

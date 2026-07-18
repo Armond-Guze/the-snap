@@ -18,14 +18,14 @@ These figures are the starting point captured from Google Search Console and the
 | Average position, last 3 months | About 62 |
 | Indexed pages | 44 |
 | Not-indexed pages | 302 |
-| Published article documents found in the audit | About 133 |
+| Published article documents found in the audit | 134 |
 | External links reported by Search Console | 0 |
 
 The large excluded-page count is not automatically a 302-page emergency. Many exclusions can be intentional redirects, duplicates, parameter URLs, or alternate canonical pages. The durable target is for every valuable canonical URL to be indexable and for low-value URL variants to remain out of the index.
 
 ## Iteration 1: technical indexing foundation
 
-Status: implemented locally; deploy and Search Console validation remain.
+Status: deployed and production-verified on July 18, 2026.
 
 - Replaced the redirecting power-rankings root with a stable, indexable 200-status hub.
 - Converted legacy aliases to permanent redirects and kept canonical destination URLs stable.
@@ -42,13 +42,18 @@ Status: implemented locally; deploy and Search Console validation remain.
 
 ### Post-deploy validation
 
-1. Submit `https://thegamesnap.com/sitemap.xml` in Search Console.
-2. Inspect the homepage, the power-rankings hub, one ranking snapshot, and five priority articles.
-3. Request indexing only for the highest-priority changed pages; do not repeatedly request every URL.
-4. Start validation for relevant Page Indexing issues after confirming the deployed responses.
-5. Recheck indexed pages, discovered/crawled-not-indexed counts, impressions, and queries after 2, 4, and 8 weeks.
+Completed on July 18:
+
+- Submitted `https://thegamesnap.com/sitemap.xml` in Search Console.
+- Inspected the homepage, power-rankings hub, a ranking snapshot, the fifth-year-option guide, and the primary betting guide.
+- Verified all 220 sitemap URLs returned 200 immediately after deployment.
+- Requested indexing selectively for the changed priority hub instead of mass-submitting URLs.
+
+Still required: recheck indexed pages, discovered/crawled-not-indexed counts, impressions, and queries after 2, 4, and 8 weeks.
 
 ## Iteration 2: content quality and consolidation
+
+Status: in progress. The first high-confidence consolidation was completed and production-verified on July 18, 2026.
 
 The next priority is improving what Google and readers find after the technical crawl path is clean.
 
@@ -59,6 +64,15 @@ The next priority is improving what Google and readers find after the technical 
 - Redirect clearly redundant pages to the strongest canonical page instead of leaving near-duplicates live.
 - Refresh outdated claims and use the substantive-update date only when the reader-facing content materially changes.
 - Create an editorial brief and quality gate so new posts have a clear query, angle, evidence plan, and internal-link plan before publication.
+
+### First consolidation completed
+
+- Retained `/articles/nfl-betting-odds-explained-spreads-moneylines-totals-and-more`, which had 6,742 impressions and one click in the three-month Search Console window.
+- Merged the strongest sections from the competing 392-impression guide into the retained URL.
+- Expanded the retained guide from 81 to 140 Portable Text blocks and from about 6,100 to about 9,500 text characters.
+- Reworked its title, summary, headings, search metadata, internal hub link, and substantive-update date.
+- Unpublished the redundant document without deleting it and added its slug to the retained article's redirect history.
+- Verified the retired URL returns a permanent 308 redirect, the retained URL is index/follow with a self-canonical, and only the retained URL appears in the sitemap.
 
 ## Iteration 3: topic architecture and internal links
 
