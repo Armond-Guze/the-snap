@@ -1,10 +1,25 @@
-import { DocumentActionComponent } from 'sanity'
-import { generateHeadlineSeo, generateRankingsSeo } from '../../lib/auto-seo-generator'
+import {DocumentActionComponent, SanityDocument, useDocumentOperation} from 'sanity'
+import {
+  AutoSeoResult,
+  generateHeadlineSeo,
+  generateRankingsSeo,
+} from '../../lib/auto-seo-generator'
+
+type SeoDocument = SanityDocument & {
+  title?: string
+  summary?: string
+  description?: string
+  rankingType?: string
+  category?: {title?: string}
+  tags?: string[]
+  body?: Array<{children?: Array<{text?: string}>}>
+  seo?: Partial<AutoSeoResult> & {autoGenerate?: boolean}
+}
 
 // Custom document action to regenerate SEO fields when autoGenerate is enabled.
-export const seoRegenerateAction: DocumentActionComponent = (props) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const doc: any = props.draft || props.published
+export const SeoRegenerateAction: DocumentActionComponent = (props) => {
+  const {patch} = useDocumentOperation(props.id, props.type)
+  const doc = (props.draft || props.published) as SeoDocument | null
   if (!doc) return null
   const seo = doc.seo
   if (!seo || seo.autoGenerate === false) return null
@@ -13,8 +28,7 @@ export const seoRegenerateAction: DocumentActionComponent = (props) => {
   return {
     label: 'Regenerate SEO',
     onHandle: () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let updated: any
+      let updated: AutoSeoResult | undefined
       if (doc._type === 'headline') {
         updated = generateHeadlineSeo(doc)
       } else if (doc._type === 'rankings') {
@@ -27,11 +41,10 @@ export const seoRegenerateAction: DocumentActionComponent = (props) => {
           tags: [],
           body: [],
           seo: doc.seo
-        } as any)
+        })
       }
       if (updated) {
-        // Expose patch via returned object pattern
-        ;(props as any).patch?.({
+        patch.execute([{
           set: {
             seo: {
               ...(doc.seo || {}),
@@ -40,11 +53,11 @@ export const seoRegenerateAction: DocumentActionComponent = (props) => {
               lastGenerated: new Date().toISOString(),
             }
           }
-        })
+        }])
       }
       props.onComplete()
     }
   }
 }
 
-export default seoRegenerateAction
+export default SeoRegenerateAction

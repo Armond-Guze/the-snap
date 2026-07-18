@@ -65,7 +65,7 @@ export function generateSEOMetadata(
     date: date || '',
   })
   const dynamicOgUrl = `${normalizedBaseUrl}/api/og?${ogParams.toString()}`
-  const ogImageUrl = extendedSeo?.ogImage?.asset?.url || dynamicOgUrl
+  const ogImageUrl = extendedSeo?.ogImage?.asset?.url || coverImage?.asset?.url || dynamicOgUrl
 
   // Build keywords array
   const keywords = [

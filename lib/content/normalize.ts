@@ -14,7 +14,7 @@ import {
 /**
  * Normalizes any content type into a consistent format
  */
-export function normalizeContent(content: UnifiedContent | LegacyHeadline | LegacyRanking | any): NormalizedContent {
+export function normalizeContent(content: UnifiedContent | LegacyHeadline | LegacyRanking): NormalizedContent {
   // Handle unified content (new system)
   if ('contentType' in content) {
     const base = {
@@ -34,11 +34,11 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
     if (content.contentType === 'article') {
       return {
         ...base,
-        content: (content as any).content,
-        category: (content as any).category,
-        tags: (content as any).tags,
-        readingTime: (content as any).readingTime,
-        viewCount: (content as any).viewCount,
+        content: content.content,
+        category: content.category,
+        tags: content.tags,
+        readingTime: content.readingTime,
+        viewCount: content.viewCount,
       };
     }
     
@@ -46,9 +46,9 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
     if (content.contentType === 'ranking') {
       return {
         ...base,
-        week: (content as any).week,
-        season: (content as any).season,
-        teams: (content as any).teams,
+        week: content.week,
+        season: content.season,
+        teams: content.teams,
       };
     }
 
@@ -57,13 +57,16 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
   
   // Handle legacy headlines
   if (content._type === 'headline') {
+    const publishedAt = content.publishedAt || content.date;
+    if (!publishedAt) throw new Error(`Headline ${content._id} is missing a publication date`);
+
     return {
       _id: content._id,
       _type: content._type,
       title: content.title,
       slug: content.slug,
       excerpt: content.excerpt || content.summary || '',
-      publishedAt: content.publishedAt || content.date,
+      publishedAt,
       featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'article' as ContentType,
@@ -78,13 +81,16 @@ export function normalizeContent(content: UnifiedContent | LegacyHeadline | Lega
   
   // Handle legacy rankings (both powerRanking and rankings types)
   if (content._type === 'powerRanking' || content._type === 'rankings') {
+    const publishedAt = content.publishedAt || content.date;
+    if (!publishedAt) throw new Error(`Ranking ${content._id} is missing a publication date`);
+
     return {
       _id: content._id,
       _type: content._type,
       title: content.title,
       slug: content.slug,
       excerpt: content.excerpt || content.summary || '',
-      publishedAt: content.publishedAt || content.date,
+      publishedAt,
       featuredImage: content.featuredImage || content.coverImage,
       author: content.author,
       contentType: 'ranking' as ContentType,

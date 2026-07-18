@@ -180,22 +180,26 @@ export const NFL_TEAMS_MAP = {
 };
 
 export interface ESPNStandingsResponse {
-  children: Array<{
-    standings: {
-      entries: Array<{
-        team: {
-          displayName: string;
-          logos: Array<{
-            href: string;
-          }>;
-        };
-        stats: Array<{
-          name: string;
-          value: number;
-        }>;
-      }>;
+  children?: Array<{
+    standings?: {
+      entries?: ESPNStandingEntry[];
     };
   }>;
+}
+
+interface ESPNStandingEntry {
+  team?: {
+    displayName?: string;
+    logos?: Array<{
+      href: string;
+    }>;
+  };
+  stats?: ESPNStandingStat[];
+}
+
+interface ESPNStandingStat {
+  name: string;
+  value: number;
 }
 
 export interface ProcessedTeamData {
@@ -268,13 +272,13 @@ async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
 
   const processedData: ProcessedTeamData[] = [];
 
-  data.children.forEach((conference: any) => {
+  data.children.forEach((conference) => {
     if (!conference.standings || !conference.standings.entries) {
       console.log('Conference missing standings/entries:', conference);
       return;
     }
 
-    conference.standings.entries.forEach((entry: any) => {
+    conference.standings.entries.forEach((entry) => {
       const teamData = processESPNTeamEntry(entry);
       if (teamData) processedData.push(teamData);
     });
@@ -288,7 +292,7 @@ async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
   return processedData;
 }
 
-function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
+function processESPNTeamEntry(entry: ESPNStandingEntry): ProcessedTeamData | null {
   const teamName = entry.team?.displayName;
   if (!teamName) {
     console.log('Entry missing team name:', entry);
@@ -303,7 +307,7 @@ function processESPNTeamEntry(entry: any): ProcessedTeamData | null {
   }
 
   // Extract stats from ESPN format
-  const stats = entry.stats?.reduce((acc: Record<string, number>, stat: any) => {
+  const stats = entry.stats?.reduce((acc: Record<string, number>, stat) => {
     acc[stat.name] = stat.value;
     return acc;
   }, {} as Record<string, number>) || {};

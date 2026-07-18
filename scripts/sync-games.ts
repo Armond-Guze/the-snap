@@ -54,14 +54,14 @@ const client = createClient({ projectId, dataset, apiVersion, token, useCdn: fal
 
 async function run() {
   const schedule = loadSchedule();
-  const mutations = schedule.map((row) => {
+  const mutations = schedule.flatMap((row) => {
     const gameDate = new Date(row.dateUTC);
     if (Number.isNaN(gameDate.getTime())) {
       console.warn('Skipping row with invalid date', row);
-      return null;
+      return [];
     }
     const _id = `game-${row.gameId}`;
-    return {
+    return [{
       createOrReplace: {
         _id,
         _type: 'game',
@@ -79,8 +79,8 @@ async function run() {
         published: true,
         season: String(season)
       }
-    } as const;
-  }).filter(Boolean) as { createOrReplace: any }[];
+    }] as const;
+  });
 
   if (!mutations.length) {
     console.error('No schedule rows parsed');

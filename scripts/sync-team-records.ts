@@ -41,14 +41,14 @@ async function run() {
   const nameToAbbr = mapNameToAbbr();
   const standings = await fetchNFLStandingsWithFallback();
   const mutations = standings
-    .map((team: ProcessedTeamData) => {
+    .flatMap((team: ProcessedTeamData) => {
       const abbr = nameToAbbr.get(team.teamName);
       if (!abbr) {
         console.warn('Skipping unmapped teamName', team.teamName);
-        return null;
+        return [];
       }
       const _id = `teamRecord-${abbr}-${season}`;
-      return {
+      return [{
         createOrReplace: {
           _id,
           _type: 'teamRecord',
@@ -59,9 +59,8 @@ async function run() {
           ties: team.ties || 0,
           streak: undefined,
         },
-      } as const;
-    })
-    .filter(Boolean) as { createOrReplace: any }[];
+      }] as const;
+    });
 
   if (!mutations.length) {
     console.error('No mutations prepared. Exiting.');

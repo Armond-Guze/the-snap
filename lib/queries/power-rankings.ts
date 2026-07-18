@@ -15,7 +15,8 @@ export const powerRankingsLiveQuery = `
       editorialStatus,
       date,
       publishedAt,
-      author->{ name, image { asset->{ url }, alt } },
+      dateModified,
+      author->{ name, slug, image { asset->{ url }, alt } },
       coverImage{ asset->{ url }, alt },
       rankings[]{
         rank,
@@ -55,7 +56,9 @@ export const powerRankingsSnapshotByParamsQuery = `
       editorialStatus,
       publishedAt,
       date,
-      author->{ name, image { asset->{ url }, alt } },
+      dateModified,
+      methodology,
+      author->{ name, slug, image { asset->{ url }, alt } },
       coverImage{ asset->{ url }, alt },
       rankings[]{
         rank,
@@ -78,11 +81,19 @@ export const powerRankingsSnapshotByParamsQuery = `
 
 export const powerRankingsSnapshotSlugsQuery = `
   *[_type == "article" && format == "powerRankings" && rankingType == "snapshot" && published == true]
-    | order(seasonYear desc, weekNumber desc){
+    | order(
+        seasonYear desc,
+        coalesce(weekNumber, select(playoffRound == "WC" => 19, playoffRound == "DIV" => 20, playoffRound == "CONF" => 21, playoffRound == "SB" => 22, playoffRound == "OFF" => 23, 0)) desc,
+        date desc
+      ){
       seasonYear,
       weekNumber,
       playoffRound,
-      _updatedAt
+      title,
+      summary,
+      date,
+      publishedAt,
+      dateModified
     }
 `;
 

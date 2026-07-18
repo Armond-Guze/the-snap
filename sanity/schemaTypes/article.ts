@@ -363,6 +363,24 @@ export default defineType({
       group: "quick",
     }),
     defineField({
+      name: "dateModified",
+      title: "Substantive Update Date",
+      type: "datetime",
+      description:
+        "Set this only when the published page receives a meaningful editorial update. Routine CMS edits, tag changes, and migrations should not change it.",
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (!value) return true;
+          const publishedDate = typeof ctx.document?.date === "string" ? ctx.document.date : undefined;
+          if (!publishedDate) return true;
+          return new Date(value).getTime() >= new Date(publishedDate).getTime()
+            ? true
+            : "The update date cannot be earlier than the published date";
+        }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
+      group: "quick",
+    }),
+    defineField({
       name: "summary",
       title: "Summary",
       type: "text",

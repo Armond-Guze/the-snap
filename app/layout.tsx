@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import StructuredData, { createWebsiteStructuredData, createOrganizationStructuredData } from "./components/StructuredData";
@@ -13,6 +12,7 @@ import {
   DEFAULT_OG_IMAGE_URL,
   SITE_BRAND,
   SITE_NAME,
+  SITE_SOCIAL_URLS,
   SITE_TWITTER,
   SITE_URL,
 } from "@/lib/site-config";
@@ -21,16 +21,6 @@ import {
 const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID; // e.g. ca-pub-7706858365277925
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION; // e.g. abcDEF123...
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
 
@@ -141,7 +131,8 @@ export default function RootLayout({
     SITE_BRAND,
     SITE_URL,
     DEFAULT_OG_IMAGE_URL,
-    SITE_NAME
+    SITE_NAME,
+    [...SITE_SOCIAL_URLS]
   )
 
   return (
@@ -169,7 +160,7 @@ export default function RootLayout({
   <StructuredData id="sd-website" data={websiteData} />
   <StructuredData id="sd-organization" data={organizationData} />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="antialiased">
         <LayoutWrapper>
           {children}
         </LayoutWrapper>

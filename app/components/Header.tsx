@@ -1,16 +1,19 @@
-// ...existing code...
-<nav>
+import Link from 'next/link';
+
+export default function Header() {
+  return (
+    <nav aria-label="Primary">
     <ul className="flex space-x-4">
         <li>
-            <a href="/home" className="text-sm px-2 py-1">Home</a> {/* Reduced text size */}
+            <Link href="/" className="text-sm px-2 py-1">Home</Link>
         </li>
         <li>
-            <a href="/news" className="text-sm px-2 py-1">News</a> {/* Reduced text size */}
+            <Link href="/headlines" className="text-sm px-2 py-1">News</Link>
         </li>
         <li>
-            <a href="/articles" className="text-sm px-2 py-1">Articles</a> {/* Reduced text size */}
+            <Link href="/articles" className="text-sm px-2 py-1">Articles</Link>
         </li>
-        {/* ...other links... */}
     </ul>
-</nav>
-// ...existing code...
+    </nav>
+  );
+}

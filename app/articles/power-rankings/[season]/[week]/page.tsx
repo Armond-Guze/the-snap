@@ -222,7 +222,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   ]);
 
   if (!data) {
-    return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot found for {week} — {season} yet.</div>;
+    notFound();
   }
 
   const records = await fetchTeamRecords(season);

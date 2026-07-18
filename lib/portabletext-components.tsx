@@ -169,7 +169,9 @@ export const portableTextComponents: PortableTextComponents = {
   // Block-level components
   block: {
     normal: ({ children }) => <p className="mb-5 text-[1.05rem] leading-relaxed tracking-[0.01em]">{children}</p>,
-    h1: ({ children }) => <h1 className="text-4xl font-extrabold mb-6 mt-10 tracking-tight scroll-mt-28" id={slugify(String(children))}>{children}</h1>,
+    // Article titles own the page's H1. Render legacy body-level H1 blocks as H2
+    // so older documents keep their visual hierarchy without creating a second page title.
+    h1: ({ children }) => <h2 className="text-3xl font-extrabold mb-6 mt-10 tracking-tight scroll-mt-28" id={slugify(String(children))}>{children}</h2>,
     h2: ({ children }) => {
       const text = String(children);
       const id = slugify(text);

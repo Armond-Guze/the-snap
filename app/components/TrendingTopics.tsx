@@ -21,12 +21,12 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
     async function fetchTrendingData() {
       try {
         const [tagsData, categoriesData] = await Promise.all([
-          client.fetch(trendingTagsQuery),
-          client.fetch(categoriesQuery)
+          client.fetch<Array<Tag & { articleCount: number }>>(trendingTagsQuery),
+          client.fetch<Array<Category & { articleCount: number }>>(categoriesQuery)
         ]);
         
         setTrendingTags(tagsData.slice(0, 6));
-        setCategories(categoriesData.filter((cat: any) => cat.articleCount > 0).slice(0, 6));
+        setCategories(categoriesData.filter((category) => category.articleCount > 0).slice(0, 6));
       } catch (error) {
         console.error('Error fetching trending data:', error);
       } finally {
@@ -263,7 +263,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                   >
                     <div className="text-sm 2xl:text-base 3xl:text-lg mb-1">{category.title}</div>
                     <div className="text-xs 2xl:text-sm 3xl:text-base opacity-90">
-                      {(category as any).articleCount} article{(category as any).articleCount !== 1 ? 's' : ''}
+                      {category.articleCount} article{category.articleCount !== 1 ? 's' : ''}
                     </div>
                   </Link>
                 ))}

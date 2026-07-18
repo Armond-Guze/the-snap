@@ -62,6 +62,7 @@ export const headlineDetailQuery = `
     image { asset->{ url }, alt },
     author->{
       name,
+      slug,
       image {
         asset->{
           url
@@ -113,6 +114,7 @@ export const headlineDetailQuery = `
     },
     date,
     publishedAt,
+    dateModified,
     body[]{
       ...,
       _type == 'playerHeading' => {
@@ -254,6 +256,7 @@ export const articleDetailQuery = `
     image { asset->{ url }, alt },
     author->{
       name,
+      slug,
       image {
         asset->{
           url
@@ -305,6 +308,7 @@ export const articleDetailQuery = `
     },
     date,
     publishedAt,
+    dateModified,
     body[]{
       ...,
       _type == 'playerHeading' => {

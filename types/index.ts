@@ -40,6 +40,7 @@ export interface SanityImageWithUrl {
   asset?: {
     url: string;
   };
+  alt?: string;
 }
 
 export interface SanitySlug {
@@ -51,6 +52,7 @@ export interface SanitySlug {
 export interface Author {
   _id: string;
   name: string;
+  slug?: SanitySlug;
   image?: SanityImageWithUrl;
   bio?: PortableTextContent;
 }
@@ -58,11 +60,15 @@ export interface Author {
 // Power Rankings types
 export interface PowerRankingEntry {
   rank: number;
-  team?: { _id: string; title?: string; slug?: SanitySlug };
+  team?: { _id: string; title?: string; slug?: SanitySlug; teamLogo?: SanityImageWithUrl };
   teamAbbr?: string;
   teamName?: string;
   teamColor?: string;
   teamLogo?: SanityImageWithUrl;
+  previousRank?: number;
+  movement?: number;
+  tier?: string;
+  summary?: string;
   note?: string;
   analysis?: PortableTextContent;
   prevRankOverride?: number;
@@ -77,11 +83,17 @@ export interface PowerRankingsDoc {
   seasonYear: number;
   rankingType: 'live' | 'snapshot';
   weekNumber?: number;
-  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB';
+  playoffRound?: 'WC' | 'DIV' | 'CONF' | 'SB' | 'OFF';
   methodology?: string;
+  rankingIntro?: PortableTextContent;
+  rankingConclusion?: PortableTextContent;
+  biggestRiser?: string;
+  biggestFaller?: string;
+  editorialStatus?: string;
   rankings: PowerRankingEntry[];
   date?: string;
   publishedAt?: string;
+  dateModified?: string;
   author?: Author;
   coverImage?: SanityImageWithUrl;
 }
@@ -106,11 +118,13 @@ export interface Headline {
   summary?: string;
   date: string;
   publishedAt?: string;
+  dateModified?: string;
   body?: PortableTextContent;
   author?: Author;
   coverImage?: SanityImageWithUrl;
   category?: Category;
   tags?: Pick<Tag, 'title' | 'slug'>[];
+  topicHubs?: Array<{ title: string; slug: SanitySlug }>;
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;
   published?: boolean;

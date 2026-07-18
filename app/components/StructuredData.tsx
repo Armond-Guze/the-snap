@@ -1,7 +1,8 @@
 // Simple helper to render JSON-LD structured data
 // Usage: <StructuredData data={{ ...jsonLd }} />
-// Works in both Server and Client components
-import Script from 'next/script'
+// Render directly into the document so crawlers receive the JSON-LD in the
+// initial HTML instead of waiting for Next.js' client-side script loader.
+import { DEFAULT_OG_IMAGE_URL, SITE_BRAND, SITE_SOCIAL_URLS, SITE_URL } from '@/lib/site-config'
 
 interface StructuredDataProps {
   data: Record<string, unknown>
@@ -23,10 +24,11 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
   const derivedId = id || `sd-${typeSegment}-${headlineSegment}`;
 
   return (
-    <Script
+    <script
       id={derivedId}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      suppressHydrationWarning
     />
   )
 }
@@ -38,25 +40,46 @@ export const createWebsiteStructuredData = (siteName: string, url: string, alter
   name: siteName,
   ...(alternateName ? { alternateName } : {}),
   url: url,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${url}/search?q={search_term_string}`,
-    'query-input': 'required name=search_term_string',
-  },
 })
 
-export const createOrganizationStructuredData = (name: string, url: string, logo: string, alternateName?: string) => ({
+export const createOrganizationStructuredData = (
+  name: string,
+  url: string,
+  logo: string,
+  alternateName?: string,
+  sameAs: string[] = []
+) => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: name,
   ...(alternateName ? { alternateName } : {}),
   url: url,
   logo: logo,
-  sameAs: [
-    // Add your social media URLs here
-    // 'https://twitter.com/thegamesnap',
-  ],
+  ...(sameAs.length ? { sameAs } : {}),
 })
+
+type StructuredAuthor = {
+  name: string;
+  type?: 'Person' | 'Organization';
+  url?: string;
+  sameAs?: string[];
+};
+
+function normalizeAuthor(author: StructuredAuthor) {
+  const organizationByline = /^(the (game )?snap|staff writer|editorial team)$/i.test(author.name.trim());
+  const authorType = author.type || (organizationByline ? 'Organization' : 'Person');
+  const sameAs = author.sameAs?.length
+    ? author.sameAs
+    : authorType === 'Organization'
+      ? [...SITE_SOCIAL_URLS]
+      : [];
+  return {
+    '@type': authorType,
+    name: author.name,
+    ...(author.url ? { url: author.url } : authorType === 'Organization' ? { url: SITE_URL } : {}),
+    ...(sameAs.length ? { sameAs } : {}),
+  };
+}
 
 export const createArticleStructuredData = (
   headline: string,
@@ -75,16 +98,14 @@ export const createArticleStructuredData = (
   image: imageUrl,
   datePublished: datePublished,
   dateModified: dateModified,
-  author: {
-    '@type': 'Person',
-    name: authorName,
-  },
+  author: normalizeAuthor({ name: authorName }),
   publisher: {
     '@type': 'Organization',
-    name: 'The Snap',
+    name: SITE_BRAND,
+    url: SITE_URL,
     logo: {
       '@type': 'ImageObject',
-  url: `${url}/images/logo--design copy.png`,
+      url: DEFAULT_OG_IMAGE_URL,
     },
   },
 })
@@ -97,7 +118,7 @@ interface EnhancedArticleParams {
   images: { url: string; width?: number; height?: number }[]; // largest first
   datePublished: string;
   dateModified: string;
-  author: { name: string; sameAs?: string[] };
+  author: StructuredAuthor;
   articleSection?: string; // category
   keywords?: string[];
   speakableSelectors?: string[]; // CSS selectors for Speakable spec
@@ -110,24 +131,24 @@ export const createEnhancedArticleStructuredData = (p: EnhancedArticleParams) =>
   ...(p.description?.trim()
     ? { description: p.description.trim() }
     : {}),
-  mainEntityOfPage: p.canonicalUrl,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': p.canonicalUrl,
+  },
   url: p.canonicalUrl,
   ...(Array.isArray(p.images) && p.images.map(i => i?.url).filter(Boolean).length
     ? { image: p.images.map(i => i.url).filter(Boolean) }
     : {}),
   ...(p.datePublished?.trim() ? { datePublished: p.datePublished.trim() } : {}),
   ...(p.dateModified?.trim() ? { dateModified: p.dateModified.trim() } : {}),
-  author: {
-    '@type': 'Person',
-    name: p.author.name,
-    ...(p.author.sameAs?.length ? { sameAs: p.author.sameAs } : {}),
-  },
+  author: normalizeAuthor(p.author),
   publisher: {
     '@type': 'Organization',
-    name: 'The Snap',
+    name: SITE_BRAND,
+    url: SITE_URL,
     logo: {
       '@type': 'ImageObject',
-      url: `${new URL('/images/logo--design copy.png', p.canonicalUrl)}`,
+      url: DEFAULT_OG_IMAGE_URL,
     },
   },
   ...(p.articleSection?.trim() ? { articleSection: p.articleSection.trim() } : {}),

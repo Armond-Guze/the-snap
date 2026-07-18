@@ -17,19 +17,6 @@ export default function TwitterEmbed({
   const [hasError, setHasError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const cleanUrl = (url: string): string => {
-    try {
-      const cleanedUrl = url.replace(/x\.com/g, 'twitter.com');
-      const urlObj = new URL(cleanedUrl);
-      const cleanPath = urlObj.pathname;
-
-      return `https://twitter.com${cleanPath}`;
-    } catch (error) {
-      console.error('Error cleaning URL:', error);
-      return url;
-    }
-  };
-
   const getTweetId = (url: string): string | null => {
     try {
       const patterns = [
@@ -54,10 +41,10 @@ export default function TwitterEmbed({
   };
 
   const tweetId = getTweetId(twitterUrl);
-  const cleanedUrl = cleanUrl(twitterUrl);
 
   useEffect(() => {
     let cancelled = false;
+    const container = containerRef.current;
 
     const loadTwitterScript = async () => {
       if (window.twttr?.widgets?.createTweet) return;
@@ -84,7 +71,7 @@ export default function TwitterEmbed({
     };
 
     const renderTweet = async () => {
-      if (!tweetId || !containerRef.current) {
+      if (!tweetId || !container) {
         setHasError(true);
         setIsLoading(false);
         return;
@@ -95,10 +82,10 @@ export default function TwitterEmbed({
 
       try {
         await loadTwitterScript();
-        if (cancelled || !containerRef.current || !window.twttr?.widgets?.createTweet) return;
+        if (cancelled || !window.twttr?.widgets?.createTweet) return;
 
-        containerRef.current.innerHTML = '';
-        const widget = await window.twttr.widgets.createTweet(tweetId, containerRef.current, {
+        container.innerHTML = '';
+        const widget = await window.twttr.widgets.createTweet(tweetId, container, {
           theme: 'dark',
           dnt: true,
           cards: 'visible',
@@ -109,7 +96,7 @@ export default function TwitterEmbed({
         const applySizing = () => {
           const desiredHeight = window.innerWidth < 640 ? 560 : 640;
 
-          containerRef.current?.style.setProperty('min-height', `${desiredHeight}px`, 'important');
+          container.style.setProperty('min-height', `${desiredHeight}px`, 'important');
 
           widget.style.setProperty('width', '100%', 'important');
           widget.style.setProperty('max-width', '100%', 'important');
@@ -148,9 +135,7 @@ export default function TwitterEmbed({
 
     return () => {
       cancelled = true;
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
+      if (container) container.innerHTML = '';
     };
   }, [tweetId]);
 

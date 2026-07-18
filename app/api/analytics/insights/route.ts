@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { aggregateLast7Days } from '../../../../lib/analytics-store';
 
 export const revalidate = 0; // always fresh
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const data = await aggregateLast7Days();
     return NextResponse.json({ success: true, data });

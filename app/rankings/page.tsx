@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
 export const revalidate = 0;
 
@@ -28,5 +28,5 @@ function serializeSearchParams(params: Record<string, string | string[] | undefi
 export default async function RankingsRedirectPage(props: RankingsRedirectPageProps) {
   const searchParams = await props.searchParams;
   const query = serializeSearchParams(searchParams);
-  redirect(query ? `/articles?${query}` : '/articles');
+  permanentRedirect(query ? `/articles?${query}` : '/articles');
 }

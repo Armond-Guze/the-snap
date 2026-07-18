@@ -46,7 +46,7 @@ type TeamTagDoc = {
 
 type TeamReference = ReferenceValue & {_key: string}
 
-export function TeamTagsInput(props: ArrayOfObjectsInputProps<any>) {
+export function TeamTagsInput(props: ArrayOfObjectsInputProps) {
   const client = useClient({apiVersion})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

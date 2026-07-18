@@ -67,7 +67,6 @@ async function main() {
   console.log(`Migrating ${toCreate.length} fantasyFootball docs to article format...`)
 
   const mutations = toCreate.map((doc) => {
-    const slug = doc.slug?.current
     const date = doc.publishedAt || doc._createdAt
     return {
       _type: 'article',

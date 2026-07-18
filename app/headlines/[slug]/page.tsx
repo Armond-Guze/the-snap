@@ -179,7 +179,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         ...(headline.coverImage?.asset?.url ? [{ url: headline.coverImage.asset.url }] : [{ url: ogFallback }]),
       ],
       datePublished: headline.date || '',
-      dateModified: (headline as unknown as { _updatedAt?: string })._updatedAt || headline.date || '',
+      dateModified: headline.dateModified || headline.date || '',
       author: { name: headline.author?.name || 'Staff Writer' },
       articleSection: headline.category?.title || primaryTopicHub?.title,
       keywords: keywordList && keywordList.length ? keywordList : undefined,
@@ -234,8 +234,8 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                   {hub.title}
                 </Link>
               ))}
-              {(headline as unknown as { _updatedAt?: string })._updatedAt && (headline as unknown as { _updatedAt?: string })._updatedAt !== headline.date && (
-                <span className="text-xs text-gray-500">Updated {formatArticleDate((headline as unknown as { _updatedAt?: string })._updatedAt! )}</span>
+              {headline.dateModified && headline.dateModified !== headline.date && (
+                <span className="text-xs text-gray-500">Updated {formatArticleDate(headline.dateModified)}</span>
               )}
             </div>
             {headline.coverImage?.asset?.url && (

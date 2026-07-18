@@ -1,5 +1,5 @@
 import { PortableText } from '@portabletext/react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
@@ -117,7 +117,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		);
 		const targetSlug = aliasDoc?.slug?.current?.trim();
 		if (targetSlug) {
-			redirect(`/articles/${targetSlug}`);
+			permanentRedirect(`/articles/${targetSlug}`);
 		}
 		notFound();
 	}
@@ -132,9 +132,9 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				? `week-${weekNumber}`
 				: null;
 		if (weekPart && season) {
-			redirect(`/articles/power-rankings/${season}/${weekPart}`);
+			permanentRedirect(`/articles/power-rankings/${season}/${weekPart}`);
 		}
-		redirect('/articles/power-rankings');
+		permanentRedirect('/articles/power-rankings');
 	}
 
 	const tagList = Array.isArray(article.tags)
@@ -211,11 +211,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				...(article.coverImage?.asset?.url ? [{ url: article.coverImage.asset.url }] : [{ url: ogFallback }]),
 			],
 			datePublished: article.date || article.publishedAt || '',
-			dateModified:
-				(article as unknown as { _updatedAt?: string })._updatedAt ||
-				article.date ||
-				article.publishedAt ||
-				'',
+			dateModified: article.dateModified || article.date || article.publishedAt || '',
 			author: { name: article.author?.name || 'Staff Writer' },
 			articleSection: article.category?.title || primaryTopicHub?.title,
 			keywords: keywordList && keywordList.length ? keywordList : undefined,
@@ -279,8 +275,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 									{hub.title}
 								</Link>
 							))}
-							{(article as unknown as { _updatedAt?: string })._updatedAt && (article as unknown as { _updatedAt?: string })._updatedAt !== article.date && (
-								<span className="text-xs text-gray-500">Updated {formatArticleDate((article as unknown as { _updatedAt?: string })._updatedAt! )}</span>
+							{article.dateModified && article.dateModified !== article.date && (
+								<span className="text-xs text-gray-500">Updated {formatArticleDate(article.dateModified)}</span>
 							)}
 						</div>
 						{article.coverImage?.asset?.url && (

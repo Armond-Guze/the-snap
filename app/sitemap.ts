@@ -5,12 +5,16 @@ import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule'
 
 const baseUrl = SITE_URL
 
-// Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
-// You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).
-// Default is a recent, fixed date to avoid future-dated entries.
-const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
-  ? new Date(process.env.SITEMAP_STATIC_LASTMOD)
-  : new Date('2025-01-01T00:00:00.000Z')
+type SitemappedDocument = {
+  slug: { current: string }
+  lastModified?: string
+}
+
+const toValidDate = (value?: string | null): Date | undefined => {
+  if (!value) return undefined
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
 
 // Ensure we never emit invalid sitemap URLs (spaces, punctuation)
 const safeSlug = (slug?: string | null) => {
@@ -39,19 +43,28 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articles, fantasy, categories, topicHubs] = await Promise.all([
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
+    client.fetch<SitemappedDocument[]>(
       `*[
-        (_type in ["article","headline","rankings"]) && published == true && (!defined(seo.noIndex) || seo.noIndex == false)
-      ]{ slug, _updatedAt }`
+        (_type in ["article","headline","rankings"]) &&
+        published == true &&
+        !(_type == "article" && format == "powerRankings") &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
+      ]{
+        slug,
+        "lastModified": coalesce(dateModified, date, publishedAt, _createdAt)
+      }`
     ),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
-      `*[_type == "fantasyFootball" && published == true]{ slug, _updatedAt }`
+    client.fetch<SitemappedDocument[]>(
+      `*[_type == "fantasyFootball" && published == true]{
+        slug,
+        "lastModified": coalesce(dateModified, date, publishedAt, _createdAt)
+      }`
     ),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
-      `*[_type == "category"]{ slug, _updatedAt }`
+    client.fetch<Pick<SitemappedDocument, 'slug'>[]>(
+      `*[_type == "category"]{ slug }`
     ),
-    client.fetch<{slug: {current: string}, _updatedAt: string}[]>(
-      `*[_type == "topicHub" && coalesce(active, true) == true]{ slug, _updatedAt }`
+    client.fetch<Pick<SitemappedDocument, 'slug'>[]>(
+      `*[_type == "topicHub" && coalesce(active, true) == true]{ slug }`
     ),
   ]);
 
@@ -59,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const latestTeamRecordUpdatedAt = await client.fetch<string | null>(
     `*[_type == "teamRecord" && defined(_updatedAt)] | order(_updatedAt desc)[0]._updatedAt`
   );
-  const standingsLastMod = latestTeamRecordUpdatedAt ? new Date(latestTeamRecordUpdatedAt) : undefined;
+  const standingsLastMod = toValidDate(latestTeamRecordUpdatedAt);
 
   const dynamicEntries: MetadataRoute.Sitemap = dedupeEntries([
     // Detail pages: always point to final articles path to avoid sitemap URLs that redirect
@@ -69,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/articles/${slug}`,
-          lastModified: r._updatedAt ? new Date(r._updatedAt) : STATIC_LAST_MOD,
+          lastModified: toValidDate(r.lastModified),
           changeFrequency: 'weekly' as const,
           priority: 0.6,
         } satisfies MetadataRoute.Sitemap[number];
@@ -81,7 +94,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/fantasy/${slug}`,
-          lastModified: f._updatedAt ? new Date(f._updatedAt) : STATIC_LAST_MOD,
+          lastModified: toValidDate(f.lastModified),
           changeFrequency: 'weekly' as const,
           priority: 0.65,
         } satisfies MetadataRoute.Sitemap[number];
@@ -93,7 +106,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/categories/${slug}`,
-          lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
           changeFrequency: 'weekly' as const,
           priority: 0.5,
         } satisfies MetadataRoute.Sitemap[number];
@@ -105,7 +117,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/${slug}`,
-          lastModified: hub._updatedAt ? new Date(hub._updatedAt) : STATIC_LAST_MOD,
           changeFrequency: 'daily' as const,
           priority: 0.7,
         } satisfies MetadataRoute.Sitemap[number];
@@ -114,8 +125,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   // Power Rankings weekly snapshots
-  const rankingWeekDocs: { seasonYear?: number; weekNumber?: number; playoffRound?: string; _updatedAt?: string }[] =
-    await client.fetch(`*[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && published==true]{ seasonYear, weekNumber, playoffRound, _updatedAt }`);
+  const rankingWeekDocs: {
+    seasonYear?: number
+    weekNumber?: number
+    playoffRound?: string
+    lastModified?: string
+  }[] = await client.fetch(`
+    *[_type=="article" && format=="powerRankings" && rankingType=="snapshot" && published==true]{
+      seasonYear,
+      weekNumber,
+      playoffRound,
+      "lastModified": coalesce(dateModified, date, publishedAt, _createdAt)
+    }
+  `);
   const rankingWeekEntries: MetadataRoute.Sitemap = dedupeEntries(
     rankingWeekDocs
       .map((s) => {
@@ -124,7 +146,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!weekPart) return null;
         return {
           url: `${baseUrl}/articles/power-rankings/${s.seasonYear}/${weekPart}`,
-          lastModified: s._updatedAt ? new Date(s._updatedAt) : STATIC_LAST_MOD,
+          lastModified: toValidDate(s.lastModified),
           changeFrequency: 'weekly' as const,
           priority: 0.6,
         } satisfies MetadataRoute.Sitemap[number];
@@ -134,7 +156,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const teamHubEntries: MetadataRoute.Sitemap = TEAM_ABBRS.map((abbr) => ({
     url: `${baseUrl}/teams/${teamSlug(TEAM_META[abbr].name)}`,
-    lastModified: STATIC_LAST_MOD,
     changeFrequency: 'daily' as const,
     priority: 0.72,
   }));
@@ -142,87 +163,86 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return dedupeEntries([
     {
       url: baseUrl,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 1,
     },
     {
       url: `${baseUrl}/categories`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.55,
     },
     {
       url: `${baseUrl}/headlines`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/articles`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/fantasy`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/fantasy/mock-draft-simulator`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/standings`,
-      lastModified: standingsLastMod || STATIC_LAST_MOD,
+      lastModified: standingsLastMod,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/schedule`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'weekly',
       priority: 0.75,
     },
     {
       url: `${baseUrl}/teams`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${baseUrl}/newsletter`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${baseUrl}/privacy-policy`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/terms`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'yearly',
       priority: 0.2,
+    },
+    {
+      url: `${baseUrl}/articles/power-rankings`,
+      lastModified: toValidDate(
+        rankingWeekDocs
+          .map((item) => item.lastModified)
+          .filter((value): value is string => Boolean(value))
+          .sort()
+          .at(-1)
+      ),
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     ...dynamicEntries,
     ...rankingWeekEntries,
@@ -230,7 +250,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,
-      lastModified: STATIC_LAST_MOD,
       changeFrequency: 'weekly' as const,
       priority: 0.55,
     })),

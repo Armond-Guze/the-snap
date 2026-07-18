@@ -91,7 +91,7 @@ export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeam
         result.created++;
       }
 
-      tx = tx.createOrReplace(doc as any);
+      tx = tx.createOrReplace(doc);
       pending++;
     }
 

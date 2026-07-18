@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // In a real implementation, you would fetch analytics data from your database
     // For now, we'll return mock data structure

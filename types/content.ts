@@ -155,6 +155,9 @@ export type UnifiedContent = BaseContent & {
 // Legacy headline type (for backward compatibility)
 export interface LegacyHeadline extends BaseContent {
   _type: 'headline';
+  summary?: string;
+  date?: string;
+  coverImage?: BaseContent['featuredImage'];
   content: PortableTextContent[]; // Portable text content
   category?: CategoryReference;
   tags?: TagReference[];
@@ -164,7 +167,11 @@ export interface LegacyHeadline extends BaseContent {
 
 // Legacy ranking type (for backward compatibility)
 export interface LegacyRanking extends BaseContent {
-  _type: 'powerRanking';
+  _type: 'powerRanking' | 'rankings';
+  summary?: string;
+  date?: string;
+  coverImage?: BaseContent['featuredImage'];
+  articleImage?: BaseContent['featuredImage'];
   week: number;
   season: number;
   teams: TeamData[];

@@ -1,5 +1,5 @@
 import { client } from '@/sanity/lib/client';
-import { fetchNFLStandingsWithFallback, ProcessedTeamData } from './nfl-api';
+import { fetchNFLStandingsWithFallback } from './nfl-api';
 
 // Create a client with write permissions for syncing
 const SANITY_WRITE_TOKEN = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_WRITE_TOKEN;
@@ -36,7 +36,11 @@ export async function syncStandingsToSanity(): Promise<SyncResult> {
     }
 
     // Get existing standings from Sanity
-    const existingStandings = await writeClient.fetch(
+    const existingStandings = await writeClient.fetch<Array<{
+      _id: string;
+      teamName: string;
+      season: string;
+    }>>(
       `*[_type == "standings"] { _id, teamName, season }`
     );
 
@@ -46,7 +50,7 @@ export async function syncStandingsToSanity(): Promise<SyncResult> {
     for (const teamData of apiData) {
       // Check if team already exists for current season
       const existing = existingStandings.find(
-        (team: any) => team.teamName === teamData.teamName && team.season === currentSeason
+        (team) => team.teamName === teamData.teamName && team.season === currentSeason
       );
 
       const standingsDoc = {
