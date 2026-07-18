@@ -6,7 +6,6 @@ import { GameCenterInsights } from '@/app/components/game-center/GameCenterInsig
 import { GameCenterCuratedArticles } from '@/app/components/game-center/GameCenterCuratedArticles';
 import { GameCenterTimeline } from '@/app/components/game-center/GameCenterTimeline';
 import { buildGameCenterPayload } from '@/lib/game-center';
-import { fetchSanitySeasonGames } from '@/lib/schedule';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 300;
@@ -17,11 +16,6 @@ interface PageProps {
 
 const siteUrl = SITE_URL;
 
-export async function generateStaticParams() {
-  const schedule = await fetchSanitySeasonGames();
-  return schedule.map((game) => ({ gameId: game.gameId }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { gameId } = await params;
   const payload = await buildGameCenterPayload(gameId);
@@ -29,14 +23,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: 'Game not found | The Snap',
       description: 'Unable to locate this matchup in the current schedule.',
-      robots: { index: true, follow: true },
+      robots: { index: false, follow: true },
     };
   }
   const url = `${siteUrl}/game-center/${gameId}`;
   return {
     title: `${payload.meta.pageTitle} | The Snap`,
     description: payload.meta.description,
-    robots: { index: true, follow: true },
+    // These automated pages stay out of the index until they contain enough
+    // unique editorial and statistical value to justify 272 additional URLs.
+    robots: { index: false, follow: true },
     openGraph: {
       title: payload.meta.pageTitle,
       description: payload.meta.description,

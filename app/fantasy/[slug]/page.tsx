@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
@@ -112,7 +112,17 @@ export default async function FantasyArticlePage(props: PageProps) {
     }`, {}, 300, [])
   ]);
 
-  if (!article) notFound();
+  if (!article) {
+    const migratedArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
+      `*[_type == "article" && format == "fantasy" && published == true && slug.current == $slug][0]{slug}`,
+      { slug },
+      300,
+      null
+    );
+    const destination = migratedArticle?.slug?.current?.trim();
+    if (destination) permanentRedirect(`/articles/${destination}`);
+    notFound();
+  }
 
   const blocks = article.body || article.content || [];
   const textContent = extractTextFromBlocks(blocks);

@@ -60,11 +60,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         "lastModified": coalesce(dateModified, date, publishedAt, _createdAt)
       }`
     ),
-    client.fetch<Pick<SitemappedDocument, 'slug'>[]>(
-      `*[_type == "category"]{ slug }`
+    client.fetch<SitemappedDocument[]>(
+      `*[_type == "category"]{ slug, "lastModified": _updatedAt }`
     ),
-    client.fetch<Pick<SitemappedDocument, 'slug'>[]>(
-      `*[_type == "topicHub" && coalesce(active, true) == true]{ slug }`
+    client.fetch<SitemappedDocument[]>(
+      `*[_type == "topicHub" && coalesce(active, true) == true]{ slug, "lastModified": _updatedAt }`
     ),
   ]);
 
@@ -112,6 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/categories/${slug}`,
+          lastModified: toValidDate(c.lastModified),
           changeFrequency: 'weekly' as const,
           priority: 0.5,
         } satisfies MetadataRoute.Sitemap[number];
@@ -123,6 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (!slug) return null;
         return {
           url: `${baseUrl}/${slug}`,
+          lastModified: toValidDate(hub.lastModified),
           changeFrequency: 'daily' as const,
           priority: 0.7,
         } satisfies MetadataRoute.Sitemap[number];
@@ -160,8 +162,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(Boolean) as MetadataRoute.Sitemap
   );
 
+  const teamHubLastMod = [standingsLastMod, scheduleLastMod]
+    .filter((value): value is Date => Boolean(value))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+
   const teamHubEntries: MetadataRoute.Sitemap = TEAM_ABBRS.map((abbr) => ({
     url: `${baseUrl}/teams/${teamSlug(TEAM_META[abbr].name)}`,
+    lastModified: teamHubLastMod,
     changeFrequency: 'daily' as const,
     priority: 0.72,
   }));
@@ -211,6 +218,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/teams`,
+      lastModified: teamHubLastMod,
       changeFrequency: 'daily',
       priority: 0.8,
     },

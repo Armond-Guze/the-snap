@@ -17,6 +17,31 @@ Period: April 17 through July 16, 2026.
 
 The site is receiving enough impressions to reveal topics Google associates with it, but most results rank too low to earn meaningful clicks. Betting education is the clearest demonstrated query cluster.
 
+### Page Indexing exclusion audit
+
+Search Console's July 9 snapshot divided the 302 not-indexed URLs into these reasons:
+
+| Reason | URLs | Audit interpretation |
+| --- | ---: | --- |
+| Crawled - currently not indexed | 129 | Mostly older or thin editorial URLs plus historical schedule, team, and game URLs. This is primarily a quality and crawl-priority problem, not an indexing directive problem. |
+| Discovered - currently not indexed | 93 | All were submitted sitemap URLs. Many schedule and team pages were rebuilt after this snapshot; the report's validation status was Passed. |
+| Excluded by `noindex` | 57 | Mostly automated game-center pages that intentionally remain out of search until they offer enough unique value. The other examples now return indexable, self-canonical pages. |
+| Page with redirect | 16 | Expected protocol, hostname, headline, rankings, and other legacy permanent redirects. |
+| Soft 404 | 4 | Two legacy matchup placeholders were genuine defects; the other two power-ranking examples were already corrected to a real 404 and a permanent redirect. |
+| Not found (404) | 2 | One obsolete deployment asset and one stale report entry for the now-restored power-rankings hub. |
+| Alternate page with proper canonical | 1 | An article-filter URL that correctly canonicalizes to the unfiltered article archive. |
+| Google chose different canonical | 0 | No affected URLs in the snapshot. |
+
+For the submitted-sitemap scope, the same July 9 snapshot showed 210 known URLs: 43 indexed, 63 crawled but not indexed, 93 discovered but not indexed, and 11 excluded by `noindex`. A live audit on July 18 found 219 current sitemap URLs, all returning 200 and none carrying `noindex`. It also uncovered six sitemap pages inheriting the homepage canonical: the mock-draft simulator, About, Contact, Newsletter, Privacy Policy, and Terms pages. Their self-canonicals were corrected in the indexing cleanup deployment.
+
+Other technical cleanup from this audit:
+
+- Legacy matchup URLs now permanently redirect when a real game exists and return an actual 404 when it does not, removing placeholder soft 404s.
+- Five retired fantasy routes now permanently redirect to their published article replacements.
+- Automated game-center pages are dynamically rendered and intentionally remain `noindex,follow`; they are not sitemap entries and will not consume static-build output.
+- Category, topic-hub, team, and team-index sitemap entries now use meaningful source modification dates.
+- No mass indexing requests were made. Requests remain limited to materially improved, priority canonical pages.
+
 ### Highest-impression queries observed
 
 | Query | Impressions | Clicks |

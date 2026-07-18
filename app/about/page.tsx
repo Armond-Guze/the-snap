@@ -1,5 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { SimpleCard, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+import { SITE_URL } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "About The Snap | Independent NFL Coverage",
+  description: "Learn how The Snap approaches NFL news, rankings, analysis, fantasy coverage and useful football tools.",
+  alternates: { canonical: `${SITE_URL}/about` },
+  openGraph: {
+    title: "About The Snap | Independent NFL Coverage",
+    description: "Learn how The Snap approaches NFL news, rankings, analysis, fantasy coverage and useful football tools.",
+    url: `${SITE_URL}/about`,
+    type: "website",
+  },
+};
 
 const offerings = [
   {

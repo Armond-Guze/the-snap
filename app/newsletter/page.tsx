@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import NewsletterSignup from "../components/NewsletterSignup";
 import { SimpleCard, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+import { SITE_URL } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "The Snap NFL Newsletter",
+  description: "Get The Snap's NFL rankings, analysis, fantasy coverage and important site updates by email.",
+  alternates: { canonical: `${SITE_URL}/newsletter` },
+  openGraph: {
+    title: "The Snap NFL Newsletter",
+    description: "Get The Snap's NFL rankings, analysis, fantasy coverage and important site updates by email.",
+    url: `${SITE_URL}/newsletter`,
+    type: "website",
+  },
+};
 
 const benefits = [
   {

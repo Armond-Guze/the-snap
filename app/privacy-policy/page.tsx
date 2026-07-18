@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { SimpleList, SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+import { SITE_URL } from "@/lib/site-config";
 
-export const metadata = {
-  title: "Privacy Policy | The Game Snap",
-  description: "Privacy practices, data collection, cookies, and user rights for The Game Snap.",
+export const metadata: Metadata = {
+  title: "Privacy Policy | The Snap",
+  description: "Privacy practices, data collection, cookies and user rights for The Snap.",
+  alternates: { canonical: `${SITE_URL}/privacy-policy` },
+  openGraph: {
+    title: "Privacy Policy | The Snap",
+    description: "Privacy practices, data collection, cookies and user rights for The Snap.",
+    url: `${SITE_URL}/privacy-policy`,
+    type: "website",
+  },
 };
 
 export default function PrivacyPolicy() {

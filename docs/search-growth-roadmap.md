@@ -51,6 +51,22 @@ Completed on July 18:
 
 Still required: recheck indexed pages, discovered/crawled-not-indexed counts, impressions, and queries after 2, 4, and 8 weeks.
 
+### Full exclusion audit and indexing cleanup
+
+Completed July 18, 2026.
+
+- Reviewed every Page Indexing reason in both the All known pages and Submitted sitemap scopes.
+- Confirmed that most of the 302 excluded URLs were intentional redirects, historical report entries, automated game-center `noindex` pages, or crawl/quality decisions rather than 302 technical failures.
+- Live-tested all 219 current sitemap URLs: every URL returned 200 and none had `noindex`.
+- Removed the root layout's inherited homepage canonical and added self-canonicals to six affected sitemap pages.
+- Converted legacy matchup placeholders into permanent redirects for known games and real 404s for unknown games, addressing the genuine soft-404 defect.
+- Added permanent fallbacks from five retired fantasy URLs to their published article replacements.
+- Stopped statically generating the 272 automated game-center pages; they remain `noindex,follow` until they provide sufficient unique editorial or statistical value.
+- Made category, topic-hub, and team sitemap modification dates reflect their source content.
+- Kept Search Console actions selective: validate the corrected soft-404 group, but do not validate intentional `noindex` or redirect exclusions and do not mass-request indexing.
+
+The next indexing constraint is content value and crawl priority: the July 9 snapshot contained 54 article URLs in Crawled - currently not indexed and 38 article URLs in Discovered - currently not indexed. Iteration 2 should improve, consolidate, redirect, or retire those articles by demonstrated search intent rather than trying to force indexing through repeated submissions.
+
 ## Iteration 2: content quality and consolidation
 
 Status: in progress. The first high-confidence consolidation was completed and production-verified on July 18, 2026.

@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { SimplePageShell, SimpleSection } from "../components/SimpleInfoPage";
+import { SITE_URL } from "@/lib/site-config";
 
-export const metadata = {
-  title: "Terms of Use | The Game Snap",
-  description: "Terms of Use governing access to and use of The Game Snap website.",
+export const metadata: Metadata = {
+  title: "Terms of Use | The Snap",
+  description: "Terms governing access to and use of The Snap website.",
+  alternates: { canonical: `${SITE_URL}/terms` },
+  openGraph: {
+    title: "Terms of Use | The Snap",
+    description: "Terms governing access to and use of The Snap website.",
+    url: `${SITE_URL}/terms`,
+    type: "website",
+  },
 };
 
 const sections = [
