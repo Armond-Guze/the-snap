@@ -168,3 +168,21 @@ Changes made:
 - Added a shared responsive renderer for Sanity `dataTable` blocks after production verification revealed that article tables were stored correctly but silently omitted by the frontend. The fix restores 17 valid tables across 13 published articles.
 
 Measure clicks, CTR, average position, and the Round 3 query group after 2, 4, and 8 weeks. Do not interpret the unusual underscore-form query as a reason to stuff that exact syntax into the page.
+
+## Improvement batch 4: 2026 NFL MVP odds
+
+Completed July 19, 2026.
+
+Search Console showed 230 impressions, zero clicks, and an average position of 15.0 for `/articles/2026-27-nfl-mvp-odds-josh-allen-and-lamar-jackson-open-as-early-favorites` during the April 17 through July 16 window. Visible query signals included `josh allen mvp odds`, `josh allen nfl mvp odds`, `lamar jackson mvp odds`, `2026 nfl mvp odds`, and `2026-27 nfl mvp odds`. The page was the strongest seasonal-betting opportunity because Google was already testing it materially higher than the AFC East win-totals and post-draft Super Bowl pages.
+
+Changes made:
+
+- Preserved the canonical URL and changed the search title to `2026 NFL MVP Odds: Favorites & Contenders | The Snap`.
+- Replaced the stale opening market with a clearly dated BetMGM snapshot from July 16, 2026; the table now contains 30 players and never labels one sportsbook's number as a universal best price.
+- Put the direct answer first: Josh Allen +600, Lamar Jackson +700, Justin Herbert +900, and Drake Maye, Joe Burrow, and Patrick Mahomes at +1000.
+- Expanded the article from 22 to 54 body blocks and from roughly 3,800 to 9,250 text characters with contender tiers, implied-probability math, market-tracking guidance, five direct-answer FAQs, internal links, and a responsible-betting section.
+- Replaced the irrelevant `Parlays` tag with canonical `NFL Futures` and `Quarterbacks` tags.
+- Reduced 37 team references, including duplicate draft references, to the six published teams central to the leading candidates. Player references now match those same six candidates.
+- Verified production output: one H1, self-canonical, `index, follow`, one 30-row responsive table, the manual search description, and a visible July 19 substantive-update date.
+
+Compare the same page and query group after 2, 4, and 8 weeks. Track clicks, CTR, average position, distinct MVP queries, and movement for the privacy-hidden query set implied by the page-level average. Refresh the table only when a real market change warrants a reader-facing update; do not rewrite the publication date or claim evergreen odds.

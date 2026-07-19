@@ -27,6 +27,7 @@
     "sync:schedule": "node scripts/sync-espn-schedule.mjs",
     "improve:evergreen": "node scripts/improve-evergreen-articles.mjs",
     "improve:hero-rb": "node scripts/improve-hero-rb-guide.mjs",
+    "improve:mvp-odds": "node scripts/improve-mvp-odds-guide.mjs",
     "seed:primetime": "node scripts/seed-primetime-tags.mjs",
     "seed:topic-hubs": "node scripts/seed-topic-hubs.mjs"
   },

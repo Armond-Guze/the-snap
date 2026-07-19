@@ -109,6 +109,15 @@ The next priority is improving what Google and readers find after the technical 
 - Fixed the shared article renderer so 17 Sanity `dataTable` blocks across 13 published articles display as responsive, accessible HTML tables instead of disappearing.
 - Kept the low-demand excluded news URLs in the review queue rather than padding or mass-deleting them; their highest three-month impression count was only 21.
 
+### Fourth improvement batch completed
+
+- Selected the 2026 NFL MVP odds guide using Search Console evidence: 230 impressions, zero clicks, and an average position of 15.0, ahead of the other seasonal betting candidates.
+- Replaced a stale opening-odds article with a dated, source-labeled 30-player BetMGM market snapshot from July 16, 2026.
+- Rebuilt the page around the demonstrated `2026 NFL MVP odds`, `Josh Allen MVP odds`, and `Lamar Jackson MVP odds` intent while preserving the canonical URL.
+- Added contender-tier analysis, implied-probability explanations, five focused FAQs, responsible-betting guidance, and contextual links to the core betting explainer and Super Bowl futures page.
+- Corrected the taxonomy footprint from 37 team references with draft duplicates to six relevant published teams, replaced an irrelevant `Parlays` tag, and aligned the player references with the leading candidates.
+- Verified the live page's title, description, self-canonical, `index, follow` directive, update date, heading structure, source link, and 30-row table before requesting a selective recrawl.
+
 ## Iteration 3: topic architecture and internal links
 
 - Define a small set of priority franchises such as NFL rules, betting education, fantasy, draft, schedule, standings, and power rankings.
