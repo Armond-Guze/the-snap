@@ -143,8 +143,11 @@ function DivisionTable({
   confAccent,
 }: { division: string; teams: StandingsTeam[]; confAccent: string }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)]">
-      <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
+    <section className="overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] shadow-[0_16px_40px_-24px_rgba(0,0,0,0.8)] transition-colors hover:border-white/[0.18]">
+      <header
+        className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5"
+        style={{ background: `linear-gradient(90deg, ${confAccent}14, transparent 65%)` }}
+      >
         <div className="flex items-center gap-2.5">
           <span aria-hidden className="h-4 w-1 rounded-full" style={{ backgroundColor: confAccent }} />
           <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-white">{division}</h3>
@@ -160,6 +163,7 @@ function DivisionTable({
               <th scope="col" className="w-10 px-1 py-2.5 text-center font-semibold">L</th>
               <th scope="col" className="hidden w-10 px-1 py-2.5 text-center font-semibold sm:table-cell">T</th>
               <th scope="col" className="w-14 px-1 py-2.5 text-center font-semibold">Pct</th>
+              <th scope="col" className="hidden w-12 px-1 py-2.5 text-center font-semibold sm:table-cell">GB</th>
               <th scope="col" className="w-16 px-2 py-2.5 pr-4 text-center font-semibold sm:pr-5">Strk</th>
             </tr>
           </thead>
@@ -168,10 +172,14 @@ function DivisionTable({
               const accent = teamAccent(team.teamAbbr);
               const hasPlayed = team.wins + team.losses + team.ties > 0;
               const isLeader = index === 0 && hasPlayed;
+              const leader = teams[0];
+              const gamesBack = leader
+                ? ((leader.wins - team.wins) + (team.losses - leader.losses)) / 2
+                : 0;
               return (
                 <tr
                   key={team._id}
-                  className="transition-colors hover:bg-white/[0.04]"
+                  className={`transition-colors hover:bg-white/[0.04] ${index % 2 === 1 ? 'bg-white/[0.015]' : ''}`}
                   style={isLeader ? {
                     boxShadow: `inset 3px 0 0 0 ${accent}`,
                     background: `linear-gradient(90deg, ${accent}14 0%, transparent 55%)`,
@@ -182,7 +190,7 @@ function DivisionTable({
                       <span className="w-3.5 text-center text-xs font-semibold tabular-nums text-white/35">{index + 1}</span>
                       <span
                         className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full sm:h-9 sm:w-9"
-                        style={{ backgroundColor: `${accent}1F` }}
+                        style={{ backgroundColor: `${accent}1F`, boxShadow: `inset 0 0 0 1px ${accent}40` }}
                       >
                         <span className="relative block h-6 w-6 sm:h-7 sm:w-7">
                           <Image
@@ -227,8 +235,8 @@ function ConferenceHeader({ abbr, name }: { abbr: string; name: string }) {
     <div className="mb-5 flex items-center gap-3">
       <span
         aria-hidden
-        className="grid h-10 w-12 place-items-center rounded-xl text-sm font-black tracking-wide text-white shadow-lg"
-        style={{ background: `linear-gradient(135deg, ${accent} 0%, ${accent}99 100%)` }}
+        className="grid h-10 w-12 place-items-center rounded-xl text-sm font-black tracking-wide text-white"
+        style={{ background: `linear-gradient(135deg, ${accent} 0%, ${accent}99 100%)`, boxShadow: `0 10px 28px -10px ${accent}B3` }}
       >
         {abbr}
       </span>
@@ -354,8 +362,12 @@ export default async function StandingsPage() {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
       {/* Page header */}
-      <header className="border-b border-white/10 px-4 pb-6 pt-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <header className="relative overflow-hidden border-b border-white/10 px-4 pb-6 pt-8 sm:px-6 lg:px-8">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-28 left-[10%] h-72 w-72 rounded-full bg-[#D50A0A]/[0.08] blur-3xl" />
+          <div className="absolute -top-28 right-[10%] h-72 w-72 rounded-full bg-[#1B48E0]/[0.10] blur-3xl" />
+        </div>
+        <div className="relative mx-auto max-w-7xl">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <h1 className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent md:text-4xl">
               NFL Standings

@@ -1,0 +1,1416 @@
+{
+  "exportedAt": "2026-07-27T03:28:37.078Z",
+  "dataset": "production",
+  "documents": [
+    {
+      "_createdAt": "2026-07-05T22:20:03Z",
+      "_id": "auto-nfl-could-one-of-these-seven-nfl-teams-finally-celebrate-first-super-bowl-6260c335a8",
+      "_rev": "CoFh7OQwAC1Q0RbcmGJ6lG",
+      "_type": "article",
+      "_updatedAt": "2026-07-05T22:42:53Z",
+      "author": {
+        "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+        "_type": "reference"
+      },
+      "body": [
+        {
+          "_key": "9f68cf87bc73",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "71f3e79a5971",
+              "_type": "span",
+              "marks": [],
+              "text": "Seven franchises enter 2026 still chasing their first Super Bowl‑era Most Valuable Player. That list — Arizona, Houston, Jacksonville, New Orleans, New York (Jets), Philadelphia and Tampa Bay — is a who’s‑who of clubs that have produced stars but not the league’s top individual honor. With roster turnover and shifting narratives every season, the MVP conversation can open quickly if a player combines elite performance with team success."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "a1e93f9f61f5",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "ff0669a9a078",
+              "_type": "span",
+              "marks": [],
+              "text": "Why this could be the year"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "91f41609755f",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "da8d8338a8ea",
+              "_type": "span",
+              "marks": [],
+              "text": "MVP voting typically rewards standout statistical seasons that translate into wins. Several of these teams arrive in 2026 with clearer casts around their top players, plus young offensive pieces and evolving supporting talent. That mix increases the odds one of their leaders can mount a credible MVP campaign if health and team outcomes align."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "4a290c54ad03",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "6e0f4cf35c66",
+              "_type": "span",
+              "marks": [],
+              "text": "Top contenders by team"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "25206acb0a1d",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "00527e71d111",
+              "_type": "span",
+              "marks": [],
+              "text": "Arizona — Tyler Shough: If Shough takes hold as the Cardinals’ long‑term starter and pairs efficiency with a power‑play offense, he could emerge into MVP discussion as a breakthrough young signal‑caller."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "e11f2ff3d6ce",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "18dcbd65a719",
+              "_type": "span",
+              "marks": [],
+              "text": "Houston — Will Anderson Jr.: Defensive players rarely win MVP, but Anderson’s game‑changing upside means a transcendent season from him would be impossible to ignore in the narrative-driven MVP race."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "03c7fdef92b5",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "6dff01b4d703",
+              "_type": "span",
+              "marks": [],
+              "text": "Jacksonville — Trevor Lawrence: Lawrence remains the most obvious MVP candidate among these clubs if he produces elite numbers and the Jaguars turn in a top‑seed season."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "10dcd832b3d7",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "06235ba26dda",
+              "_type": "span",
+              "marks": [],
+              "text": "New Orleans — Baker Mayfield: Mayfield’s presence gives the Saints a veteran option capable of leading a high‑profile offense; a late surge or historically efficient campaign could vault him into contention."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "1a3a5a84dd65",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "d755d6ce9f66",
+              "_type": "span",
+              "marks": [],
+              "text": "New York Jets — Breece Hall: While the MVP award skews to quarterbacks, a dominant, touchdown‑heavy season from a workhorse running back like Hall coupled with team success could generate an unusual but compelling case."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "25fe90f4caa1",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "e4b49439e3c5",
+              "_type": "span",
+              "marks": [],
+              "text": "Philadelphia — Jalen Hurts: Hurts is already in the conversation each year he stays healthy; another season with MVP‑level production and wins would make him the likeliest Eagle to finally claim the honor."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "a8126280a516",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "0df438e486e5",
+              "_type": "span",
+              "marks": [],
+              "text": "Tampa Bay — Jeremiyah Love: A lesser‑known name on this list, Love could push into the spotlight in the right offensive environment and become a surprise entrant in the MVP debate."
+            }
+          ],
+          "level": 1,
+          "listItem": "bullet",
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "9f695a7c1614",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "ef131420386e",
+              "_type": "span",
+              "marks": [],
+              "text": "What to watch in 2026"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "0fb39194db81",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "e459b795d13b",
+              "_type": "span",
+              "marks": [],
+              "text": "Key markers for MVP campaigns will be individual efficiency, big‑play production and, crucially, team record. Injuries, supporting casts and schedule also shape voters’ perceptions — so even elite units need context. For these seven franchises, a breakthrough MVP season would likely coincide with a step‑up in overall team performance."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "8c6450889b0a",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "5f2cdcdeac10",
+              "_type": "span",
+              "marks": [],
+              "text": "Source"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "6d81f58a6e2a",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "affe153a09d9",
+              "_type": "span",
+              "marks": [],
+              "text": "Source: "
+            },
+            {
+              "_key": "711c84c6e3f9",
+              "_type": "span",
+              "marks": [
+                "55522b137a95"
+              ],
+              "text": "NFL.com (Grant Gordon)"
+            }
+          ],
+          "markDefs": [
+            {
+              "_key": "55522b137a95",
+              "_type": "link",
+              "href": "https://www.nfl.com/news/could-one-of-these-seven-nfl-teams-finally-celebrate-first-super-bowl-era-mvp-in-2026"
+            }
+          ],
+          "style": "normal"
+        }
+      ],
+      "category": {
+        "_ref": "1d7bf305-0631-41af-8a54-76c3d56cd1ad",
+        "_type": "reference"
+      },
+      "coverImage": {
+        "_type": "image",
+        "asset": {
+          "_ref": "image-6be47531e674a248c14e33cb7033274276f4bb5b-640x427-webp",
+          "_type": "reference"
+        }
+      },
+      "date": "2026-07-05T22:20:03.055Z",
+      "format": "analysis",
+      "homepageTitle": "Which of these seven clubs could finally produce a Super Bowl‑era",
+      "players": [
+        {
+          "_key": "fe2b44fa3a2b",
+          "_ref": "player-trevor-lawrence",
+          "_type": "reference"
+        },
+        {
+          "_key": "cc4c6211d9c6",
+          "_ref": "player-jalen-hurts",
+          "_type": "reference"
+        },
+        {
+          "_key": "87007e5a77da",
+          "_ref": "player-baker-mayfield",
+          "_type": "reference"
+        },
+        {
+          "_key": "d7c1dbdeb948",
+          "_ref": "player-tyler-shough",
+          "_type": "reference"
+        },
+        {
+          "_key": "ba0bf3ecefb0",
+          "_ref": "fCI0hGWbYBwib6tCll3881",
+          "_type": "reference"
+        }
+      ],
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      },
+      "slug": {
+        "_type": "slug",
+        "current": "seven-teams-still-waiting-on-a-super-bowl-era-mvp-who-has-the-best-shot-in-2026"
+      },
+      "summary": "Seven NFL franchises — Cardinals, Texans, Jaguars, Saints, Jets, Eagles and Buccaneers — have never had a Super Bowl‑era MVP. Ahead of 2026, here are the players from each club most likely to make a case for the award and why the timing might be right.",
+      "tagRefs": [
+        {
+          "_key": "6adc31bd0163",
+          "_ref": "uuNx9zJ84p1kNNuG6PSaJs",
+          "_type": "reference"
+        },
+        {
+          "_key": "871b0e5e25d6",
+          "_ref": "2585ba75-54d3-4b42-ab74-3d2a1e1a14fb",
+          "_type": "reference"
+        },
+        {
+          "_key": "7c24c1cedf2d",
+          "_ref": "advancedTag-player-rankings",
+          "_type": "reference"
+        },
+        {
+          "_key": "e6e3e6324b36",
+          "_ref": "9395bcb2-97ab-4fe8-bf1d-1b63354b1262",
+          "_type": "reference"
+        },
+        {
+          "_key": "729cc84a2019",
+          "_ref": "uuNx9zJ84p1kNNuG6PTmm0",
+          "_type": "reference"
+        }
+      ],
+      "teams": [
+        {
+          "_key": "27b9f1ddc81e",
+          "_ref": "9b06e77d-dc8f-4c83-95ba-201fdf90d6a1",
+          "_type": "reference"
+        },
+        {
+          "_key": "1844a4754bc3",
+          "_ref": "196a9288-569d-4e72-b351-6f6ec4f1db5c",
+          "_type": "reference"
+        },
+        {
+          "_key": "3858fe102cf3",
+          "_ref": "1ddd9944-d10f-4ee2-8a21-8317e188eab8",
+          "_type": "reference"
+        }
+      ],
+      "title": "Seven teams still waiting on a Super Bowl‑era MVP — who has the best shot in 2026?",
+      "topicHubs": [
+        {
+          "_key": "c88660e180c7",
+          "_ref": "F7xHg03va2kC20ApZmikLp",
+          "_type": "reference"
+        }
+      ]
+    },
+    {
+      "_createdAt": "2026-07-15T05:04:25Z",
+      "_id": "auto-nfl-janice-mcnair-co-founder-and-senior-chair-of-texans-dead-at-89-f99ccaaa1d",
+      "_rev": "A4eUNrywTUe6qD1LVBJnds",
+      "_type": "article",
+      "_updatedAt": "2026-07-15T05:04:25Z",
+      "author": {
+        "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+        "_type": "reference"
+      },
+      "body": [
+        {
+          "_key": "27144839664e",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "034bdb118277",
+              "_type": "span",
+              "marks": [],
+              "text": "Janice McNair, who served as a co-founder and senior chair of the Houston Texans, has died at the age of 89, the franchise said in a statement announced on Tuesday afternoon. The club offered condolences to her family and acknowledged her longtime role with the organization."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "c643498e6c6d",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "9b046f7e7c40",
+              "_type": "span",
+              "marks": [],
+              "text": "McNair’s passing marks a significant moment for a relatively young NFL franchise. Since the Texans began play, the team’s leadership has been closely identified with the family that brought the club to Houston, and her role as senior chair positioned her as an enduring public face for the organization."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "fee2d5592ff8",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "78a1a3eed1dd",
+              "_type": "span",
+              "marks": [],
+              "text": "The Texans’ statement confirmed her death but did not provide further details about the circumstances or a timeline for memorial plans. The team’s announcement was brief, reflecting both the immediate news and the beginning of what will likely be a longer period of public remembrance."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "027813e38b72",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "6b44c6851a96",
+              "_type": "span",
+              "marks": [],
+              "text": "What this means for the Texans"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "d5ebb0307ff1",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "3a7d589d9fbd",
+              "_type": "span",
+              "marks": [],
+              "text": "Beyond the moment of mourning, the franchise will confront questions about governance and day-to-day operations. The club has established front-office structures and executive leadership, and those groups will handle immediate operational continuity while the ownership situation is addressed internally."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "57b9e9ac5397",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "d2362afe341f",
+              "_type": "span",
+              "marks": [],
+              "text": "For players, staff and the Houston community, the immediate focus will be on honoring McNair’s contributions and maintaining stability through the upcoming season. On-field preparations and personnel decisions typically continue under existing management, with ownership matters handled separately from football operations."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "4edc3c7b0954",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "9cd898a6ae0b",
+              "_type": "span",
+              "marks": [],
+              "text": "Next steps and the ownership process"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "264994f8a4f4",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "d606815df5b6",
+              "_type": "span",
+              "marks": [],
+              "text": "The NFL has established procedures for transitions in club ownership and control. In similar situations, those processes involve internal succession planning and, when necessary, review by the league office. Any formal changes to ownership or executive control would proceed through those channels."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "94cfd483d701",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "067e7a314b70",
+              "_type": "span",
+              "marks": [],
+              "text": "In the near term, expect the Texans to provide additional details about commemorations and any organizational changes as they are determined. The franchise’s community ties and the business of preparing for the next season mean the team will balance public remembrances with continuity on football matters."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "610092fec0a0",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "d5b59459a4d4",
+              "_type": "span",
+              "marks": [],
+              "text": "Janice McNair’s death is certain to prompt reflections on her role in shaping the Texans’ identity in Houston. The club and its supporters will now begin that process, marking the end of a chapter in the franchise’s history while looking ahead to its future."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "58fc71a17bd8",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "99927ce7fd88",
+              "_type": "span",
+              "marks": [],
+              "text": "Source"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "9ed826af29f6",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "cbdba6526793",
+              "_type": "span",
+              "marks": [],
+              "text": "Source: "
+            },
+            {
+              "_key": "0f70f67acc99",
+              "_type": "span",
+              "marks": [
+                "0f9b31d9e7bc"
+              ],
+              "text": "NFL.com (Grant Gordon)"
+            }
+          ],
+          "markDefs": [
+            {
+              "_key": "0f9b31d9e7bc",
+              "_type": "link",
+              "href": "https://www.nfl.com/news/janice-mcnair-co-founder-and-senior-chair-of-texans-dead-at-89"
+            }
+          ],
+          "style": "normal"
+        }
+      ],
+      "category": {
+        "_ref": "8abd435a-ac07-40d9-acb0-2cc0eba5a614",
+        "_type": "reference"
+      },
+      "coverImage": {
+        "_type": "image",
+        "alt": "An empty Houston football stadium at sunset with white flowers and a black memorial ribbon on the sideline.",
+        "asset": {
+          "_ref": "image-f6661ec39ea16b7f354ee5db989b3c965f306597-1672x941-png",
+          "_type": "reference"
+        },
+        "caption": "A respectful stadium tribute marking the death of Texans co-founder Janice McNair.",
+        "credit": "AI-generated editorial illustration by The Snap"
+      },
+      "date": "2026-07-15T04:53:55.139Z",
+      "format": "headline",
+      "homepageTitle": "Janice McNair, Texans co-founder and senior chair, dead at 89",
+      "players": [],
+      "published": true,
+      "publishedAt": "2026-07-15T05:04:25.092Z",
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      },
+      "slug": {
+        "_type": "slug",
+        "current": "janice-mcnair-co-founder-and-senior-chair-of-houston-texans-dies-at-89"
+      },
+      "summary": "Janice McNair, a co-founder and the senior chair of the Houston Texans, has died at 89, the franchise announced. Her passing raises questions about the club’s leadership continuity and the legacy she helped shape in Houston.",
+      "tagRefs": [
+        {
+          "_key": "0a56b186d84f",
+          "_ref": "iDIHhRI7dNJOc6nMnGYgKi",
+          "_type": "reference"
+        },
+        {
+          "_key": "190985f73e87",
+          "_ref": "29b6a287-c9cc-415a-8296-579836557b06",
+          "_type": "reference"
+        },
+        {
+          "_key": "72fbd7456afd",
+          "_ref": "d6dd54b3-fccb-45b4-9509-6c641e49070a",
+          "_type": "reference"
+        },
+        {
+          "_key": "64a66f0d1f00",
+          "_ref": "uuNx9zJ84p1kNNuG6PSaJs",
+          "_type": "reference"
+        }
+      ],
+      "teams": [
+        {
+          "_key": "2df1fed91446",
+          "_ref": "196a9288-569d-4e72-b351-6f6ec4f1db5c",
+          "_type": "reference"
+        }
+      ],
+      "title": "Janice McNair, co-founder and senior chair of Houston Texans, dies at 89",
+      "topicHubs": [
+        {
+          "_key": "cc6bfee16644",
+          "_ref": "fCI0hGWbYBwib6tClkti58",
+          "_type": "reference"
+        },
+        {
+          "_key": "c7a70c688bc1",
+          "_ref": "uuNx9zJ84p1kNNuG6Pk8ye",
+          "_type": "reference"
+        }
+      ]
+    },
+    {
+      "_createdAt": "2026-07-08T04:59:55Z",
+      "_id": "auto-nfl-top-100-players-of-2026-nos-80-71-3f91eae71c",
+      "_rev": "dx8sZg5ib8AGqUqB7Xuan9",
+      "_type": "article",
+      "_updatedAt": "2026-07-09T14:02:14Z",
+      "author": {
+        "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+        "_type": "reference"
+      },
+      "body": [
+        {
+          "_key": "225724ae9a66",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "9e268530d221",
+              "_type": "span",
+              "marks": [],
+              "text": "The NFL Top 100 reveal continued on X with the Nos. 80–77 segment, the player-voted list that provides a mid-summer snapshot of how NFL peers view one another. This installment produced both movement and surprises: defensive end Josh Sweat rose noticeably, while quarterback Baker Mayfield fell outside the top 50."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "5a73f230dadd",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "b84f9fb3e270",
+              "_type": "span",
+              "marks": [],
+              "text": "Key movers in Nos. 80–77"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "817094f27277",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "cc3eaa1dbcf6",
+              "_type": "span",
+              "marks": [],
+              "text": "Josh Sweat’s climb stood out as the most talked-about development in this group. The Cardinals edge rusher’s appearance higher on the list reflects growing recognition from fellow players and adds momentum to his profile as the Top 100 rollout continues. Other names in the 80–77 window drew attention for similar reasons — players earning votes for recent on-field work and reputation among peers."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "84aef6ef5e74",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "519057aa19c5",
+              "_type": "span",
+              "marks": [],
+              "text": "Baker Mayfield’s drop and its implications"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "557660ce31a5",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "e6cdf8b3bff9",
+              "_type": "span",
+              "marks": [],
+              "text": "Baker Mayfield falling out of the top 50 signals a recalibration of how players view the veteran passer this offseason. Whether voters weighed recent performance, roster context or projected 2026 roles, the drop is a reminder that Top 100 placements can shift quickly and aren’t guaranteed from year to year."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "258a25182647",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "c502d8f5feb5",
+              "_type": "span",
+              "marks": [],
+              "text": "The Top 100 reveal continues to blend household names and ascending contributors, and this batch reinforced that pattern. Stars whose presence is assumed — like those frequently discussed around the list — remain part of the broader conversation even as mid-tier rankings reshuffle. The player-driven nature of the list means each weekly reveal acts as a pulse check on league sentiment."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "0809de006210",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "880f50ea8857",
+              "_type": "span",
+              "marks": [],
+              "text": "Expect more movement as the countdown progresses and additional segments post on X. The Nos. 80–77 release adds context to offseason narratives and gives fans one more lens for evaluating players ahead of training camps and the 2026 season kickoff."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "b99c19e181e1",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "8015b06eb18d",
+              "_type": "span",
+              "marks": [],
+              "text": "(Story based on the NFL Top 100 2026 reveal published July 7, 2026.)"
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "b705843463a6",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "0da6abde2e84",
+              "_type": "span",
+              "marks": [],
+              "text": "Source"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "525a2e3a7059",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "33f54a5f56c1",
+              "_type": "span",
+              "marks": [],
+              "text": "Source: "
+            },
+            {
+              "_key": "f3a16f8d48ca",
+              "_type": "span",
+              "marks": [
+                "aa5a0993ad6b"
+              ],
+              "text": "NFL.com (Grant Gordon)"
+            }
+          ],
+          "markDefs": [
+            {
+              "_key": "aa5a0993ad6b",
+              "_type": "link",
+              "href": "https://www.nfl.com/news/top-100-players-of-2026-nos-80-71"
+            }
+          ],
+          "style": "normal"
+        }
+      ],
+      "category": {
+        "_ref": "75f561a4-e46f-498e-9df7-b1213797af81",
+        "_type": "reference"
+      },
+      "coverImage": {
+        "_type": "image",
+        "asset": {
+          "_ref": "image-0a79e53706477035883e73805c12336f6d620173-1920x1080-webp",
+          "_type": "reference"
+        }
+      },
+      "date": "2026-07-08T04:59:55.088Z",
+      "format": "ranking",
+      "homepageTitle": "Top 100 Players of 2026: Nos. 80-77",
+      "players": [
+        {
+          "_key": "666618416eae",
+          "_ref": "player-baker-mayfield",
+          "_type": "reference"
+        }
+      ],
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      },
+      "slug": {
+        "_type": "slug",
+        "current": "nfl-top-100-2026-nos-80-77-josh-sweat-surges-as-baker-mayfield-slips"
+      },
+      "summary": "The player-voted NFL Top 100 rollout continued on X with the Nos. 80–77 reveal. Arizona's Josh Sweat made a notable jump on the list while Baker Mayfield fell out of the top 50, underscoring shifting perceptions among peers.",
+      "tagRefs": [
+        {
+          "_key": "083c8684fea0",
+          "_ref": "uuNx9zJ84p1kNNuG6PSaJs",
+          "_type": "reference"
+        },
+        {
+          "_key": "0a6b6eecd5fc",
+          "_ref": "advancedTag-nfl-top-100",
+          "_type": "reference"
+        },
+        {
+          "_key": "f26ef9b0323c",
+          "_ref": "advancedTag-player-rankings",
+          "_type": "reference"
+        }
+      ],
+      "teams": [
+        {
+          "_key": "7859d8cf8d77",
+          "_ref": "9b06e77d-dc8f-4c83-95ba-201fdf90d6a1",
+          "_type": "reference"
+        }
+      ],
+      "title": "NFL Top 100 (2026) — Nos. 80-77: Josh Sweat surges as Baker Mayfield slips",
+      "topicHubs": [
+        {
+          "_key": "14984105f1b4",
+          "_ref": "topic-hub-nfl-power-rankings",
+          "_type": "reference"
+        }
+      ]
+    },
+    {
+      "_createdAt": "2026-07-08T05:00:16Z",
+      "_id": "auto-sharp-fantasy-football-rb-tiers-8e1433e6d4",
+      "_rev": "HdNqpC6Q7y3QvEo1zhTCG6",
+      "_type": "article",
+      "_updatedAt": "2026-07-09T14:03:17Z",
+      "author": {
+        "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+        "_type": "reference"
+      },
+      "body": [
+        {
+          "_key": "aefc39795d86",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "ab97684444eb",
+              "_type": "span",
+              "marks": [],
+              "text": "Tiers turn the guessing game of RB drafts into a clearer set of choices. Instead of agonizing over one-spot differences between players, group backs who project to produce similar fantasy outcomes and make picks that maximize upside while managing risk. This approach is especially useful in 2026, when committees, offensive schematics and touchdown randomness create wide outcome ranges for many backs."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "ab7420d0f860",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "f4974f4b0a60",
+              "_type": "span",
+              "marks": [],
+              "text": "Why tiers matter more than exact ranks"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "6d66dc642e6b",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "83617b54f548",
+              "_type": "span",
+              "marks": [],
+              "text": "A tier-based framework acknowledges clustering of expected production. When multiple players occupy the same tier, their median outcomes are comparable but their path to value differs: one might rely on volume, another on passing-game work, and a third on touchdown efficiency. Drafting within tiers keeps you flexible — if your preferred back is gone, you can pivot to another with similar ceiling and floor."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "4090aca2dc5d",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "05f7cee6e056",
+              "_type": "span",
+              "marks": [],
+              "text": "Draft strategy: where to invest and where to wait"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "5324d24b4c25",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "31bff0a7f106",
+              "_type": "span",
+              "marks": [],
+              "text": "Prioritize bell-cow candidates early; reliable volume is the most repeatable source of fantasy scoring. After that, target backs who offer a clear three-down role or strong passing-game role in PPR formats. Be cautious with players tied to touchdown variance or teams with crowded backfields — those profiles can be rotated down a tier quickly if opportunity is shared."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "aa2aa57858ad",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "702d65f8d82c",
+              "_type": "span",
+              "marks": [],
+              "text": "Rookies and committee risks"
+            }
+          ],
+          "markDefs": [],
+          "style": "h3"
+        },
+        {
+          "_key": "d075bd1d05b8",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "970ad7be0498",
+              "_type": "span",
+              "marks": [],
+              "text": "Rookie backs can deliver immediate value but often start with defined roles rather than full workloads. Treat draft-day optimism as upside rather than baseline production. Similarly, backs in potential committees should be drafted for upside or BYE-week coverage, not as primary starters unless landing clearly favors them."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "7298fceeb145",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "adf4a9a92cce",
+              "_type": "span",
+              "marks": [],
+              "text": "Late rounds are where league-winning upside hides. Seek pass-catching specialists, backs with explosive efficiency in limited snaps, and veterans with paths to a midseason workload change. Stacking a high-floor RB with a volatile upside pick balances your roster across weekly variance."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "ee9543701bfa",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "d177f11ddb16",
+              "_type": "span",
+              "marks": [],
+              "text": "Finally, customize tiers to your format. Half-PPR and PPR elevate receiving backs, while standard leagues reward touchdown and carry volume. Use tiers as a living tool — adjust them through preseason snaps, injury news, and coach declarations to keep your draft strategy aligned with the latest opportunity signals."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "07e587493316",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "a957272b4c38",
+              "_type": "span",
+              "marks": [],
+              "text": "Source"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "17c2917bb5a4",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "f71377d8ca95",
+              "_type": "span",
+              "marks": [],
+              "text": "Source: "
+            },
+            {
+              "_key": "578b2c504bec",
+              "_type": "span",
+              "marks": [
+                "4fc6f1b55954"
+              ],
+              "text": "Sharp Football Analysis"
+            }
+          ],
+          "markDefs": [
+            {
+              "_key": "4fc6f1b55954",
+              "_type": "link",
+              "href": "https://www.sharpfootballanalysis.com/fantasy/fantasy-football-rb-tiers/"
+            }
+          ],
+          "style": "normal"
+        }
+      ],
+      "category": {
+        "_ref": "5d4ae41f-950a-4737-86a5-5c84267a6e29",
+        "_type": "reference"
+      },
+      "coverImage": {
+        "_type": "image",
+        "asset": {
+          "_ref": "image-07086688299ca40fcef6591ac026aa8bde1aa801-780x488-webp",
+          "_type": "reference"
+        }
+      },
+      "date": "2026-07-08T05:00:16.180Z",
+      "format": "fantasy",
+      "homepageTitle": "2026 RB Tiers & Draft Plan",
+      "players": [],
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      },
+      "slug": {
+        "_type": "slug",
+        "current": "2026-rb-tiers-a-practical-draft-guide-for-fantasy-managers"
+      },
+      "summary": "Running back value is volatile in 2026. This tier-based guide translates positional volatility into concrete draft decisions — who to prioritize early, when to pivot to pass-catch upside, and how to mine sleepers late.",
+      "tagRefs": [
+        {
+          "_key": "ffd04b3bfdf7",
+          "_ref": "advancedTag-fantasy-football",
+          "_type": "reference"
+        },
+        {
+          "_key": "522c9a57630b",
+          "_ref": "advancedTag-fantasy-draft-strategy",
+          "_type": "reference"
+        },
+        {
+          "_key": "b9c05d48d277",
+          "_ref": "6XaQaQbjgYcwclRuGWeZUV",
+          "_type": "reference"
+        },
+        {
+          "_key": "40eff43f7cc8",
+          "_ref": "advancedTag-fantasy-strategy",
+          "_type": "reference"
+        },
+        {
+          "_key": "c5ec88e826c1",
+          "_ref": "advancedTag-player-rankings",
+          "_type": "reference"
+        },
+        {
+          "_key": "5609fbf544ea",
+          "_ref": "uuNx9zJ84p1kNNuG6PSaJs",
+          "_type": "reference"
+        }
+      ],
+      "teams": [],
+      "title": "2026 RB Tiers: A Practical Draft Guide for Fantasy Managers",
+      "topicHubs": [
+        {
+          "_key": "b2467a5aa97b",
+          "_ref": "18443e4c-dce9-4eb7-a9df-caa65ce14755",
+          "_type": "reference"
+        },
+        {
+          "_key": "42cbae4daaf9",
+          "_ref": "e97de839-2c23-4211-be2e-d49f3e834904",
+          "_type": "reference"
+        }
+      ]
+    },
+    {
+      "_createdAt": "2026-07-15T05:04:25Z",
+      "_id": "auto-sharp-nfl-implied-team-totals-tool-3ea02e5749",
+      "_rev": "A4eUNrywTUe6qD1LVBJnds",
+      "_type": "article",
+      "_updatedAt": "2026-07-15T05:04:25Z",
+      "author": {
+        "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+        "_type": "reference"
+      },
+      "body": [
+        {
+          "_key": "78d5e5540f82",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "e0a4dc94a411",
+              "_type": "span",
+              "marks": [],
+              "text": "Vegas implied team totals convert the market’s game totals and point spreads into projected points scored by each team. The 2026 projected points tool aggregates those market expectations across every scheduled matchup so fantasy managers and bettors can see which offenses the market expects to score the most (and least)."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "f79be466b564",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "fd3e1d527879",
+              "_type": "span",
+              "marks": [],
+              "text": "How implied totals are calculated"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "522d3edd43e4",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "dff710763655",
+              "_type": "span",
+              "marks": [],
+              "text": "At a high level, an implied team total is derived by taking the game total (over/under) and splitting it according to the point spread. That produces a simple market-implied estimate for each team’s scoring in that game. The resulting values reflect the entire market — including sharp money, public action, weather adjustments and injury-driven line moves — and update as lines change."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "f7561c49c519",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "3c73257649a9",
+              "_type": "span",
+              "marks": [],
+              "text": "That market view is valuable because it’s operational: sportsbooks set prices to balance action, so implied totals reveal where money and expectations are focused. But remember: the tool reports what the market implies, not a predictive model built from underlying play-by-play inputs or situational analytics."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "aace47f87e0a",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "4cee4e278216",
+              "_type": "span",
+              "marks": [],
+              "text": "How fantasy managers should use the tool"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "5dc88eb35eae",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "9139bc21ee3e",
+              "_type": "span",
+              "marks": [],
+              "text": "Draft prep — Use implied totals to identify offenses with the highest expected scoring. Target starting players on those teams early and prioritize receivers and pass-catching backs in expected shootouts. Implied totals are an objective complement to projection systems: when market totals diverge from your projections, investigate why lines are different (injuries, weather, coaching, public bias) and decide whether to adopt the market view or stick with your model."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "f42205f0e181",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "7555c794d944",
+              "_type": "span",
+              "marks": [],
+              "text": "Weekly decisions — For start/sit choices and waiver priorities, look at weekly implied totals and game stacks. A player with a middling season-long projection who lands in a matchup with a high implied total can become a one-week starter. Conversely, low implied totals are a red flag for offenses that could struggle in a low-scoring environment."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "ae439732f03b",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "51a4e85a2452",
+              "_type": "span",
+              "marks": [],
+              "text": "DFS and rostering leverage — In daily formats, use the tool to find value and contrarian plays. High total games are prime stack targets, especially when ownership will skew toward obvious stars; finding under-owned pieces in those games can pay off. The same market numbers help with game stacks for tournaments and cash games by quantifying the likelihood of an elevated team score."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "b31c4f8a4a7c",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "3e55675bbabb",
+              "_type": "span",
+              "marks": [],
+              "text": "Betting and props — Implied team totals feed directly into win-total and player-prop thinking. If the market’s team total is substantially higher or lower than public expectation, that divergence can point to prop value — for example, targeting touchdown props on teams in high implied-total games. Use the tool alongside matchup and weather context to refine prop angles."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "665183fe7b48",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "a5baf2d200ed",
+              "_type": "span",
+              "marks": [],
+              "text": "Limitations and cautions — Lines are a market product and will reflect noise: injuries that haven’t been fully accounted for, public overreaction to recent results, and book balancing strategies. The tool is most useful when combined with roster knowledge, injury reports, and a quality projection engine. Avoid slavish reliance on implied totals alone; treat them as a strong market signal rather than an oracle."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "426ca6c9b85e",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "1f2129853e9b",
+              "_type": "span",
+              "marks": [],
+              "text": "Practical checklist — 1) Check the tool early and again after key injury or weather news; 2) Cross-reference implied totals with your projections and adjust targets in drafts; 3) Prioritize waiver adds and DFS shares from teams with sudden total upgrades; 4) Use the market to find prop opportunities but always layer in matchup detail."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "66edf388652f",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "49ee533bfc0f",
+              "_type": "span",
+              "marks": [],
+              "text": "Bottom line: the 2026 implied team totals tool gives fantasy managers and bettors a concise summary of marketplace scoring expectations. When used alongside injury intel, matchup scouting and your projection framework, implied totals sharpen decision-making for drafts, weekly lineups, DFS builds and prop bets."
+            }
+          ],
+          "markDefs": [],
+          "style": "normal"
+        },
+        {
+          "_key": "36a92bf515a8",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "81e5cb39e9d4",
+              "_type": "span",
+              "marks": [],
+              "text": "Source"
+            }
+          ],
+          "markDefs": [],
+          "style": "h2"
+        },
+        {
+          "_key": "ba33e046c384",
+          "_type": "block",
+          "children": [
+            {
+              "_key": "6db1cd2c6d57",
+              "_type": "span",
+              "marks": [],
+              "text": "Source: "
+            },
+            {
+              "_key": "156feb05a53c",
+              "_type": "span",
+              "marks": [
+                "c565671e0893"
+              ],
+              "text": "Sharp Football Analysis"
+            }
+          ],
+          "markDefs": [
+            {
+              "_key": "c565671e0893",
+              "_type": "link",
+              "href": "https://www.sharpfootballanalysis.com/fantasy/nfl-implied-team-totals-tool/"
+            }
+          ],
+          "style": "normal"
+        }
+      ],
+      "category": {
+        "_ref": "5d4ae41f-950a-4737-86a5-5c84267a6e29",
+        "_type": "reference"
+      },
+      "coverImage": {
+        "_type": "image",
+        "alt": "A football is surrounded by abstract charts, probability curves and glowing analytics markers.",
+        "asset": {
+          "_ref": "image-84f63d5f559285e1f9a0ba4b755dce94e645d3b1-1672x941-png",
+          "_type": "reference"
+        },
+        "caption": "A conceptual visualization of how betting lines become implied team point totals.",
+        "credit": "AI-generated editorial illustration by The Snap"
+      },
+      "date": "2026-07-15T04:55:07.565Z",
+      "format": "analysis",
+      "homepageTitle": "2026 Implied Team Totals: How to Use the Tool",
+      "players": [],
+      "published": true,
+      "publishedAt": "2026-07-15T05:04:25.092Z",
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      },
+      "slug": {
+        "_type": "slug",
+        "current": "how-to-use-vegas-implied-team-totals-a-2026-fantasy-and-betting-playbook"
+      },
+      "summary": "Vegas implied team totals translate game lines into projected team points. Here’s how fantasy managers and bettors can apply the 2026 implied totals tool to draft prep, weekly lineups, DFS and prop strategy — and the limits to keep in mind.",
+      "tagRefs": [
+        {
+          "_key": "a5ce273a0f8a",
+          "_ref": "advancedTag-fantasy-football",
+          "_type": "reference"
+        },
+        {
+          "_key": "16422d3e1832",
+          "_ref": "advancedTag-fantasy-draft-strategy",
+          "_type": "reference"
+        },
+        {
+          "_key": "07b1105a23a8",
+          "_ref": "advancedTag-fantasy-strategy",
+          "_type": "reference"
+        },
+        {
+          "_key": "dbcf26238282",
+          "_ref": "6XaQaQbjgYcwclRuGWeZUV",
+          "_type": "reference"
+        },
+        {
+          "_key": "fcd7b81dc3d3",
+          "_ref": "b9bbec81-e0ae-4bcb-a362-cd2f100cc88f",
+          "_type": "reference"
+        },
+        {
+          "_key": "5e3cdda30234",
+          "_ref": "69e79807-88cb-4959-9a40-fee2fbdb1037",
+          "_type": "reference"
+        }
+      ],
+      "teams": [],
+      "title": "How to Use Vegas Implied Team Totals: A 2026 Fantasy and Betting Playbook",
+      "topicHubs": [
+        {
+          "_key": "1782ad7cafd1",
+          "_ref": "18443e4c-dce9-4eb7-a9df-caa65ce14755",
+          "_type": "reference"
+        },
+        {
+          "_key": "019f455b4b17",
+          "_ref": "06b08cb5-56a3-4bf0-89a5-0bc8e64c4a93",
+          "_type": "reference"
+        },
+        {
+          "_key": "124273cb005a",
+          "_ref": "F7xHg03va2kC20ApZmikLp",
+          "_type": "reference"
+        }
+      ]
+    }
+  ]
+}

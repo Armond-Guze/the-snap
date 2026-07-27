@@ -336,7 +336,11 @@ export default defineType({
         Rule.custom((val, ctx) => {
           if (!ctx.document?.published) return true;
           if (isPowerRankingsSnapshot(ctx.document)) return true;
-          return val ? true : "Cover image is required before publishing";
+          if (!val) return "Cover image is required before publishing";
+          const alt = typeof val === "object" && val && "alt" in val ? val.alt : undefined;
+          return typeof alt === "string" && alt.trim()
+            ? true
+            : "Add descriptive cover image alt text before publishing";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
@@ -360,6 +364,11 @@ export default defineType({
       title: "Published Date",
       type: "datetime",
       initialValue: () => new Date().toISOString(),
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (!ctx.document?.published || isPowerRankingsSnapshot(ctx.document)) return true;
+          return value ? true : "Set the actual publication date before publishing";
+        }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
@@ -464,6 +473,110 @@ export default defineType({
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
     }),
     defineField({
+      name: "automationImport",
+      title: "Automation Source & Human Review",
+      type: "object",
+      description:
+        "Source provenance and mandatory review gates for machine-assisted drafts. Automated verification helps triage; it does not replace human review.",
+      fields: [
+        defineField({ name: "sourceUrl", title: "Source URL", type: "url", readOnly: true }),
+        defineField({ name: "sourceTitle", title: "Source Title", type: "string", readOnly: true }),
+        defineField({ name: "sourceName", title: "Source Publisher", type: "string", readOnly: true }),
+        defineField({ name: "sourceAuthor", title: "Source Author", type: "string", readOnly: true }),
+        defineField({ name: "sourcePublishedAt", title: "Source Published At", type: "datetime", readOnly: true }),
+        defineField({ name: "ingestedAt", title: "Imported At", type: "datetime", readOnly: true }),
+        defineField({ name: "generationModel", title: "Generation Model", type: "string", readOnly: true }),
+        defineField({ name: "generationVersion", title: "Generation Version", type: "string", readOnly: true }),
+        defineField({
+          name: "sourceFacts",
+          title: "Extracted Source Facts",
+          type: "array",
+          of: [{ type: "string" }],
+          readOnly: true,
+        }),
+        defineField({
+          name: "editorialValue",
+          title: "Claimed Reader Value",
+          type: "text",
+          rows: 3,
+          readOnly: true,
+        }),
+        defineField({
+          name: "imageIdea",
+          title: "Image Idea",
+          type: "text",
+          rows: 2,
+          readOnly: true,
+        }),
+        defineField({
+          name: "internalLinkSuggestions",
+          title: "Internal Link Suggestions",
+          description:
+            "Editorial candidates only. Add links contextually through the Sanity URL mark after confirming relevance.",
+          type: "array",
+          of: [
+            defineArrayMember({
+              type: "object",
+              fields: [
+                defineField({ name: "title", title: "Article", type: "string" }),
+                defineField({ name: "slug", title: "Slug", type: "string" }),
+              ],
+            }),
+          ],
+          readOnly: true,
+        }),
+        defineField({
+          name: "automatedVerificationPassed",
+          title: "Automated Fact / Intent Gate Passed",
+          type: "boolean",
+          readOnly: true,
+        }),
+        defineField({
+          name: "automatedOriginalValueDelivered",
+          title: "Draft Already Delivers Distinct Original Value",
+          description:
+            "If false, the editor must add reporting, data, analysis, comparison, or another concrete reader benefit before completing review.",
+          type: "boolean",
+          readOnly: true,
+        }),
+        defineField({
+          name: "automatedVerificationIssues",
+          title: "Automated Review Issues",
+          type: "array",
+          of: [{ type: "string" }],
+          readOnly: true,
+        }),
+        defineField({
+          name: "factChecked",
+          title: "I verified every name, number, date, quote, and relationship against the source",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "originalValueReviewed",
+          title: "I confirmed this page delivers concrete value beyond rewriting the source",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "taxonomyReviewed",
+          title: "I checked the format, category, teams, players, hubs, and tags",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "reviewedAt",
+          title: "Human Review Completed At",
+          type: "datetime",
+        }),
+      ],
+      options: { collapsible: true, collapsed: false },
+      hidden: ({ document }) =>
+        isSimplifiedPowerSnapshot(document) ||
+        !(document?.automationImport && typeof document.automationImport === "object"),
+      group: "quick",
+    }),
+    defineField({
       name: "editorialStatus",
       title: "Editorial Checkpoint",
       type: "string",
@@ -497,6 +610,38 @@ export default defineType({
       title: "Published",
       type: "boolean",
       initialValue: false,
+      validation: (Rule) =>
+        Rule.custom((value, ctx) => {
+          if (value !== true || isPowerRankingsSnapshot(ctx.document)) return true;
+          const automationImport =
+            ctx.document?.automationImport && typeof ctx.document.automationImport === "object"
+              ? ctx.document.automationImport as Record<string, unknown>
+              : undefined;
+          if (!automationImport?.sourceUrl) return true;
+          if (automationImport.automatedVerificationPassed !== true) {
+            return "This imported draft did not pass the automated fact and intent gate";
+          }
+          if (automationImport.factChecked !== true) {
+            return "Complete the human fact check before publishing";
+          }
+          if (automationImport.originalValueReviewed !== true) {
+            return "Confirm the article adds concrete value beyond the source before publishing";
+          }
+          if (automationImport.taxonomyReviewed !== true) {
+            return "Review the article format and taxonomy before publishing";
+          }
+          if (!automationImport.reviewedAt) {
+            return "Set Human Review Completed At before publishing";
+          }
+          const seo =
+            ctx.document?.seo && typeof ctx.document.seo === "object"
+              ? ctx.document.seo as Record<string, unknown>
+              : undefined;
+          if (seo?.noIndex !== false) {
+            return "Turn off SEO No Index after review so the published article can be indexed";
+          }
+          return true;
+        }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
