@@ -183,7 +183,7 @@ const LOW_VALUE_STORY_PATTERN =
 const YOUTH_FOOTBALL_PATTERN =
   /\b(nfl flag|flag football|youth football|girls'? flag|boys'? flag|high school|middle school|u-?\d{1,2}|under-\d{1,2})\b/i
 const SENSITIVE_STORY_PATTERN =
-  /\b(dies?|dead|death|obituary|passes away|arrest|charged|criminal|lawsuit|sexual assault|domestic violence|ownership succession)\b/i
+  /\b(dies?|dead|death|obituary|passes away|arrests?|arrested|charges?|charged|criminal|lawsuits?|legal issues?|legal matters?|legal proceedings?|court|felony|felonies|dui|dwi|suspend(?:ed|ing|s)?|suspension|discipline|disciplinary|appeals?|appealed|investigation|investigated|indictment|indicted|allegations?|sexual assault|domestic violence|ownership succession)\b/i
 const UNSUPPORTED_AUTOMATION_FORMAT_PATTERN =
   /\b(top 100|nos?\.\s*\d+\s*[-–]\s*\d+|power rankings?|mock draft|rankings?\s*[:\-]|team totals? tool|odds table)\b/i
 const GENERIC_SPECULATION_PATTERN =

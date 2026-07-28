@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-07-27T10:18:36.788Z",
+  "dataset": "production",
+  "scope": "Pre-change snapshot of every field modified by the legal-risk containment transaction. Article bodies and all other fields remain unchanged and are retained in Sanity revision history.",
+  "documents": [
+    {
+      "_id": "auto-league-frontend-pocket-nfl-nfl-news-roundup-latest-league-updates-from-tuesday-july-14-42727a3d37",
+      "_rev": "A4eUNrywTUe6qD1LVBJnds",
+      "title": "Cowboys’ Charles Snowden suspended for first three regular-season games, NFL.com roundup highlights more league updates",
+      "slug": "cowboys-charles-snowden-suspended-for-first-three-regular-season-games-nfl-com-roundup",
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      }
+    },
+    {
+      "_id": "auto-nfl-lions-release-cb-terrion-arnold-following-recent-arrest-on-eight-felony-8d7e0a587b",
+      "_rev": "CoFh7OQwAC1Q0Rbcm5Q0dv",
+      "title": "Lions cut CB Terrion Arnold after arrest on eight felony charges",
+      "slug": "lions-cut-cb-terrion-arnold-after-arrest-on-eight-felony-charges",
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      }
+    },
+    {
+      "_id": "auto-pfn-baggage-jeremy-fowler-5-teams-checking-in-on-stefon-diggs-056dc92a34",
+      "_rev": "A4eUNrywTUe6qD1LVBJnds",
+      "title": "‘Teams Have Been Checking In’ on Stefon Diggs Despite Legal Issues, Insider Says",
+      "slug": "teams-have-been-checking-in-on-stefon-diggs-despite-legal-issues-insider-says",
+      "published": true,
+      "seo": {
+        "_type": "seo",
+        "autoGenerate": true,
+        "noIndex": false
+      }
+    }
+  ]
+}
