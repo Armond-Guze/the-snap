@@ -34,6 +34,7 @@ const tagSummaryQuery = `
     description,
     "articleCount": count(*[
       published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
       _type in ["article", "headline", "rankings", "fantasyFootball"] &&
       (
         (defined(tagRefs) && references(^._id)) ||
@@ -49,6 +50,7 @@ const tagSummaryQuery = `
     description,
     "articleCount": count(*[
       published == true &&
+      (!defined(seo.noIndex) || seo.noIndex == false) &&
       _type in ["article", "headline", "rankings", "fantasyFootball"] &&
       (
         (defined(teams) && references(^._id)) ||

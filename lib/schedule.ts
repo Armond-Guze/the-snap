@@ -51,7 +51,7 @@ export function computeRevalidate(now = new Date()): number {
 }
 
 // Fetch live week data from ESPN public API (best-effort / no key)
-export async function fetchLiveWeek(week: number, seasonYear = 2025): Promise<LiveGameUpdate[]> {
+export async function fetchLiveWeek(week: number, seasonYear = getExpectedNFLSeason()): Promise<LiveGameUpdate[]> {
   try {
     const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}&dates=${seasonYear}&seasontype=2`;
     const res = await fetch(url, { next: { revalidate: computeRevalidate() } });
@@ -213,8 +213,8 @@ export function determineCurrentWeek(schedule: StaticGame[], now = new Date()): 
   return 1;
 }
 
-async function resolveCurrentWeek(): Promise<number> {
-  const schedule = await fetchSanitySeasonGames();
+async function resolveCurrentWeekForSeason(season: string): Promise<number> {
+  const schedule = await fetchSanitySeasonGames(season);
   if (schedule.length === 0) return 1;
   return determineCurrentWeek(schedule);
 }
@@ -228,6 +228,55 @@ interface SanityGameDoc {
   awayTeam?: string;
   venue?: string;
   season?: string;
+}
+
+function normalizeSeason(value: unknown): string | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 2000 || parsed > 2100) return null;
+  return String(parsed);
+}
+
+/**
+ * The NFL season continues into January and February of the following year.
+ * Until March, the expected season is therefore the previous calendar year.
+ */
+export function getExpectedNFLSeason(now = new Date()): number {
+  const year = now.getUTCFullYear();
+  return now.getUTCMonth() <= 1 ? year - 1 : year;
+}
+
+/**
+ * Resolve the newest published schedule season that should be live right now.
+ * Sanity is authoritative; NFL_SEASON is intentionally not used as a default
+ * because a stale deployment variable can otherwise make every schedule page
+ * query an empty season.
+ */
+export async function getScheduleSeason(): Promise<number> {
+  const expectedSeason = getExpectedNFLSeason();
+
+  try {
+    const { client: baseClient } = await import('../sanity/lib/client');
+    const client = baseClient.withConfig({ useCdn: false });
+    const rawSeasons = await client.fetch<Array<string | number>>(
+      'array::unique(*[_type == "game" && published == true && defined(season)].season)'
+    );
+    const availableSeasons = rawSeasons
+      .map((value) => Number(value))
+      .filter(
+        (value) =>
+          Number.isInteger(value) && value >= 2000 && value <= expectedSeason
+      )
+      .sort((a, b) => b - a);
+
+    return availableSeasons[0] ?? expectedSeason;
+  } catch (e) {
+    console.warn('Sanity schedule season fetch failed', e);
+    return expectedSeason;
+  }
+}
+
+async function resolveScheduleSeason(seasonInput?: string): Promise<string> {
+  return normalizeSeason(seasonInput) ?? String(await getScheduleSeason());
 }
 
 function normalizeGameId(rawId: string): string {
@@ -254,7 +303,7 @@ function mapSanityDocToGame(doc: SanityGameDoc): EnrichedGame | null {
 }
 
 async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise<EnrichedGame[] | null> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeason(seasonInput);
   try {
     const { client } = await import('../sanity/lib/client');
     const docs = await client.fetch<SanityGameDoc[]>(
@@ -279,7 +328,7 @@ async function fetchSanityWeekGames(week: number, seasonInput?: string): Promise
 }
 
 async function fetchSanityTeamGames(teamAbbr: string, seasonInput?: string): Promise<EnrichedGame[] | null> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeason(seasonInput);
   const teamName = TEAM_META[teamAbbr]?.name;
   if (!teamName) return null;
   try {
@@ -331,7 +380,7 @@ async function fetchSanityGameById(gameId: string): Promise<EnrichedGame | null>
 }
 
 export async function fetchSanitySeasonGames(seasonInput?: string): Promise<EnrichedGame[]> {
-  const season = seasonInput ?? process.env.NFL_SEASON ?? String(new Date().getFullYear());
+  const season = await resolveScheduleSeason(seasonInput);
   try {
     const { client } = await import('../sanity/lib/client');
     const docs = await client.fetch<SanityGameDoc[]>(
@@ -354,19 +403,31 @@ export async function fetchSanitySeasonGames(seasonInput?: string): Promise<Enri
   }
 }
 
-export async function getScheduleWeekOrCurrent(weekParam?: number): Promise<{ week: number; games: EnrichedGame[] }> {
-  const resolvedWeek = weekParam && weekParam >=1 && weekParam <= 18 ? weekParam : await resolveCurrentWeek();
-  const sanityGames = await fetchSanityWeekGames(resolvedWeek);
-  return { week: resolvedWeek, games: sanityGames ?? [] };
+export async function getScheduleWeekOrCurrent(
+  weekParam?: number,
+  seasonInput?: string
+): Promise<{ season: number; week: number; games: EnrichedGame[] }> {
+  const season = await resolveScheduleSeason(seasonInput);
+  const resolvedWeek =
+    weekParam && weekParam >= 1 && weekParam <= 18
+      ? weekParam
+      : await resolveCurrentWeekForSeason(season);
+  const sanityGames = await fetchSanityWeekGames(resolvedWeek, season);
+  return { season: Number(season), week: resolvedWeek, games: sanityGames ?? [] };
 }
 
 // Return all games (enriched) for a given team across the season
-export async function getTeamSeasonSchedule(team: string): Promise<EnrichedGame[]> {
-  const key = team.toUpperCase();
+export async function getTeamSeasonSchedule(
+  team: string,
+  seasonInput?: string
+): Promise<EnrichedGame[]> {
+  const season = await resolveScheduleSeason(seasonInput);
+  const teamAbbr = team.toUpperCase();
+  const key = `${season}:${teamAbbr}`;
   let pending = _teamSeasonCache.get(key);
   if (!pending) {
     pending = (async () => {
-      const sanityGames = await fetchSanityTeamGames(key);
+      const sanityGames = await fetchSanityTeamGames(teamAbbr, season);
       if (sanityGames && sanityGames.length) {
         return sanityGames.sort((a, b) => a.week - b.week);
       }

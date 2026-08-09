@@ -13,6 +13,56 @@ const PostHogBootstrap = dynamic(() => import("./PostHogBootstrap"), { ssr: fals
 // Only load GA when explicitly configured.
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
 
+const hasCookieValue = (name: string, value: string) => {
+  try {
+    return document.cookie
+      .split(';')
+      .some(cookie => cookie.trim() === `${name}=${value}`);
+  } catch {
+    return false;
+  }
+};
+
+const hasLocalStorageValue = (name: string, value: string) => {
+  try {
+    return localStorage.getItem(name) === value;
+  } catch {
+    return false;
+  }
+};
+
+const setLocalStorageValue = (name: string, value?: string) => {
+  try {
+    if (value === undefined) {
+      localStorage.removeItem(name);
+    } else {
+      localStorage.setItem(name, value);
+    }
+  } catch {
+    // Storage can be unavailable in restricted browsing contexts.
+  }
+};
+
+const setCookieValue = (name: string, value?: string) => {
+  try {
+    document.cookie = value === undefined
+      ? `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;`
+      : `${name}=${value}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+  } catch {
+    // Cookies can be unavailable in restricted browsing contexts.
+  }
+};
+
+const isAnalyticsExcluded = () => (
+  hasCookieValue('va-exclude', '1') ||
+  hasLocalStorageValue('va-exclude', '1')
+);
+
+const hasAnalyticsConsent = () => (
+  hasCookieValue('cookie_consent', '1') ||
+  hasLocalStorageValue('cookie_consent', '1')
+);
+
 /**
  * Conditionally load Vercel Analytics only if the visitor has NOT opted out.
  * Opt-out methods:
@@ -31,27 +81,18 @@ export default function AnalyticsGate() {
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
 
   const readConsent = useCallback(() => {
-    try {
-      const cookieConsent = document.cookie.split(';').some(c => c.trim().startsWith('cookie_consent=1'));
-      const lsConsent = localStorage.getItem("cookie_consent") === "1";
-      setHasConsent(cookieConsent || lsConsent);
-    } catch {
-      setHasConsent(false);
-    }
+    setHasConsent(hasAnalyticsConsent());
   }, []);
 
   const toggle = useCallback(() => {
     if (excluded) {
-      localStorage.removeItem("va-exclude");
-      // Clear cookie by expiring it
-      document.cookie = 'va-exclude=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      setExcluded(false);
+      setLocalStorageValue("va-exclude");
+      setCookieValue("va-exclude");
     } else {
-      localStorage.setItem("va-exclude", "1");
-      // Set a 1 year cookie
-      document.cookie = 'va-exclude=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
-      setExcluded(true);
+      setLocalStorageValue("va-exclude", "1");
+      setCookieValue("va-exclude", "1");
     }
+    setExcluded(isAnalyticsExcluded());
   }, [excluded]);
 
   useEffect(() => {
@@ -59,12 +100,12 @@ export default function AnalyticsGate() {
       const params = new URLSearchParams(window.location.search);
       let shouldCleanUrl = false;
       if (params.has("exclude_analytics")) {
-        localStorage.setItem("va-exclude", "1");
-        document.cookie = 'va-exclude=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
+        setLocalStorageValue("va-exclude", "1");
+        setCookieValue("va-exclude", "1");
         shouldCleanUrl = true;
       } else if (params.has("include_analytics")) {
-        localStorage.removeItem("va-exclude");
-        document.cookie = 'va-exclude=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        setLocalStorageValue("va-exclude");
+        setCookieValue("va-exclude");
         shouldCleanUrl = true;
       }
 
@@ -76,9 +117,7 @@ export default function AnalyticsGate() {
         window.history.replaceState({}, "", nextUrl || "/");
       }
 
-      const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-      const lsExcluded = localStorage.getItem("va-exclude") === "1";
-      setExcluded(cookieExcluded || lsExcluded);
+      setExcluded(isAnalyticsExcluded());
     } catch {
       setExcluded(false);
     }
@@ -86,13 +125,7 @@ export default function AnalyticsGate() {
 
     const onStorage = (event: StorageEvent) => {
       if (event.key === "va-exclude") {
-        try {
-          const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-          const lsExcluded = localStorage.getItem("va-exclude") === "1";
-          setExcluded(cookieExcluded || lsExcluded);
-        } catch {
-          setExcluded(false);
-        }
+        setExcluded(isAnalyticsExcluded());
       }
       if (event.key === "cookie_consent") {
         readConsent();
@@ -121,15 +154,15 @@ export default function AnalyticsGate() {
 
   useEffect(() => {
     if (excluded === null || hasConsent === null) return;
-    if (excluded || !hasConsent) {
+    if (hideOnRoute || excluded || !hasConsent) {
       void disablePosthog();
     }
-  }, [excluded, hasConsent]);
+  }, [excluded, hasConsent, hideOnRoute]);
 
   if (hideOnRoute) return null;
   if (excluded === null || hasConsent === null) return null;
 
-  const analyticsEnabled = !excluded && hasConsent;
+  const analyticsEnabled = !hideOnRoute && !excluded && hasConsent;
 
   return (
     <>

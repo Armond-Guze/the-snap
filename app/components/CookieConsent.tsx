@@ -18,22 +18,33 @@ export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (typeof window === 'undefined') return;
-      if (Capacitor.isNativePlatform()) return;
-      if (hideOnRoute) return;
+    if (typeof window === 'undefined') return;
+    if (Capacitor.isNativePlatform()) return;
+    if (hideOnRoute) return;
 
-      const stored = window.localStorage.getItem('cookie_consent');
-      if (!stored) setVisible(true);
-    } catch {/* ignore */}
+    let storedConsent = false;
+    try {
+      storedConsent = window.localStorage.getItem('cookie_consent') === '1';
+    } catch {/* localStorage can be unavailable */}
+
+    let cookieConsent = false;
+    try {
+      cookieConsent = document.cookie
+        .split(';')
+        .some(cookie => cookie.trim() === 'cookie_consent=1');
+    } catch {/* cookies can be unavailable */}
+
+    setVisible(!storedConsent && !cookieConsent);
   }, [hideOnRoute]);
 
   const accept = () => {
     try {
       window.localStorage.setItem('cookie_consent', '1');
+    } catch {/* localStorage can be unavailable */}
+    try {
       document.cookie = 'cookie_consent=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
-      window.dispatchEvent(new Event('cookie-consent-updated'));
-    } catch {/* ignore */}
+    } catch {/* cookies can be unavailable */}
+    window.dispatchEvent(new Event('cookie-consent-updated'));
     setVisible(false);
     if (window.adsbygoogle && Array.isArray(window.adsbygoogle)) {
       try { window.adsbygoogle.push({}); } catch {/* ignore */}

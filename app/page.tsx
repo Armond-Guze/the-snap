@@ -12,6 +12,7 @@ import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { client } from "@/sanity/lib/client";
+import { headlineCountQuery } from "@/sanity/lib/queries";
 import { DEFAULT_OG_IMAGE_URL, SITE_BRAND, SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -44,12 +45,6 @@ export const metadata: Metadata = {
 // Sanity webhooks refresh on publish; keep time-based ISR wider to reduce Vercel write churn.
 export const revalidate = 600;
 const HEADLINES_PAGE_SIZE = 24;
-const HEADLINE_ARCHIVE_COUNT_QUERY = `
-  count(*[
-    ( _type == "article" && format == "headline" && published == true ) ||
-    ( _type == "headline" && published == true )
-  ])
-`;
 
 function archiveHref(page: number): string {
   return page <= 1 ? "/headlines" : `/headlines/page/${page}`;
@@ -238,7 +233,7 @@ async function fetchFreshRecords(season: number): Promise<Map<string, TeamRecord
 
 async function fetchHeadlineArchiveCount(): Promise<number> {
   try {
-    const count = await client.fetch<number>(HEADLINE_ARCHIVE_COUNT_QUERY);
+    const count = await client.fetch<number>(headlineCountQuery);
     return Number.isFinite(count) ? count : 0;
   } catch (err) {
     console.warn("[home] headline archive count failed", err);

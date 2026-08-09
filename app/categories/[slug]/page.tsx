@@ -13,7 +13,7 @@ export const revalidate = 3600;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
 }
 
 interface CategoryContentItem {
@@ -61,24 +61,89 @@ function getCardImage(item: CategoryContentItem): string | null {
   return item.coverImage?.asset?.url || item.featuredImage?.asset?.url || item.image?.asset?.url || null;
 }
 
-export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {
-  const params = await props.params;
-  if (!params?.slug) return {};
+const PAGE_SIZE = 24;
 
-  const categoriesData = await client.fetch<Category[]>(categoriesQuery);
+function parsePageParam(value: string | string[] | undefined): number | null {
+  if (value === undefined) return 1;
+  if (Array.isArray(value) || !/^[1-9]\d*$/.test(value)) return null;
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+function categoryPageHref(slug: string, page: number): string {
+  return page <= 1
+    ? `/categories/${slug}`
+    : `/categories/${slug}?page=${page}`;
+}
+
+export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
+  if (!params?.slug) return {};
+  const pageNumber = parsePageParam(searchParams?.page);
+  if (!pageNumber) {
+    return {
+      title: 'Category Page Not Found | The Snap',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const [categoriesData, items] = await Promise.all([
+    client.fetch<Category[]>(categoriesQuery),
+    client.fetch<CategoryContentItem[]>(categoryContentQuery, {
+      categorySlug: params.slug,
+    }),
+  ]);
   const category = categoriesData.find((cat: Category) => cat.slug.current === params.slug);
 
   if (!category) return {};
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  if (pageNumber > totalPages) {
+    return {
+      title: 'Category Page Not Found | The Snap',
+      robots: { index: false, follow: false },
+    };
+  }
 
-  return generateCategorySEOMetadata(category);
+  const metadata = generateCategorySEOMetadata(category);
+  const canonical = `${SITE_URL}${categoryPageHref(params.slug, pageNumber)}`;
+  const baseTitle = typeof metadata.title === 'string'
+    ? metadata.title
+    : `${category.title} - NFL News & Updates | The Snap`;
+  const baseDescription = typeof metadata.description === 'string'
+    ? metadata.description
+    : `Latest ${category.title} NFL coverage from The Snap.`;
+  const pageTitle = pageNumber > 1
+    ? `${category.title} NFL News – Page ${pageNumber} | The Snap`
+    : baseTitle;
+  const pageDescription = pageNumber > 1
+    ? `${baseDescription} Browse page ${pageNumber}.`
+    : baseDescription;
+
+  return {
+    ...metadata,
+    title: pageTitle,
+    description: pageDescription,
+    alternates: {
+      ...metadata.alternates,
+      canonical,
+    },
+    openGraph: metadata.openGraph
+      ? {
+          ...metadata.openGraph,
+          title: pageTitle,
+          description: pageDescription,
+          url: canonical,
+        }
+      : undefined,
+  };
 }
-
-const PAGE_SIZE = 24;
 
 export default async function CategoryPage(props: CategoryPageProps) {
   const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const categorySlug = params.slug;
-  const requestedPage = Number.parseInt(searchParams?.page || '1', 10);
+  const requestedPage = parsePageParam(searchParams?.page);
+  if (!requestedPage) notFound();
 
   const [items, categoriesData] = await Promise.all([
     client.fetch<CategoryContentItem[]>(categoryContentQuery, { categorySlug }),
@@ -92,12 +157,12 @@ export default async function CategoryPage(props: CategoryPageProps) {
   }
 
   const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
-  const pageNumber = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-  const currentPage = Math.min(pageNumber, totalPages);
+  if (requestedPage > totalPages) notFound();
+  const currentPage = requestedPage;
   const offset = (currentPage - 1) * PAGE_SIZE;
   const pageItems = items.slice(offset, offset + PAGE_SIZE);
-  const previousPageHref = `/categories/${categorySlug}?page=${currentPage - 1}`;
-  const nextPageHref = `/categories/${categorySlug}?page=${currentPage + 1}`;
+  const previousPageHref = categoryPageHref(categorySlug, currentPage - 1);
+  const nextPageHref = categoryPageHref(categorySlug, currentPage + 1);
 
   // Build JSON-LD ItemList for SEO
   const baseUrl = SITE_URL;
@@ -154,7 +219,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            {category.title}
+            {category.title}{currentPage > 1 ? ` – Page ${currentPage}` : ''}
           </h1>
           
           {category.description && (
@@ -198,7 +263,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
           <NewsletterSignup />
         </div>
 
-  {/* Headlines Grid (first page only – future: accept ?page= ) */}
+        {/* Paginated content grid */}
         {items.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pageItems.map((item) => (
@@ -273,31 +338,39 @@ export default async function CategoryPage(props: CategoryPageProps) {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-12 flex items-center justify-center gap-3 text-sm">
-            <Link
-              href={previousPageHref}
-              aria-disabled={currentPage <= 1}
-              className={`rounded-md px-4 py-2 transition-colors ${
-                currentPage <= 1
-                  ? 'pointer-events-none bg-white/5 text-white/30'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              Previous
-            </Link>
+            {currentPage <= 1 ? (
+              <span
+                aria-disabled="true"
+                className="rounded-md bg-white/5 px-4 py-2 text-white/30"
+              >
+                Previous
+              </span>
+            ) : (
+              <Link
+                href={previousPageHref}
+                className="rounded-md bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20"
+              >
+                Previous
+              </Link>
+            )}
             <span className="text-gray-400">
               Page {currentPage} of {totalPages}
             </span>
-            <Link
-              href={nextPageHref}
-              aria-disabled={currentPage >= totalPages}
-              className={`rounded-md px-4 py-2 transition-colors ${
-                currentPage >= totalPages
-                  ? 'pointer-events-none bg-white/5 text-white/30'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              Next
-            </Link>
+            {currentPage >= totalPages ? (
+              <span
+                aria-disabled="true"
+                className="rounded-md bg-white/5 px-4 py-2 text-white/30"
+              >
+                Next
+              </span>
+            ) : (
+              <Link
+                href={nextPageHref}
+                className="rounded-md bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20"
+              >
+                Next
+              </Link>
+            )}
           </div>
         )}
       </div>

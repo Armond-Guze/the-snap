@@ -1,6 +1,5 @@
-import { getScheduleWeekOrCurrent, groupGamesByBucket, TEAM_META, EnrichedGame } from '@/lib/schedule';
+import { getScheduleSeason, getScheduleWeekOrCurrent, groupGamesByBucket, TEAM_META, EnrichedGame } from '@/lib/schedule';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
-import { getActiveSeason } from '@/lib/season';
 import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from '../../TimezoneClient';
@@ -36,7 +35,7 @@ export async function generateMetadata(p: { params: Promise<Params> }): Promise<
   const rawWeek = Number(params.week);
   const week = isNaN(rawWeek) || rawWeek < 1 || rawWeek > 18 ? undefined : rawWeek;
   const weekLabel = week ? `Week ${week}` : 'Week';
-  const season = await getActiveSeason();
+  const season = await getScheduleSeason();
   const baseTitle = `NFL Schedule ${weekLabel} ${season} – Matchups, Times (ET) & TV Channels`;
   const desc = `Complete NFL ${weekLabel} ${season} schedule: kickoff times in Eastern Time (ET), TV channels, networks and live status for every game plus primetime matchups.`;
   const canonical = `${SITE_URL}${week ? `/schedule/week/${week}` : '/schedule'}`;
@@ -65,8 +64,7 @@ export default async function WeekSchedulePage({ params, searchParams }: WeekPag
   const query = await searchParams;
   const teamParam = toSingleParam(query.team)?.toUpperCase();
   const weekNum = Number(resolved.week);
-  const { week, games } = await getScheduleWeekOrCurrent(weekNum);
-  const season = await getActiveSeason();
+  const { season, week, games } = await getScheduleWeekOrCurrent(weekNum);
   const recordsMap = await fetchTeamRecords(season);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';

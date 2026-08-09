@@ -1,6 +1,5 @@
-import { getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
+import { getScheduleSeason, getScheduleWeekOrCurrent, TEAM_META, groupGamesByBucket, EnrichedGame } from '@/lib/schedule';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
-import { getActiveSeason } from '@/lib/season';
 import type { TeamRecordDoc } from '@/lib/team-records';
 import { formatGameDateParts, shortNetworkLabel } from '@/lib/schedule-format';
 import TimezoneClient from './TimezoneClient';
@@ -13,7 +12,7 @@ import { SITE_URL } from '@/lib/site-config';
 
 // Root schedule metadata (dynamic by season; week-specific pages handle granular titles)
 export async function generateMetadata(): Promise<Metadata> {
-  const season = await getActiveSeason();
+  const season = await getScheduleSeason();
   return {
     title: `${season} NFL Schedule – Matchups, Times & TV Channels | The Snap`,
     description: `Full ${season} NFL schedule with weekly matchups, dates, kickoff times (ET) and TV channels. Live scores during games and final results after every matchup.`,
@@ -55,8 +54,7 @@ function toSingleParam(value: string | string[] | undefined): string | undefined
 export default async function ScheduleLandingPage(props: ScheduleLandingProps) {
   const searchParams = await props.searchParams;
   const teamParam = toSingleParam(searchParams.team)?.toUpperCase();
-  const { week, games } = await getScheduleWeekOrCurrent();
-  const season = await getActiveSeason();
+  const { season, week, games } = await getScheduleWeekOrCurrent();
   const recordsMap = await fetchTeamRecords(season);
   const filteredGames = teamParam ? games.filter(g => g.home === teamParam || g.away === teamParam) : games;
   const enableEventSchema = process.env.ENABLE_EVENT_SCHEMA === 'true';

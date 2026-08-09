@@ -1,16 +1,34 @@
 import { client } from '@/sanity/lib/client';
-import { headlineQuery } from '@/sanity/lib/queries';
+import { headlineCountQuery, headlineQuery } from '@/sanity/lib/queries';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { HeadlineListItem } from '@/types';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
 export const revalidate = 3600;
-export const dynamicParams = false;
+
+function parsePageNumber(value: string): number | null {
+  if (!/^[1-9]\d*$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+function archiveHref(page: number) {
+  return page <= 1 ? '/headlines' : `/headlines/page/${page}`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
-  const p = await params; const pageNum = Number(p.page);
+  const p = await params;
+  const pageNum = parsePageNumber(p.page);
+  if (!pageNum) {
+    return {
+      title: 'Headlines Archive Not Found | The Snap',
+      robots: { index: false, follow: false },
+    };
+  }
+
   const canonical = `${SITE_URL}${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
   return {
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
@@ -22,7 +40,6 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
 }
 
 const PAGE_SIZE = 24;
-const headlineCountQuery = 'count(' + headlineQuery.replace(/\s+/g,' ') + ')';
 
 function formatDate(date?: string) {
   if (!date || isNaN(new Date(date).getTime())) return '';
@@ -31,13 +48,19 @@ function formatDate(date?: string) {
 
 export default async function HeadlinesPaginatedPage({ params }: { params: Promise<{ page: string }> }) {
   const p = await params;
-  const pageNum = Number(p.page);
-  if (!Number.isInteger(pageNum) || pageNum < 1) notFound();
-  const start = (pageNum - 1) * PAGE_SIZE; const end = start + PAGE_SIZE;
-  const items: HeadlineListItem[] = await client.fetch(`${headlineQuery}[${start}...${end}]`);
+  const pageNum = parsePageNumber(p.page);
+  if (!pageNum) notFound();
+  if (pageNum === 1) permanentRedirect('/headlines');
+
   const total: number = await client.fetch(headlineCountQuery);
-  const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   if (pageNum > totalPages) notFound();
+
+  const start = (pageNum - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  const items: HeadlineListItem[] = await client.fetch(`${headlineQuery}[${start}...${end}]`);
+  if (items.length === 0) notFound();
+
   return (
     <div className="min-h-screen bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,11 +105,11 @@ function PaginationNav({ current, total }: { current: number; total: number }) {
   const pages = Array.from({ length: total }, (_, i) => i + 1).filter(p => (p === 1 || p === total || Math.abs(p - current) <= 2));
   return (
     <nav className="mt-10 flex items-center justify-center gap-2 text-sm">
-      {current > 1 && <Link href={`/headlines/page/${current-1}`} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Prev</Link>}
+      {current > 1 && <Link href={archiveHref(current - 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Prev</Link>}
       {pages.map(p => (
-        <Link key={p} href={`/headlines/page/${p}`} className={`px-3 py-1 rounded border ${p===current?'bg-white text-black border-white':'border-white/20 text-white/70 hover:text-white hover:bg-white/10'}`}>{p}</Link>
+        <Link key={p} href={archiveHref(p)} className={`px-3 py-1 rounded border ${p===current?'bg-white text-black border-white':'border-white/20 text-white/70 hover:text-white hover:bg-white/10'}`}>{p}</Link>
       ))}
-      {current < total && <Link href={`/headlines/page/${current+1}`} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Next</Link>}
+      {current < total && <Link href={archiveHref(current + 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Next</Link>}
     </nav>
   );
 }
@@ -94,5 +117,8 @@ function PaginationNav({ current, total }: { current: number; total: number }) {
 export async function generateStaticParams() {
   const total: number = await client.fetch(headlineCountQuery);
   const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
-  return Array.from({ length: totalPages }, (_, index) => ({ page: String(index + 1) }));
+  return Array.from(
+    { length: Math.max(0, totalPages - 1) },
+    (_, index) => ({ page: String(index + 2) })
+  );
 }

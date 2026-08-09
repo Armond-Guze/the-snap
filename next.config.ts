@@ -39,17 +39,17 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/categories/bengals',
-        destination: '/teams/bengals',
+        destination: '/teams/cincinnati-bengals',
         permanent: true,
       },
       {
         source: '/categories/giants-qb',
-        destination: '/teams/giants',
+        destination: '/teams/new-york-giants',
         permanent: true,
       },
       {
         source: '/categories/dolphins',
-        destination: '/teams/dolphins',
+        destination: '/teams/miami-dolphins',
         permanent: true,
       },
       {

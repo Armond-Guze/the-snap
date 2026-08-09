@@ -1,5 +1,5 @@
 import { PortableText, type PortableTextComponents } from '@portabletext/react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AVATAR_SIZES, ARTICLE_COVER_SIZES } from '@/lib/image-sizes';
@@ -388,7 +388,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		);
 		const targetSlug = aliasDoc?.slug?.current?.trim();
 		if (targetSlug) {
-			redirect(`/articles/${targetSlug}`);
+			permanentRedirect(`/articles/${targetSlug}`);
 		}
 		notFound();
 	}
@@ -403,9 +403,9 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				? `week-${weekNumber}`
 				: null;
 		if (weekPart && season) {
-			redirect(`/articles/power-rankings/${season}/${weekPart}`);
+			permanentRedirect(`/articles/power-rankings/${season}/${weekPart}`);
 		}
-		redirect('/articles/power-rankings');
+		permanentRedirect('/articles/power-rankings');
 	}
 
 	const tagList = Array.isArray(article.tags)

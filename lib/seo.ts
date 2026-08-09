@@ -103,6 +103,9 @@ export function generateSEOMetadata(
       googleBot: {
         index: !extendedSeo?.noIndex,
         follow: !extendedSeo?.noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
     },
   }
@@ -174,6 +177,9 @@ export function generateCategorySEOMetadata(
       googleBot: {
         index: !extendedSeo?.noIndex,
         follow: !extendedSeo?.noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
     },
   }

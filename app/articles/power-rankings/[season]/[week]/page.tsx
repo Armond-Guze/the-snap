@@ -1,6 +1,6 @@
 import { client } from '@/sanity/lib/client';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { powerRankingsLiveQuery, powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
 import type { HeadlineListItem, MovementIndicator, PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
 import Image from 'next/image';
@@ -15,6 +15,7 @@ import { formatArticleDate } from '@/lib/date-utils';
 import { gradientClassForTeam, teamCodeFromName, teamNameFromCode } from '@/lib/team-utils';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
 import { SITE_URL } from '@/lib/site-config';
+import { cache } from 'react';
 
 const PLAYOFF_LABELS: Record<string, string> = {
   WC: 'Wild Card',
@@ -48,6 +49,12 @@ function parseWeekParam(raw: string): ParsedWeek {
     return { playoffRound: round };
   }
   return { invalid: true };
+}
+
+function canonicalWeekPart(parsed: Exclude<ParsedWeek, { invalid: true }>): string {
+  return typeof parsed.weekNumber === 'number'
+    ? `week-${parsed.weekNumber}`
+    : parsed.playoffRound.toLowerCase();
 }
 
 function getPrevPlayoffRound(round?: string | null) {
@@ -96,9 +103,17 @@ function buildTeamLookupKey(entry: PowerRankingEntry, displayName?: string): str
   return resolveTeamCode(entry, displayName) || resolveTeamDisplayName(entry).toLowerCase();
 }
 
+const fetchSnapshot = cache((season: number, week: number | null, playoffRound: string | null) =>
+  client.fetch<PowerRankingsDoc | null>(powerRankingsSnapshotByParamsQuery, {
+    season,
+    week,
+    playoffRound,
+  })
+);
+
 export async function generateStaticParams() {
   const slugs: { seasonYear?: number; weekNumber?: number; playoffRound?: string }[] = await client.fetch(powerRankingsSnapshotSlugsQuery);
-  return slugs
+  const params = slugs
     .map((s) => {
       if (!s?.seasonYear) return null;
       if (typeof s.weekNumber === 'number') {
@@ -110,6 +125,10 @@ export async function generateStaticParams() {
       return null;
     })
     .filter(Boolean) as Array<{ season: string; week: string }>;
+
+  return Array.from(
+    new Map(params.map((item) => [`${item.season}/${item.week}`, item])).values()
+  );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -117,13 +136,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const season = Number(seasonParam);
   const parsed = parseWeekParam(week);
   if (!Number.isFinite(season) || 'invalid' in parsed) {
-    return { title: 'NFL Power Rankings', description: 'Weekly NFL power rankings.' };
+    return {
+      title: 'NFL Power Rankings',
+      description: 'Weekly NFL power rankings.',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const snapshot = await fetchSnapshot(
+    season,
+    parsed.weekNumber ?? null,
+    parsed.playoffRound ?? null
+  );
+  if (!snapshot) {
+    return {
+      title: 'NFL Power Rankings Not Found',
+      description: 'This NFL power rankings snapshot is not available.',
+      robots: { index: false, follow: false },
+    };
   }
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
   const baseUrl = SITE_URL;
-  const canonical = `${baseUrl}/articles/power-rankings/${season}/${week}`;
+  const canonical = `${baseUrl}/articles/power-rankings/${season}/${canonicalWeekPart(parsed)}`;
   const ogImage = `${baseUrl}/api/og?${new URLSearchParams({
     title,
     subtitle: description,
@@ -134,7 +170,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     alternates: { canonical },
-    robots: { index: true, follow: true },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
     openGraph: { title, description, url: canonical, images: [{ url: ogImage }], type: 'article' },
     twitter: { card: 'summary_large_image', title, description, images: [ogImage] },
   };
@@ -150,15 +196,20 @@ export default async function RankingsWeekPage({ params }: PageProps) {
     notFound();
   }
 
+  const canonicalWeek = canonicalWeekPart(parsed);
+  if (week.toLowerCase() !== canonicalWeek) {
+    permanentRedirect(`/articles/power-rankings/${season}/${canonicalWeek}`);
+  }
+
   const [data, liveDoc, otherContent] = await Promise.all([
-    client.fetch<PowerRankingsDoc | null>(powerRankingsSnapshotByParamsQuery, {
-      season,
-      week: parsed.weekNumber ?? null,
-      playoffRound: parsed.playoffRound ?? null,
-    }),
+    fetchSnapshot(season, parsed.weekNumber ?? null, parsed.playoffRound ?? null),
     client.fetch<PowerRankingsDoc | null>(powerRankingsLiveQuery),
     client.fetch<HeadlineListItem[]>(
-      `*[(_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) && published == true] | order(_createdAt desc)[0...8]{
+      `*[
+        (_type in ["unifiedContent", "headline", "powerRanking", "article", "rankings"]) &&
+        published == true &&
+        (!defined(seo.noIndex) || seo.noIndex == false)
+      ] | order(_createdAt desc)[0...8]{
         _id,
         _type,
         title,
@@ -183,16 +234,16 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   ]);
 
   if (!data) {
-    return <div className="max-w-5xl mx-auto px-4 py-12 text-white">No snapshot found for {week} — {season} yet.</div>;
+    notFound();
   }
 
   const records = await fetchTeamRecords(season);
 
-  const prevSnapshot: PowerRankingsDoc | null = await client.fetch(powerRankingsSnapshotByParamsQuery, {
+  const prevSnapshot = await fetchSnapshot(
     season,
-    week: parsed.weekNumber ? parsed.weekNumber - 1 : null,
-    playoffRound: parsed.playoffRound ? getPrevPlayoffRound(parsed.playoffRound) : null,
-  });
+    parsed.weekNumber ? parsed.weekNumber - 1 : null,
+    parsed.playoffRound ? getPrevPlayoffRound(parsed.playoffRound) : null
+  );
 
   const prevMap = new Map(
     (prevSnapshot?.rankings || []).map((entry) => [buildTeamLookupKey(entry), entry.rank])
@@ -208,7 +259,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   const displayConclusion = (Array.isArray(data.rankingConclusion) && data.rankingConclusion.length > 0 ? data.rankingConclusion : liveDoc?.rankingConclusion) || [];
   const biggestRiser = data.biggestRiser || liveDoc?.biggestRiser;
   const biggestFaller = data.biggestFaller || liveDoc?.biggestFaller;
-  const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${week}`;
+  const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${canonicalWeek}`;
   const breadcrumbItems = [
     { label: 'Articles', href: '/articles' },
     { label: 'Power Rankings', href: '/articles/power-rankings' },

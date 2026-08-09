@@ -1,16 +1,13 @@
-// Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
-export const headlineQuery = `
-  *[
+export const indexableHeadlineFilter = `
+  (
     (
       _type == "article" &&
       format == "headline" &&
-      published == true &&
-      (!defined(seo.noIndex) || seo.noIndex == false)
+      published == true
     ) ||
     (
       _type == "headline" &&
       published == true &&
-      (!defined(seo.noIndex) || seo.noIndex == false) &&
       !(slug.current in *[
         _type == "article" &&
         format == "headline" &&
@@ -18,7 +15,15 @@ export const headlineQuery = `
         (!defined(seo.noIndex) || seo.noIndex == false)
       ].slug.current)
     )
-  ]
+  ) &&
+  (!defined(seo.noIndex) || seo.noIndex == false)
+`;
+
+export const headlineCountQuery = `count(*[${indexableHeadlineFilter}])`;
+
+// Updated ordering: show newest first strictly by publishedAt (fallback to _createdAt)
+export const headlineQuery = `
+  *[${indexableHeadlineFilter}]
   | order(coalesce(publishedAt, _createdAt) desc, _createdAt desc) {
     _id,
     _type,

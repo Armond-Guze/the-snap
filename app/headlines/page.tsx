@@ -9,18 +9,6 @@ import MostRead from '../components/MostRead';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
-export const metadata: Metadata = {
-  title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
-  description: 'Discover the latest NFL news, breaking stories, and fan-driven analysis for all 32 teams. Fast updates without the fluff.',
-  alternates: { canonical: '/headlines' },
-  openGraph: {
-    title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
-    description: 'Fresh NFL news and analysis across all 32 teams, fan-first with no corporate spin.',
-    url: `${SITE_URL}/headlines`,
-    type: 'website',
-  },
-};
-
 export const revalidate = 1800;
 
 interface HeadlinesPageProps {
@@ -98,6 +86,44 @@ function buildDescription(filters: { category?: string; tag?: string; search?: s
   if (filters.category) return `Latest NFL headlines in ${filters.category.replace(/-/g, ' ')}.`;
   if (filters.tag) return `Latest stories tagged with ${filters.tag}.`;
   return 'Breaking NFL news, instant analysis, and daily storylines in one live feed.';
+}
+
+export async function generateMetadata(
+  props: HeadlinesPageProps
+): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const filters = {
+    category: toSingleParam(searchParams.category),
+    tag: toSingleParam(searchParams.tag),
+    search: toSingleParam(searchParams.search),
+  };
+  const hasFilters = Boolean(filters.category || filters.tag || filters.search);
+  const title = hasFilters
+    ? `${buildTitle(filters)} | The Snap`
+    : 'NFL Headlines – Latest News & Breaking Stories | The Snap';
+  const description = hasFilters
+    ? buildDescription(filters)
+    : 'Discover the latest NFL news, breaking stories, and fan-driven analysis for all 32 teams. Fast updates without the fluff.';
+
+  return {
+    title,
+    description,
+    alternates: { canonical: '/headlines' },
+    robots: {
+      index: !hasFilters,
+      follow: true,
+      googleBot: {
+        index: !hasFilters,
+        follow: true,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/headlines`,
+      type: 'website',
+    },
+  };
 }
 
 async function fetchHeadlines(filters: { category?: string; tag?: string; search?: string }): Promise<HeadlineListItem[]> {
@@ -191,7 +217,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
   const description = buildDescription(filters);
   const leadStory = headlines[0];
   const secondaryStories = headlines.slice(1, 4);
-  const gridStories = headlines.slice(4, 28);
+  const gridStories = headlines.slice(4, 24);
 
   const hasFilters = Boolean(filters.category || filters.tag || filters.search);
 
@@ -433,7 +459,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                     })}
                   </div>
 
-                  {!hasFilters && headlines.length > 28 && (
+                  {!hasFilters && headlines.length > 24 && (
                     <div className="mt-6 text-center">
                       <Link
                         href="/headlines/page/2"

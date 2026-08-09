@@ -8,20 +8,8 @@ import TagCloud from '../components/TagCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MostRead from '../components/MostRead';
 import { SITE_URL } from '@/lib/site-config';
-
-export const metadata = {
-  title: 'NFL Articles | The Snap',
-  description: 'Long-form articles, deep dives, and analysis from around the NFL.',
-  alternates: {
-    canonical: `${SITE_URL}/articles`,
-  },
-  openGraph: {
-    title: 'NFL Articles | The Snap',
-    description: 'Long-form articles, deep dives, and analysis from around the NFL.',
-    url: `${SITE_URL}/articles`,
-    type: 'website',
-  },
-};
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
 export const revalidate = 1800;
 
@@ -30,6 +18,7 @@ interface ArticlesPageProps {
     category?: string | string[];
     tag?: string | string[];
     search?: string | string[];
+    page?: string | string[];
   }>;
 }
 
@@ -38,6 +27,8 @@ type ArticleFilters = {
   tag?: string;
   search?: string;
 };
+
+const PAGE_SIZE = 24;
 
 function toSingleParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -48,6 +39,25 @@ function toSingleParam(value: string | string[] | undefined): string | undefined
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function parsePageParam(value: string | string[] | undefined): number | null {
+  if (value === undefined) return 1;
+  if (Array.isArray(value) || !/^[1-9]\d*$/.test(value)) return null;
+
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) ? parsed : null;
+}
+
+function articlesPageHref(page: number, filters: ArticleFilters = {}): string {
+  const params = new URLSearchParams();
+  if (filters.category) params.set('category', filters.category);
+  if (filters.tag) params.set('tag', filters.tag);
+  if (filters.search) params.set('search', filters.search);
+  if (page > 1) params.set('page', String(page));
+
+  const query = params.toString();
+  return query ? `/articles?${query}` : '/articles';
 }
 
 function formatDate(date?: string) {
@@ -61,6 +71,21 @@ type ArticleListItem = HeadlineListItem & {
   weekNumber?: number;
   playoffRound?: string;
 };
+
+function normalizeArticleTags(tags: unknown): Array<{ title: string }> {
+  if (!Array.isArray(tags)) return [];
+
+  return tags
+    .filter(
+      (tag): tag is { title: string } =>
+        Boolean(tag) &&
+        typeof tag === 'object' &&
+        typeof (tag as { title?: unknown }).title === 'string'
+    )
+    .map((tag) => ({ title: tag.title.trim() }))
+    .filter((tag) => tag.title.length > 0)
+    .slice(0, 3);
+}
 
 async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]> {
   const baseFilter = 'published == true && (!defined(seo.noIndex) || seo.noIndex == false) && (_type == "rankings" || (_type == "article" && format != "headline"))';
@@ -126,6 +151,53 @@ function buildDescription(filters: ArticleFilters) {
   return 'Discover long-form NFL articles, analysis, and deep dives.';
 }
 
+export async function generateMetadata(
+  props: ArticlesPageProps
+): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const filters: ArticleFilters = {
+    category: toSingleParam(searchParams.category),
+    tag: toSingleParam(searchParams.tag),
+    search: toSingleParam(searchParams.search),
+  };
+  const page = parsePageParam(searchParams.page);
+  if (!page) {
+    return {
+      title: 'Articles Page Not Found | The Snap',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const hasFilters = Boolean(filters.category || filters.tag || filters.search);
+  const baseTitle = hasFilters ? buildTitle(filters) : 'NFL Articles';
+  const title = page > 1 ? `${baseTitle} – Page ${page} | The Snap` : `${baseTitle} | The Snap`;
+  const description = hasFilters
+    ? buildDescription(filters)
+    : 'Long-form articles, deep dives, and analysis from around the NFL.';
+  const canonicalPath = hasFilters ? '/articles' : articlesPageHref(page);
+  const canonical = `${SITE_URL}${canonicalPath}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    robots: {
+      index: !hasFilters,
+      follow: true,
+      googleBot: {
+        index: !hasFilters,
+        follow: true,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website',
+    },
+  };
+}
+
 export default async function ArticlesPage(props: ArticlesPageProps) {
   const searchParams = await props.searchParams;
   const filters: ArticleFilters = {
@@ -133,12 +205,20 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
     tag: toSingleParam(searchParams.tag),
     search: toSingleParam(searchParams.search),
   };
+  const requestedPage = parsePageParam(searchParams.page);
+  if (!requestedPage) notFound();
 
   const [articles, categories] = await Promise.all([
     fetchArticles(filters),
     client.fetch<Category[]>(categoriesQuery)
   ]);
-  const title = buildTitle(filters);
+  const totalPages = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
+  if (requestedPage > totalPages) notFound();
+
+  const offset = (requestedPage - 1) * PAGE_SIZE;
+  const pageArticles = articles.slice(offset, offset + PAGE_SIZE);
+  const baseTitle = buildTitle(filters);
+  const title = requestedPage > 1 ? `${baseTitle} – Page ${requestedPage}` : baseTitle;
   const description = buildDescription(filters);
 
   return (
@@ -154,47 +234,75 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
             {articles.length === 0 ? (
               <p className="text-gray-400">No articles found.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {articles.slice(0,24).map(f => (
-                  <article key={f._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                    <Link href={getArticleHref(f)}>
-                      {f.coverImage?.asset?.url && (
-                        <div className="aspect-video relative overflow-hidden bg-[#111]">
-                          <Image src={f.coverImage.asset.url} alt={f.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {f.category?.title && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{f.category.title}</span>
-                          )}
-                          {f._type === 'article' && f.format === 'powerRankings' && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-semibold text-purple-200 bg-purple-500/15 rounded-md border border-purple-400/30">
-                              Power Rankings
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{f.homepageTitle || f.title}</h3>
-                        {f.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{f.summary}</p>}
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          {f.author?.name && <span>By {f.author.name}</span>}
-                          {f.date && <span>{formatDate(f.date)}</span>}
-                        </div>
-                        {Array.isArray(f.tags) && f.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-3">
-                            {f.tags
-                              .filter((t: { title?: string } | null): t is { title: string } => !!t && typeof t.title === 'string')
-                              .slice(0,3)
-                              .map((t, i) => (
-                                <Link key={i} href={`/articles?tag=${encodeURIComponent(t.title)}`} className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors">#{t.title}</Link>
-                              ))}
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pageArticles.map(f => {
+                    const tags = normalizeArticleTags(f.tags);
+                    return (
+                      <article key={f._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
+                        <Link href={getArticleHref(f)} className="block">
+                        {f.coverImage?.asset?.url && (
+                          <div className="aspect-video relative overflow-hidden bg-[#111]">
+                            <Image src={f.coverImage.asset.url} alt={f.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                           </div>
                         )}
-                      </div>
-                    </Link>
-                  </article>
-                ))}
-              </div>
+                        <div className="p-4">
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {f.category?.title && (
+                              <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{f.category.title}</span>
+                            )}
+                            {f._type === 'article' && f.format === 'powerRankings' && (
+                              <span className="inline-block px-2 py-1 text-[11px] font-semibold text-purple-200 bg-purple-500/15 rounded-md border border-purple-400/30">
+                                Power Rankings
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{f.homepageTitle || f.title}</h3>
+                          {f.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{f.summary}</p>}
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            {f.author?.name && <span>By {f.author.name}</span>}
+                            {f.date && <span>{formatDate(f.date)}</span>}
+                          </div>
+                        </div>
+                        </Link>
+                        {tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 px-4 pb-4">
+                            {tags.map((tag) => (
+                              <Link
+                                key={`${f._id}-${tag.title}`}
+                                href={`/articles?tag=${encodeURIComponent(tag.title)}`}
+                                className="rounded bg-gray-800 px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-700 hover:text-white"
+                              >
+                                #{tag.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+
+                {totalPages > 1 && (
+                  <nav aria-label="Articles pagination" className="mt-10 flex items-center justify-center gap-3 text-sm">
+                    {requestedPage > 1 ? (
+                      <Link href={articlesPageHref(requestedPage - 1, filters)} className="rounded-md bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20">
+                        Previous
+                      </Link>
+                    ) : (
+                      <span aria-disabled="true" className="rounded-md bg-white/5 px-4 py-2 text-white/30">Previous</span>
+                    )}
+                    <span className="text-gray-400">Page {requestedPage} of {totalPages}</span>
+                    {requestedPage < totalPages ? (
+                      <Link href={articlesPageHref(requestedPage + 1, filters)} className="rounded-md bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20">
+                        Next
+                      </Link>
+                    ) : (
+                      <span aria-disabled="true" className="rounded-md bg-white/5 px-4 py-2 text-white/30">Next</span>
+                    )}
+                  </nav>
+                )}
+              </>
             )}
           </div>
           <div className="lg:col-span-1 space-y-8">
