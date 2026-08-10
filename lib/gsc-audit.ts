@@ -1,17 +1,15 @@
 import "server-only";
 
-import crypto from "node:crypto";
-
+import {
+  createGscClient,
+  type GscClient,
+  type GscSearchAnalyticsRequest,
+} from "@/lib/gsc-client";
 import { emitMonitoringAlert } from "@/lib/monitoring/alerts";
 import { powerRankingsLatestSnapshotQuery } from "@/lib/queries/power-rankings";
 import { SITE_URL, toAbsoluteSiteUrl } from "@/lib/site-config";
 import { client } from "@/sanity/lib/client";
 
-const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-const SEARCH_CONSOLE_API_BASE = "https://www.googleapis.com";
-const URL_INSPECTION_ENDPOINT =
-  "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect";
-const SEARCH_CONSOLE_SCOPE = "https://www.googleapis.com/auth/webmasters";
 const DEFAULT_LOOKBACK_DAYS = 14;
 const DEFAULT_CONTENT_LIMIT = 6;
 const DEFAULT_SITEMAP_STALE_DAYS = 14;
@@ -39,18 +37,6 @@ interface GscSitemapEntry {
 
 interface GscSitemapsResponse {
   sitemap?: GscSitemapEntry[];
-}
-
-interface SearchAnalyticsRow {
-  keys?: string[];
-  clicks?: number;
-  impressions?: number;
-  ctr?: number;
-  position?: number;
-}
-
-interface SearchAnalyticsResponse {
-  rows?: SearchAnalyticsRow[];
 }
 
 interface UrlInspectionResponse {
@@ -268,111 +254,6 @@ export function getGscAuditConfig(overrides: GscAuditConfigOverrides = {}): GscA
   };
 }
 
-function normalizePrivateKey(privateKey: string) {
-  return privateKey.replace(/\\n/g, "\n");
-}
-
-function base64UrlEncode(input: string | Buffer) {
-  return Buffer.from(input).toString("base64url");
-}
-
-async function getAccessToken(config: GscAuditConfig) {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: "RS256", typ: "JWT" };
-  const payload = {
-    iss: config.serviceAccountEmail,
-    scope: SEARCH_CONSOLE_SCOPE,
-    aud: GOOGLE_TOKEN_URL,
-    exp: now + 3600,
-    iat: now,
-  };
-
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-  const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const signer = crypto.createSign("RSA-SHA256");
-  signer.update(signingInput);
-  signer.end();
-
-  const signature = signer.sign(normalizePrivateKey(config.serviceAccountPrivateKey));
-  const assertion = `${signingInput}.${base64UrlEncode(signature)}`;
-  const body = new URLSearchParams({
-    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-    assertion,
-  });
-
-  const response = await fetch(GOOGLE_TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to get Google access token: ${response.status} ${errorText}`);
-  }
-
-  const payloadJson = (await response.json()) as { access_token?: string };
-  if (!payloadJson.access_token) {
-    throw new Error("Google access token response did not include access_token");
-  }
-
-  return payloadJson.access_token;
-}
-
-async function searchConsoleRequest<T>(
-  accessToken: string,
-  path: string,
-  init: RequestInit = {}
-) {
-  const response = await fetch(`${SEARCH_CONSOLE_API_BASE}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Search Console request failed: ${response.status} ${errorText}`);
-  }
-
-  const responseText = await response.text();
-  if (!responseText) return undefined as T;
-
-  return JSON.parse(responseText) as T;
-}
-
-async function inspectUrl(
-  accessToken: string,
-  propertyUri: string,
-  url: string
-) {
-  const response = await fetch(URL_INSPECTION_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      inspectionUrl: url,
-      siteUrl: propertyUri,
-    }),
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`URL inspection failed: ${response.status} ${errorText}`);
-  }
-
-  return (await response.json()) as UrlInspectionResponse;
-}
-
 function normalizeComparableUrl(rawUrl: string) {
   try {
     const parsed = new URL(rawUrl);
@@ -585,15 +466,14 @@ async function fetchSitemapSnapshot(sitemapUrl: string) {
 }
 
 async function fetchPerformanceMap(
-  accessToken: string,
-  propertyUri: string,
+  gscClient: GscClient,
   lookbackDays: number
 ) {
   const endDate = new Date();
   const startDate = new Date();
   startDate.setUTCDate(endDate.getUTCDate() - lookbackDays);
 
-  const body = {
+  const body: GscSearchAnalyticsRequest = {
     startDate: startDate.toISOString().slice(0, 10),
     endDate: endDate.toISOString().slice(0, 10),
     dimensions: ["page"],
@@ -601,15 +481,7 @@ async function fetchPerformanceMap(
     dataState: "all",
   };
 
-  const encodedProperty = encodeURIComponent(propertyUri);
-  const response = await searchConsoleRequest<SearchAnalyticsResponse>(
-    accessToken,
-    `/webmasters/v3/sites/${encodedProperty}/searchAnalytics/query`,
-    {
-      method: "POST",
-      body: JSON.stringify(body),
-    }
-  );
+  const response = await gscClient.querySearchAnalytics(body);
 
   const performanceMap = new Map<
     string,
@@ -648,12 +520,11 @@ export async function submitConfiguredSitemapToGoogle(
   }
 
   try {
-    const accessToken = await getAccessToken(config);
+    const gscClient = createGscClient({ propertyUri: config.propertyUri });
     const encodedProperty = encodeURIComponent(config.propertyUri);
     const encodedSitemapUrl = encodeURIComponent(config.sitemapUrl);
 
-    await searchConsoleRequest<void>(
-      accessToken,
+    await gscClient.request<void>(
       `/webmasters/v3/sites/${encodedProperty}/sitemaps/${encodedSitemapUrl}`,
       { method: "PUT" }
     );
@@ -677,8 +548,7 @@ export async function submitConfiguredSitemapToGoogle(
 }
 
 async function auditPage(
-  accessToken: string,
-  propertyUri: string,
+  gscClient: GscClient,
   target: GscAuditTarget,
   sitemapUrls: Set<string>,
   performanceMap: Map<string, { clicks: number; impressions: number; ctr: number; position: number }>
@@ -778,7 +648,7 @@ async function auditPage(
   let userCanonical: string | null = null;
 
   try {
-    const inspection = await inspectUrl(accessToken, propertyUri, normalizedUrl);
+    const inspection = await gscClient.inspectUrl<UrlInspectionResponse>(normalizedUrl);
     const status = inspection.inspectionResult?.indexStatusResult;
 
     inspectionVerdict = status?.verdict || null;
@@ -909,21 +779,18 @@ export async function runGscAudit(
   }
 
   try {
-    const [accessToken, targets] = await Promise.all([
-      getAccessToken(config),
-      fetchRecentTargets(config.contentLimit),
-    ]);
+    const gscClient = createGscClient({ propertyUri: config.propertyUri });
+    const targets = await fetchRecentTargets(config.contentLimit);
 
     const encodedProperty = encodeURIComponent(config.propertyUri);
 
     const [sitesResponse, sitemapsResponse, sitemapSnapshot, performanceMap] = await Promise.all([
-      searchConsoleRequest<GscSitesResponse>(accessToken, "/webmasters/v3/sites"),
-      searchConsoleRequest<GscSitemapsResponse>(
-        accessToken,
+      gscClient.request<GscSitesResponse>("/webmasters/v3/sites"),
+      gscClient.request<GscSitemapsResponse>(
         `/webmasters/v3/sites/${encodedProperty}/sitemaps`
       ),
       fetchSitemapSnapshot(config.sitemapUrl),
-      fetchPerformanceMap(accessToken, config.propertyUri, config.lookbackDays),
+      fetchPerformanceMap(gscClient, config.lookbackDays),
     ]);
 
     const matchingSite = (sitesResponse.siteEntry || []).find(
@@ -974,7 +841,7 @@ export async function runGscAudit(
     const pages = await mapWithConcurrency(
       targets,
       pageFetchConcurrency,
-      (target) => auditPage(accessToken, config.propertyUri, target, sitemapSnapshot.urls, performanceMap)
+      (target) => auditPage(gscClient, target, sitemapSnapshot.urls, performanceMap)
     );
 
     const flattenedPageIssues = pages.flatMap((page) => page.issues);

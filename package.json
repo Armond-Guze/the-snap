@@ -19,6 +19,7 @@
     "db:deploy": "env-cmd -f .env.local prisma migrate deploy",
     "db:studio": "env-cmd -f .env.local prisma studio",
     "sync:games": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/sync-games.ts",
+    "seo:opportunities": "env-cmd -f .env.local ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/gsc-content-opportunities.ts",
     "backfill:tagRefs": "node scripts/backfill-tag-refs.mjs --write",
     "backfill:tagRefs:dry": "node scripts/backfill-tag-refs.mjs",
     "backfill:topicHubs": "node scripts/backfill-topic-hubs.mjs --write",
