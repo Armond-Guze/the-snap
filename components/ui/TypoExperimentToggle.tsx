@@ -12,8 +12,8 @@ export function TypoExperimentToggle() {
   useEffect(() => {
     const stored = localStorage.getItem('typoB');
     if (stored === '1') {
-      setEnabled(true);
       document.documentElement.setAttribute('data-test', (document.documentElement.getAttribute('data-test') || '') + ' typoB');
+      queueMicrotask(() => setEnabled(true));
     }
   }, []);
 

@@ -1,4 +1,5 @@
 import { fetchSportsDataStandings, SportsDataStandingsTeam } from './sportsdata-client';
+import { getExpectedStandingsSeason } from './season';
 
 // NFL team mapping with logo URLs for consistent naming between ESPN API and our system
 export const NFL_TEAMS_MAP = {
@@ -213,42 +214,81 @@ export interface ProcessedTeamData {
   division: string;
 }
 
-export async function fetchNFLStandings(): Promise<ProcessedTeamData[]> {
-  const sportsDataStandings = await trySportsDataStandings();
+const NFL_TEAM_COUNT = Object.keys(NFL_TEAMS_MAP).length;
+
+export function resolveNFLSeason(seasonOverride?: number): number {
+  if (seasonOverride !== undefined) {
+    if (Number.isInteger(seasonOverride) && seasonOverride >= 1920 && seasonOverride <= 2100) {
+      return seasonOverride;
+    }
+    throw new RangeError('NFL season must be an integer between 1920 and 2100');
+  }
+
+  const configuredSeason = Number(process.env.NFL_SEASON);
+  if (Number.isInteger(configuredSeason) && configuredSeason >= 1920 && configuredSeason <= 2100) {
+    return configuredSeason;
+  }
+
+  return getExpectedStandingsSeason();
+}
+
+function assertCompleteStandings(
+  standings: ProcessedTeamData[],
+  source: string,
+  season: number,
+): ProcessedTeamData[] {
+  const uniqueTeams = new Set(standings.map((team) => team.teamName));
+  const hasInvalidRecord = standings.some(
+    (team) =>
+      !Number.isFinite(team.wins) ||
+      !Number.isFinite(team.losses) ||
+      !Number.isFinite(team.ties) ||
+      team.wins < 0 ||
+      team.losses < 0 ||
+      team.ties < 0,
+  );
+
+  if (standings.length !== NFL_TEAM_COUNT || uniqueTeams.size !== NFL_TEAM_COUNT || hasInvalidRecord) {
+    throw new Error(
+      `${source} returned incomplete or invalid ${season} standings ` +
+        `(rows=${standings.length}, uniqueTeams=${uniqueTeams.size}, expected=${NFL_TEAM_COUNT})`,
+    );
+  }
+
+  return standings;
+}
+
+export async function fetchNFLStandings(seasonOverride?: number): Promise<ProcessedTeamData[]> {
+  const season = resolveNFLSeason(seasonOverride);
+  const sportsDataStandings = await trySportsDataStandings(season);
   if (sportsDataStandings) {
     return sportsDataStandings;
   }
 
-  return fetchEspnStandings();
+  return fetchEspnStandings(season);
 }
 
-async function trySportsDataStandings(): Promise<ProcessedTeamData[] | null> {
+async function trySportsDataStandings(season: number): Promise<ProcessedTeamData[] | null> {
   // Skip SportsDataIO when the integration is disabled to avoid noisy errors.
   if (!process.env.SPORTSDATA_ENABLED || process.env.SPORTSDATA_ENABLED.toLowerCase() === 'false') {
     return null;
   }
 
   try {
-    const standings = await fetchSportsDataStandings();
+    const standings = await fetchSportsDataStandings(season);
     const processed = standings
       .map((team) => processSportsDataTeam(team))
       .filter((team): team is ProcessedTeamData => Boolean(team));
 
-    if (!processed.length) {
-      console.warn('SportsDataIO returned no standings rows, falling back to ESPN.');
-      return null;
-    }
-
     console.log(`Processed ${processed.length} teams from SportsDataIO API`);
-    return processed;
+    return assertCompleteStandings(processed, 'SportsDataIO', season);
   } catch (error) {
     console.warn('SportsDataIO API failed, falling back to ESPN:', error);
     return null;
   }
 }
 
-async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
-  const seasonYear = Number(process.env.NFL_SEASON) || new Date().getFullYear();
+async function fetchEspnStandings(seasonYear: number): Promise<ProcessedTeamData[]> {
   const endpoint = new URL('https://site.web.api.espn.com/apis/v2/sports/football/nfl/standings');
   endpoint.searchParams.set('region', 'us');
   endpoint.searchParams.set('lang', 'en');
@@ -284,12 +324,8 @@ async function fetchEspnStandings(): Promise<ProcessedTeamData[]> {
     });
   });
 
-  if (!processedData.length) {
-    throw new Error('ESPN API returned no standings entries');
-  }
-
   console.log(`Processed ${processedData.length} teams from ESPN API`);
-  return processedData;
+  return assertCompleteStandings(processedData, 'ESPN', seasonYear);
 }
 
 function processESPNTeamEntry(entry: ESPNStandingEntry): ProcessedTeamData | null {
@@ -368,93 +404,45 @@ function processSportsDataTeam(team: SportsDataStandingsTeam): ProcessedTeamData
   };
 }
 
-// Fallback function with actual 2024 NFL season standings
-export async function getFallbackStandings(): Promise<ProcessedTeamData[]> {
-  console.log('Using fallback standings data (2024 NFL Season)...');
-  
-  return [
-    // AFC East - Final 2024 standings
-    { teamName: 'Buffalo Bills', logoUrl: NFL_TEAMS_MAP['Buffalo Bills'].logoUrl, wins: 13, losses: 4, ties: 0, winPercentage: 0.765, conference: 'AFC', division: 'AFC East' },
-    { teamName: 'Miami Dolphins', logoUrl: NFL_TEAMS_MAP['Miami Dolphins'].logoUrl, wins: 11, losses: 6, ties: 0, winPercentage: 0.647, conference: 'AFC', division: 'AFC East' },
-    { teamName: 'New York Jets', logoUrl: NFL_TEAMS_MAP['New York Jets'].logoUrl, wins: 7, losses: 10, ties: 0, winPercentage: 0.412, conference: 'AFC', division: 'AFC East' },
-    { teamName: 'New England Patriots', logoUrl: NFL_TEAMS_MAP['New England Patriots'].logoUrl, wins: 4, losses: 13, ties: 0, winPercentage: 0.235, conference: 'AFC', division: 'AFC East' },
-    
-    // AFC North - Final 2024 standings
-    { teamName: 'Baltimore Ravens', logoUrl: NFL_TEAMS_MAP['Baltimore Ravens'].logoUrl, wins: 13, losses: 4, ties: 0, winPercentage: 0.765, conference: 'AFC', division: 'AFC North' },
-    { teamName: 'Pittsburgh Steelers', logoUrl: NFL_TEAMS_MAP['Pittsburgh Steelers'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'AFC', division: 'AFC North' },
-    { teamName: 'Cincinnati Bengals', logoUrl: NFL_TEAMS_MAP['Cincinnati Bengals'].logoUrl, wins: 9, losses: 8, ties: 0, winPercentage: 0.529, conference: 'AFC', division: 'AFC North' },
-    { teamName: 'Cleveland Browns', logoUrl: NFL_TEAMS_MAP['Cleveland Browns'].logoUrl, wins: 5, losses: 12, ties: 0, winPercentage: 0.294, conference: 'AFC', division: 'AFC North' },
-    
-    // AFC South - Final 2024 standings
-    { teamName: 'Houston Texans', logoUrl: NFL_TEAMS_MAP['Houston Texans'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'AFC', division: 'AFC South' },
-    { teamName: 'Indianapolis Colts', logoUrl: NFL_TEAMS_MAP['Indianapolis Colts'].logoUrl, wins: 9, losses: 8, ties: 0, winPercentage: 0.529, conference: 'AFC', division: 'AFC South' },
-    { teamName: 'Jacksonville Jaguars', logoUrl: NFL_TEAMS_MAP['Jacksonville Jaguars'].logoUrl, wins: 4, losses: 13, ties: 0, winPercentage: 0.235, conference: 'AFC', division: 'AFC South' },
-    { teamName: 'Tennessee Titans', logoUrl: NFL_TEAMS_MAP['Tennessee Titans'].logoUrl, wins: 3, losses: 14, ties: 0, winPercentage: 0.176, conference: 'AFC', division: 'AFC South' },
-    
-    // AFC West - Final 2024 standings
-    { teamName: 'Kansas City Chiefs', logoUrl: NFL_TEAMS_MAP['Kansas City Chiefs'].logoUrl, wins: 15, losses: 2, ties: 0, winPercentage: 0.882, conference: 'AFC', division: 'AFC West' },
-    { teamName: 'Denver Broncos', logoUrl: NFL_TEAMS_MAP['Denver Broncos'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'AFC', division: 'AFC West' },
-    { teamName: 'Los Angeles Chargers', logoUrl: NFL_TEAMS_MAP['Los Angeles Chargers'].logoUrl, wins: 5, losses: 12, ties: 0, winPercentage: 0.294, conference: 'AFC', division: 'AFC West' },
-    { teamName: 'Las Vegas Raiders', logoUrl: NFL_TEAMS_MAP['Las Vegas Raiders'].logoUrl, wins: 8, losses: 9, ties: 0, winPercentage: 0.471, conference: 'AFC', division: 'AFC West' },
-    
-    // NFC East - Final 2024 standings
-    { teamName: 'Philadelphia Eagles', logoUrl: NFL_TEAMS_MAP['Philadelphia Eagles'].logoUrl, wins: 11, losses: 6, ties: 0, winPercentage: 0.647, conference: 'NFC', division: 'NFC East' },
-    { teamName: 'Dallas Cowboys', logoUrl: NFL_TEAMS_MAP['Dallas Cowboys'].logoUrl, wins: 12, losses: 5, ties: 0, winPercentage: 0.706, conference: 'NFC', division: 'NFC East' },
-    { teamName: 'New York Giants', logoUrl: NFL_TEAMS_MAP['New York Giants'].logoUrl, wins: 6, losses: 11, ties: 0, winPercentage: 0.353, conference: 'NFC', division: 'NFC East' },
-    { teamName: 'Washington Commanders', logoUrl: NFL_TEAMS_MAP['Washington Commanders'].logoUrl, wins: 12, losses: 5, ties: 0, winPercentage: 0.706, conference: 'NFC', division: 'NFC East' },
-    
-    // NFC North - Final 2024 standings
-    { teamName: 'Detroit Lions', logoUrl: NFL_TEAMS_MAP['Detroit Lions'].logoUrl, wins: 15, losses: 2, ties: 0, winPercentage: 0.882, conference: 'NFC', division: 'NFC North' },
-    { teamName: 'Green Bay Packers', logoUrl: NFL_TEAMS_MAP['Green Bay Packers'].logoUrl, wins: 11, losses: 6, ties: 0, winPercentage: 0.647, conference: 'NFC', division: 'NFC North' },
-    { teamName: 'Minnesota Vikings', logoUrl: NFL_TEAMS_MAP['Minnesota Vikings'].logoUrl, wins: 14, losses: 3, ties: 0, winPercentage: 0.824, conference: 'NFC', division: 'NFC North' },
-    { teamName: 'Chicago Bears', logoUrl: NFL_TEAMS_MAP['Chicago Bears'].logoUrl, wins: 5, losses: 12, ties: 0, winPercentage: 0.294, conference: 'NFC', division: 'NFC North' },
-    
-    // NFC South - Final 2024 standings
-    { teamName: 'Tampa Bay Buccaneers', logoUrl: NFL_TEAMS_MAP['Tampa Bay Buccaneers'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'NFC', division: 'NFC South' },
-    { teamName: 'Atlanta Falcons', logoUrl: NFL_TEAMS_MAP['Atlanta Falcons'].logoUrl, wins: 8, losses: 9, ties: 0, winPercentage: 0.471, conference: 'NFC', division: 'NFC South' },
-    { teamName: 'New Orleans Saints', logoUrl: NFL_TEAMS_MAP['New Orleans Saints'].logoUrl, wins: 5, losses: 12, ties: 0, winPercentage: 0.294, conference: 'NFC', division: 'NFC South' },
-    { teamName: 'Carolina Panthers', logoUrl: NFL_TEAMS_MAP['Carolina Panthers'].logoUrl, wins: 2, losses: 15, ties: 0, winPercentage: 0.118, conference: 'NFC', division: 'NFC South' },
-    
-    // NFC West - Final 2024 standings
-    { teamName: 'Los Angeles Rams', logoUrl: NFL_TEAMS_MAP['Los Angeles Rams'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'NFC', division: 'NFC West' },
-    { teamName: 'Seattle Seahawks', logoUrl: NFL_TEAMS_MAP['Seattle Seahawks'].logoUrl, wins: 10, losses: 7, ties: 0, winPercentage: 0.588, conference: 'NFC', division: 'NFC West' },
-    { teamName: 'San Francisco 49ers', logoUrl: NFL_TEAMS_MAP['San Francisco 49ers'].logoUrl, wins: 6, losses: 11, ties: 0, winPercentage: 0.353, conference: 'NFC', division: 'NFC West' },
-    { teamName: 'Arizona Cardinals', logoUrl: NFL_TEAMS_MAP['Arizona Cardinals'].logoUrl, wins: 4, losses: 13, ties: 0, winPercentage: 0.235, conference: 'NFC', division: 'NFC West' },
-  ];
-}
-
-// Enhanced main function with fallback
-let standingsCache: { data: ProcessedTeamData[]; expiresAt: number } | null = null;
-let standingsInFlight: Promise<ProcessedTeamData[]> | null = null;
+// Retain the established public function name, but only cache complete live data.
+// Static season snapshots must never be returned for a different requested season.
+const standingsCache = new Map<number, { data: ProcessedTeamData[]; expiresAt: number }>();
+const standingsInFlight = new Map<number, Promise<ProcessedTeamData[]>>();
 const STANDINGS_CACHE_MS = 5 * 60 * 1000;
 
-export async function fetchNFLStandingsWithFallback(): Promise<ProcessedTeamData[]> {
+export async function fetchNFLStandingsWithFallback(seasonOverride?: number): Promise<ProcessedTeamData[]> {
+  const season = resolveNFLSeason(seasonOverride);
   const now = Date.now();
-  if (standingsCache && standingsCache.expiresAt > now) {
-    return standingsCache.data;
+  const cached = standingsCache.get(season);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
   }
 
-  if (standingsInFlight) {
-    return standingsInFlight;
+  const inFlight = standingsInFlight.get(season);
+  if (inFlight) {
+    return inFlight;
   }
 
-  standingsInFlight = (async () => {
+  const request = (async () => {
     try {
-      return await fetchNFLStandings();
+      return await fetchNFLStandings(season);
     } catch (error) {
-      console.warn('ESPN API failed, using fallback data:', error);
-      return await getFallbackStandings();
+      throw new Error(
+        `Unable to fetch complete live NFL standings for ${season}; static fallback data was not used`,
+        { cause: error },
+      );
     }
   })();
+  standingsInFlight.set(season, request);
 
   try {
-    const data = await standingsInFlight;
-    standingsCache = {
+    const data = await request;
+    standingsCache.set(season, {
       data,
       expiresAt: Date.now() + STANDINGS_CACHE_MS,
-    };
+    });
     return data;
   } finally {
-    standingsInFlight = null;
+    standingsInFlight.delete(season);
   }
 }

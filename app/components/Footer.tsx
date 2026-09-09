@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { FaEnvelope, FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import { openConsentPreferences } from "./consent";
 
 const mainLinks = [
   { label: "Contact & Support", href: "/contact" },
   { label: "Our Story", href: "/about" },
+  { label: "Authors", href: "/authors" },
+  { label: "Editorial Standards", href: "/editorial-standards" },
+  { label: "Corrections", href: "/corrections-policy" },
+  { label: "Affiliate Disclosure", href: "/affiliate-disclosure" },
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms of Service", href: "/terms" },
   { label: "Newsletter", href: "/newsletter" },
@@ -84,6 +89,13 @@ const Footer = () => {
                   {label}
                 </Link>
               ))}
+              <button
+                type="button"
+                onClick={openConsentPreferences}
+                className="font-medium text-white/90 transition-colors hover:text-white"
+              >
+                Cookie preferences
+              </button>
             </div>
 
             <div className="border-t border-white/10 pt-4 text-[11px] text-white/70">

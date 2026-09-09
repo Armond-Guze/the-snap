@@ -258,7 +258,7 @@ export default function TagCloud({
           return (
             <Link
               key={tag._id}
-              href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
+              href={`/tags/${encodeURIComponent(tag.slug.current)}`}
               className={`group relative inline-flex items-center gap-2 rounded-xl border px-3 py-2 font-semibold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
                 isActive
                   ? 'text-white'

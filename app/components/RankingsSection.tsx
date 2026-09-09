@@ -110,7 +110,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:gap-5 3xl:gap-6">
-          {topSix.map((item, index) => {
+          {topSix.map((item) => {
             const img = getImageUrl(item);
             const displayTitle = item.homepageTitle || item.title;
             const kicker = getItemKicker(item);
@@ -128,8 +128,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                       src={img}
                       alt={displayTitle}
                       fill
-                      priority={index < 2}
-                      sizes="(min-width:1536px) 30vw, (min-width:1280px) 33vw, (min-width:640px) 50vw, 100vw"
+                      sizes="(min-width:1536px) 30vw, (min-width:1280px) 33vw, (min-width:640px) 50vw, calc(100vw - 3rem)"
                       className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
                     />
                   ) : (

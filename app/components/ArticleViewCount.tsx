@@ -1,6 +1,8 @@
 "use client";
+
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
+import { useConsentPreferences } from './consent';
 
 interface Props {
   slug: string;
@@ -15,76 +17,93 @@ const isExcludedEnvironment = () => {
   const hostname = window.location.hostname;
   const isDev = process.env.NODE_ENV === 'development';
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-  const isPrivateIP = hostname.includes('192.168.') || hostname.includes('10.');
-  const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-  const lsExcluded = window.localStorage.getItem('va-exclude') === '1';
+  const isPrivateIP = hostname.startsWith('192.168.') || hostname.startsWith('10.');
+  const cookieExcluded = document.cookie
+    .split(';')
+    .some((cookie) => cookie.trim().startsWith('va-exclude=1'));
+  let localStorageExcluded = false;
+  try {
+    localStorageExcluded = window.localStorage.getItem('va-exclude') === '1';
+  } catch {
+    // Storage can be unavailable in privacy-focused browsing contexts.
+  }
 
-  return isDev || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded;
+  return isDev || isLocalhost || isPrivateIP || cookieExcluded || localStorageExcluded;
 };
 
-function shouldIncrementView(slug: string) {
+function hasRecentView(slug: string) {
   if (typeof window === 'undefined') return false;
 
   try {
-    const key = `view-hit:${slug}`;
-    const now = Date.now();
-    const raw = window.localStorage.getItem(key);
+    const raw = window.localStorage.getItem(`view-hit:${slug}`);
     const previous = raw ? Number(raw) : 0;
-    if (Number.isFinite(previous) && previous > 0 && now - previous < VIEW_DEDUPE_WINDOW_MS) {
-      return false;
-    }
-    window.localStorage.setItem(key, String(now));
-    return true;
+    return Number.isFinite(previous) && previous > 0 && Date.now() - previous < VIEW_DEDUPE_WINDOW_MS;
   } catch {
-    return true;
+    return false;
+  }
+}
+
+function markView(slug: string) {
+  try {
+    window.localStorage.setItem(`view-hit:${slug}`, String(Date.now()));
+  } catch {
+    // Server-side HMAC deduplication remains authoritative.
   }
 }
 
 export default function ArticleViewCount({ slug, className }: Props) {
   const [count, setCount] = useState<number | null>(null);
+  const preferences = useConsentPreferences();
+  const analyticsAllowed = preferences?.analytics === true;
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || !analyticsAllowed) return;
     let cancelled = false;
-
     const encodedSlug = encodeURIComponent(slug);
 
     const loadCount = async () => {
       try {
-        const res = await fetch(`/api/views/${encodedSlug}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && typeof data.count === 'number') {
-          setCount(data.count);
-        }
+        const response = await fetch(`/api/views/${encodedSlug}`, {
+          credentials: 'same-origin',
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!cancelled && typeof data.count === 'number') setCount(data.count);
       } catch {
-        // ignore
+        // The count is non-essential UI.
       }
     };
 
     const increment = async () => {
-      if (isExcludedEnvironment() || !shouldIncrementView(slug)) return;
+      if (isExcludedEnvironment() || hasRecentView(slug)) return;
       try {
-        const res = await fetch(`/api/views/${encodedSlug}`, { method: 'POST', keepalive: true });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && typeof data.count === 'number') {
-          setCount(data.count);
-        }
+        const response = await fetch(`/api/views/${encodedSlug}`, {
+          method: 'POST',
+          keepalive: true,
+          credentials: 'same-origin',
+        });
+        if (!response.ok) return;
+        markView(slug);
+        const data = await response.json();
+        if (!cancelled && typeof data.count === 'number') setCount(data.count);
       } catch {
-        // ignore
+        // The count is non-essential UI.
       }
     };
 
-    loadCount();
-    increment();
+    void loadCount();
+    void increment();
 
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [analyticsAllowed, slug]);
 
-  const text = count === null ? '— views' : `${count.toLocaleString()} view${count === 1 ? '' : 's'}`;
+  if (!analyticsAllowed) return null;
+
+  const text = count === null
+    ? '— views'
+    : `${count.toLocaleString()} view${count === 1 ? '' : 's'}`;
 
   return <span className={clsx('text-xs text-white/60', className)}>{text}</span>;
 }

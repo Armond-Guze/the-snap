@@ -214,11 +214,11 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
         <div className="text-center mb-8 2xl:mb-12 3xl:mb-16">
           <h2 className="heading-h2 text-white mb-3 flex items-center justify-center gap-3">
             <span className="text-2xl 2xl:text-3xl 3xl:text-4xl">🔥</span>
-            Trending Topics
+            Popular Topics
           </h2>
           <div className="w-20 h-1 bg-white mx-auto mb-4"></div>
           <p className="text-lg 2xl:text-xl 3xl:text-2xl text-gray-300 max-w-2xl 2xl:max-w-3xl 3xl:max-w-4xl mx-auto">
-            Discover what&apos;s hot in the NFL right now
+            Browse the topics and sections with the most published coverage
           </p>
         </div>
 
@@ -227,13 +227,13 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
           {trendingTags.length > 0 && (
             <div>
               <h3 className="heading-h3 text-white mb-6 2xl:mb-8 3xl:mb-10 flex items-center gap-2">
-                🏷️ Hot Tags
+                🏷️ Most-covered topics
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 2xl:gap-6 3xl:gap-8">
                 {trendingTags.map((tag) => (
                   <Link
                     key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
+                    href={`/tags/${encodeURIComponent(tag.slug.current)}`}
                     className="group block p-4 2xl:p-6 3xl:p-8 bg-gradient-to-br from-yellow-600 to-red-600 hover:from-yellow-500 hover:to-red-500 rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
                     <div className="text-sm 2xl:text-base 3xl:text-lg mb-1">#{tag.title}</div>
@@ -256,7 +256,7 @@ export default function TrendingTopics({ textureSrc }: TrendingTopicsProps) {
                 {categories.map((category) => (
                   <Link
                     key={category._id}
-                    href={`/headlines?category=${category.slug.current}`}
+                    href={`/categories/${encodeURIComponent(category.slug.current)}`}
                     className={`group block p-4 2xl:p-6 3xl:p-8 bg-gradient-to-br ${getCategoryColorClasses(
                       category.color
                     )} rounded-lg text-white font-medium text-center transition-all duration-300 transform hover:scale-105 hover:shadow-lg`}

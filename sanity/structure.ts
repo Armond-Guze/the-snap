@@ -36,6 +36,34 @@ export const structure: StructureResolver = (S) => {
                   .defaultOrdering([{ field: 'date', direction: 'desc' }])
               ),
             S.listItem()
+              .title('Needs Quality Review')
+              .schemaType('article')
+              .child(
+                S.documentTypeList('article')
+                  .title('Published Articles Missing Quality Signals')
+                  .filter(`
+                    _type == "article" &&
+                    published == true &&
+                    format != "powerRankings" &&
+                    (
+                      !defined(editorialBrief.targetQuery) ||
+                      editorialBrief.overlapChecked != true ||
+                      editorialBrief.humanReviewed != true ||
+                      editorialBrief.factChecked != true ||
+                      editorialBrief.imageRightsConfirmed != true ||
+                      !defined(summary) ||
+                      !defined(author) ||
+                      !defined(coverImage.asset) ||
+                      !defined(category) ||
+                      (defined(dateModified) && !defined(updateNote)) ||
+                      count(tagRefs) < 3 ||
+                      count(body[].markDefs[_type == "internalLink" || (_type == "link" && href match "/*")]) == 0 ||
+                      count(body[].markDefs[_type == "link" && href match "http*"]) == 0
+                    )
+                  `)
+                  .defaultOrdering([{ field: 'date', direction: 'desc' }])
+              ),
+            S.listItem()
               .title('Headlines')
               .schemaType('article')
               .child(

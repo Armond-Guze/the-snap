@@ -5,11 +5,27 @@ import Link from 'next/link';
 import type { HeadlineListItem } from '@/types';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 export const revalidate = 120;
+
+function parseArchivePage(value: string): number | null {
+  if (!/^[1-9]\d*$/.test(value)) return null;
+  const page = Number(value);
+  return Number.isSafeInteger(page) ? page : null;
+}
+
+function archiveHref(page: number): string {
+  return page === 1 ? '/headlines' : `/headlines/page/${page}`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
-  const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
-  const canonical = `${SITE_URL}${pageNum === 1 ? '/headlines' : `/headlines/page/${pageNum}`}`;
+  const { page } = await params;
+  const pageNum = parseArchivePage(page);
+  if (!pageNum) notFound();
+  if (pageNum === 1) permanentRedirect('/headlines');
+
+  const canonical = `${SITE_URL}${archiveHref(pageNum)}`;
   return {
     title: `NFL Headlines Archive – Page ${pageNum} | The Snap`,
     description: `Archive page ${pageNum} of NFL headlines, analysis and news articles from The Snap.`,
@@ -27,13 +43,22 @@ function formatDate(date?: string) {
 }
 
 export default async function HeadlinesPaginatedPage({ params }: { params: Promise<{ page: string }> }) {
-  const p = await params; const pageNum = Math.max(1, Number(p.page) || 1);
-  const start = (pageNum - 1) * PAGE_SIZE; const end = start + PAGE_SIZE;
-  const items: HeadlineListItem[] = await client.fetch(`${headlineQuery}[${start}...${end}]`);
-  const total: number = await client.fetch('count(' + headlineQuery.replace(/\s+/g,' ') + ')');
+  const { page } = await params;
+  const pageNum = parseArchivePage(page);
+  if (!pageNum) notFound();
+  if (pageNum === 1) permanentRedirect('/headlines');
+
+  const start = (pageNum - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  const [items, total] = await Promise.all([
+    client.fetch<HeadlineListItem[]>(`${headlineQuery}[${start}...${end}]`),
+    client.fetch<number>('count(' + headlineQuery.replace(/\s+/g, ' ') + ')'),
+  ]);
   const totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+  if (pageNum > totalPages) notFound();
+
   return (
-    <div className="min-h-screen bg-black text-white py-12">
+    <main className="min-h-screen bg-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -49,7 +74,13 @@ export default async function HeadlinesPaginatedPage({ params }: { params: Promi
                 <Link href={`/articles/${h.slug.current}`}>
                   {h.coverImage?.asset?.url && (
                     <div className="aspect-video relative overflow-hidden bg-[#111]">
-                      <Image src={h.coverImage.asset.url} alt={h.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Image
+                        src={h.coverImage.asset.url}
+                        alt={h.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
                   )}
                   <div className="p-4">
@@ -67,7 +98,7 @@ export default async function HeadlinesPaginatedPage({ params }: { params: Promi
         )}
         <PaginationNav current={pageNum} total={totalPages} />
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -75,17 +106,28 @@ function PaginationNav({ current, total }: { current: number; total: number }) {
   if (total <= 1) return null;
   const pages = Array.from({ length: total }, (_, i) => i + 1).filter(p => (p === 1 || p === total || Math.abs(p - current) <= 2));
   return (
-    <nav className="mt-10 flex items-center justify-center gap-2 text-sm">
-      {current > 1 && <Link href={`/headlines/page/${current-1}`} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Prev</Link>}
+    <nav aria-label="Headline archive pagination" className="mt-10 flex items-center justify-center gap-2 text-sm">
+      {current > 1 && <Link href={archiveHref(current - 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Prev</Link>}
       {pages.map(p => (
-        <Link key={p} href={`/headlines/page/${p}`} className={`px-3 py-1 rounded border ${p===current?'bg-white text-black border-white':'border-white/20 text-white/70 hover:text-white hover:bg-white/10'}`}>{p}</Link>
+        <Link
+          key={p}
+          href={archiveHref(p)}
+          aria-current={p === current ? 'page' : undefined}
+          className={`px-3 py-1 rounded border ${p===current?'bg-white text-black border-white':'border-white/20 text-white/70 hover:text-white hover:bg-white/10'}`}
+        >
+          {p}
+        </Link>
       ))}
-      {current < total && <Link href={`/headlines/page/${current+1}`} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Next</Link>}
+      {current < total && <Link href={archiveHref(current + 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Next</Link>}
     </nav>
   );
 }
 
 export async function generateStaticParams() {
-  // Pre-render first 3 pages to seed the archive; rest on demand
-  return [{ page: '1'}, { page: '2'}, { page: '3'}];
+  // The canonical first page lives at /headlines; only seed archive pages that exist.
+  const total = await client.fetch<number>('count(' + headlineQuery.replace(/\s+/g, ' ') + ')');
+  const lastSeededPage = Math.min(3, Math.ceil(total / PAGE_SIZE));
+  return Array.from({ length: Math.max(0, lastSeededPage - 1) }, (_, index) => ({
+    page: String(index + 2),
+  }));
 }

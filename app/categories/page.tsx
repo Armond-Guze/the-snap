@@ -45,7 +45,7 @@ function getContentUrl(item: CategoryTopItem): string {
   if (!slug) return '#';
 
   if (item._type === 'headline') return `/articles/${slug}`;
-  if (item._type === 'rankings') return `/rankings/${slug}`;
+  if (item._type === 'rankings') return `/articles/${slug}`;
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
 
   if (item._type === 'article' && item.format === 'powerRankings') {

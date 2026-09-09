@@ -4,21 +4,35 @@ on:
   push:
     branches:
       - main
-      - master
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
-  checks:
-    name: Lint and Typecheck
+  validate:
+    name: Validate, test, and build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     env:
-      NEXT_TELEMETRY_DISABLED: '1'
-      CI: 'true'
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Public build configuration belongs in GitHub repository variables.
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+      NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET || 'production' }}
+      NEXT_PUBLIC_SANITY_API_VERSION: ${{ vars.NEXT_PUBLIC_SANITY_API_VERSION || '2025-05-03' }}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://thegamesnap.com' }}
+      # Prisma generate needs syntactically valid URLs; CI does not connect to them.
+      DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/the_snap_ci?schema=public
+      DATABASE_URL_UNPOOLED: postgresql://ci:ci@127.0.0.1:5432/the_snap_ci?schema=public
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,114 +40,40 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: .nvmrc
           cache: npm
 
+      - name: Validate public build configuration
+        shell: bash
+        run: |
+          missing=()
+          [ -z "$NEXT_PUBLIC_SANITY_PROJECT_ID" ] && missing+=("NEXT_PUBLIC_SANITY_PROJECT_ID")
+          [ -z "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" ] && missing+=("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing GitHub repository variables: ${missing[*]}"
+            exit 1
+          fi
+
       - name: Install dependencies
+        env:
+          NODE_OPTIONS: "--use-system-ca"
         run: npm ci
 
       - name: Lint
-        run: NODE_OPTIONS=--max-old-space-size=4096 npm run lint
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        run: npm run lint
 
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
-  unit_tests:
-    name: Unit Tests
-    needs: checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      NEXT_TELEMETRY_DISABLED: '1'
-      CI: 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Detect unit test script
-        id: detect
-        run: |
-          node -e 'const {appendFileSync}=require("node:fs"); const scripts=require("./package.json").scripts||{}; appendFileSync(process.env.GITHUB_OUTPUT, `has_unit=${Boolean(scripts["test:unit"])}\n`);'
-
-      - name: Run unit tests
-        if: steps.detect.outputs.has_unit == 'true'
+      - name: Unit tests
         run: npm run test:unit
 
-      - name: No unit tests configured
-        if: steps.detect.outputs.has_unit != 'true'
-        run: echo "Skipping unit tests: add a test:unit script to package.json to enable this stage."
-
-  integration_tests:
-    name: Integration Tests
-    needs: checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      NEXT_TELEMETRY_DISABLED: '1'
-      CI: 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Detect integration test script
-        id: detect
-        run: |
-          node -e 'const {appendFileSync}=require("node:fs"); const scripts=require("./package.json").scripts||{}; appendFileSync(process.env.GITHUB_OUTPUT, `has_integration=${Boolean(scripts["test:integration"])}\n`);'
-
-      - name: Run integration tests
-        if: steps.detect.outputs.has_integration == 'true'
+      - name: Integration tests
         run: npm run test:integration
 
-      - name: No integration tests configured
-        if: steps.detect.outputs.has_integration != 'true'
-        run: echo "Skipping integration tests: add a test:integration script to package.json to enable this stage."
-
-  build:
-    name: Build
-    needs:
-      - checks
-      - unit_tests
-      - integration_tests
-    if: >
-      always() &&
-      needs.checks.result == 'success' &&
-      (needs.unit_tests.result == 'success' || needs.unit_tests.result == 'skipped') &&
-      (needs.integration_tests.result == 'success' || needs.integration_tests.result == 'skipped')
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      NEXT_TELEMETRY_DISABLED: '1'
-      CI: 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
         run: npm run build

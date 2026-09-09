@@ -8,7 +8,7 @@ import GameSchedule from "./components/GameSchedule";
 import GoogleAds from "./components/GoogleAds"; // Single enabled ad for AdSense review
 import { fetchTeamRecords, shortRecord, TeamRecordDoc } from "@/lib/team-records";
 import { getScheduleWeekOrCurrent, TEAM_META, bucketLabelFor, EnrichedGame } from "@/lib/schedule";
-import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
+import { fetchNFLStandingsWithFallback, resolveNFLSeason } from '@/lib/nfl-api';
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { client } from "@/sanity/lib/client";
@@ -59,8 +59,9 @@ function archivePages(totalPages: number): number[] {
 }
 
 export default async function Home() {
+  const season = resolveNFLSeason();
   const [recMap, headlineCount] = await Promise.all([
-    fetchFreshRecords(2025),
+    fetchFreshRecords(season),
     fetchHeadlineArchiveCount(),
   ]);
   const games = await buildHomepageGames(recMap);
@@ -204,7 +205,7 @@ async function fetchFreshRecords(season: number): Promise<Map<string, TeamRecord
   if (stored.size === 32) return stored;
 
   try {
-    const live = await fetchNFLStandingsWithFallback();
+    const live = await fetchNFLStandingsWithFallback(season);
     if (live?.length) {
       const nameToAbbr = new Map<string, string>(
         Object.entries(TEAM_META).map(([abbr, meta]) => [meta.name, abbr])

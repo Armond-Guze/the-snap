@@ -1,6 +1,6 @@
 import { client } from '@/sanity/lib/client';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { powerRankingsLiveQuery, powerRankingsSnapshotByParamsQuery, powerRankingsSnapshotSlugsQuery } from '@/lib/queries/power-rankings';
 import type { HeadlineListItem, MovementIndicator, PageProps, PowerRankingsDoc, PowerRankingEntry } from '@/types';
 import Image from 'next/image';
@@ -15,6 +15,7 @@ import { formatArticleDate } from '@/lib/date-utils';
 import { gradientClassForTeam, teamCodeFromName, teamNameFromCode } from '@/lib/team-utils';
 import { fetchTeamRecords, shortRecord } from '@/lib/team-records';
 import { SITE_URL } from '@/lib/site-config';
+import StructuredData, { createEnhancedArticleStructuredData } from '@/app/components/StructuredData';
 
 const TEAM_COLOR_CLASSES: Record<string, string> = {
   '#97233F': 'text-[#97233F]',
@@ -73,9 +74,10 @@ type ParsedWeek =
 
 function parseWeekParam(raw: string): ParsedWeek {
   const normalized = raw.toLowerCase();
-  if (normalized.startsWith('week-')) {
-    const weekNumber = Number(normalized.replace('week-', ''));
-    if (Number.isFinite(weekNumber) && weekNumber >= 1 && weekNumber <= 18) {
+  const weekMatch = /^week-(\d{1,2})$/.exec(normalized);
+  if (weekMatch) {
+    const weekNumber = Number(weekMatch[1]);
+    if (weekNumber >= 1 && weekNumber <= 18) {
       return { weekNumber };
     }
   }
@@ -87,6 +89,18 @@ function parseWeekParam(raw: string): ParsedWeek {
     return { playoffRound: round };
   }
   return { invalid: true };
+}
+
+function parseSeasonParam(raw: string): number | null {
+  if (!/^\d{4}$/.test(raw)) return null;
+  const season = Number(raw);
+  return Number.isSafeInteger(season) ? season : null;
+}
+
+function canonicalWeekParam(parsed: Exclude<ParsedWeek, { invalid: true }>): string {
+  return typeof parsed.weekNumber === 'number'
+    ? `week-${parsed.weekNumber}`
+    : parsed.playoffRound.toLowerCase();
 }
 
 function getPrevPlayoffRound(round?: string | null) {
@@ -153,16 +167,16 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { season: seasonParam, week } = await params;
-  const season = Number(seasonParam);
+  const season = parseSeasonParam(seasonParam);
   const parsed = parseWeekParam(week);
-  if (!Number.isFinite(season) || 'invalid' in parsed) {
-    return { title: 'NFL Power Rankings', description: 'Weekly NFL power rankings.' };
-  }
+  if (season === null || 'invalid' in parsed) notFound();
+
+  const canonicalWeek = canonicalWeekParam(parsed);
   const weekLabel = parsed.weekNumber ? `Week ${parsed.weekNumber}` : PLAYOFF_LABELS[parsed.playoffRound || ''] || 'Playoffs';
   const title = `NFL Power Rankings ${season} — ${weekLabel}: Full 1–32, Movers & Notes`;
   const description = `Complete ${weekLabel} NFL Power Rankings for ${season}. See team movement from last week and quick notes for all 32 teams.`;
   const baseUrl = SITE_URL;
-  const canonical = `${baseUrl}/articles/power-rankings/${season}/${week}`;
+  const canonical = `${baseUrl}/articles/power-rankings/${season}/${canonicalWeek}`;
   const ogImage = `${baseUrl}/api/og?${new URLSearchParams({
     title,
     subtitle: description,
@@ -183,10 +197,13 @@ export const revalidate = 300;
 
 export default async function RankingsWeekPage({ params }: PageProps) {
   const { season: seasonParam, week } = await params;
-  const season = Number(seasonParam);
+  const season = parseSeasonParam(seasonParam);
   const parsed = parseWeekParam(week);
-  if (!Number.isFinite(season) || 'invalid' in parsed) {
-    notFound();
+  if (season === null || 'invalid' in parsed) notFound();
+
+  const canonicalWeek = canonicalWeekParam(parsed);
+  if (seasonParam !== String(season) || week !== canonicalWeek) {
+    permanentRedirect(`/articles/power-rankings/${season}/${canonicalWeek}`);
   }
 
   const [data, liveDoc, otherContent] = await Promise.all([
@@ -247,15 +264,65 @@ export default async function RankingsWeekPage({ params }: PageProps) {
   const displayConclusion = (Array.isArray(data.rankingConclusion) && data.rankingConclusion.length > 0 ? data.rankingConclusion : liveDoc?.rankingConclusion) || [];
   const biggestRiser = data.biggestRiser || liveDoc?.biggestRiser;
   const biggestFaller = data.biggestFaller || liveDoc?.biggestFaller;
-  const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${week}`;
+  const shareUrl = `${SITE_URL}/articles/power-rankings/${season}/${canonicalWeek}`;
+  const sortedRankings = (data.rankings || []).slice().sort((a, b) => a.rank - b.rank);
   const breadcrumbItems = [
     { label: 'Articles', href: '/articles' },
     { label: 'Power Rankings', href: '/articles/power-rankings' },
     { label: `${season} ${weekLabel}` }
   ];
+  const articleSchema = createEnhancedArticleStructuredData({
+    headline: displayTitle,
+    description: displaySummary || `Complete ${weekLabel} NFL Power Rankings for ${season}.`,
+    canonicalUrl: shareUrl,
+    images: displayCover?.asset?.url ? [{ url: displayCover.asset.url }] : [],
+    datePublished: published || '',
+    dateModified: data.dateModified || published || '',
+    author: {
+      name: displayAuthor?.name || 'The Snap',
+      ...(displayAuthor?.slug?.current
+        ? { url: `${SITE_URL}/authors/${displayAuthor.slug.current}` }
+        : {}),
+    },
+    articleSection: 'NFL Power Rankings',
+    keywords: [`${season} NFL power rankings`, `${weekLabel} NFL power rankings`, 'NFL rankings'],
+    speakableSelectors: ['h1', 'header + div p'],
+  });
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: displayTitle,
+    url: shareUrl,
+    numberOfItems: sortedRankings.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement: sortedRankings.map((entry) => ({
+      '@type': 'ListItem',
+      position: entry.rank,
+      item: {
+        '@type': 'SportsTeam',
+        name: resolveTeamDisplayName(entry),
+        ...(entry.team?.slug?.current
+          ? { url: `${SITE_URL}/teams/${entry.team.slug.current}` }
+          : {}),
+      },
+    })),
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Articles', item: `${SITE_URL}/articles` },
+      { '@type': 'ListItem', position: 3, name: 'Power Rankings', item: `${SITE_URL}/articles/power-rankings` },
+      { '@type': 'ListItem', position: 4, name: `${season} ${weekLabel}`, item: shareUrl },
+    ],
+  };
 
   return (
     <>
+    <StructuredData id={`sd-rankings-article-${season}-${canonicalWeek}`} data={articleSchema} />
+    <StructuredData id={`sd-rankings-list-${season}-${canonicalWeek}`} data={itemListSchema} />
+    <StructuredData id={`sd-rankings-breadcrumb-${season}-${canonicalWeek}`} data={breadcrumbSchema} />
     <main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         <article className="lg:col-span-2 flex flex-col">
@@ -281,7 +348,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
               </span>
               {published && (
                 <>
-                  <span>• {formatArticleDate(published)}</span>
+                  <span>• <time dateTime={published}>{formatArticleDate(published)}</time></span>
                   <span className="text-gray-500 hidden sm:inline">•</span>
                 </>
               )}
@@ -331,10 +398,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
           )}
 
 	          <div className="space-y-12">
-            {(data.rankings || [])
-              .slice()
-              .sort((a, b) => a.rank - b.rank)
-              .map((team: PowerRankingEntry, index: number) => {
+            {sortedRankings.map((team: PowerRankingEntry, index: number) => {
                 const rank = team.rank;
                 const teamName = resolveTeamDisplayName(team);
                 const teamCode = resolveTeamCode(team, teamName);

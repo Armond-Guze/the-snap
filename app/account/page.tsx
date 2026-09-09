@@ -1,8 +1,21 @@
 import { SignedIn, SignedOut, SignInButton, SignOutButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Account | The Snap",
+  description: "Sign in to manage your The Snap account.",
+  alternates: { canonical: `${SITE_URL}/account` },
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+};
 
 export default function AccountPage() {
   return (
-    <div className="min-h-[70vh] bg-black px-6 py-10 text-white">
+    <main className="min-h-[70vh] bg-black px-6 py-10 text-white">
       <div className="mx-auto max-w-xl space-y-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <h1 className="text-2xl font-bold tracking-tight">Account</h1>
 
@@ -36,6 +49,6 @@ export default function AccountPage() {
           </SignOutButton>
         </SignedIn>
       </div>
-    </div>
+    </main>
   );
 }

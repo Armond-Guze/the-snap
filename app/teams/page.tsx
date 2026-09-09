@@ -57,7 +57,7 @@ export default async function TeamsHubIndexPage() {
     .slice(0, 8);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 text-white sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl px-4 py-8 text-white sm:px-6 lg:px-8">
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(56,189,248,0.18),transparent_35%)]" />
         <div className="relative z-10">
@@ -137,6 +137,6 @@ export default async function TeamsHubIndexPage() {
           </div>
         ))}
       </section>
-    </div>
+    </main>
   );
 }

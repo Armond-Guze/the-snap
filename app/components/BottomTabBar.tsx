@@ -4,7 +4,9 @@ import { Capacitor } from "@capacitor/core";
 import { Bell, Home, Trophy, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const subscribeToPlatform = () => () => {};
 
 type TabItem = {
   key: string;
@@ -57,11 +59,11 @@ const TAB_ITEMS: TabItem[] = [
 
 export default function BottomTabBar() {
   const pathname = usePathname();
-  const [showTabs, setShowTabs] = useState(false);
-
-  useEffect(() => {
-    setShowTabs(Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios");
-  }, []);
+  const showTabs = useSyncExternalStore(
+    subscribeToPlatform,
+    () => Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios",
+    () => false
+  );
 
   if (!showTabs) return null;
 

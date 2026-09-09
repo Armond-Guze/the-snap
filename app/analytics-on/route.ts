@@ -1,22 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { SITE_URL } from '@/lib/site-config';
+import { NextResponse } from 'next/server';
 
-// GET /analytics-on : clear exclusion cookie and redirect to home
-export async function GET(request: NextRequest) {
-  const base = SITE_URL;
-  const current = new URL(request.url);
-  const nextPath = current.searchParams.get('next');
-  const safeNext = nextPath && nextPath.startsWith('/') ? nextPath : '/';
-  const target = new URL(safeNext, base);
-  target.searchParams.set('include_analytics', '1');
-
-  const res = NextResponse.redirect(target);
-  res.cookies.set({
-    name: 'va-exclude',
-    value: '',
-    path: '/',
-    maxAge: 0,
-    sameSite: 'lax'
-  });
-  return res;
+// Analytics can only be re-enabled through the explicit cookie-preferences UI.
+// Keeping this retired endpoint non-mutating avoids cross-site GET requests
+// silently reversing a visitor's opt-out.
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Use Cookie preferences to change analytics consent.' },
+    {
+      status: 410,
+      headers: {
+        'Cache-Control': 'no-store',
+        Allow: 'GET',
+      },
+    }
+  );
 }

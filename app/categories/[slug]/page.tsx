@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { client } from '@/sanity/lib/client';
 import { categoryContentQuery, categoriesQuery } from '@/sanity/lib/queries';
 import { Category } from '@/types';
@@ -8,6 +8,7 @@ import NewsletterSignup from '@/app/components/NewsletterSignup';
 import { generateCategorySEOMetadata } from '@/lib/seo';
 import { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
+import StructuredData from '@/app/components/StructuredData';
 
 export const revalidate = 300;
 
@@ -41,7 +42,7 @@ function getContentUrl(item: CategoryContentItem): string {
   const slug = item.slug?.current?.trim();
   if (!slug) return '#';
   if (item._type === 'headline') return `/articles/${slug}`;
-  if (item._type === 'rankings') return `/rankings/${slug}`;
+  if (item._type === 'rankings') return `/articles/${slug}`;
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`;
   if (item._type === 'article' && item.format === 'powerRankings') {
     if (item.rankingType === 'snapshot' && item.seasonYear) {
@@ -62,7 +63,7 @@ function getCardImage(item: CategoryContentItem): string | null {
 }
 
 export async function generateMetadata(props: CategoryPageProps): Promise<Metadata> {
-  const params = await props.params;
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   if (!params?.slug) return {};
 
   const categoriesData = await client.fetch<Category[]>(categoriesQuery);
@@ -70,7 +71,22 @@ export async function generateMetadata(props: CategoryPageProps): Promise<Metada
 
   if (!category) return {};
 
-  return generateCategorySEOMetadata(category);
+  const baseMetadata = generateCategorySEOMetadata(category);
+  const requestedPage = Math.max(1, Number.parseInt(searchParams?.page || '1', 10) || 1);
+  if (requestedPage === 1) return baseMetadata;
+
+  const canonical = `${SITE_URL}/categories/${params.slug}?page=${requestedPage}`;
+  return {
+    ...baseMetadata,
+    title: `${category.title} NFL Coverage – Page ${requestedPage} | The Snap`,
+    description: `Browse page ${requestedPage} of ${category.title} NFL news, analysis, and features from The Snap.`,
+    alternates: { canonical },
+    openGraph: {
+      ...baseMetadata.openGraph,
+      title: `${category.title} NFL Coverage – Page ${requestedPage}`,
+      url: canonical,
+    },
+  };
 }
 
 const PAGE_SIZE = 24;
@@ -92,8 +108,20 @@ export default async function CategoryPage(props: CategoryPageProps) {
   }
 
   const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
-  const pageNumber = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-  const currentPage = Math.min(pageNumber, totalPages);
+  const rawPage = searchParams?.page;
+  const validPageParam = !rawPage || /^[1-9]\d*$/.test(rawPage);
+  const pageNumber = validPageParam && Number.isFinite(requestedPage) ? requestedPage : 1;
+  if (!validPageParam || pageNumber === 1 && Boolean(rawPage)) {
+    permanentRedirect(`/categories/${categorySlug}`);
+  }
+  if (pageNumber > totalPages) {
+    permanentRedirect(
+      totalPages === 1
+        ? `/categories/${categorySlug}`
+        : `/categories/${categorySlug}?page=${totalPages}`
+    );
+  }
+  const currentPage = pageNumber;
   const offset = (currentPage - 1) * PAGE_SIZE;
   const pageItems = items.slice(offset, offset + PAGE_SIZE);
   const previousPageHref = `/categories/${categorySlug}?page=${currentPage - 1}`;
@@ -139,9 +167,9 @@ export default async function CategoryPage(props: CategoryPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white py-12">
+    <main className="min-h-screen bg-black text-white py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(listLd) }} />
+        <StructuredData id={`sd-category-${categorySlug}-${currentPage}`} data={listLd} />
         {/* Category Header */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
@@ -301,6 +329,6 @@ export default async function CategoryPage(props: CategoryPageProps) {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

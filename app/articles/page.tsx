@@ -8,20 +8,7 @@ import TagCloud from '../components/TagCloud';
 import NewsletterSignup from '../components/NewsletterSignup';
 import MostRead from '../components/MostRead';
 import { SITE_URL } from '@/lib/site-config';
-
-export const metadata = {
-  title: 'NFL Articles | The Snap',
-  description: 'Long-form articles, deep dives, and analysis from around the NFL.',
-  alternates: {
-    canonical: `${SITE_URL}/articles`,
-  },
-  openGraph: {
-    title: 'NFL Articles | The Snap',
-    description: 'Long-form articles, deep dives, and analysis from around the NFL.',
-    url: `${SITE_URL}/articles`,
-    type: 'website',
-  },
-};
+import type { Metadata } from 'next';
 
 export const revalidate = 120;
 
@@ -67,7 +54,7 @@ async function fetchArticles(filters: ArticleFilters): Promise<ArticleListItem[]
 
   const baseFields = `{
     _id,_type,format,rankingType,seasonYear,weekNumber,playoffRound,title,homepageTitle,slug,summary,
-    coverImage{asset->{url}},date,publishedAt,author->{name},category->{title,slug,color},tags[]->{title}
+    coverImage{asset->{url}},date,publishedAt,author->{name,slug},category->{title,slug,color},"tags":tagRefs[]->{title,slug}
   }`;
 
   if (filters.search) {
@@ -122,6 +109,26 @@ function buildDescription(filters: ArticleFilters) {
   return 'Discover long-form NFL articles, analysis, and deep dives.';
 }
 
+export async function generateMetadata({ searchParams }: ArticlesPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const filters: ArticleFilters = {
+    category: toSingleParam(params.category),
+    tag: toSingleParam(params.tag),
+    search: toSingleParam(params.search),
+  };
+  const hasFilters = Boolean(filters.category || filters.tag || filters.search);
+  const title = hasFilters ? `${buildTitle(filters)} | The Snap` : 'NFL Articles | The Snap';
+  const description = hasFilters ? buildDescription(filters) : 'Long-form articles, deep dives, and analysis from around the NFL.';
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/articles` },
+    robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
+    openGraph: { title, description, url: `${SITE_URL}/articles`, type: 'website' },
+  };
+}
+
 export default async function ArticlesPage(props: ArticlesPageProps) {
   const searchParams = await props.searchParams;
   const filters: ArticleFilters = {
@@ -138,7 +145,7 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
   const description = buildDescription(filters);
 
   return (
-    <div className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white py-12">
+    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{title}</h1>
@@ -153,41 +160,40 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {articles.slice(0,24).map(f => (
                   <article key={f._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
-                    <Link href={getArticleHref(f)}>
-                      {f.coverImage?.asset?.url && (
+                    {f.coverImage?.asset?.url && (
+                      <Link href={getArticleHref(f)} aria-label={f.homepageTitle || f.title}>
                         <div className="aspect-video relative overflow-hidden bg-[#111]">
                           <Image src={f.coverImage.asset.url} alt={f.title} fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
                         </div>
-                      )}
-                      <div className="p-4">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {f.category?.title && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60">{f.category.title}</span>
-                          )}
-                          {f._type === 'article' && f.format === 'powerRankings' && (
-                            <span className="inline-block px-2 py-1 text-[11px] font-semibold text-purple-200 bg-purple-500/15 rounded-md border border-purple-400/30">
-                              Power Rankings
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{f.homepageTitle || f.title}</h3>
-                        {f.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{f.summary}</p>}
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          {f.author?.name && <span>By {f.author.name}</span>}
-                          {f.date && <span>{formatDate(f.date)}</span>}
-                        </div>
-                        {Array.isArray(f.tags) && f.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-3">
-                            {f.tags
-                              .filter((t: { title?: string } | null): t is { title: string } => !!t && typeof t.title === 'string')
-                              .slice(0,3)
-                              .map((t, i) => (
-                                <Link key={i} href={`/articles?tag=${encodeURIComponent(t.title)}`} className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors">#{t.title}</Link>
-                              ))}
-                          </div>
+                      </Link>
+                    )}
+                    <div className="p-4">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {f.category?.title && f.category.slug?.current && (
+                          <Link href={`/categories/${encodeURIComponent(f.category.slug.current)}`} className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60 hover:text-white">{f.category.title}</Link>
+                        )}
+                        {f._type === 'article' && f.format === 'powerRankings' && (
+                          <span className="inline-block px-2 py-1 text-[11px] font-semibold text-purple-200 bg-purple-500/15 rounded-md border border-purple-400/30">
+                            Power Rankings
+                          </span>
                         )}
                       </div>
-                    </Link>
+                      <h2 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">
+                        <Link href={getArticleHref(f)}>{f.homepageTitle || f.title}</Link>
+                      </h2>
+                      {f.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{f.summary}</p>}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        {f.author?.name && <span>By {f.author.name}</span>}
+                        {f.date && <time dateTime={f.date}>{formatDate(f.date)}</time>}
+                      </div>
+                      {Array.isArray(f.tags) && f.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-3">
+                          {f.tags.slice(0, 3).map((tag) => tag?.title && tag.slug?.current ? (
+                            <Link key={tag.slug.current} href={`/tags/${encodeURIComponent(tag.slug.current)}`} className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors">#{tag.title}</Link>
+                          ) : null)}
+                        </div>
+                      )}
+                    </div>
                   </article>
                 ))}
               </div>
@@ -208,7 +214,7 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
               <h3 className="text-lg font-semibold mb-4 text-white">Popular Categories</h3>
               <div className="space-y-2">
                 {(categories || []).slice(0,6).map(cat => (
-                  <Link key={cat._id} href={`/articles?category=${encodeURIComponent(cat.slug.current)}`} className="block text-gray-300 hover:text-white transition-colors">
+                  <Link key={cat._id} href={`/categories/${encodeURIComponent(cat.slug.current)}`} className="block text-gray-300 hover:text-white transition-colors">
                     {cat.title}
                   </Link>
                 ))}
@@ -217,7 +223,7 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

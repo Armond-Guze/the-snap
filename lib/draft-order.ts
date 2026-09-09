@@ -1,5 +1,5 @@
 import { fetchSportsDataStandings, SportsDataStandingsTeam } from '@/lib/sportsdata-client';
-import { fetchNFLStandingsWithFallback, ProcessedTeamData } from '@/lib/nfl-api';
+import { fetchNFLStandingsWithFallback, ProcessedTeamData, resolveNFLSeason } from '@/lib/nfl-api';
 import { TEAM_META } from '@/lib/schedule';
 import { tradedPicks, TradedPick } from '@/data/traded-picks';
 
@@ -23,7 +23,7 @@ export interface DraftOrderResult {
 }
 
 export async function computeDraftOrder(season?: number): Promise<DraftOrderResult> {
-  const seasonUsed = season ?? new Date().getFullYear();
+  const seasonUsed = resolveNFLSeason(season);
   const base = await getStandingsRows(seasonUsed);
   const sorted = base.sort(compareForDraft);
   const picks = applyTradedPicks(sorted, tradedPicks).map((row, idx) => ({
@@ -54,17 +54,42 @@ async function getStandingsRows(season: number): Promise<StandingsRow[]> {
   if (hasApiKey) {
     try {
       const standings = await fetchSportsDataStandings(season);
-      return standings.map(mapStandingRow);
+      return assertCompleteStandingsRows(standings.map(mapStandingRow), season, 'SportsDataIO');
     } catch (err) {
       console.warn('SportsDataIO standings failed, falling back to ESPN data:', err);
     }
   }
 
   // Fallback path: use ESPN-derived standings (no API key required).
-  const fallback = await fetchNFLStandingsWithFallback();
-  return fallback
+  const fallback = await fetchNFLStandingsWithFallback(season);
+  const rows = fallback
     .map((team) => mapFallbackTeam(team))
     .filter((row): row is StandingsRow => Boolean(row));
+  return assertCompleteStandingsRows(rows, season, 'ESPN');
+}
+
+function assertCompleteStandingsRows(rows: StandingsRow[], season: number, source: string): StandingsRow[] {
+  const teams = new Set(rows.map((row) => row.teamAbbr));
+  const expectedTeams = new Set(Object.keys(TEAM_META));
+  const hasInvalidRow = rows.some(
+    (row) =>
+      !expectedTeams.has(row.teamAbbr) ||
+      !Number.isInteger(row.wins) ||
+      !Number.isInteger(row.losses) ||
+      !Number.isInteger(row.ties) ||
+      row.wins < 0 ||
+      row.losses < 0 ||
+      row.ties < 0 ||
+      !Number.isFinite(row.winPct) ||
+      (row.sos !== undefined && !Number.isFinite(row.sos)),
+  );
+  if (rows.length !== 32 || teams.size !== 32 || expectedTeams.size !== 32 || hasInvalidRow) {
+    throw new Error(
+      `${source} returned incomplete or invalid ${season} draft standings ` +
+        `(rows=${rows.length}, uniqueTeams=${teams.size}, expected=32)`,
+    );
+  }
+  return rows;
 }
 
 function mapStandingRow(team: SportsDataStandingsTeam) {
@@ -90,6 +115,7 @@ function mapStandingRow(team: SportsDataStandingsTeam) {
 
 function mapFallbackTeam(team: ProcessedTeamData): StandingsRow | null {
   const abbr = findAbbr(team.teamName);
+  if (!abbr) return null;
   const wins = team.wins ?? 0;
   const losses = team.losses ?? 0;
   const ties = team.ties ?? 0;
@@ -109,16 +135,10 @@ function mapFallbackTeam(team: ProcessedTeamData): StandingsRow | null {
   };
 }
 
-function findAbbr(teamName: string): string {
+function findAbbr(teamName: string): string | null {
   const entry = Object.entries(TEAM_META).find(([, meta]) => meta.name === teamName);
   if (entry) return entry[0];
-  // Fallback: uppercase abbreviation from team name initials if not found.
-  const initials = teamName
-    .split(/\s+/)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase();
-  return initials || teamName.toUpperCase();
+  return null;
 }
 
 function compareForDraft(a: StandingsRow, b: StandingsRow): number {

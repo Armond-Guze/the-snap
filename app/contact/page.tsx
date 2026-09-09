@@ -3,8 +3,11 @@
 import { useForm, ValidationError } from "@formspree/react";
 import { SimpleCard, SimplePageShell } from "../components/SimpleInfoPage";
 
+const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID || "xvgrgqzd";
+const FORMSPREE_ACTION = `https://formspree.io/f/${FORMSPREE_ID}`;
+
 export default function ContactPage() {
-  const [state, handleSubmit] = useForm("xvgrgqzd");
+  const [state, handleSubmit] = useForm(FORMSPREE_ID);
 
   return (
     <SimplePageShell
@@ -29,7 +32,11 @@ export default function ContactPage() {
           </div>
 
           <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form action={FORMSPREE_ACTION} method="POST" onSubmit={handleSubmit} className="space-y-5">
+              <div className="hidden" aria-hidden="true">
+                <label htmlFor="contact-company">Company</label>
+                <input id="contact-company" type="text" name="_gotcha" tabIndex={-1} autoComplete="off" />
+              </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="first-name" className="mb-2 block text-sm font-medium text-white/80">

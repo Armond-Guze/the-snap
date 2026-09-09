@@ -23,6 +23,7 @@ const EXCLUDED_ENVIRONMENTS = [
 ];
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
 const isExcludedEnvironment = () => {
   if (typeof window === 'undefined') return false;
   
@@ -35,19 +36,17 @@ const isExcludedEnvironment = () => {
   return isDevelopment || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded;
 };
 
-export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_ID: string }) {
+export default function GoogleAnalytics({
+  GA_MEASUREMENT_ID,
+  advertisingConsent,
+}: {
+  GA_MEASUREMENT_ID: string;
+  advertisingConsent: boolean;
+}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialConfigSent = useRef(false);
   const [ready, setReady] = useState(false);
-
-  // Mark GA ready once the inline init script has run and gtag function exists
-  useEffect(() => {
-    if (isExcludedEnvironment()) return;
-    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
-      setReady(true);
-    }
-  }, []);
 
   // Track route changes once GA is ready
   useEffect(() => {
@@ -56,6 +55,13 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_
 
     const query = searchParams.toString();
     const page_path = query ? `${pathname}?${query}` : pathname;
+    const adsGranted = ADS_ENABLED && advertisingConsent ? 'granted' : 'denied';
+    window.gtag('consent', 'update', {
+      analytics_storage: 'granted',
+      ad_storage: adsGranted,
+      ad_user_data: adsGranted,
+      ad_personalization: adsGranted,
+    });
 
     if (!initialConfigSent.current) {
       window.gtag('config', GA_MEASUREMENT_ID, {
@@ -69,29 +75,49 @@ export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_
       window.gtag('event', 'page_view', { page_path });
       if (process.env.NODE_ENV !== 'production') console.log('[GA] route change page_view', page_path);
     }
-  }, [pathname, searchParams, GA_MEASUREMENT_ID, ready]);
+  }, [pathname, searchParams, GA_MEASUREMENT_ID, advertisingConsent, ready]);
+
+  useEffect(() => {
+    if (!ready || typeof window.gtag !== 'function') return;
+    const adsGranted = ADS_ENABLED && advertisingConsent ? 'granted' : 'denied';
+    window.gtag('consent', 'update', {
+      analytics_storage: 'granted',
+      ad_storage: adsGranted,
+      ad_user_data: adsGranted,
+      ad_personalization: adsGranted,
+    });
+  }, [advertisingConsent, ready]);
 
   if (isExcludedEnvironment()) return null;
 
   return (
     <>
       <Script
-        id="ga-src"
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
-        onLoad={() => {
-          if (process.env.NODE_ENV !== 'production') console.log('[GA] gtag.js loaded');
-        }}
-      />
-      <Script
         id="ga-inline-init"
         strategy="afterInteractive"
+        onReady={() => {
+          if (typeof window.gtag === 'function') {
+            setReady(true);
+          }
+        }}
       >{`
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);} // define stub
+        window.gtag = gtag;
+        gtag('consent', 'default', {
+          analytics_storage: 'denied',
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied'
+        });
         gtag('js', new Date());
         // Do not call config here with page_path; let effect handle it to avoid double page_view
       `}</Script>
+      <Script
+        id="ga-src"
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
     </>
   );
 }

@@ -32,6 +32,7 @@ When creating or updating an article in Sanity, prefer this field set:
 - `homepageTitle` for shorter homepage display text
 - `slug`
 - `seo`
+- `editorialBrief`
 - `coverImage`
 - `author`
 - `date`
@@ -43,12 +44,16 @@ When creating or updating an article in Sanity, prefer this field set:
 - `tagRefs` for canonical advanced tags
 - `published`
 - `body`
+- `updateNote` when `dateModified` is used
 
 Important rules:
 
 - Team references use `_type == "tag"` docs
 - Canonical topic tags use `_type == "advancedTag"` in `tagRefs`
 - `tagRefs` should usually contain `3–6` tags
+- New AI-assisted drafts must define one target query, a distinct original contribution, named sources, and an internal-link plan in `editorialBrief`
+- Published standard articles must include contextual body links to related Snap coverage and at least one authoritative external source
+- AI output never self-confirms human review, fact checking, or image rights
 - Do not stuff extra text into reference objects
 - `homepageTitle` should stay concise
 
@@ -105,3 +110,4 @@ Important rules:
 - Prefer updating shared components instead of page-by-page duplication
 - Treat editorial and Sanity tasks as first-class work in this project
 - When asked to create or rewrite articles, align output to the `article` schema and the site’s current publishing flow
+- For AI-assisted articles, follow `codex/skills/the-snap-studio-workflow/references/auto-writer.md` and improve an existing overlapping URL instead of creating a near-duplicate

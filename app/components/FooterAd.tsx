@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useConsentPreferences } from './consent';
 
 // Extend the Window interface to include adsbygoogle
 declare global {
@@ -12,19 +13,21 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
 const FOOTER_SLOT = process.env.NEXT_PUBLIC_ADSENSE_FOOTER_SLOT_ID || process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID;
 
 export default function FooterAd() {
+  const initializedRef = useRef(false);
+  const consent = useConsentPreferences();
+
   useEffect(() => {
+    if (!ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising || initializedRef.current) return;
     try {
-      console.log('AdSense: Initializing footer ad...');
       (window.adsbygoogle = window.adsbygoogle || []).push({});
-      console.log('AdSense: Footer ad pushed to queue');
+      initializedRef.current = true;
     } catch (e) {
       console.error('AdSense footer ad error:', e);
     }
-  }, []);
+  }, [consent]);
 
   // Hide ads in development
-  const consentGranted = typeof window !== 'undefined' && localStorage.getItem('cookie_consent') === '1';
-  if (process.env.NODE_ENV === 'development' || !ADS_ENABLED || !ADSENSE_CLIENT || !consentGranted) {
+  if (process.env.NODE_ENV === 'development' || !ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising) {
     return null;
   }
 

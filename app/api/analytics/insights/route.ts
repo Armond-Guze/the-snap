@@ -1,14 +1,29 @@
 import { NextResponse } from 'next/server';
+
+import { requireAnalyticsAdmin } from '../_admin';
 import { aggregateLast7Days } from '../../../../lib/analytics-store';
 
-export const revalidate = 0; // always fresh
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
 
 export async function GET() {
+  const unauthorized = await requireAnalyticsAdmin();
+  if (unauthorized) return unauthorized;
+
   try {
     const data = await aggregateLast7Days();
-    return NextResponse.json({ success: true, data });
-  } catch (err) {
-    console.error('insights GET failed', err);
-    return NextResponse.json({ success: false, error: 'Failed to compute insights' }, { status: 500 });
+    return NextResponse.json(
+      { success: true, data },
+      { status: 200, headers: { 'Cache-Control': 'no-store' } },
+    );
+  } catch (error) {
+    console.error('[analytics] insights query failed', {
+      errorType: error instanceof Error ? error.name : 'UnknownError',
+    });
+    return NextResponse.json(
+      { success: false, error: 'Failed to compute insights' },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } },
+    );
   }
 }

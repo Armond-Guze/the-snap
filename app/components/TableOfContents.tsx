@@ -18,9 +18,6 @@ interface TableOfContentsProps {
 export default function TableOfContents({ headings = [], className = '', collapseAt = 1024 }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string>('');
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => { setIsClient(true); }, []);
 
   // Manage auto collapse based on window size
   useEffect(() => {
@@ -28,13 +25,16 @@ export default function TableOfContents({ headings = [], className = '', collaps
       if (typeof window === 'undefined') return;
       setIsCollapsed(window.innerWidth < collapseAt);
     };
-    handleResize();
+    const frame = window.requestAnimationFrame(handleResize);
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [collapseAt]);
 
   const observe = useCallback(() => {
-    if (!isClient || !headings.length) return;
+    if (!headings.length) return;
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -53,7 +53,7 @@ export default function TableOfContents({ headings = [], className = '', collaps
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [headings, isClient]);
+  }, [headings]);
 
   useEffect(() => {
     const cleanup = observe();

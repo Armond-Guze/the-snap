@@ -1,5 +1,7 @@
 'use client';
+import { useCallback } from 'react';
 import { trackEvent } from '@/app/components/GoogleAnalytics';
+import { readConsentPreferences } from '@/app/components/consent';
 
 interface ArticleClickData {
   articleId: string;
@@ -12,7 +14,7 @@ interface ArticleClickData {
   source?: string; // Where the click came from (homepage, category, search, etc.)
 }
 
-const INTERNAL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED !== 'false';
+const INTERNAL_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_ENABLED === 'true';
 const INTERNAL_VIEW_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_VIEW_SAMPLE_RATE, 0.25);
 const INTERNAL_CLICK_SAMPLE_RATE = parseSampleRate(process.env.NEXT_PUBLIC_INTERNAL_ANALYTICS_CLICK_SAMPLE_RATE, 0.2);
 const CLICK_DEDUPE_WINDOW_MS = 20 * 1000;
@@ -34,9 +36,15 @@ const isExcludedEnvironment = () => {
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
   const isPrivateIP = hostname.includes('192.168.') || hostname.includes('10.');
   const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-  const lsExcluded = window.localStorage.getItem('va-exclude') === '1';
+  let lsExcluded = false;
+  try {
+    lsExcluded = window.localStorage.getItem('va-exclude') === '1';
+  } catch {
+    // Cookie consent and the server-side cookie check remain authoritative.
+  }
+  const hasAcceptedConsent = readConsentPreferences()?.analytics === true;
   
-  return isDev || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded;
+  return isDev || isLocalhost || isPrivateIP || cookieExcluded || lsExcluded || !hasAcceptedConsent;
 };
 
 function shouldSampleEvent(key: string, rate: number) {
@@ -106,10 +114,8 @@ function sendInternalAnalytics(url: string, payload: Record<string, unknown>) {
 }
 
 export const useArticleTracking = () => {
-  const trackArticleClick = (data: ArticleClickData) => {
-    // Skip tracking in development/excluded environments
+  const trackArticleClick = useCallback((data: ArticleClickData) => {
     if (isExcludedEnvironment()) {
-      console.log('Article click tracking disabled - development environment');
       return;
     }
 
@@ -125,22 +131,21 @@ export const useArticleTracking = () => {
       source: data.source || 'unknown'
     });
 
+    if (!INTERNAL_ANALYTICS_ENABLED) return;
     if (!shouldSampleEvent(`click:${data.articleSlug}`, INTERNAL_CLICK_SAMPLE_RATE)) return;
     if (isRapidDuplicateClick(data.articleSlug, data.source)) return;
 
     sendInternalAnalytics('/api/analytics/article-click', {
-      ...data,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      referrer: document.referrer,
-      isOwner: false
+      articleId: data.articleId,
+      articleSlug: data.articleSlug,
+      readingTime: data.readingTime,
+      source: data.source,
+      position: data.position
     });
-  };
+  }, []);
 
-  const trackArticleView = (data: Omit<ArticleClickData, 'position' | 'source'>) => {
+  const trackArticleView = useCallback((data: Omit<ArticleClickData, 'position' | 'source'>) => {
     if (isExcludedEnvironment()) {
-      console.log('Article view tracking disabled - development environment');
       return;
     }
 
@@ -153,21 +158,18 @@ export const useArticleTracking = () => {
       reading_time: data.readingTime || 0
     });
 
+    if (!INTERNAL_ANALYTICS_ENABLED) return;
     if (!shouldTrackViewThisSession(data.articleSlug)) return;
     if (!shouldSampleEvent(`view:${data.articleSlug}`, INTERNAL_VIEW_SAMPLE_RATE)) return;
 
     sendInternalAnalytics('/api/analytics/article-view', {
       articleId: data.articleId,
-      articleTitle: data.articleTitle,
       slug: data.articleSlug,
-      category: data.category,
-      author: data.author,
-      readingTime: data.readingTime,
-      timestamp: new Date().toISOString()
+      readingTime: data.readingTime
     });
-  };
+  }, []);
 
-  const trackArticleShare = (data: Omit<ArticleClickData, 'position' | 'source'> & { platform: string }) => {
+  const trackArticleShare = useCallback((data: Omit<ArticleClickData, 'position' | 'source'> & { platform: string }) => {
     if (isExcludedEnvironment()) {
       console.log('Article share tracking disabled - development environment');
       return;
@@ -179,9 +181,9 @@ export const useArticleTracking = () => {
       platform: data.platform,
       category: data.category || 'unknown'
     });
-  };
+  }, []);
 
-  const trackReadingProgress = (data: Omit<ArticleClickData, 'position' | 'source'> & { progress: number }) => {
+  const trackReadingProgress = useCallback((data: Omit<ArticleClickData, 'position' | 'source'> & { progress: number }) => {
     if (isExcludedEnvironment()) {
       return; // Don't log for reading progress to avoid spam
     }
@@ -191,7 +193,7 @@ export const useArticleTracking = () => {
       progress: data.progress,
       article_title: data.articleTitle
     });
-  };
+  }, []);
 
   return {
     trackArticleClick,

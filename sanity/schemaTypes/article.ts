@@ -1,11 +1,66 @@
 import { defineField, defineType } from "sanity";
 import TeamTagsInput from "../plugins/teamTagsInput";
 import { apiVersion } from "../env";
+import {
+  extractStrictYouTubeId,
+  normalizeInstagramPostUrl,
+  normalizeTikTokVideoUrl,
+  normalizeXPostUrl,
+} from "../../lib/embed-urls";
 
 const isPowerRankings = (document?: Record<string, unknown>) => document?.format === "powerRankings";
 const isPowerRankingsSnapshot = (document?: Record<string, unknown>) =>
   isPowerRankings(document) && document?.rankingType === "snapshot";
 const isSimplifiedPowerSnapshot = (document?: Record<string, unknown>) => isPowerRankingsSnapshot(document);
+
+type ArticleBodyBlock = {
+  _type?: string;
+  children?: Array<{ text?: string }>;
+  markDefs?: Array<{
+    _type?: string;
+    href?: string;
+    reference?: { _ref?: string };
+  }>;
+};
+
+const inspectArticleBody = (value: unknown) => {
+  const blocks = Array.isArray(value) ? (value as ArticleBodyBlock[]) : [];
+  const plainText = blocks
+    .filter((block) => block?._type === "block")
+    .flatMap((block) => block.children || [])
+    .map((child) => child?.text || "")
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const wordCount = plainText ? plainText.split(" ").filter(Boolean).length : 0;
+  let internalLinks = 0;
+  let externalSources = 0;
+
+  blocks.forEach((block) => {
+    (block.markDefs || []).forEach((mark) => {
+      if (mark?._type === "internalLink" && mark.reference?._ref) {
+        internalLinks += 1;
+        return;
+      }
+      if (mark?._type !== "link" || !mark.href) return;
+      const href = mark.href.trim();
+      if (href.startsWith("/")) {
+        internalLinks += 1;
+        return;
+      }
+      try {
+        const host = new URL(href).hostname.replace(/^www\./, "").toLowerCase();
+        if (host === "thegamesnap.com") internalLinks += 1;
+        else externalSources += 1;
+      } catch {
+        // URL validation reports malformed links; this helper only classifies valid URLs.
+      }
+    });
+  });
+
+  return {wordCount, internalLinks, externalSources};
+};
+
 const articleFormatOptions = [
   { title: "Headline", value: "headline" },
   { title: "Feature", value: "feature" },
@@ -322,12 +377,35 @@ export default defineType({
     }),
 
     defineField({
+      name: "editorialBrief",
+      title: "Editorial Quality Gate",
+      type: "editorialBrief",
+      description:
+        "Required before publishing: define the search intent, original contribution, sources, link plan, and human review.",
+      options: { collapsible: true, collapsed: false },
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
+      group: "brief",
+    }),
+
+    defineField({
       name: "coverImage",
       title: "Cover Image",
       type: "image",
       options: { hotspot: true },
       fields: [
-        defineField({ name: "alt", title: "Alt Text", type: "string", description: "Describe the image for SEO/accessibility." }),
+        defineField({
+          name: "alt",
+          title: "Alt Text",
+          type: "string",
+          description: "Describe the image for accessibility. Do not stuff keywords.",
+          validation: (Rule) =>
+            Rule.custom((value, ctx) => {
+              if (!ctx.document?.published || isPowerRankingsSnapshot(ctx.document)) return true;
+              return typeof value === "string" && value.trim().length >= 8
+                ? true
+                : "Add useful cover-image alt text before publishing";
+            }),
+        }),
         defineField({ name: "caption", title: "Caption", type: "string" }),
         defineField({ name: "credit", title: "Photo Credit", type: "string" }),
       ],
@@ -381,16 +459,42 @@ export default defineType({
       group: "quick",
     }),
     defineField({
+      name: "updateNote",
+      title: "Visible Update Note",
+      type: "string",
+      description:
+        "Briefly tell readers what materially changed. Required whenever Substantive Update Date is set.",
+      validation: (Rule) =>
+        Rule.max(220).custom((value, ctx) => {
+          if (!ctx.document?.published || !ctx.document?.dateModified) return true;
+          return typeof value === "string" && value.trim().length >= 12
+            ? true
+            : "Explain the substantive update for readers";
+        }),
+      hidden: ({ document }) => isSimplifiedPowerSnapshot(document) || !document?.dateModified,
+      group: "quick",
+    }),
+    defineField({
       name: "summary",
       title: "Summary",
       type: "text",
       rows: 3,
-      validation: (Rule) =>
-        Rule.max(300).custom((val, ctx) => {
-          if (!ctx.document?.published) return true;
-          if (isPowerRankingsSnapshot(ctx.document)) return true;
-          return val ? true : "Summary is required before publishing";
-        }),
+      validation: (Rule) => [
+        Rule.max(300),
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published || isPowerRankingsSnapshot(ctx.document)) return true;
+          return typeof val === "string" && val.trim()
+            ? true
+            : "Summary is required before publishing";
+        }).error(),
+        Rule.custom((val, ctx) => {
+          if (!ctx.document?.published || isPowerRankingsSnapshot(ctx.document)) return true;
+          const length = typeof val === "string" ? val.trim().length : 0;
+          return length >= 100
+            ? true
+            : "A specific 100–160 character summary usually produces a stronger complete search description";
+        }).warning(),
+      ],
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
@@ -473,11 +577,16 @@ export default defineType({
       options: { layout: "tags" },
       group: "advanced",
       description: "Canonical tag references (preferred). Migration will copy legacy string tags here. Editing a tag document changes it everywhere; add a new Tag doc for one-off labels.",
-      validation: (Rule) =>
-        Rule.unique()
-          .min(3)
-          .max(6)
-          .warning("Recommended: add 3–6 canonical tags for best internal linking"),
+      validation: (Rule) => [
+        Rule.unique(),
+        Rule.custom((value, ctx) => {
+          if (!ctx.document?.published || isPowerRankingsSnapshot(ctx.document)) return true;
+          const count = Array.isArray(value) ? value.length : 0;
+          return count >= 3 && count <= 6
+            ? true
+            : "Published articles require 3–6 focused canonical tags";
+        }).error(),
+      ],
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
     }),
     defineField({
@@ -521,6 +630,33 @@ export default defineType({
       name: "body",
       title: "Body Content",
       type: "blockContent",
+      description:
+        "Published articles must cite an external source and include contextual links to related Snap coverage.",
+      validation: (Rule) => [
+        Rule.custom((value, ctx) => {
+          if (!ctx.document?.published || isPowerRankings(ctx.document)) return true;
+          const stats = inspectArticleBody(value);
+          if (stats.wordCount === 0) return "Body content is required before publishing";
+          const format = typeof ctx.document?.format === "string" ? ctx.document.format : "feature";
+          const requiredInternalLinks = format === "headline" ? 1 : 2;
+          if (stats.internalLinks < requiredInternalLinks) {
+            return `Add at least ${requiredInternalLinks} contextual internal ${requiredInternalLinks === 1 ? "link" : "links"} in the Body`;
+          }
+          if (stats.externalSources < 1) {
+            return "Cite at least one authoritative external source in the Body";
+          }
+          return true;
+        }).error(),
+        Rule.custom((value, ctx) => {
+          if (!ctx.document?.published || isPowerRankings(ctx.document)) return true;
+          const stats = inspectArticleBody(value);
+          const format = typeof ctx.document?.format === "string" ? ctx.document.format : "feature";
+          const depthGuide = format === "headline" ? 450 : 700;
+          return stats.wordCount >= depthGuide
+            ? true
+            : `This draft has about ${stats.wordCount} words. Depth is not a ranking factor by itself, but verify that the page adds enough original value to satisfy its reader promise.`;
+        }).warning(),
+      ],
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
     }),
@@ -533,21 +669,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.custom((val) => {
           if (!val) return true;
-          const raw = String(val).trim();
-          if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return true;
-          try {
-            const url = new URL(raw);
-            const v = url.searchParams.get("v");
-            if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return true;
-            if (/\/(shorts|embed|live)\/[a-zA-Z0-9_-]{11}/.test(url.pathname)) return true;
-            if (url.hostname.toLowerCase().endsWith("youtu.be")) {
-              const id = url.pathname.split("/").filter(Boolean)[0];
-              if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return true;
-            }
-          } catch {
-            // ignore
-          }
-          return "Enter a valid YouTube ID or URL";
+          return extractStrictYouTubeId(String(val)) ? true : "Enter a valid HTTPS YouTube ID or URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
@@ -570,8 +692,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.uri({ scheme: ["https"], allowRelative: false }).custom((url) => {
           if (!url) return true;
-          const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
-          return isValidTwitterUrl || "Must be a valid Twitter/X post URL";
+          return normalizeXPostUrl(url) ? true : "Must be a valid HTTPS Twitter/X post URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
@@ -595,8 +716,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.uri({ scheme: ["https"] }).custom((url) => {
           if (!url) return true;
-          const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
-          return ok || "Must be a valid Instagram post, reel, or IGTV URL";
+          return normalizeInstagramPostUrl(url) ? true : "Must be a valid HTTPS Instagram post, reel, or IGTV URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
@@ -618,8 +738,7 @@ export default defineType({
       validation: (Rule) =>
         Rule.uri({ scheme: ["https"] }).custom((url) => {
           if (!url) return true;
-          const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
-          return ok || "Must be a valid TikTok video URL";
+          return normalizeTikTokVideoUrl(url) ? true : "Must be a valid HTTPS TikTok video URL";
         }),
       hidden: ({ document }) => isSimplifiedPowerSnapshot(document),
       group: "quick",
@@ -653,6 +772,7 @@ export default defineType({
   ],
   groups: [
     { name: "rankings", title: "Rankings" },
+    { name: "brief", title: "Editorial Brief" },
     { name: "advanced", title: "Analysis" },
     { name: "seo", title: "SEO" },
     { name: "quick", title: "Publish" },

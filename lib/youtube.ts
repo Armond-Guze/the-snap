@@ -1,9 +1,9 @@
-// Utility helpers to work with YouTube URLs/IDs
-
-const YT_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+// Utility helpers to work with strictly validated YouTube URLs/IDs.
+import { extractStrictYouTubeId } from './embed-urls';
 
 export function isYouTubeId(str: string): boolean {
-  return YT_ID_REGEX.test(str.trim());
+  const raw = str.trim();
+  return extractStrictYouTubeId(raw) === raw;
 }
 
 /**
@@ -17,48 +17,17 @@ export function isYouTubeId(str: string): boolean {
  * - Raw 11-char IDs
  */
 export function extractYouTubeId(input?: string | null): string | null {
-  if (!input) return null;
-  const raw = input.trim();
-  if (isYouTubeId(raw)) return raw;
-
-  // Try URL parsing
-  try {
-    const url = new URL(raw);
-    const host = url.hostname.toLowerCase();
-    const path = url.pathname;
-
-    // youtu.be/<id>
-    if (host.endsWith('youtu.be')) {
-      const id = path.split('/').filter(Boolean)[0];
-      return isYouTubeId(id || '') ? id! : null;
-    }
-
-    // youtube.com/watch?v=<id>
-    const vParam = url.searchParams.get('v');
-    if (vParam && isYouTubeId(vParam)) return vParam;
-
-    // youtube.com/shorts/<id>, /embed/<id>, /live/<id>
-    const match = path.match(/\/(shorts|embed|live)\/([a-zA-Z0-9_-]{11})/);
-    if (match && match[2]) return match[2];
-
-    // Fallback: try to find any 11-char id in the whole string
-    const anyId = raw.match(/[a-zA-Z0-9_-]{11}/);
-    return anyId ? anyId[0] : null;
-  } catch {
-    // Not a URL; try to fish an ID out of the string as a last resort
-    const anyId = raw.match(/[a-zA-Z0-9_-]{11}/);
-    return anyId ? anyId[0] : null;
-  }
+  return extractStrictYouTubeId(input);
 }
 
 export function youtubeWatchUrl(idOrUrl: string): string {
   const id = extractYouTubeId(idOrUrl);
-  return id ? `https://www.youtube.com/watch?v=${id}` : idOrUrl;
+  return id ? `https://www.youtube.com/watch?v=${id}` : 'https://www.youtube.com/';
 }
 
 export function youtubeEmbedUrl(idOrUrl: string, params: string = 'autoplay=1&rel=0&modestbranding=1'): string {
   const id = extractYouTubeId(idOrUrl);
-  return id ? `https://www.youtube.com/embed/${id}?${params}` : '';
+  return id ? `https://www.youtube-nocookie.com/embed/${id}?${params}` : '';
 }
 
 export function youtubeThumbnailUrl(idOrUrl: string): string {

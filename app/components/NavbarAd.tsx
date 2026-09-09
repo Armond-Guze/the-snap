@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useConsentPreferences } from './consent';
 
 // Extend the Window interface to include adsbygoogle
 declare global {
@@ -12,19 +13,21 @@ const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
 const NAVBAR_SLOT = process.env.NEXT_PUBLIC_ADSENSE_NAVBAR_SLOT_ID || process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID;
 
 export default function NavbarAd() {
+  const initializedRef = useRef(false);
+  const consent = useConsentPreferences();
+
   useEffect(() => {
+    if (!ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising || initializedRef.current) return;
     try {
-      console.log('AdSense: Initializing navbar ad...');
       (window.adsbygoogle = window.adsbygoogle || []).push({});
-      console.log('AdSense: Navbar ad pushed to queue');
+      initializedRef.current = true;
     } catch (e) {
       console.error('AdSense navbar ad error:', e);
     }
-  }, []);
+  }, [consent]);
 
   // Hide ads in development
-  const consentGranted = typeof window !== 'undefined' && localStorage.getItem('cookie_consent') === '1';
-  if (process.env.NODE_ENV === 'development' || !ADS_ENABLED || !ADSENSE_CLIENT || !consentGranted) {
+  if (process.env.NODE_ENV === 'development' || !ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising) {
     return null;
   }
 

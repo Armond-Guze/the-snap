@@ -108,7 +108,6 @@ export async function POST(request: NextRequest) {
       provider: WebhookProvider.CLERK,
       eventId,
       eventType: event.type,
-      payload: event,
     });
 
     webhookLogId = webhookLog.logId;

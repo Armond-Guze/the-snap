@@ -9,6 +9,15 @@ interface StructuredDataProps {
   id?: string // allow multiple distinct structured data blocks
 }
 
+export function serializeStructuredData(data: Record<string, unknown>): string {
+  return JSON.stringify(data)
+    .replace(/&/g, '\\u0026')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 export default function StructuredData({ data, id }: StructuredDataProps) {
   const typeSegment = typeof data['@type'] === 'string' ? (data['@type'] as string).toLowerCase() : 'data';
   // Attempt to read a headline or name field without using any casting
@@ -27,7 +36,7 @@ export default function StructuredData({ data, id }: StructuredDataProps) {
     <script
       id={derivedId}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: serializeStructuredData(data) }}
       suppressHydrationWarning
     />
   )

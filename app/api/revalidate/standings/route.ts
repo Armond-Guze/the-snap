@@ -1,23 +1,32 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
+import { authorizeBearerRequest, bearerErrorHeaders } from '@/lib/security/bearer-auth';
 
 // Minimal webhook handler to revalidate standings cache tag
 export async function POST(req: NextRequest) {
-  try {
-    // Optional: verify secret if configured
-    const secret = process.env.SANITY_STANDINGS_REVALIDATE_SECRET;
-    if (secret) {
-      const url = new URL(req.url);
-      const token = url.searchParams.get('secret');
-      if (token !== secret) {
-        return new Response(JSON.stringify({ revalidated: false, message: 'Invalid secret' }), { status: 401 });
+  const authorization = authorizeBearerRequest(req.headers, [
+    process.env.SANITY_STANDINGS_REVALIDATE_SECRET,
+    process.env.REVALIDATE_SECRET,
+    process.env.CRON_SECRET,
+  ]);
+  if (!authorization.authorized) {
+    return NextResponse.json(
+      {
+        revalidated: false,
+        message: authorization.status === 503 ? 'Service unavailable' : 'Unauthorized',
+      },
+      {
+        status: authorization.status,
+        headers: bearerErrorHeaders(authorization.status),
       }
-    }
+    );
+  }
 
-    revalidateTag('standings', {});
-    return new Response(JSON.stringify({ revalidated: true, tag: 'standings' }), { status: 200 });
-  } catch (err) {
-    return new Response(JSON.stringify({ revalidated: false, error: (err as Error).message }), { status: 500 });
+  try {
+    await revalidateTag('standings', {});
+    return NextResponse.json({ revalidated: true, tag: 'standings' }, { status: 200 });
+  } catch {
+    return NextResponse.json({ revalidated: false, error: 'Revalidation failed' }, { status: 500 });
   }
 }
 

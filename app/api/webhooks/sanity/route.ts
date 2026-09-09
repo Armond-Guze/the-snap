@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { authorizeBearerRequest, bearerErrorHeaders } from '@/lib/security/bearer-auth';
+import { parseBody } from 'next-sanity/webhook';
 
 const ROUTE_NAME = 'api/webhooks/sanity';
-const SECRET = process.env.SANITY_WEBHOOK_SECRET ?? process.env.REVALIDATE_SECRET;
 
 type SanityDoc = {
   _type?: string;
@@ -21,17 +22,26 @@ type SanityWebhookBody = {
 };
 
 export async function POST(request: NextRequest) {
+  const webhookSecret = process.env.SANITY_WEBHOOK_SECRET?.trim();
+  if (!webhookSecret) {
+    return NextResponse.json(
+      { revalidated: false, message: 'Service unavailable.' },
+      { status: 503, headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-    const secretFromQuery = searchParams.get('secret');
-    const secretFromHeader = request.headers.get('x-webhook-secret') || request.headers.get('x-revalidate-secret');
-    const secret = secretFromQuery ?? secretFromHeader ?? '';
-
-    if (SECRET && secret !== SECRET) {
-      return NextResponse.json({ revalidated: false, message: 'Invalid secret.' }, { status: 401 });
+    const { body, isValidSignature } = await parseBody<SanityWebhookBody>(
+      request,
+      webhookSecret,
+      false
+    );
+    if (!isValidSignature) {
+      return NextResponse.json(
+        { revalidated: false, message: 'Unauthorized.' },
+        { status: 401, headers: { 'Cache-Control': 'no-store' } }
+      );
     }
-
-    const body: SanityWebhookBody | null = await request.json().catch(() => null);
     const doc = (body?.document ?? body?.result ?? body) as SanityDoc | null;
 
     if (!doc || typeof doc !== 'object') {
@@ -94,19 +104,29 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(`[${ROUTE_NAME}] failed`, error);
     return NextResponse.json(
-      { revalidated: false, message: error instanceof Error ? error.message : 'Unknown error' },
+      { revalidated: false, message: 'Revalidation failed.' },
       { status: 500 }
     );
   }
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const secretFromQuery = searchParams.get('secret') ?? '';
-
-  if (SECRET && secretFromQuery !== SECRET) {
-    return NextResponse.json({ ok: false, message: 'Invalid secret.' }, { status: 401 });
+  const authorization = authorizeBearerRequest(request.headers, [process.env.WEBHOOK_DIAGNOSTIC_SECRET]);
+  if (!authorization.authorized) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: authorization.status === 503 ? 'Service unavailable.' : 'Unauthorized.',
+      },
+      {
+        status: authorization.status,
+        headers: bearerErrorHeaders(authorization.status),
+      }
+    );
   }
 
-  return NextResponse.json({ ok: true, route: ROUTE_NAME }, { status: 200 });
+  return NextResponse.json(
+    { ok: true, route: ROUTE_NAME },
+    { status: 200, headers: { 'Cache-Control': 'no-store' } }
+  );
 }

@@ -1,5 +1,11 @@
 import { defineType, defineField } from "sanity";
 import { apiVersion } from "../env";
+import {
+  extractStrictYouTubeId,
+  normalizeInstagramPostUrl,
+  normalizeTikTokVideoUrl,
+  normalizeXPostUrl,
+} from "../../lib/embed-urls";
 
 const headlineType = defineType({
   name: "headline",
@@ -201,20 +207,7 @@ const headlineType = defineType({
       description: "Paste either the 11-character ID or a full YouTube link (watch/shorts/youtu.be). We'll extract the ID automatically.",
       validation: (Rule) => Rule.custom((val) => {
         if (!val) return true;
-        // Accept raw IDs or URLs that contain an 11-char ID
-        const raw = String(val).trim();
-        if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return true;
-        try {
-          const url = new URL(raw);
-          const v = url.searchParams.get('v');
-          if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return true;
-          if (/\/(shorts|embed|live)\/[a-zA-Z0-9_-]{11}/.test(url.pathname)) return true;
-          if (url.hostname.toLowerCase().endsWith('youtu.be')) {
-            const id = url.pathname.split('/').filter(Boolean)[0];
-            if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return true;
-          }
-        } catch {}
-        return 'Enter a valid YouTube ID or URL';
+        return extractStrictYouTubeId(String(val)) ? true : 'Enter a valid HTTPS YouTube ID or URL';
       }),
       group: 'quick',
       fieldset: 'socialMedia',
@@ -239,8 +232,7 @@ const headlineType = defineType({
         allowRelative: false
       }).custom((url) => {
         if (!url) return true; // Allow empty
-        const isValidTwitterUrl = /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/i.test(url);
-        return isValidTwitterUrl || 'Must be a valid Twitter/X post URL';
+        return normalizeXPostUrl(url) ? true : 'Must be a valid HTTPS Twitter/X post URL';
       }),
       group: 'quick',
       fieldset: 'socialMedia',
@@ -262,8 +254,7 @@ const headlineType = defineType({
       description: 'Public Instagram post / reel URL (e.g. https://www.instagram.com/p/XXXXXXXXXXX/ or /reel/)',
       validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        const ok = /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url);
-        return ok || 'Must be a valid Instagram post, reel, or IGTV URL';
+        return normalizeInstagramPostUrl(url) ? true : 'Must be a valid HTTPS Instagram post, reel, or IGTV URL';
       }),
       group: 'quick',
       fieldset: 'socialMedia',
@@ -284,8 +275,7 @@ const headlineType = defineType({
       description: 'TikTok video URL (e.g. https://www.tiktok.com/@user/video/1234567890123456789)',
       validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        const ok = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url);
-        return ok || 'Must be a valid TikTok video URL';
+        return normalizeTikTokVideoUrl(url) ? true : 'Must be a valid HTTPS TikTok video URL';
       }),
       group: 'quick',
       fieldset: 'socialMedia',

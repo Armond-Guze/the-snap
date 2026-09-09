@@ -21,6 +21,7 @@ Fill or review these fields when preparing an article:
 - `homepageTitle`
 - `slug`
 - `seo`
+- `editorialBrief`
 - `coverImage`
 - `author`
 - `date`
@@ -32,6 +33,7 @@ Fill or review these fields when preparing an article:
 - `tagRefs`
 - `published`
 - `body`
+- `updateNote` when `dateModified` is set
 
 ## Tagging rules
 
@@ -59,4 +61,6 @@ Fill or review these fields when preparing an article:
 8. Add `teams`, `topicHubs`, and `tagRefs`
 9. Fill `body`
 10. Review `seo`
-11. Set `published` when ready
+11. Verify source links and contextual internal links in `body`
+12. Complete the human review, fact check, and image-rights confirmations
+13. Set `published` when ready

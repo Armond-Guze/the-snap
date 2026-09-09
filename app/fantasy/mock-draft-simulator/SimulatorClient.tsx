@@ -105,12 +105,6 @@ export default function SimulatorClient() {
     [teams]
   )
 
-  useEffect(() => {
-    if (draftSlot > teams) {
-      setDraftSlot(teams)
-    }
-  }, [teams, draftSlot])
-
   async function runSimulation(event?: FormEvent<HTMLFormElement>, seedOverride?: number) {
     event?.preventDefault()
     setLoading(true)
@@ -148,8 +142,11 @@ export default function SimulatorClient() {
   }
 
   useEffect(() => {
-    runSimulation()
-    // run one default simulation on first load
+    const timer = window.setTimeout(() => {
+      void runSimulation()
+    }, 0)
+    // Run one default simulation on first load.
+    return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -173,7 +170,11 @@ export default function SimulatorClient() {
               <span className="mb-1 block text-xs uppercase tracking-[0.12em] text-white/60">Teams</span>
               <select
                 value={teams}
-                onChange={(event) => setTeams(Number(event.target.value))}
+                onChange={(event) => {
+                  const nextTeams = Number(event.target.value)
+                  setTeams(nextTeams)
+                  setDraftSlot((current) => Math.min(current, nextTeams))
+                }}
                 className="w-full rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm outline-none ring-cyan-300/60 transition focus:ring-2"
               >
                 {TEAM_OPTIONS.map((value) => (

@@ -52,6 +52,27 @@ export const blockContentType = defineType({
                 title: 'URL',
                 name: 'href',
                 type: 'url',
+                validation: Rule => Rule.required().uri({
+                  scheme: ['http', 'https'],
+                  allowRelative: true,
+                  relativeOnly: false,
+                }),
+              },
+            ],
+          },
+          {
+            title: 'Internal Content Link',
+            name: 'internalLink',
+            type: 'object',
+            description: 'Link to a canonical article or topic hub without typing or maintaining its URL.',
+            fields: [
+              {
+                title: 'Content',
+                name: 'reference',
+                type: 'reference',
+                to: [{type: 'article'}, {type: 'topicHub'}],
+                options: {disableNew: true},
+                validation: Rule => Rule.required(),
               },
             ],
           },

@@ -24,9 +24,10 @@ export default function PrivacyPolicy() {
       <SimpleSection title="Information we collect">
         <SimpleList
           items={[
-            "Basic usage information such as device type, browser type, and IP address.",
-            "Cookie and analytics data used to understand traffic and improve the site experience.",
-            "Information you choose to send when you contact us or subscribe to a newsletter.",
+            "Contact and newsletter information you choose to provide, such as an email address and message.",
+            "Account identifiers and authentication events when you use an account feature.",
+            "Basic request, security, and device information such as IP address, browser, referring page, and timestamps.",
+            "Analytics, advertising, and consent data only when the applicable service is enabled and your choices allow it.",
           ]}
         />
       </SimpleSection>
@@ -35,28 +36,65 @@ export default function PrivacyPolicy() {
         <SimpleList
           items={[
             "Improve site performance, navigation, and content decisions.",
-            "Respond to messages, support requests, or newsletter signups.",
+            "Deliver requested emails, process unsubscribes, and respond to messages or support requests.",
             "Measure traffic, engagement, and search visibility.",
-            "Support advertising and analytics services where enabled.",
+            "Prevent abuse, secure the site, comply with law, and maintain records of privacy choices.",
+            "Support advertising and analytics services where enabled and permitted.",
           ]}
         />
       </SimpleSection>
 
-      <SimpleSection title="Cookies and third-party services">
+      <SimpleSection title="Service providers and data sharing">
         <p>
-          The Snap may use cookies and similar technologies to understand how the site is used and to support analytics
-          or advertising partners. Third-party services may set their own cookies under their own policies.
+          The site is hosted by Vercel and uses Sanity for public editorial content, Clerk for account authentication,
+          Formspree for contact-form delivery, Resend for newsletter confirmation and delivery, and a private database
+          provider for newsletter records. These providers may process limited information needed to supply and secure
+          their services.
         </p>
         <p>
-          You can control or block cookies through your browser settings. Some site features may behave differently if
-          those cookies are disabled.
+          Google Analytics, Google AdSense, and third-party video or social embeds may also process data when those
+          features are enabled and your consent choices permit them. External links are governed by the destination&apos;s
+          privacy practices. We do not publish newsletter subscriber addresses in the public editorial dataset.
+        </p>
+      </SimpleSection>
+
+      <SimpleSection title="Cookies and your choices">
+        <p>
+          Optional analytics and advertising scripts remain disabled unless you accept them. You can reject optional
+          cookies when prompted and can change or withdraw that choice later through the Cookie preferences button in
+          the site footer. Browser controls provide additional choices.
+        </p>
+      </SimpleSection>
+
+      <SimpleSection title="Retention and security">
+        <p>
+          Newsletter records are kept until you unsubscribe or request deletion, subject to a limited suppression or
+          compliance record when necessary to honor an opt-out. Unconfirmed signup requests expire after 24 hours and
+          are removed by the daily retention job. Contact messages are kept only as long as reasonably
+          needed to respond, maintain support history, prevent abuse, or meet legal obligations. Provider security and
+          analytics logs follow the applicable provider settings and retention periods. When first-party article
+          analytics are enabled, pseudonymous event records are retained for no more than 13 months and expired abuse
+          prevention counters are pruned automatically.
+        </p>
+        <p>
+          We use reasonable technical and organizational safeguards, but no internet transmission or storage system can
+          be guaranteed completely secure.
+        </p>
+      </SimpleSection>
+
+      <SimpleSection title="Legal bases and international processing">
+        <p>
+          Depending on location and context, processing may rely on consent, performance of a requested service,
+          legitimate interests such as security and site improvement, or compliance with law. Providers may process
+          information in the United States or other countries using the transfer protections available to them.
         </p>
       </SimpleSection>
 
       <SimpleSection title="Your rights">
         <p>
-          You may request access to, correction of, or deletion of personal information you have provided directly to
-          the site. For privacy-related requests, email{" "}
+          Depending on where you live, you may request access, correction, deletion, portability, restriction, or an
+          appeal, and may opt out of certain targeted advertising, sale, or sharing as those terms are defined by law.
+          We do not discriminate for exercising applicable privacy rights. To make a request, email{" "}
           <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-white transition hover:text-white/75">
             thegamesnap@yahoo.com
           </a>
@@ -73,11 +111,7 @@ export default function PrivacyPolicy() {
 
       <p className="text-sm text-white/40">
         Last updated:{" "}
-        {new Date().toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
+        August 9, 2026
       </p>
     </SimplePageShell>
   );

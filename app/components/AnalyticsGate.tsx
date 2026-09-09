@@ -1,21 +1,50 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useCallback, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { useConsentPreferences } from "./consent";
 
 // Dynamically import analytics so bundle excluded when user opted out
 const VercelAnalytics = dynamic(() => import("@vercel/analytics/react").then(m => m.Analytics), { ssr: false, loading: () => null });
+const SpeedInsights = dynamic(() => import("@vercel/speed-insights/next").then(m => m.SpeedInsights), { ssr: false, loading: () => null });
 const GoogleAnalytics = dynamic(() => import("./GoogleAnalytics"), { ssr: false, loading: () => null });
 
 // Only load GA when explicitly configured.
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID;
+const ANALYTICS_EXCLUSION_EVENT = "analytics-exclusion-updated";
+
+function readAnalyticsExclusion() {
+  if (typeof window === "undefined") return true;
+  try {
+    const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
+    const localExcluded = window.localStorage.getItem("va-exclude") === "1";
+    return cookieExcluded || localExcluded;
+  } catch {
+    return true;
+  }
+}
+
+function subscribeToAnalyticsExclusion(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === "va-exclude") onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(ANALYTICS_EXCLUSION_EVENT, onStoreChange);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(ANALYTICS_EXCLUSION_EVENT, onStoreChange);
+  };
+}
+
+function notifyAnalyticsExclusionChanged() {
+  window.dispatchEvent(new Event(ANALYTICS_EXCLUSION_EVENT));
+}
 
 /**
  * Conditionally load Vercel Analytics only if the visitor has NOT opted out.
  * Opt-out methods:
  *  - localStorage key: va-exclude = '1'
  *  - ?exclude_analytics=1 (sets the key for future visits)
- *  - ?include_analytics=1 (removes the key)
  * Includes a small toggle button in non-production environments.
  */
 export default function AnalyticsGate() {
@@ -24,31 +53,20 @@ export default function AnalyticsGate() {
     pathname.startsWith("/studio") ||
     pathname.startsWith("/sign-in") ||
     pathname.startsWith("/sign-up");
-  const [excluded, setExcluded] = useState<boolean | null>(null);
-  const [hasConsent, setHasConsent] = useState<boolean | null>(null);
-
-  const readConsent = useCallback(() => {
-    try {
-      const cookieConsent = document.cookie.split(';').some(c => c.trim().startsWith('cookie_consent=1'));
-      const lsConsent = localStorage.getItem("cookie_consent") === "1";
-      setHasConsent(cookieConsent || lsConsent);
-    } catch {
-      setHasConsent(false);
-    }
-  }, []);
+  const excluded = useSyncExternalStore(subscribeToAnalyticsExclusion, readAnalyticsExclusion, () => true);
+  const consent = useConsentPreferences();
 
   const toggle = useCallback(() => {
     if (excluded) {
       localStorage.removeItem("va-exclude");
       // Clear cookie by expiring it
       document.cookie = 'va-exclude=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-      setExcluded(false);
     } else {
       localStorage.setItem("va-exclude", "1");
       // Set a 1 year cookie
       document.cookie = 'va-exclude=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
-      setExcluded(true);
     }
+    notifyAnalyticsExclusionChanged();
   }, [excluded]);
 
   useEffect(() => {
@@ -59,51 +77,20 @@ export default function AnalyticsGate() {
         localStorage.setItem("va-exclude", "1");
         document.cookie = 'va-exclude=1; Path=/; Max-Age=' + 60 * 60 * 24 * 365 + '; SameSite=Lax';
         shouldCleanUrl = true;
-      } else if (params.has("include_analytics")) {
-        localStorage.removeItem("va-exclude");
-        document.cookie = 'va-exclude=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
-        shouldCleanUrl = true;
       }
 
       if (shouldCleanUrl) {
         const cleanUrl = new URL(window.location.href);
         cleanUrl.searchParams.delete("exclude_analytics");
-        cleanUrl.searchParams.delete("include_analytics");
         const nextUrl = `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`;
         window.history.replaceState({}, "", nextUrl || "/");
       }
 
-      const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-      const lsExcluded = localStorage.getItem("va-exclude") === "1";
-      setExcluded(cookieExcluded || lsExcluded);
+      notifyAnalyticsExclusionChanged();
     } catch {
-      setExcluded(false);
+      // Fail closed: readAnalyticsExclusion returns true when storage is unavailable.
     }
-    readConsent();
-
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === "va-exclude") {
-        try {
-          const cookieExcluded = document.cookie.split(';').some(c => c.trim().startsWith('va-exclude=1'));
-          const lsExcluded = localStorage.getItem("va-exclude") === "1";
-          setExcluded(cookieExcluded || lsExcluded);
-        } catch {
-          setExcluded(false);
-        }
-      }
-      if (event.key === "cookie_consent") {
-        readConsent();
-      }
-    };
-
-    const onConsentUpdated = () => readConsent();
-    window.addEventListener("storage", onStorage);
-    window.addEventListener("cookie-consent-updated", onConsentUpdated as EventListener);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener("cookie-consent-updated", onConsentUpdated as EventListener);
-    };
-  }, [readConsent]);
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -117,16 +104,22 @@ export default function AnalyticsGate() {
   }, [toggle]);
 
   if (hideOnRoute) return null;
-  if (excluded === null || hasConsent === null) return null;
+  if (consent === null) return null;
 
-  const analyticsEnabled = !excluded && hasConsent;
+  const analyticsEnabled = !excluded && consent.analytics;
 
   return (
     <>
       {analyticsEnabled && (
         <>
           <VercelAnalytics />
-          {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}
+          <SpeedInsights />
+          {GA_MEASUREMENT_ID && (
+            <GoogleAnalytics
+              GA_MEASUREMENT_ID={GA_MEASUREMENT_ID}
+              advertisingConsent={consent.advertising}
+            />
+          )}
         </>
       )}
       {process.env.NODE_ENV !== "production" && (

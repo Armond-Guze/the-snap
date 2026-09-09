@@ -119,11 +119,13 @@ export interface Headline {
   date: string;
   publishedAt?: string;
   dateModified?: string;
+  updateNote?: string;
   body?: PortableTextContent;
   author?: Author;
   coverImage?: SanityImageWithUrl;
   category?: Category;
   tags?: Pick<Tag, 'title' | 'slug'>[];
+  legacyTags?: string[];
   topicHubs?: Array<{ title: string; slug: SanitySlug }>;
   // Reference-based canonical tags (advanced)
   tagRefs?: Array<{ _ref: string }>;
@@ -158,9 +160,9 @@ export interface HeadlineListItem {
   seasonYear?: number;
   weekNumber?: number;
   playoffRound?: string;
-  author?: Pick<Author, 'name'>;
+  author?: Pick<Author, 'name' | 'slug'>;
   category?: Pick<Category, 'title' | 'slug' | 'color'>;
-  tags?: Pick<Tag, 'title'>[];
+  tags?: Pick<Tag, 'title' | 'slug'>[];
 }
 
 export interface PlayOfWeek {

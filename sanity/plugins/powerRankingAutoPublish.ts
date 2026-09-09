@@ -1,4 +1,7 @@
-import type { DocumentActionComponent, DocumentActionProps } from 'sanity'
+import {useState} from 'react'
+import {useClient} from 'sanity'
+import type {DocumentActionComponent, DocumentActionProps} from 'sanity'
+import {apiVersion} from '../env'
 import {
   buildPowerRankingSeoPrefill,
   deriveBiggestMovers,
@@ -6,6 +9,7 @@ import {
 } from '../lib/powerRankingHelpers'
 
 type ArticleDoc = {
+  _id?: string
   _type?: string
   format?: string
   title?: string
@@ -27,16 +31,24 @@ export function withPowerRankingAutoPublishHelpers(action: DocumentActionCompone
   const actionWithMeta = action as ActionComponentWithAction
   if (actionWithMeta.action !== 'publish') return action
 
-  const wrapped: DocumentActionComponent = (props: DocumentActionProps) => {
+  const WrappedAction: DocumentActionComponent = (props: DocumentActionProps) => {
     const originalResult = action(props)
-    const doc = (props.draft || props.published) as ArticleDoc | undefined
+    const client = useClient({apiVersion})
+    const [preparing, setPreparing] = useState(false)
+    const [prepareError, setPrepareError] = useState<string>()
+    const doc = props.draft as ArticleDoc | undefined
 
     if (!isPowerRankingArticle(doc) || !originalResult) return originalResult
     const powerDoc = doc
 
     return {
       ...originalResult,
+      disabled: preparing || originalResult.disabled,
+      label: preparing ? 'Preparing rankings…' : originalResult.label,
+      title: prepareError || originalResult.title,
       onHandle: () => {
+        if (preparing) return
+
         const normalized = normalizePowerRankingItems(Array.isArray(powerDoc.rankings) ? powerDoc.rankings : [])
         const movers = deriveBiggestMovers(normalized)
         const patchPayload: Record<string, unknown> = {
@@ -61,15 +73,31 @@ export function withPowerRankingAutoPublishHelpers(action: DocumentActionCompone
           }
         }
 
-        const patchDoc = (props as { patch?: (operation: { set: Record<string, unknown> }) => void }).patch
-        patchDoc?.({ set: patchPayload })
-        originalResult.onHandle?.()
+        const publishedId = props.id.replace(/^drafts\./, '')
+        const draftId = powerDoc._id || `drafts.${publishedId}`
+
+        setPreparing(true)
+        setPrepareError(undefined)
+        void client
+          .patch(draftId)
+          .set(patchPayload)
+          .commit({autoGenerateArrayKeys: true})
+          .then(() => {
+            originalResult.onHandle?.()
+          })
+          .catch((error: unknown) => {
+            const message = error instanceof Error ? error.message : 'Unable to prepare the rankings draft'
+            setPrepareError(`Publish preparation failed: ${message}`)
+          })
+          .finally(() => {
+            setPreparing(false)
+          })
       },
     }
   }
 
-  ;(wrapped as ActionComponentWithAction).action = actionWithMeta.action
-  return wrapped
+  ;(WrappedAction as ActionComponentWithAction).action = actionWithMeta.action
+  return WrappedAction
 }
 
 export default withPowerRankingAutoPublishHelpers

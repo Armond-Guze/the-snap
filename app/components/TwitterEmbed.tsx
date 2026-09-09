@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ExternalLink, MessageCircle } from 'lucide-react';
+import { normalizeXPostUrl } from '@/lib/embed-urls';
 import styles from './TwitterEmbed.module.css';
+import BlockedEmbed from './BlockedEmbed';
+import { useConsentPreferences } from './consent';
 
 interface TwitterEmbedProps {
   twitterUrl: string;
@@ -16,31 +19,10 @@ export default function TwitterEmbed({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const getTweetId = (url: string): string | null => {
-    try {
-      const patterns = [
-        /\/status\/(\d+)/,
-        /\/statuses\/(\d+)/,
-        /twitter\.com\/\w+\/status\/(\d+)/,
-        /x\.com\/\w+\/status\/(\d+)/,
-      ];
-      
-      for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) {
-          return match[1];
-        }
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error extracting tweet ID:', error);
-      return null;
-    }
-  };
-
-  const tweetId = getTweetId(twitterUrl);
+  const preferences = useConsentPreferences();
+  const canLoadExternalMedia = preferences?.externalMedia === true;
+  const normalizedTwitterUrl = normalizeXPostUrl(twitterUrl);
+  const tweetId = normalizedTwitterUrl?.split('/').at(-1) || null;
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +53,10 @@ export default function TwitterEmbed({
     };
 
     const renderTweet = async () => {
+      if (!canLoadExternalMedia) {
+        setIsLoading(false);
+        return;
+      }
       if (!tweetId || !container) {
         setHasError(true);
         setIsLoading(false);
@@ -137,7 +123,15 @@ export default function TwitterEmbed({
       cancelled = true;
       if (container) container.innerHTML = '';
     };
-  }, [tweetId]);
+  }, [canLoadExternalMedia, tweetId]);
+
+  if (!normalizedTwitterUrl) {
+    return <BlockedEmbed service="X" href={null} className={className} invalid />;
+  }
+
+  if (!canLoadExternalMedia) {
+    return <BlockedEmbed service="X" href={normalizedTwitterUrl} className={className} />;
+  }
 
   if (hasError || !tweetId) {
     return (
@@ -151,7 +145,7 @@ export default function TwitterEmbed({
             Sorry, this tweet could not be loaded.
           </p>
           <a
-            href={twitterUrl}
+            href={normalizedTwitterUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center px-4 py-2 bg-white hover:bg-gray-100 text-black border border-gray-300 rounded-lg transition-colors"

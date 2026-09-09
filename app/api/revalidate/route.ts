@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { fetchNFLStandingsWithFallback } from '@/lib/nfl-api';
+import { authorizeBearerRequest, bearerErrorHeaders } from '@/lib/security/bearer-auth';
 
 const ROUTE_NAME = 'api/revalidate';
-const DEFAULT_SECRET = process.env.REVALIDATE_SECRET ?? process.env.SANITY_WEBHOOK_SECRET;
+const MAX_REVALIDATION_TARGETS = 50;
 
 type RevalidateResult = {
   revalidated: boolean;
@@ -14,36 +15,58 @@ type RevalidateResult = {
 };
 
 export async function POST(request: NextRequest) {
+  const authorization = authorizeBearerRequest(request.headers, [
+    process.env.REVALIDATE_SECRET,
+    process.env.CRON_SECRET,
+  ]);
+  if (!authorization.authorized) {
+    return NextResponse.json(
+      {
+        revalidated: false,
+        message: authorization.status === 503 ? 'Service unavailable.' : 'Unauthorized.',
+      },
+      {
+        status: authorization.status,
+        headers: bearerErrorHeaders(authorization.status),
+      }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
-    const secretFromQuery = searchParams.get('secret');
-    const secretFromHeader = request.headers.get('x-revalidate-secret');
-    const secret = secretFromQuery ?? secretFromHeader ?? '';
-    const isVercelCron = Boolean(request.headers.get('x-vercel-cron'));
-
-    if (!DEFAULT_SECRET && !isVercelCron) {
-      return NextResponse.json(
-        { revalidated: false, message: 'Server secret is not configured.' },
-        { status: 500 }
-      );
-    }
-
-    if (!isVercelCron) {
-      if (!DEFAULT_SECRET) {
-        return NextResponse.json({ revalidated: false, message: 'Secret validation unavailable.' }, { status: 401 });
-      }
-
-      if (secret !== DEFAULT_SECRET) {
-        return NextResponse.json({ revalidated: false, message: 'Invalid secret.' }, { status: 401 });
-      }
-    }
-
     const tagParam = searchParams.getAll('tag');
     const pathParam = searchParams.getAll('path');
 
-    const body = await readBody(request);
-    const tags = [...tagParam, ...(body?.tags ?? [])].filter(Boolean);
-    const paths = [...pathParam, ...(body?.paths ?? [])].filter(Boolean);
+    const parsedBody = await readBody(request);
+    if (!parsedBody.ok) {
+      return NextResponse.json(
+        { revalidated: false, message: 'Invalid request body.' },
+        { status: 400 }
+      );
+    }
+
+    const rawBody = parsedBody.body;
+    if (rawBody !== null && !isRevalidateBody(rawBody)) {
+      return NextResponse.json(
+        { revalidated: false, message: 'Invalid request body.' },
+        { status: 400 }
+      );
+    }
+    const body = rawBody;
+
+    const tags = Array.from(new Set([...tagParam, ...(body?.tags ?? [])]));
+    const paths = Array.from(new Set([...pathParam, ...(body?.paths ?? [])]));
+
+    if (
+      tags.length + paths.length > MAX_REVALIDATION_TARGETS ||
+      !tags.every(isValidTag) ||
+      !paths.every(isValidPath)
+    ) {
+      return NextResponse.json(
+        { revalidated: false, message: 'Invalid revalidation targets.' },
+        { status: 400 }
+      );
+    }
 
     if (!tags.length && !paths.length) {
       return NextResponse.json(
@@ -80,23 +103,58 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(`[${ROUTE_NAME}] failed`, error);
     return NextResponse.json(
-      { revalidated: false, message: error instanceof Error ? error.message : 'Unknown error' },
+      { revalidated: false, message: 'Revalidation failed.' },
       { status: 500 }
     );
   }
 }
 
-async function readBody(request: NextRequest): Promise<{ tags?: string[]; paths?: string[] } | null> {
-  if (request.headers.get('content-length') === '0') {
-    return null;
+async function readBody(
+  request: NextRequest
+): Promise<{ ok: true; body: unknown | null } | { ok: false }> {
+  if (
+    request.headers.get('content-length') === '0' ||
+    !request.headers.get('content-type')
+  ) {
+    return { ok: true, body: null };
+  }
+
+  const contentLength = Number(request.headers.get('content-length') ?? 0);
+  if (Number.isFinite(contentLength) && contentLength > 16_384) {
+    return { ok: false };
   }
 
   try {
     const data = await request.json();
-    return data;
+    return { ok: true, body: data };
   } catch {
-    return null;
+    return { ok: false };
   }
+}
+
+function isRevalidateBody(value: unknown): value is { tags?: string[]; paths?: string[] } {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+
+  const body = value as Record<string, unknown>;
+  return (
+    (body.tags === undefined || (Array.isArray(body.tags) && body.tags.every((tag) => typeof tag === 'string'))) &&
+    (body.paths === undefined || (Array.isArray(body.paths) && body.paths.every((path) => typeof path === 'string')))
+  );
+}
+
+function isValidTag(tag: string): boolean {
+  return tag.length > 0 && tag.length <= 128 && !/[\u0000-\u001f\u007f]/.test(tag);
+}
+
+function isValidPath(path: string): boolean {
+  return (
+    path.length > 0 &&
+    path.length <= 2_048 &&
+    path.startsWith('/') &&
+    !path.startsWith('//') &&
+    !path.includes('\\') &&
+    !/[\u0000-\u001f\u007f]/.test(path)
+  );
 }
 
 async function maybeWarmCache(tag: string): Promise<number | undefined> {

@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { isAllowedSocialClipUrl } from '../../lib/embed-urls'
 
 export const playOfWeek = defineType({
   name: 'playOfWeek',
@@ -217,8 +218,7 @@ export const playOfWeek = defineType({
       description: 'Video of the play (YouTube, X/Twitter, TikTok, Instagram).',
       validation: (Rule) => Rule.uri({ scheme: ['https'] }).custom((url) => {
         if (!url) return true
-        const allowed = /^(https?:\/\/)?([\w.-]+)\.(youtube\.com|youtu\.be|x\.com|twitter\.com|tiktok\.com|instagram\.com|vimeo\.com)/i
-        return allowed.test(url) || 'Must be YouTube, X/Twitter, TikTok, Instagram, or Vimeo URL'
+        return isAllowedSocialClipUrl(url) || 'Must be an exact HTTPS YouTube, X/Twitter, TikTok, Instagram, or Vimeo video URL'
       }),
       group: 'embeds',
     }),

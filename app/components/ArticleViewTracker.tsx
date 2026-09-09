@@ -1,6 +1,7 @@
 'use client';
 import { useEffect } from 'react';
 import { useArticleTracking } from '@/app/hooks/useArticleTracking';
+import { useConsentPreferences } from '@/app/components/consent';
 
 interface ArticleViewTrackerProps {
   slug: string;
@@ -22,8 +23,11 @@ export default function ArticleViewTracker({
   className 
 }: ArticleViewTrackerProps) {
   const { trackArticleView, trackReadingProgress } = useArticleTracking();
+  const consent = useConsentPreferences();
 
   useEffect(() => {
+    if (!consent?.analytics) return;
+
     // Track article view on mount
     trackArticleView({
       articleId: headlineId,
@@ -65,7 +69,7 @@ export default function ArticleViewTracker({
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [slug, headlineId, title, category, author, readingTime, trackArticleView, trackReadingProgress]);
+  }, [consent, slug, headlineId, title, category, author, readingTime, trackArticleView, trackReadingProgress]);
 
   return <div className={className} />;
 }

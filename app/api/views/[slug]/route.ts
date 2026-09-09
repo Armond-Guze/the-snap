@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { createHmac } from 'node:crypto';
 
 const BOT_REGEX = /(bot|crawl|spider|slurp|wget|curl|python-requests|httpclient|scrapy|httpx|feedfetcher|monitoring|statuscake|uptimerobot|headless|phantom)/i;
 const DEDUPE_TTL_SECONDS = 60 * 60 * 12; // 12 hours
@@ -10,13 +10,18 @@ function getEnv(key: string) {
   return value.trim();
 }
 
-const KV_BASE = getEnv('KV_REST_API_URL');
-const KV_TOKEN = getEnv('KV_REST_API_TOKEN');
+function getKvConfig() {
+  return {
+    base: getEnv('KV_REST_API_URL'),
+    token: getEnv('KV_REST_API_TOKEN'),
+  };
+}
 
 async function kvGet(key: string): Promise<number> {
-  if (!KV_BASE || !KV_TOKEN) return 0;
-  const res = await fetch(`${KV_BASE}/get/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  const { base, token } = getKvConfig();
+  if (!base || !token) return 0;
+  const res = await fetch(`${base}/get/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) return 0;
   const data = (await res.json()) as { result?: string | number };
@@ -25,9 +30,10 @@ async function kvGet(key: string): Promise<number> {
 }
 
 async function kvIncr(key: string): Promise<number> {
-  if (!KV_BASE || !KV_TOKEN) return 0;
-  const res = await fetch(`${KV_BASE}/incr/${encodeURIComponent(key)}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` }
+  const { base, token } = getKvConfig();
+  if (!base || !token) return 0;
+  const res = await fetch(`${base}/incr/${encodeURIComponent(key)}`, {
+    headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) return 0;
   const data = (await res.json()) as { result?: number };
@@ -35,9 +41,10 @@ async function kvIncr(key: string): Promise<number> {
 }
 
 async function kvSetNX(key: string, value: string, ttlSeconds: number): Promise<boolean> {
-  if (!KV_BASE || !KV_TOKEN) return false;
-  const url = `${KV_BASE}/set/${encodeURIComponent(key)}/${encodeURIComponent(value)}?ex=${ttlSeconds}&nx=true`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${KV_TOKEN}` } });
+  const { base, token } = getKvConfig();
+  if (!base || !token) return false;
+  const url = `${base}/set/${encodeURIComponent(key)}/${encodeURIComponent(value)}?ex=${ttlSeconds}&nx=true`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) return false;
   const data = (await res.json()) as { result?: string };
   return data.result === 'OK';
@@ -56,50 +63,115 @@ function isExcludedByCookie(req: NextRequest) {
   return req.cookies.get('va-exclude')?.value === '1';
 }
 
-function getClientIp(req: Request): string {
-  const header = req.headers.get('x-forwarded-for') || '';
-  const ip = header.split(',')[0]?.trim();
-  return ip || '0.0.0.0';
+function hasAcceptedAnalyticsConsent(req: NextRequest): boolean {
+  return req.cookies.get('cookie_consent')?.value === 'accepted';
 }
 
-function hashFingerprint(parts: string[]): string {
-  const h = crypto.createHash('sha256');
-  h.update(parts.join('|'));
-  return h.digest('hex');
+export function isExactSameOriginRequest(req: NextRequest): boolean {
+  if (req.headers.get('sec-fetch-site') !== 'same-origin') return false;
+
+  const source = req.method === 'GET'
+    ? req.headers.get('referer')
+    : req.headers.get('origin');
+  if (!source) return false;
+
+  try {
+    return new URL(source).origin === req.nextUrl.origin;
+  } catch {
+    return false;
+  }
 }
 
-function extractSlug(url: string): string {
+function getClientIp(req: Request): string | null {
+  const header =
+    req.headers.get('x-vercel-forwarded-for') ||
+    req.headers.get('x-forwarded-for') ||
+    req.headers.get('x-real-ip') ||
+    '';
+  const ip = header.split(',')[0]?.trim() || '';
+  return ip && ip.length <= 128 ? ip : null;
+}
+
+export function createViewFingerprint(req: Request, slug: string): string | null {
+  const secret = getEnv('ANALYTICS_HMAC_SECRET');
+  const ip = getClientIp(req);
+  const userAgent = req.headers.get('user-agent')?.slice(0, 512) || '';
+  const language = req.headers.get('accept-language')?.slice(0, 256) || '';
+  if (!secret || secret.length < 32 || !ip || !userAgent) return null;
+
+  return createHmac('sha256', secret)
+    .update('article-view-dedupe', 'utf8')
+    .update('\0', 'utf8')
+    .update(slug, 'utf8')
+    .update('\0', 'utf8')
+    .update(ip, 'utf8')
+    .update('\0', 'utf8')
+    .update(userAgent, 'utf8')
+    .update('\0', 'utf8')
+    .update(language, 'utf8')
+    .digest('hex');
+}
+
+function extractSlug(url: string): string | null {
   try {
     const u = new URL(url);
     const segments = u.pathname.split('/').filter(Boolean);
-    return segments[segments.length - 1] || '';
+    const slug = decodeURIComponent(segments[segments.length - 1] || '').trim().toLowerCase();
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,158}[a-z0-9])?$/.test(slug)) return null;
+    return slug;
   } catch {
-    return '';
+    return null;
   }
+}
+
+const NO_STORE_HEADERS = { 'Cache-Control': 'no-store' } as const;
+
+function rejectUnlessPrivateAnalyticsRequest(req: NextRequest): NextResponse | null {
+  if (!isExactSameOriginRequest(req)) {
+    return NextResponse.json({ error: 'Cross-origin view requests are not allowed' }, {
+      status: 403,
+      headers: NO_STORE_HEADERS,
+    });
+  }
+  if (!hasAcceptedAnalyticsConsent(req)) {
+    return NextResponse.json({ skipped: 'consent_required' }, {
+      status: 403,
+      headers: NO_STORE_HEADERS,
+    });
+  }
+  if (isExcludedByCookie(req)) {
+    return NextResponse.json({ skipped: 'excluded_visitor' }, {
+      status: 200,
+      headers: NO_STORE_HEADERS,
+    });
+  }
+  return null;
 }
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const slug = decodeURIComponent(extractSlug(req.url)).trim();
+  const slug = extractSlug(req.url);
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
+  const rejection = rejectUnlessPrivateAnalyticsRequest(req);
+  if (rejection) return rejection;
   const count = await kvGet(`views:${slug}`);
   return NextResponse.json(
     { count },
-    {
-      headers: {
-        'Cache-Control': 's-maxage=300, stale-while-revalidate=600'
-      }
-    }
+    { headers: NO_STORE_HEADERS }
   );
 }
 
 export async function POST(req: NextRequest) {
-  const slug = decodeURIComponent(extractSlug(req.url)).trim();
+  const slug = extractSlug(req.url);
   if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
 
-  if (!KV_BASE || !KV_TOKEN) {
+  const rejection = rejectUnlessPrivateAnalyticsRequest(req);
+  if (rejection) return rejection;
+
+  const { base, token } = getKvConfig();
+  if (!base || !token) {
     return NextResponse.json(
       { skipped: 'kv_unconfigured' },
       {
@@ -122,22 +194,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (isExcludedByCookie(req)) {
+  const fingerprint = createViewFingerprint(req, slug);
+  if (!fingerprint) {
     return NextResponse.json(
-      { skipped: 'excluded_visitor' },
-      {
-        headers: {
-          'Cache-Control': 'no-store'
-        }
-      }
+      { error: 'View counting is temporarily unavailable' },
+      { status: 503, headers: NO_STORE_HEADERS }
     );
   }
-
-  const ua = req.headers.get('user-agent') || '';
-  const ip = getClientIp(req);
-  const lang = req.headers.get('accept-language') || '';
-
-  const fingerprint = hashFingerprint([slug, ua, ip, lang]);
   const dedupeKey = `views:seen:${fingerprint}`;
   const counterKey = `views:${slug}`;
 

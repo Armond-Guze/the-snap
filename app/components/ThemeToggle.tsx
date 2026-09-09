@@ -35,9 +35,11 @@ export default function ThemeToggle() {
     const initial =
       saved === "light" || saved === "dark" ? (saved as Theme) : resolveSystemTheme();
 
-    applyTheme(initial);
-    setTheme(initial);
-    setMounted(true);
+    queueMicrotask(() => {
+      applyTheme(initial);
+      setTheme(initial);
+      setMounted(true);
+    });
 
     if (saved === "light" || saved === "dark") return;
 

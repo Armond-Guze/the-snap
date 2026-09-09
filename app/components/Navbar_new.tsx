@@ -30,11 +30,6 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  // Close menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
   // Add Home link when not on homepage
   const navItems = [
     ...(pathname !== "/" ? [{ label: "Home", href: "/" }] : []),

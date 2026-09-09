@@ -1,5 +1,5 @@
 import { client } from '@/sanity/lib/client';
-import { fetchNFLStandingsWithFallback, ProcessedTeamData } from '@/lib/nfl-api';
+import { fetchNFLStandingsWithFallback, ProcessedTeamData, resolveNFLSeason } from '@/lib/nfl-api';
 import { TEAM_META } from '@/lib/schedule';
 
 const SANITY_WRITE_TOKEN = process.env.SANITY_API_WRITE_TOKEN || process.env.SANITY_WRITE_TOKEN;
@@ -51,7 +51,7 @@ export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeam
     throw new Error('SANITY_API_WRITE_TOKEN (or SANITY_WRITE_TOKEN) is not configured.');
   }
 
-  const season = seasonOverride ?? Number(process.env.NFL_SEASON ?? new Date().getFullYear());
+  const season = resolveNFLSeason(seasonOverride);
   const result: SyncTeamRecordsResult = {
     success: false,
     created: 0,
@@ -62,8 +62,28 @@ export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeam
   };
 
   try {
-    const standings = await fetchNFLStandingsWithFallback();
-    if (!standings.length) throw new Error('Standings API returned 0 entries.');
+    const standings = await fetchNFLStandingsWithFallback(season);
+    if (standings.length !== 32) {
+      throw new Error(`Standings API returned ${standings.length} entries; expected 32.`);
+    }
+
+    const mappedStandings = standings.flatMap((team) => {
+      const teamAbbr = guessAbbr(team.teamName);
+      if (!teamAbbr) {
+        result.skipped++;
+        result.errors.push(`Unknown team mapping for ${team.teamName}`);
+        return [];
+      }
+      return [{ team, teamAbbr }];
+    });
+
+    const mappedTeams = new Set(mappedStandings.map(({ teamAbbr }) => teamAbbr));
+    if (mappedStandings.length !== 32 || mappedTeams.size !== 32 || result.skipped > 0) {
+      throw new Error(
+        `Refusing to write incomplete ${season} standings: ` +
+          `mapped ${mappedStandings.length} rows across ${mappedTeams.size} unique teams.`,
+      );
+    }
 
     const existing = await writeClient.fetch<Array<{ _id: string; teamAbbr: string }>>(
       `*[_type == "teamRecord" && season == $season]{ _id, teamAbbr }`,
@@ -73,32 +93,30 @@ export async function syncTeamRecords(seasonOverride?: number): Promise<SyncTeam
 
     let tx = writeClient.transaction();
     let pending = 0;
+    let created = 0;
+    let updated = 0;
 
-    for (const team of standings) {
-      const abbr = guessAbbr(team.teamName);
-      if (!abbr) {
-        result.skipped++;
-        result.errors.push(`Unknown team mapping for ${team.teamName}`);
-        continue;
-      }
-
-      const doc = toRecordDoc(team, abbr, season);
-      const existingId = existingMap.get(abbr);
+    for (const { team, teamAbbr } of mappedStandings) {
+      const doc = toRecordDoc(team, teamAbbr, season);
+      const existingId = existingMap.get(teamAbbr);
       if (existingId) {
         doc._id = existingId;
-        result.updated++;
+        updated++;
       } else {
-        result.created++;
+        created++;
       }
 
       tx = tx.createOrReplace(doc);
       pending++;
     }
 
-    if (pending > 0) {
-      await tx.commit();
+    if (pending !== 32) {
+      throw new Error(`Refusing to commit incomplete ${season} standings transaction (${pending}/32).`);
     }
 
+    await tx.commit();
+    result.created = created;
+    result.updated = updated;
     result.success = true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown sync error';

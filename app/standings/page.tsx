@@ -242,7 +242,7 @@ export default async function StandingsPage() {
   };
 
   return (
-    <div className="bg-[hsl(0_0%_3.9%)] min-h-screen text-white">
+    <main className="bg-[hsl(0_0%_3.9%)] min-h-screen text-white">
       <StructuredData id={`standings-${season}`} data={standingsSchema} />
       {/* Compact Header / Tagline */}
       <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-gray-800/60 bg-[hsl(0_0%_3.9%)/0.9] backdrop-blur-sm">
@@ -309,6 +309,6 @@ export default async function StandingsPage() {
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

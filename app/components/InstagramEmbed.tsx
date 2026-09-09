@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { normalizeInstagramPostUrl } from '@/lib/embed-urls';
+import BlockedEmbed from './BlockedEmbed';
+import { useConsentPreferences } from './consent';
 
 interface InstagramWindow extends Window {
   instgrm?: {
@@ -18,41 +21,66 @@ export default function InstagramEmbed({ url, className = '', title }: Instagram
   const ref = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
-
-  // Normalize URL (ensure trailing slash for Instagram embed script)
-  const normalized = url.endsWith('/') ? url : url + '/';
+  const preferences = useConsentPreferences();
+  const canLoadExternalMedia = preferences?.externalMedia === true;
+  const normalized = normalizeInstagramPostUrl(url);
 
   useEffect(() => {
-    if (!ref.current) return;
-    // Insert blockquote
-    ref.current.innerHTML = `
-      <blockquote class="instagram-media" data-instgrm-permalink="${normalized}" data-instgrm-version="14" style="margin:0 auto; width:100%; max-width:540px; background:#000;">
-        <a href="${normalized}" target="_blank" rel="noopener noreferrer">View post</a>
-      </blockquote>`;
+    if (!canLoadExternalMedia || !normalized || !ref.current) return;
+    let cancelled = false;
+    let pendingScript: HTMLScriptElement | null = null;
 
     function process() {
       const w = window as InstagramWindow;
       if (w.instgrm?.Embeds) {
         try {
           w.instgrm.Embeds.process();
-          setLoaded(true);
+          if (timeoutId) clearTimeout(timeoutId);
+          if (!cancelled) setLoaded(true);
         } catch {
-          setError(true);
+          if (!cancelled) setError(true);
         }
       }
     }
 
-    if (!document.querySelector('script[src*="instagram.com/embed.js"]')) {
+    const timeoutId = setTimeout(() => {
+      if (!cancelled) setError(true);
+    }, 10_000);
+
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src="https://www.instagram.com/embed.js"]'
+    );
+    if (!existing) {
       const s = document.createElement('script');
       s.src = 'https://www.instagram.com/embed.js';
       s.async = true;
       s.onload = process;
-      s.onerror = () => setError(true);
+      s.onerror = () => {
+        if (!cancelled) setError(true);
+      };
       document.body.appendChild(s);
-    } else {
+      pendingScript = s;
+    } else if ((window as InstagramWindow).instgrm?.Embeds) {
       process();
+    } else {
+      existing.addEventListener('load', process, { once: true });
+      pendingScript = existing;
     }
-  }, [normalized]);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+      pendingScript?.removeEventListener('load', process);
+    };
+  }, [canLoadExternalMedia, normalized]);
+
+  if (!normalized) {
+    return <BlockedEmbed service="Instagram" href={null} className={className} invalid />;
+  }
+
+  if (!canLoadExternalMedia) {
+    return <BlockedEmbed service="Instagram" href={normalized} className={className} />;
+  }
 
   if (error) {
     return (
@@ -72,7 +100,17 @@ export default function InstagramEmbed({ url, className = '', title }: Instagram
           <span className="ml-2 text-xs text-gray-400">Loading Instagram...</span>
         </div>
       )}
-      <div ref={ref} />
+      <div ref={ref}>
+        <blockquote
+          className="instagram-media mx-auto w-full max-w-[540px] bg-black"
+          data-instgrm-permalink={normalized}
+          data-instgrm-version="14"
+        >
+          <a href={normalized} target="_blank" rel="noopener noreferrer">
+            View post on Instagram
+          </a>
+        </blockquote>
+      </div>
     </div>
   );
 }

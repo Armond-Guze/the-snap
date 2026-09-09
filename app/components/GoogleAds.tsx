@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from 'react';
+import { useConsentPreferences } from './consent';
 
 // Extend the Window interface to include adsbygoogle
 declare global {
@@ -13,21 +14,20 @@ const ADSENSE_SLOT = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID; // optional displa
 
 export default function GoogleAds() {
   const initializedRef = useRef(false);
-  const consentGranted = typeof window !== 'undefined' && localStorage.getItem('cookie_consent') === '1';
+  const consent = useConsentPreferences();
 
   useEffect(() => {
-    if (!ADS_ENABLED || !ADSENSE_CLIENT || !consentGranted) return;
+    if (!ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising) return;
     if (initializedRef.current) return; // avoid duplicate push on fast refresh / remount
     try {
-      console.log('AdSense: queueing ad (homepage block)');
       (window.adsbygoogle = window.adsbygoogle || []).push({});
       initializedRef.current = true;
     } catch (e) {
       console.error('AdSense error:', e);
     }
-  }, [consentGranted]);
+  }, [consent]);
 
-  if (!ADS_ENABLED || !ADSENSE_CLIENT || !consentGranted) return null;
+  if (!ADS_ENABLED || !ADSENSE_CLIENT || !consent?.advertising) return null;
 
   return (
     <div className="w-full flex justify-center bg-background py-4">

@@ -2,7 +2,7 @@ import { TEAM_META, TEAM_ABBRS, getTeamSeasonSchedule } from '@/lib/schedule';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import StructuredData from '@/app/components/StructuredData';
 import { buildSportsEventList } from '@/lib/seo/sportsEventSchema';
 import { client } from '@/sanity/lib/client';
@@ -115,7 +115,7 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   const resolved = teamBySlugOrAbbr(team);
 
   if (!resolved) {
-    return { title: 'NFL Team Hub | The Snap' };
+    notFound();
   }
 
   const season = await getScheduleSeason();
@@ -148,20 +148,22 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   const resolved = teamBySlugOrAbbr(team);
 
   if (!resolved) {
-    return <div className="mx-auto max-w-4xl px-4 py-12 text-white">Unknown team.</div>;
+    notFound();
   }
 
   const { abbr, meta } = resolved;
   const canonicalSlug = slugifyTeamName(meta.name);
   if (team.toLowerCase() !== canonicalSlug) {
-    redirect(`/teams/${canonicalSlug}`);
+    permanentRedirect(`/teams/${canonicalSlug}`);
   }
 
-  const scheduleSeason = await getScheduleSeason();
-  const [standingsSeason, games, standings] = await Promise.all([
+  const [scheduleSeason, standingsSeason] = await Promise.all([
+    getScheduleSeason(),
     getActiveSeason(),
+  ]);
+  const [games, standings] = await Promise.all([
     getTeamSeasonSchedule(abbr, String(scheduleSeason)),
-    fetchNFLStandingsWithFallback(),
+    fetchNFLStandingsWithFallback(standingsSeason),
   ]);
 
   const teamStanding = standings.find((t) => t.teamName.toLowerCase() === meta.name.toLowerCase());
@@ -179,6 +181,8 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
     ? conferenceStandings.findIndex((t) => t.teamName === teamStanding.teamName) + 1
     : null;
 
+  // This Server Component intentionally snapshots the request time to split past and future games.
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
   const upcomingGames = games.filter((g) => Date.parse(g.dateUTC) >= now).slice(0, 5);
   const recentGames = games.filter((g) => Date.parse(g.dateUTC) < now).slice(-3).reverse();
@@ -255,25 +259,34 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   const eventSchemaEnabled = process.env.ENABLE_EVENT_SCHEMA === 'true';
   const eventList = eventSchemaEnabled ? buildSportsEventList(games.filter((game) => !game.dateTimeTBD), { country: 'US' }).slice(0, 50) : [];
 
-  const teamSchema = eventSchemaEnabled && eventList.length
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'SportsTeam',
-        name: meta.name,
-        sport: 'American Football',
-        memberOf: { '@type': 'SportsOrganization', name: 'NFL' },
-        season: String(scheduleSeason),
-        url: `${SITE_URL}/teams/${canonicalSlug}`,
-        hasPart: eventList,
-      }
-    : null;
+  const teamUrl = `${SITE_URL}/teams/${canonicalSlug}`;
+  const teamSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SportsTeam',
+    name: meta.name,
+    sport: 'American Football',
+    memberOf: { '@type': 'SportsOrganization', name: 'National Football League' },
+    url: teamUrl,
+    ...(meta.logo ? { logo: new URL(meta.logo, `${SITE_URL}/`).toString() } : {}),
+    ...(eventList.length ? { hasPart: eventList } : {}),
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'NFL Teams', item: `${SITE_URL}/teams` },
+      { '@type': 'ListItem', position: 3, name: meta.name, item: teamUrl },
+    ],
+  };
 
   const teamAccent = TEAM_COLORS[abbr] || '#9CA3AF';
   const currentDivisionCodes = DIVISION_GROUPS.find((group) => group.title === teamStanding?.division)?.teams || [];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 text-white sm:px-6 lg:px-8">
-      {teamSchema && <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />}
+      <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />
+      <StructuredData data={breadcrumbSchema} id={`sd-team-breadcrumb-${abbr}`} />
 
       <section
         className="relative overflow-hidden rounded-3xl border border-white/10 p-5 sm:p-7"

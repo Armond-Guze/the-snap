@@ -36,6 +36,14 @@ const sections = [
     body: "The site may link to or rely on third-party services, including analytics, ads, newsletter providers, or external websites. Those services operate under their own terms and policies.",
   },
   {
+    title: "Advertising, affiliates, and sponsorships",
+    body: "The Snap may receive compensation from advertising, sponsorships, or qualifying actions through disclosed affiliate links. Commercial relationships do not guarantee a favorable editorial conclusion.",
+  },
+  {
+    title: "Betting and fantasy information",
+    body: "Betting and fantasy content is for informational and entertainment purposes, not financial or legal advice. You are responsible for age, location, and other legal requirements that apply where you live.",
+  },
+  {
     title: "Liability",
     body: "The Snap is provided on an as-is basis. To the fullest extent permitted by law, we are not liable for losses, damages, or decisions made based on content published on the site.",
   },
@@ -46,8 +54,6 @@ const sections = [
 ];
 
 export default function TermsOfUse() {
-  const year = new Date().getFullYear();
-
   return (
     <SimplePageShell
       eyebrow="Legal"
@@ -70,15 +76,7 @@ export default function TermsOfUse() {
         </p>
       </SimpleSection>
 
-      <p className="text-sm text-white/40">
-        Last updated:{" "}
-        {new Date().toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}{" "}
-        · © {year} The Snap
-      </p>
+      <p className="text-sm text-white/40">Last updated: August 9, 2026 · © 2026 The Snap</p>
     </SimplePageShell>
   );
 }

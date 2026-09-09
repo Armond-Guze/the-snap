@@ -13,6 +13,7 @@ type SeoDocument = SanityDocument & {
   category?: {title?: string}
   tags?: string[]
   body?: Array<{children?: Array<{text?: string}>}>
+  editorialBrief?: {targetQuery?: string}
   seo?: Partial<AutoSeoResult> & {autoGenerate?: boolean}
 }
 
@@ -22,14 +23,14 @@ export const SeoRegenerateAction: DocumentActionComponent = (props) => {
   const doc = (props.draft || props.published) as SeoDocument | null
   if (!doc) return null
   const seo = doc.seo
-  if (!seo || seo.autoGenerate === false) return null
-  if (!['headline', 'rankings', 'category'].includes(doc._type)) return null
+  if (seo?.autoGenerate === false) return null
+  if (!['article', 'headline', 'rankings', 'category'].includes(doc._type)) return null
 
   return {
     label: 'Regenerate SEO',
     onHandle: () => {
       let updated: AutoSeoResult | undefined
-      if (doc._type === 'headline') {
+      if (doc._type === 'article' || doc._type === 'headline') {
         updated = generateHeadlineSeo(doc)
       } else if (doc._type === 'rankings') {
         updated = generateRankingsSeo(doc)

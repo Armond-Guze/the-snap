@@ -73,7 +73,7 @@ export default async function ScheduleLandingPage({ searchParams }: ScheduleLand
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-white md:pt-8">
+    <main className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-white md:pt-8">
       {scheduleSchema && <StructuredData data={scheduleSchema} id={`sd-schedule-${season}-week-${week}`} />}
       <h1 className="mb-2 text-3xl font-bold">{season} NFL Schedule</h1>
       <p className="mb-6 max-w-3xl text-sm leading-relaxed text-white/65">
@@ -83,6 +83,6 @@ export default async function ScheduleLandingPage({ searchParams }: ScheduleLand
       <TimezoneClient />
       <GamesBuckets games={filteredGames} recordsMap={recordsMap} timezoneCode={timezoneCode} />
       <ScheduleFAQ season={season} />
-    </div>
+    </main>
   );
 }

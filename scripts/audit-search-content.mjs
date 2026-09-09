@@ -51,6 +51,13 @@ const contentQuery = `*[
   "author": author->{name, "slug": slug.current},
   "tagRefs": tagRefs[]->{title, "slug": slug.current},
   "topicHubs": topicHubs[]->{title, "slug": slug.current},
+  editorialBrief,
+  seo,
+  "bodyLinks": body[].markDefs[]{
+    _type,
+    href,
+    "reference": reference->{_type, "slug": slug.current}
+  },
   "bodyChars": coalesce(length(pt::text(body)), 0),
   "bodyBlocks": count(body),
   "coverImagePresent": defined(coverImage.asset)
@@ -58,8 +65,34 @@ const contentQuery = `*[
 
 const docs = await client.fetch(contentQuery)
 
+const inspectLinks = (doc) => {
+  let internal = 0
+  let external = 0
+  for (const link of doc.bodyLinks || []) {
+    if (link?._type === 'internalLink' && link.reference?.slug) {
+      internal += 1
+      continue
+    }
+    if (link?._type !== 'link' || !link.href) continue
+    if (link.href.startsWith('/')) {
+      internal += 1
+      continue
+    }
+    try {
+      const host = new URL(link.href).hostname.replace(/^www\./, '').toLowerCase()
+      if (host === 'thegamesnap.com') internal += 1
+      else external += 1
+    } catch {
+      // Invalid URLs are reported by Studio validation.
+    }
+  }
+  return {internal, external}
+}
+
+const docsWithSignals = docs.map((doc) => ({...doc, linkSignals: inspectLinks(doc)}))
+
 const bettingPattern = /(bet|odds|spread|moneyline|total|super-bowl-lxi-odds|win-totals)/i
-const betting = docs.filter((doc) =>
+const betting = docsWithSignals.filter((doc) =>
   bettingPattern.test(`${doc.title || ''} ${doc.slug?.current || ''}`),
 )
 
@@ -92,21 +125,29 @@ const bettingDetails = includeBettingDetails
     )
   : undefined
 
-const typeCounts = docs.reduce((counts, doc) => {
+const typeCounts = docsWithSignals.reduce((counts, doc) => {
   counts[doc._type] = (counts[doc._type] || 0) + 1
   return counts
 }, {})
 
 const report = {
   generatedAt: new Date().toISOString(),
-  total: docs.length,
+  total: docsWithSignals.length,
   byType: typeCounts,
   missing: {
-    summary: docs.filter((doc) => !doc.summary?.trim()).length,
-    author: docs.filter((doc) => !doc.author?.name).length,
-    coverImage: docs.filter((doc) => !doc.coverImagePresent).length,
-    category: docs.filter((doc) => !doc.category?.title).length,
-    thinUnder1500Chars: docs.filter((doc) => doc.bodyChars < 1500).length,
+    summary: docsWithSignals.filter((doc) => !doc.summary?.trim()).length,
+    author: docsWithSignals.filter((doc) => !doc.author?.name).length,
+    coverImage: docsWithSignals.filter((doc) => !doc.coverImagePresent).length,
+    category: docsWithSignals.filter((doc) => !doc.category?.title).length,
+    canonicalTags: docsWithSignals.filter((doc) => (doc.tagRefs?.length || 0) < 3).length,
+    editorialBrief: docsWithSignals.filter((doc) => !doc.editorialBrief?.targetQuery?.trim()).length,
+    humanReview: docsWithSignals.filter((doc) => doc.editorialBrief?.humanReviewed !== true).length,
+    contextualInternalLinks: docsWithSignals.filter((doc) => doc.linkSignals.internal === 0).length,
+    externalSourceLinks: docsWithSignals.filter((doc) => doc.linkSignals.external === 0).length,
+    completeSeo: docsWithSignals.filter((doc) =>
+      !doc.seo?.metaTitle?.trim() || !doc.seo?.metaDescription?.trim() || !doc.seo?.focusKeyword?.trim(),
+    ).length,
+    thinUnder1500Chars: docsWithSignals.filter((doc) => doc.bodyChars < 1500).length,
   },
   betting,
   ...(bettingDetails ? {bettingDetails} : {}),

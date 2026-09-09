@@ -11,7 +11,7 @@ import ReadingTime from '@/app/components/ReadingTime';
 import Breadcrumb from '@/app/components/Breadcrumb';
 import ArticleViewTracker from '@/app/components/ArticleViewTracker';
 import ArticleViewCount from '@/app/components/ArticleViewCount';
-import { generateSEOMetadata } from '@/lib/seo';
+import { generateSEOMetadata, resolveCanonicalUrl } from '@/lib/seo';
 import { articleDetailQuery } from '@/sanity/lib/queries';
 import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time';
 import { formatArticleDate } from '@/lib/date-utils';
@@ -50,24 +50,20 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 		const canonical = weekPart && season
 			? `${SITE_URL}/articles/power-rankings/${season}/${weekPart}`
 			: `${SITE_URL}/articles/power-rankings`;
+		const metadata = generateSEOMetadata(article, '/articles');
 		return {
-			...generateSEOMetadata(article, '/articles'),
+			...metadata,
 			alternates: {
 				canonical,
+			},
+			openGraph: {
+				...metadata.openGraph,
+				url: canonical,
 			},
 		};
 	}
 
-	const metadata = generateSEOMetadata(article, '/articles');
-	const canonicalBase = `${SITE_URL}/articles`;
-	const cleanSlug = article.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
-	return {
-		...metadata,
-		alternates: {
-			...metadata.alternates,
-			canonical: `${canonicalBase}/${cleanSlug}`,
-		},
-	};
+	return generateSEOMetadata(article, '/articles');
 }
 
 export default async function ArticlePage(props: HeadlinePageProps) {
@@ -100,7 +96,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				image { asset->{ url } },
 				category->{ title, slug, color },
 				format,
-				tags[]->{ title }
+				"tags": tagRefs[]->{ _id, title, slug }
 			}`,
 			{},
 			300,
@@ -187,7 +183,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		{ label: article.title }
 	];
 
-	const shareUrl = `${SITE_URL}/articles/${trimmedSlug}`;
+	const canonicalSlug = article.slug?.current?.trim() || trimmedSlug;
+	const shareUrl = resolveCanonicalUrl(article, '/articles');
 	const ogFallback = `${SITE_URL}/api/og?${new URLSearchParams({
 		title: article.title,
 		subtitle: article.summary || article.title,
@@ -212,7 +209,12 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 			],
 			datePublished: article.date || article.publishedAt || '',
 			dateModified: article.dateModified || article.date || article.publishedAt || '',
-			author: { name: article.author?.name || 'Staff Writer' },
+			author: {
+				name: article.author?.name || 'Staff Writer',
+				...(article.author?.slug?.current
+					? { url: `${SITE_URL}/authors/${article.author.slug.current}` }
+					: {}),
+			},
 			articleSection: article.category?.title || primaryTopicHub?.title,
 			keywords: keywordList && keywordList.length ? keywordList : undefined,
 			speakableSelectors: ['h1', 'meta[name="description"]'],
@@ -226,7 +228,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 	return (
 		<>
 			<main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
-			{articleSD && <StructuredData id={`sd-article-${trimmedSlug}`} data={articleSD} />}
+			{articleSD && <StructuredData id={`sd-article-${canonicalSlug}`} data={articleSD} />}
 			<div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
 				<article className="lg:col-span-2 flex flex-col">
 					<div className="hidden sm:block">
@@ -246,10 +248,19 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 									/>
 								</div>
 							)}
-							{article.author?.name && <span className="font-medium text-white/90">{article.author.name}</span>}
+							{article.author?.name && (
+								article.author.slug?.current ? (
+									<Link href={`/authors/${article.author.slug.current}`} className="font-medium text-white/90 hover:text-emerald-300">
+										{article.author.name}
+									</Link>
+								) : (
+									<span className="font-medium text-white/90">{article.author.name}</span>
+								)
+							)}
 							{publishedDate && (
 								<>
-									<span>• {formatArticleDate(publishedDate)}</span>
+									<span aria-hidden="true">•</span>
+									<time dateTime={publishedDate}>{formatArticleDate(publishedDate)}</time>
 									<span className="text-gray-500 hidden sm:inline">•</span>
 								</>
 							)}
@@ -275,8 +286,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 									{hub.title}
 								</Link>
 							))}
-							{article.dateModified && article.dateModified !== article.date && (
-								<span className="text-xs text-gray-500">Updated {formatArticleDate(article.dateModified)}</span>
+							{article.dateModified && article.dateModified !== publishedDate && (
+								<span className="text-xs text-gray-500">Updated <time dateTime={article.dateModified}>{formatArticleDate(article.dateModified)}</time></span>
 							)}
 						</div>
 						{article.coverImage?.asset?.url && (
@@ -294,12 +305,18 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 						{article.summary && (
 							<p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>
 						)}
+						{article.dateModified && article.updateNote && (
+							<p className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-sm leading-relaxed text-emerald-100/90">
+								<span className="font-semibold">Updated <time dateTime={article.dateModified}>{formatArticleDate(article.dateModified)}</time>:</span>{' '}
+								{article.updateNote}
+							</p>
+						)}
 						{tagList.length > 0 && (
 							<div className="mt-3 flex flex-wrap gap-2">
 								{tagList.map((tag) => (
 									<Link
 										key={tag.slug || tag.title}
-										href={`/articles?tag=${encodeURIComponent(tag.title)}`}
+										href={tag.slug ? `/tags/${encodeURIComponent(tag.slug)}` : '/tags'}
 										className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
 									>
 										#{tag.title}
@@ -369,8 +386,8 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 									🔥
 								</div>
 								<div>
-									<p className="text-xs uppercase tracking-[0.3em] text-white/40">Trending now</p>
-									<h2 className="text-2xl font-semibold text-white">What readers are clicking</h2>
+									<p className="text-xs uppercase tracking-[0.3em] text-white/40">Latest coverage</p>
+									<h2 className="text-2xl font-semibold text-white">More from The Snap</h2>
 								</div>
 							</div>
 							<ol className="space-y-3">

@@ -93,10 +93,12 @@ export const headlineDetailQuery = `
       title,
       slug
     },
-    tags[]->{
+    "tags": tagRefs[]->{
+      _id,
       title,
       slug
     },
+    "legacyTags": tags,
     seo {
       metaTitle,
       metaDescription,
@@ -117,6 +119,13 @@ export const headlineDetailQuery = `
     dateModified,
     body[]{
       ...,
+      markDefs[]{
+        ...,
+        _type == 'internalLink' => {
+          ...,
+          "reference": reference->{_type, title, slug, format, seasonYear, weekNumber, playoffRound}
+        }
+      },
       _type == 'playerHeading' => {
         ...,
         headshot{asset->{url}, alt},
@@ -156,7 +165,7 @@ export const headlineDetailQuery = `
 export const relatedHeadlinesQuery = `
   *[
     ((_type == "article" && format == "headline") || _type == "headline") && published == true && _id != $currentId && 
-    (category._ref == $categoryId || count((tags[]._ref)[@ in $tagIds]) > 0)
+    (category._ref == $categoryId || count((tagRefs[]._ref)[@ in $tagIds]) > 0)
   ] 
   | order(coalesce(publishedAt, _createdAt) desc)[0...6] {
     _id,
@@ -227,7 +236,8 @@ export const categoryContentQuery = `
     image { asset->{ url } },
     author->{ name },
     category->{ title, slug, color },
-    tags[]->{ title },
+    "tags": tagRefs[]->{ _id, title, slug },
+    "legacyTags": tags,
     date,
     publishedAt
   }
@@ -287,10 +297,12 @@ export const articleDetailQuery = `
       title,
       slug
     },
-    tags[]->{
+    "tags": tagRefs[]->{
+      _id,
       title,
       slug
     },
+    "legacyTags": tags,
     seo {
       metaTitle,
       metaDescription,
@@ -309,8 +321,16 @@ export const articleDetailQuery = `
     date,
     publishedAt,
     dateModified,
+    updateNote,
     body[]{
       ...,
+      markDefs[]{
+        ...,
+        _type == 'internalLink' => {
+          ...,
+          "reference": reference->{_type, title, slug, format, seasonYear, weekNumber, playoffRound}
+        }
+      },
       _type == 'playerHeading' => {
         ...,
         headshot{asset->{url}, alt},
@@ -344,28 +364,28 @@ export const articleDetailQuery = `
   }
 `;
 
-// Tags query - fixed to work with string tags in headlines
+// Canonical editorial tags used by article.tagRefs.
 export const tagsQuery = `
-  *[_type == "tag"] | order(trending desc, title asc) {
+  *[_type == "advancedTag"] {
     _id,
     title,
     slug,
     description,
-    trending,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
-  }
+    "trending": false,
+    "articleCount": count(*[_type == "article" && published == true && references(^._id)])
+  } | order(articleCount desc, title asc)
 `;
 
-// Trending tags query - fixed to work with string tags
+// Highest-coverage canonical tags; "trending" is a display label, not a traffic claim.
 export const trendingTagsQuery = `
-  *[_type == "tag" && trending == true] | order(title asc) {
+  *[_type == "advancedTag"] {
     _id,
     title,
     slug,
-    // Count both headlines and articles that either reference this tag in tagRefs or include its title in string tags
-    "articleCount": count(*[(published == true) && ((_type == "article" && format == "headline") || _type == "headline" || _type == "rankings") && ((defined(tagRefs) && references(^._id)) || (defined(tags) && tags match "*" + ^.title + "*"))])
-  }
+    description,
+    "trending": false,
+    "articleCount": count(*[_type == "article" && published == true && references(^._id)])
+  } | order(articleCount desc, title asc)[0...20]
 `;
 
 // Headlines by category - fixed to work without requiring category references
@@ -392,7 +412,7 @@ export const headlinesByCategoryQuery = `
       title,
       color
     },
-    tags,
+    "tags": tagRefs[]->{ _id, title, slug },
     date
   }
 `;

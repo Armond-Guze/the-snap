@@ -3,7 +3,8 @@
 import { PortableTextComponents } from '@portabletext/react'
 import Link from 'next/link'
 import Image from 'next/image'
-import SnapGraphicCard from '@/app/components/SnapGraphicCard'
+import SnapGraphicCard from '../app/components/SnapGraphicCard'
+import ImpliedTotalsCalculator from './implied-totals-calculator'
 // NOTE: We avoid runtime fetching in portable text render to keep it static.
 // Player reference data should be GROQ-populated when querying the document.
 type SanityImageRef = { asset?: { _ref?: string, url?: string }; alt?: string }
@@ -18,6 +19,84 @@ type RankingCardValue = {
 type DataTableValue = {
   columns?: unknown[]
   rows?: Array<{ _key?: string; cells?: unknown[] }>
+}
+type InternalContentReference = {
+  _type?: string
+  slug?: { current?: string }
+  format?: string
+  seasonYear?: number
+  weekNumber?: number
+  playoffRound?: string
+}
+
+const resolveInternalContentHref = (reference?: InternalContentReference) => {
+  const slug = reference?.slug?.current?.trim()
+  if (!reference?._type || !slug) return null
+  if (reference._type === 'topicHub') return `/${slug}`
+  if (reference._type !== 'article') return null
+  if (reference.format !== 'powerRankings') return `/articles/${slug}`
+
+  const weekPart = reference.playoffRound?.toLowerCase()
+    || (typeof reference.weekNumber === 'number' ? `week-${reference.weekNumber}` : null)
+  return reference.seasonYear && weekPart
+    ? `/articles/power-rankings/${reference.seasonYear}/${weekPart}`
+    : '/articles/power-rankings'
+}
+
+// A few public evergreen articles contain spans whose mark keys are off by one
+// from their mark definitions. Preserve those intended links until the content
+// can be migrated without logging missing-mark warnings on every render.
+const LEGACY_LINK_HREFS = {
+  'evergreen-franchise-official-source-link-1':
+    'https://operations.nfl.com/calendar-events/nfl-free-agency/franchise-tags',
+  'evergreen-franchise-related-guide-link-1': '/articles/how-does-the-nfl-salary-cap-work',
+  'evergreen-salary-official-sources-link-3':
+    'https://operations.nfl.com/calendar-events/nfl-free-agency/contract-language',
+} as const
+
+const normalizeLinkHref = (candidate: unknown): string | null => {
+  if (typeof candidate !== 'string') return null
+
+  const href = candidate.trim()
+  if (!href || /[\u0000-\u001f\u007f]/.test(href)) return null
+
+  const protocol = href.match(/^([a-z][a-z\d+.-]*):/i)?.[1]?.toLowerCase()
+  if (protocol && !['http', 'https', 'mailto', 'tel'].includes(protocol)) return null
+
+  return href
+}
+
+const LinkMark = ({ children, href: candidate }: { children: React.ReactNode; href: unknown }) => {
+  const href = normalizeLinkHref(candidate)
+  if (!href) return <span>{children}</span>
+
+  const isExternal = /^(?:https?:)?\/\//i.test(href)
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-400 underline transition-colors hover:text-blue-300"
+      >
+        {children}
+      </a>
+    )
+  }
+
+  if (/^(?:mailto|tel):/i.test(href)) {
+    return (
+      <a href={href} className="text-blue-400 underline transition-colors hover:text-blue-300">
+        {children}
+      </a>
+    )
+  }
+
+  return (
+    <Link href={href} className="text-blue-400 underline transition-colors hover:text-blue-300">
+      {children}
+    </Link>
+  )
 }
 
 // Basic NFL team color map (primary, secondary)
@@ -257,24 +336,10 @@ export const portableTextComponents: PortableTextComponents = {
     em: ({ children }) => <em className="italic text-gray-200">{children}</em>,
     underline: ({ children }) => <u className="underline decoration-2 underline-offset-4 text-white">{children}</u>,
     large: ({ children }) => <span className="text-2xl font-bold text-white">{children}</span>,
-    link: ({ children, value }) => {
-      const href = value?.href || '#'
-      
-      // Check if it's an external link
-      if (href.startsWith('http')) {
-        return (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 underline transition-colors"
-          >
-            {children}
-          </a>
-        )
-      }
-      
-      // Internal link
+    link: ({ children, value }) => <LinkMark href={value?.href}>{children}</LinkMark>,
+    internalLink: ({ children, value }) => {
+      const href = resolveInternalContentHref(value?.reference as InternalContentReference | undefined)
+      if (!href) return <span>{children}</span>
       return (
         <Link
           href={href}
@@ -284,10 +349,26 @@ export const portableTextComponents: PortableTextComponents = {
         </Link>
       )
     },
+    'evergreen-franchise-official-source-link-1': ({ children }) => (
+      <LinkMark href={LEGACY_LINK_HREFS['evergreen-franchise-official-source-link-1']}>
+        {children}
+      </LinkMark>
+    ),
+    'evergreen-franchise-related-guide-link-1': ({ children }) => (
+      <LinkMark href={LEGACY_LINK_HREFS['evergreen-franchise-related-guide-link-1']}>
+        {children}
+      </LinkMark>
+    ),
+    'evergreen-salary-official-sources-link-3': ({ children }) => (
+      <LinkMark href={LEGACY_LINK_HREFS['evergreen-salary-official-sources-link-3']}>
+        {children}
+      </LinkMark>
+    ),
   },
 
   // Custom types
   types: {
+    impliedTotalsCalculator: () => <ImpliedTotalsCalculator />,
     dataTable: ({ value }) => {
       const table = value as DataTableValue
       const columns = Array.isArray(table?.columns)
@@ -460,14 +541,14 @@ export const portableTextComponents: PortableTextComponents = {
                     {rank}
                   </span>
                 )}
-                <div className="flex flex-col leading-tight">
+                <span className="flex flex-col leading-tight">
                   <span className="block">{finalName}</span>
                   {(finalTeam || finalPos) && (
                     <span className="mt-1 text-xs sm:text-sm font-medium tracking-wide text-gray-300/90 uppercase">
                       {[finalTeam, finalPos].filter(Boolean).join(' • ')}
                     </span>
                   )}
-                </div>
+                </span>
               </h2>
               {subtitle && <p className="text-gray-300 text-[13px] leading-snug mt-3 max-w-xl">{subtitle}</p>}
             </div>
@@ -546,19 +627,19 @@ export const portableTextComponents: PortableTextComponents = {
         switch (style) {
           case 'dots':
             return (
-              <div className="text-center text-gray-500 text-2xl tracking-widest">
+              <div aria-hidden="true" className="text-center text-gray-500 text-2xl tracking-widest">
                 • • • • • • •
               </div>
             )
           case 'stars':
             return (
-              <div className="text-center text-gray-400 text-xl tracking-wide">
+              <div aria-hidden="true" className="text-center text-gray-400 text-xl tracking-wide">
                 ★ ★ ★ ★ ★
               </div>
             )
           case 'nfl':
             return (
-              <div className="text-center text-2xl tracking-wide">
+              <div aria-hidden="true" className="text-center text-2xl tracking-wide">
                 🏈 🏈 🏈
               </div>
             )
@@ -587,5 +668,15 @@ export const portableTextComponents: PortableTextComponents = {
   unknownMark: ({ children }) => <span>{children}</span>,
   
   // Handle unknown types gracefully
-  unknownType: ({ children }) => <div>{children}</div>,
+  unknownType: () => (
+    <aside
+      role="note"
+      className="my-8 rounded-xl border border-amber-300/30 bg-amber-950/20 p-4 text-amber-50"
+    >
+      <p className="font-semibold">Embedded content unavailable</p>
+      <p className="mt-1 text-sm leading-relaxed text-amber-100/80">
+        This interactive element could not be displayed. The article continues below.
+      </p>
+    </aside>
+  ),
 }

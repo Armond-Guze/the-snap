@@ -47,7 +47,7 @@ export default defineConfig({
       if (context.schemaType === 'category') {
         actions = [...actions, migrateTeamCategoryToTagAction]
       }
-      if (['headline', 'rankings', 'category'].includes(context.schemaType)) {
+      if (['article', 'headline', 'rankings', 'category'].includes(context.schemaType)) {
         actions = [...actions, seoRegenerateAction]
       }
 

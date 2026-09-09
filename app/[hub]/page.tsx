@@ -84,7 +84,7 @@ function toContentUrl(item: HubArticle): string {
 
   if (item._type === 'fantasyFootball') return `/fantasy/${slug}`
   if (item._type === 'headline') return `/articles/${slug}`
-  if (item._type === 'rankings') return `/rankings/${slug}`
+  if (item._type === 'rankings') return `/articles/${slug}`
 
   if (item._type === 'article' && item.format === 'powerRankings') {
     if (item.rankingType === 'snapshot' && item.seasonYear) {
@@ -378,7 +378,7 @@ export default async function TopicHubPage({ params }: TopicHubPageProps) {
               {(topicHub.relatedTags || []).map((tag) => (
                 <Link
                   key={`tag-${tag._id}`}
-                  href={`/articles?tag=${encodeURIComponent(tag.title || '')}`}
+                  href={tag.slug?.current ? `/tags/${encodeURIComponent(tag.slug.current)}` : '/tags'}
                   className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/75 hover:bg-white/12"
                 >
                   #{tag.title}

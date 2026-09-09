@@ -1,6 +1,6 @@
 # The Snap Search Growth Roadmap
 
-Last updated: July 18, 2026
+Last updated: July 19, 2026
 
 ## Goal
 
@@ -137,11 +137,25 @@ The next priority is improving what Google and readers find after the technical 
 
 ## Iteration 5: metadata and publishing guardrails
 
+Status: implemented locally on July 19, 2026; deployment and gradual legacy-content cleanup remain.
+
 - Rewrite titles and descriptions for priority pages using one clear intent and a specific reader benefit.
 - Keep homepage titles short while preserving descriptive SEO titles.
 - Add Sanity validations for missing summaries, authors, cover images, categories, canonical tags, and incomplete SEO fields.
 - Add a pre-publish checklist for uniqueness, sourcing, internal links, image rights, headings, and schema-critical fields.
 - Prevent unnecessary slug changes and record all legitimate old slugs for permanent redirects.
+
+### Publishing guardrails implemented
+
+- Added an `editorialBrief` quality gate for target query, intent, reader promise, original contribution, source plan, internal-link plan, overlap review, human review, fact checking, and image rights.
+- Added a canonical Sanity internal-link annotation that resolves article and topic-hub references without hardcoded URLs.
+- Published standard articles now require contextual Body links, an authoritative external source link, three to six canonical tags, useful image alt text, and a complete update note when `dateModified` is used.
+- Added a Studio `Needs Quality Review` queue so the legacy backlog can be improved selectively instead of auto-padded or mass-republished.
+- Reworked automatic SEO generation to avoid ellipsis truncation, keyword stuffing, and unverified current-year insertion; generated fields remain visible for editorial review.
+- Upgraded the repo-local auto-writer instructions to reject paraphrase-only drafts, check for overlapping URLs, name evidence, and leave all human confirmations incomplete.
+- Expanded the read-only content audit to report briefs, review status, canonical tags, contextual links, source links, SEO completeness, and thin-content signals.
+
+The July 19 baseline across 184 published and legacy content documents found 175 without contextual internal links, 154 without external Body source links, 45 with fewer than three canonical tags, and 51 under 1,500 Body characters. These counts are a prioritization queue, not a reason to add filler or update every URL at once.
 
 ## Iteration 6: authority and distribution
 

@@ -10,7 +10,7 @@ import SocialShare from '@/app/components/SocialShare';
 import ReadingTime from '@/app/components/ReadingTime';
 import Breadcrumb from '@/app/components/Breadcrumb';
 import ArticleViewTracker from '@/app/components/ArticleViewTracker';
-import { generateSEOMetadata } from '@/lib/seo';
+import { generateSEOMetadata, resolveCanonicalUrl } from '@/lib/seo';
 import { headlineDetailQuery } from '@/sanity/lib/queries';
 import { calculateReadingTime, extractTextFromBlocks } from '@/lib/reading-time';
 import { formatArticleDate } from '@/lib/date-utils';
@@ -41,21 +41,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 
   if (!headline) return {};
 
-  const metadata = generateSEOMetadata(headline, '/articles');
-  // Safety: enforce canonical exactly once (avoid double slash issues)
-  const canonicalBase = `${SITE_URL}/articles`;
-  const cleanSlug = headline.slug?.current?.replace(/^\/+|\/+$/g, '') || params.slug;
-  return {
-    ...metadata,
-    robots: {
-      index: true,
-      follow: true,
-    },
-    alternates: {
-      ...metadata.alternates,
-      canonical: `${canonicalBase}/${cleanSlug}`,
-    },
-  };
+  return generateSEOMetadata(headline, '/articles');
 }
 
 export default async function HeadlinePage(props: HeadlinePageProps) {
@@ -92,7 +78,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         featuredImage { asset->{ url } },
         image { asset->{ url } },
         category->{ title, slug, color },
-        tags[]->{ title }
+        "tags": tagRefs[]->{ _id, title, slug }
       }`,
       {},
       300,
@@ -153,7 +139,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
   ];
 
 
-  const shareUrl = `${SITE_URL}/articles/${trimmedSlug}`;
+  const shareUrl = resolveCanonicalUrl(headline, '/articles');
   const ogFallback = `${SITE_URL}/api/og?${new URLSearchParams({
     title: headline.title,
     subtitle: headline.summary || headline.title,
@@ -258,7 +244,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
                 {tagList.map((tag) => (
                   <Link
                     key={tag.slug || tag.title}
-                    href={`/articles?tag=${encodeURIComponent(tag.title)}`}
+                    href={tag.slug ? `/tags/${encodeURIComponent(tag.slug)}` : '/tags'}
                     className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
                   >
                     #{tag.title}

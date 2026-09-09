@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Play, ExternalLink, Maximize2 } from 'lucide-react';
 import Image from 'next/image';
 import { youtubeEmbedUrl, youtubeThumbnailUrl, youtubeWatchUrl } from '@/lib/youtube';
+import BlockedEmbed from './BlockedEmbed';
+import { useConsentPreferences } from './consent';
 
 interface YouTubeEmbedProps {
   videoId: string;
@@ -23,6 +25,10 @@ export default function YouTubeEmbed({
   const [hasError, setHasError] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const preferences = useConsentPreferences();
+  const canLoadExternalMedia = preferences?.externalMedia === true;
 
   const thumbnailUrl = youtubeThumbnailUrl(videoId);
   const embedUrl = youtubeEmbedUrl(videoId);
@@ -55,32 +61,63 @@ export default function YouTubeEmbed({
     setIsLoading(true);
   };
 
-  const handleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
   useEffect(() => {
+    if (!isFullscreen || !canLoadExternalMedia) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
     const previousOverflowY = document.body.style.overflowY;
 
-    const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
+    const handleDialogKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         setIsFullscreen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], iframe, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((element) => !element.hasAttribute('disabled'));
+      if (focusable.length === 0) {
+        event.preventDefault();
+        dialogRef.current.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleEscapeKey);
-      // Lock only vertical page scroll while fullscreen overlay is active.
-      document.body.style.overflowY = 'hidden';
-    }
+    document.addEventListener('keydown', handleDialogKeyDown);
+    document.body.style.overflowY = 'hidden';
+    closeButtonRef.current?.focus();
     
     return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
+      document.removeEventListener('keydown', handleDialogKeyDown);
       document.body.style.overflowY = previousOverflowY;
+      previouslyFocused?.focus();
     };
-  }, [isFullscreen]);
+  }, [canLoadExternalMedia, isFullscreen]);
 
-  if (hasError || !hasValidId) {
+  if (!hasValidId) {
+    return <BlockedEmbed service="YouTube" href={null} className={className} invalid />;
+  }
+
+  if (!canLoadExternalMedia) {
+    return <BlockedEmbed service="YouTube" href={watchUrl} className={className} />;
+  }
+
+  if (hasError) {
     return (
       <div className={`bg-gray-900 border border-gray-800 rounded-2xl p-6 ${className}`}>
         <div className="text-center">
@@ -109,7 +146,14 @@ export default function YouTubeEmbed({
     <>
       {/* Fullscreen overlay */}
       {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${title} video player`}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+        >
           <div className="relative w-full h-full max-w-7xl max-h-screen">
             <div className="relative w-full h-full bg-black">
               {showEmbed ? (
@@ -123,13 +167,15 @@ export default function YouTubeEmbed({
                   onError={handleError}
                 />
               ) : (
-                <div 
-                  className="relative w-full h-full cursor-pointer group"
+                <button
+                  type="button"
+                  className="relative block h-full w-full cursor-pointer group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
                   onClick={handlePlayClick}
+                  aria-label={`Play ${title}`}
                 >
                   <Image
                     src={thumbnailUrl}
-                    alt={title}
+                    alt=""
                     fill
                     className="object-cover"
                   />
@@ -140,14 +186,16 @@ export default function YouTubeEmbed({
                       </svg>
                     </div>
                   </div>
-                </div>
+                </button>
               )}
             </div>
             
             {/* Close fullscreen button */}
             <button
-              onClick={handleFullscreen}
-              className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
+              ref={closeButtonRef}
+              type="button"
+              onClick={() => setIsFullscreen(false)}
+              className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               title="Close fullscreen"
               aria-label="Close fullscreen"
             >
@@ -164,13 +212,15 @@ export default function YouTubeEmbed({
         <div className="relative aspect-video bg-black">
           {!showEmbed ? (
             // Thumbnail with play button
-            <div 
-              className="relative w-full h-full cursor-pointer group"
+            <button
+              type="button"
+              className="relative block h-full w-full cursor-pointer group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white"
               onClick={handlePlayClick}
+              aria-label={`Play ${title}`}
             >
               <Image
                 src={thumbnailUrl}
-                alt={title}
+                alt=""
                 fill
                 className="object-cover"
               />
@@ -181,7 +231,7 @@ export default function YouTubeEmbed({
                   </svg>
                 </div>
               </div>
-            </div>
+            </button>
           ) : (
             // Embed iframe
             <>
@@ -205,8 +255,9 @@ export default function YouTubeEmbed({
           
           {/* Fullscreen button - bottom right */}
           <button
-            onClick={handleFullscreen}
-            className="absolute bottom-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-colors group"
+            type="button"
+            onClick={() => setIsFullscreen(true)}
+            className="absolute bottom-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-colors group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             title="Toggle fullscreen"
             aria-label="Toggle fullscreen"
           >

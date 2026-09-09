@@ -22,11 +22,15 @@ const latestArticlesQuery = `
 // Combined feed for More Headlines (headlines + rankings + articles)
 const moreHeadlinesQuery = `
   *[
-    (
-      _type == "article" && published == true && (
-        format in ["feature","ranking","analysis","headline"] || (format == "powerRankings" && rankingType == "snapshot")
+    published == true && (
+      (
+        _type == "article" && (
+          format in ["feature","ranking","analysis","headline"] || (format == "powerRankings" && rankingType == "snapshot")
+        )
       )
-    ) || _type == "headline" || _type == "rankings"
+      || _type == "headline"
+      || _type == "rankings"
+    )
   ]
     | order(coalesce(publishedAt, date, _createdAt) desc, _createdAt desc)[0...40] {
       _type,

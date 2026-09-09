@@ -8,6 +8,7 @@ const baseUrl = SITE_URL
 type SitemappedDocument = {
   slug: { current: string }
   lastModified?: string
+  articleCount?: number
 }
 
 const toValidDate = (value?: string | null): Date | undefined => {
@@ -42,7 +43,7 @@ const dedupeEntries = (entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap =>
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [articles, fantasy, categories, topicHubs] = await Promise.all([
+  const [articles, fantasy, categories, topicHubs, advancedTags, authors] = await Promise.all([
     client.fetch<SitemappedDocument[]>(
       `*[
         (_type in ["article","headline","rankings"]) &&
@@ -65,6 +66,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ),
     client.fetch<SitemappedDocument[]>(
       `*[_type == "topicHub" && coalesce(active, true) == true]{ slug, "lastModified": _updatedAt }`
+    ),
+    client.fetch<SitemappedDocument[]>(
+      `*[_type == "advancedTag"]{
+        slug,
+        "lastModified": _updatedAt,
+        "articleCount": count(*[_type == "article" && published == true && references(^._id)])
+      }`
+    ),
+    client.fetch<SitemappedDocument[]>(
+      `*[_type == "author" && defined(slug.current)]{ slug, "lastModified": _updatedAt }`
     ),
   ]);
 
@@ -127,6 +138,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: toValidDate(hub.lastModified),
           changeFrequency: 'daily' as const,
           priority: 0.7,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...advancedTags
+      .filter(tag => (tag.articleCount || 0) > 0)
+      .map(tag => {
+        const slug = safeSlug(tag.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/tags/${slug}`,
+          lastModified: toValidDate(tag.lastModified),
+          changeFrequency: 'weekly' as const,
+          priority: 0.55,
+        } satisfies MetadataRoute.Sitemap[number];
+      })
+      .filter(Boolean) as MetadataRoute.Sitemap,
+    ...authors
+      .map(author => {
+        const slug = safeSlug(author.slug?.current);
+        if (!slug) return null;
+        return {
+          url: `${baseUrl}/authors/${slug}`,
+          lastModified: toValidDate(author.lastModified),
+          changeFrequency: 'monthly' as const,
+          priority: 0.45,
         } satisfies MetadataRoute.Sitemap[number];
       })
       .filter(Boolean) as MetadataRoute.Sitemap,
@@ -226,6 +262,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/about`,
       changeFrequency: 'monthly',
       priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/authors`,
+      changeFrequency: 'monthly',
+      priority: 0.45,
+    },
+    {
+      url: `${baseUrl}/tags`,
+      changeFrequency: 'weekly',
+      priority: 0.55,
+    },
+    {
+      url: `${baseUrl}/editorial-standards`,
+      changeFrequency: 'yearly',
+      priority: 0.35,
+    },
+    {
+      url: `${baseUrl}/corrections-policy`,
+      changeFrequency: 'yearly',
+      priority: 0.35,
+    },
+    {
+      url: `${baseUrl}/affiliate-disclosure`,
+      changeFrequency: 'yearly',
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/contact`,

@@ -9,18 +9,6 @@ import MostRead from '../components/MostRead';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
-export const metadata: Metadata = {
-  title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
-  description: 'Discover the latest NFL news, breaking stories, and fan-driven analysis for all 32 teams. Fast updates without the fluff.',
-  alternates: { canonical: '/headlines' },
-  openGraph: {
-    title: 'NFL Headlines – Latest News & Breaking Stories | The Snap',
-    description: 'Fresh NFL news and analysis across all 32 teams, fan-first with no corporate spin.',
-    url: `${SITE_URL}/headlines`,
-    type: 'website',
-  },
-};
-
 export const revalidate = 120;
 
 interface HeadlinesPageProps {
@@ -31,7 +19,8 @@ interface HeadlinesPageProps {
   }>;
 }
 
-type TagLike = { title?: string } | string | null | undefined;
+type TagLike = { title?: string; slug?: { current?: string } } | string | null | undefined;
+type NormalizedTag = { title: string; slug?: string };
 
 function toSingleParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
@@ -57,18 +46,22 @@ function titleCaseFromSlug(value: string) {
     .join(' ');
 }
 
-function normalizeTagTitles(tags: unknown, limit = 3): string[] {
+function normalizeTags(tags: unknown, limit = 3): NormalizedTag[] {
   if (!Array.isArray(tags)) return [];
 
   const normalized = tags
     .map((entry: TagLike) => {
-      if (typeof entry === 'string') return entry.trim();
-      if (entry && typeof entry === 'object' && typeof entry.title === 'string') return entry.title.trim();
-      return '';
+      if (typeof entry === 'string') return { title: entry.trim() };
+      if (entry && typeof entry === 'object' && typeof entry.title === 'string') {
+        const title = entry.title.trim();
+        const slug = entry.slug?.current?.trim();
+        return slug ? { title, slug } : { title };
+      }
+      return null;
     })
-    .filter((entry) => entry.length > 0);
+    .filter((entry): entry is NormalizedTag => Boolean(entry?.title));
 
-  return [...new Set(normalized)].slice(0, limit);
+  return [...new Map(normalized.map((entry) => [entry.slug || entry.title.toLowerCase(), entry])).values()].slice(0, limit);
 }
 
 function getHeadlineImage(item: HeadlineListItem): string | null {
@@ -98,6 +91,27 @@ function buildDescription(filters: { category?: string; tag?: string; search?: s
   if (filters.category) return `Latest NFL headlines in ${filters.category.replace(/-/g, ' ')}.`;
   if (filters.tag) return `Latest stories tagged with ${filters.tag}.`;
   return 'Breaking NFL news, instant analysis, and daily storylines in one live feed.';
+}
+
+export async function generateMetadata({ searchParams }: HeadlinesPageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const filters = {
+    category: toSingleParam(params.category),
+    tag: toSingleParam(params.tag),
+    search: toSingleParam(params.search),
+  };
+  const hasFilters = Boolean(filters.category || filters.tag || filters.search);
+  const title = hasFilters ? `${buildTitle(filters)} | The Snap` : 'NFL Headlines – Latest News & Breaking Stories | The Snap';
+  const description = hasFilters
+    ? buildDescription(filters)
+    : 'Discover the latest NFL news, breaking stories, and fan-driven analysis for all 32 teams. Fast updates without the fluff.';
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/headlines` },
+    robots: hasFilters ? { index: false, follow: true } : { index: true, follow: true },
+    openGraph: { title, description, url: `${SITE_URL}/headlines`, type: 'website' },
+  };
 }
 
 const canonicalTagsProjection = `
@@ -195,7 +209,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
   const hasFilters = Boolean(filters.category || filters.tag || filters.search);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.10),_transparent_40%),linear-gradient(180deg,_#0b0b0c_0%,_#050506_100%)] text-white">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.10),_transparent_40%),linear-gradient(180deg,_#0b0b0c_0%,_#050506_100%)] text-white">
       <div className="mx-auto max-w-[92rem] px-4 pb-14 pt-8 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 p-6 shadow-[0_25px_90px_-45px_rgba(56,189,248,0.5)] md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(59,130,246,0.18),transparent_45%)]" />
@@ -245,7 +259,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 return (
                   <Link
                     key={category._id}
-                    href={`/headlines?category=${encodeURIComponent(category.slug.current)}`}
+                    href={`/categories/${encodeURIComponent(category.slug.current)}`}
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       active
                         ? 'border border-sky-300/45 bg-sky-300/20 text-sky-100'
@@ -271,7 +285,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
         </section>
 
         <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_330px]">
-          <main>
+          <div>
             {headlines.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
                 <h2 className="text-xl font-semibold text-white">No stories found</h2>
@@ -375,7 +389,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {gridStories.map((story) => {
                       const image = getHeadlineImage(story);
-                      const tags = normalizeTagTitles(story.tags);
+                      const tags = normalizeTags(story.tags);
 
                       return (
                         <article
@@ -418,11 +432,11 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                             <div className="flex flex-wrap gap-1.5 px-4 pb-4">
                               {tags.map((tag) => (
                                 <Link
-                                  key={`${story._id}-${tag}`}
-                                  href={`/headlines?tag=${encodeURIComponent(tag)}`}
+                                  key={`${story._id}-${tag.slug || tag.title}`}
+                                  href={tag.slug ? `/tags/${encodeURIComponent(tag.slug)}` : '/tags'}
                                   className="rounded-full border border-white/15 bg-white/[0.03] px-2 py-1 text-[11px] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
                                 >
-                                  #{tag}
+                                  #{tag.title}
                                 </Link>
                               ))}
                             </div>
@@ -445,7 +459,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 </section>
               </>
             )}
-          </main>
+          </div>
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -472,7 +486,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 {(categories || []).slice(0, 8).map((category) => (
                   <Link
                     key={category._id}
-                    href={`/headlines?category=${encodeURIComponent(category.slug.current)}`}
+                    href={`/categories/${encodeURIComponent(category.slug.current)}`}
                     className="block rounded-md px-2 py-1.5 text-sm text-white/75 transition-colors hover:bg-white/[0.08] hover:text-white"
                   >
                     {category.title}
@@ -483,6 +497,6 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
           </aside>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

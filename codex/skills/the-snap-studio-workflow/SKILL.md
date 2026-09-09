@@ -22,8 +22,9 @@ Use this skill when the request is about:
    - `sanity/structure.ts`
    - relevant files in `sanity/plugins/`
 3. For article tasks, use the checklist in `references/editorial.md`
-4. For power rankings tasks, use the checklist in `references/power-rankings.md`
-5. For rewrite tasks, use:
+4. For any AI-assisted draft, read and follow `references/auto-writer.md`
+5. For power rankings tasks, use the checklist in `references/power-rankings.md`
+6. For rewrite tasks, use:
    - `references/headlines-rewrite.md`
    - `references/power-rankings-rewrite.md`
    - `references/topic-list.md`
@@ -45,6 +46,7 @@ Use this skill when the request is about:
 
 ## Rewrite behavior
 
+- Apply `references/auto-writer.md` before drafting; decline generic paraphrase-only stories
 - For standard NFL news/article rewrites, follow `references/headlines-rewrite.md`
 - For power rankings rewrites, follow `references/power-rankings-rewrite.md`
 - When tags are needed, use `references/topic-list.md` as a starting point and keep output specific
@@ -53,6 +55,7 @@ Use this skill when the request is about:
 ## References
 
 - Read `references/editorial.md` for standard article workflow
+- Read `references/auto-writer.md` for AI-assisted briefs, sourcing, originality, links, and review gates
 - Read `references/power-rankings.md` for rankings-specific workflow
 - Read `references/headlines-rewrite.md` for headline/news rewrite format
 - Read `references/power-rankings-rewrite.md` for rankings rewrite format

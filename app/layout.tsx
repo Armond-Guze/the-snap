@@ -1,12 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import Script from "next/script";
 import "./globals.css";
 import StructuredData, { createWebsiteStructuredData, createOrganizationStructuredData } from "./components/StructuredData";
 import LayoutWrapper from "./components/LayoutWrapper";
 import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import AdSenseLoader from "./components/AdSenseLoader";
 import {
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_OG_IMAGE_URL,
@@ -18,11 +17,16 @@ import {
 } from "@/lib/site-config";
 
 // Centralized config (build-time evaluated)
-const ADS_ENABLED = process.env.NEXT_PUBLIC_ADS_ENABLED === 'true';
-const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID; // e.g. ca-pub-7706858365277925
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION; // e.g. abcDEF123...
 
 const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: LIGHT_THEME_ENABLED ? "dark light" : "dark",
+};
 
 const themeInitScript = `
 (() => {
@@ -137,23 +141,12 @@ export default function RootLayout({
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="color-scheme" content={LIGHT_THEME_ENABLED ? "dark light" : "dark"} />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   {/* Explicit favicon links (square SVG for crisp scaling) */}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="alternate icon" href="/favicon.svg" />
   {/* RSS feed autodiscovery */}
   <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
-        {/* Google AdSense (conditionally loaded) */}
-        {ADS_ENABLED && ADSENSE_CLIENT && (
-          <Script
-            strategy="afterInteractive"
-            // NOTE: AdSense requires the client param in the src query string. Keep 'ca-pub-' prefix.
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
   <StructuredData id="sd-website" data={websiteData} />
   <StructuredData id="sd-organization" data={organizationData} />
       </head>
@@ -163,8 +156,8 @@ export default function RootLayout({
         </LayoutWrapper>
   {/* Typography experiment toggle removed; default scale always active */}
         <CookieConsent />
+        <AdSenseLoader />
         <AnalyticsGate />
-  <SpeedInsights />
       </body>
     </html>
     </ClerkProvider>

@@ -1,43 +1,96 @@
 import { NextRequest } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { syncTeamRecords } from '@/lib/sync-team-records';
 
-const AUTH_HEADER = 'x-sync-secret';
+type AuthResult =
+  | { ok: true }
+  | { ok: false; status: 401 | 503; error: string };
 
-function verifySecret(req: NextRequest): boolean {
-  const isVercelCron = Boolean(req.headers.get('x-vercel-cron'));
-  if (isVercelCron) return true;
-
-  const secret = process.env.SYNC_CRON_SECRET || process.env.REVALIDATE_SECRET;
-  if (!secret) return true; // no secret configured
-
-  const header = req.headers.get(AUTH_HEADER) || req.nextUrl.searchParams.get('secret');
-  return header === secret;
+function secretsMatch(candidate: string, expected: string): boolean {
+  const candidateBuffer = Buffer.from(candidate);
+  const expectedBuffer = Buffer.from(expected);
+  return candidateBuffer.length === expectedBuffer.length && timingSafeEqual(candidateBuffer, expectedBuffer);
 }
 
-export async function POST(req: NextRequest) {
-  if (!verifySecret(req)) {
-    return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401 });
+function verifySecret(req: NextRequest): AuthResult {
+  const configuredSecrets = [process.env.CRON_SECRET, process.env.SYNC_CRON_SECRET]
+    .map((secret) => secret?.trim())
+    .filter((secret): secret is string => Boolean(secret));
+
+  if (configuredSecrets.length === 0) {
+    return { ok: false, status: 503, error: 'Cron authentication is not configured' };
+  }
+
+  const authorization = req.headers.get('authorization')?.trim() || '';
+  if (!authorization.startsWith('Bearer ')) {
+    return { ok: false, status: 401, error: 'Unauthorized' };
+  }
+
+  const candidate = authorization.slice('Bearer '.length).trim();
+  const valid = Boolean(candidate) && configuredSecrets.some((secret) => secretsMatch(candidate, secret));
+  return valid ? { ok: true } : { ok: false, status: 401, error: 'Unauthorized' };
+}
+
+function parseSeason(value: unknown): number | undefined | null {
+  if (value === undefined || value === null || value === '') return undefined;
+  const season = typeof value === 'number' ? value : Number(value);
+  return Number.isInteger(season) && season >= 1920 && season <= 2100 ? season : null;
+}
+
+async function getRequestedSeason(req: NextRequest): Promise<number | undefined | null> {
+  if (req.method === 'GET') {
+    return parseSeason(req.nextUrl.searchParams.get('season'));
+  }
+
+  const rawBody = await req.text();
+  if (!rawBody.trim()) return undefined;
+  try {
+    const payload = JSON.parse(rawBody) as { season?: unknown };
+    return parseSeason(payload?.season);
+  } catch {
+    return null;
+  }
+}
+
+async function handleSync(req: NextRequest) {
+  const auth = verifySecret(req);
+  if (!auth.ok) {
+    return Response.json({ ok: false, error: auth.error }, { status: auth.status });
+  }
+
+  const season = await getRequestedSeason(req);
+  if (season === null) {
+    return Response.json({ ok: false, error: 'Season must be an integer between 1920 and 2100' }, { status: 400 });
   }
 
   try {
-    const payload = await req.json().catch(() => ({}));
-    const season = typeof payload?.season === 'number' ? payload.season : undefined;
-
     const result = await syncTeamRecords(season);
+    if (!result.success) {
+      return Response.json({ ok: false, result }, { status: 502 });
+    }
 
     revalidateTag('standings', {});
     revalidatePath('/standings');
     revalidatePath('/');
     revalidatePath('/schedule');
 
-    return new Response(JSON.stringify({ ok: true, result }), { status: 200 });
+    return Response.json({ ok: true, result }, { status: 200 });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ ok: false, error: error instanceof Error ? error.message : 'Sync failed' }),
-      { status: 500 }
+    return Response.json(
+      { ok: false, error: error instanceof Error ? error.message : 'Sync failed' },
+      { status: 500 },
     );
   }
 }
 
+export async function GET(req: NextRequest) {
+  return handleSync(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handleSync(req);
+}
+
+export const runtime = 'nodejs';
 export const revalidate = 0;

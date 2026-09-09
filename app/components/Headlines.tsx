@@ -1,7 +1,12 @@
 import { sanityFetch } from "@/sanity/lib/fetch";
 import Link from "next/link";
 import Image from "next/image";
-import { HERO_SIZES } from '@/lib/image-sizes';
+
+// Both responsive layouts render the same lead image. Keeping one descriptor
+// lets React deduplicate their preload while accurately accounting for the
+// mobile page gutter.
+const HOME_LEAD_IMAGE_SIZES =
+  "(max-width: 1023px) calc(100vw - 2rem), (min-width: 1536px) 52vw, (min-width: 1280px) 57vw, 52vw";
 
 interface HeadlineItem {
   _id: string;
@@ -110,8 +115,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                     src={main.coverImage.asset.url}
                     alt={main.title}
                     fill
-                    priority
-                    sizes={HERO_SIZES}
+                    loading="eager"
+                    fetchPriority="high"
+                    sizes={HOME_LEAD_IMAGE_SIZES}
                     className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                 ) : (
@@ -290,8 +296,9 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
                       src={main.coverImage.asset.url}
                       alt={main.title}
                       fill
-                      priority
-                      sizes="(min-width:1536px) 52vw, (min-width:1280px) 57vw, (min-width:1024px) 62vw, 100vw"
+                      loading="eager"
+                      fetchPriority="high"
+                      sizes={HOME_LEAD_IMAGE_SIZES}
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />

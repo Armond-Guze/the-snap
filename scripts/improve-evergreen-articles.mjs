@@ -106,7 +106,8 @@ function insertBeforeHeading(body, matcher, blocks) {
 }
 
 function buildSeo(document, config) {
-  const {lastGenerated: _lastGenerated, ...existingSeo} = document.seo || {}
+  const existingSeo = {...(document.seo || {})}
+  delete existingSeo.lastGenerated
   return {
     ...existingSeo,
     autoGenerate: false,

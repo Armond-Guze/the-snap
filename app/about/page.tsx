@@ -70,6 +70,18 @@ export default function AboutPage() {
         </p>
       </SimpleSection>
 
+      <SimpleSection title="Who is responsible">
+        <p>
+          Published work is assigned to an author or editorial profile. Visit the <Link href="/authors">authors page</Link> for
+          profiles and recent coverage, and read our <Link href="/editorial-standards">editorial standards</Link> for details
+          about sourcing, review, updates, and AI-assisted production.
+        </p>
+        <p>
+          Errors can be reported under the <Link href="/corrections-policy">corrections policy</Link>. Commercial relationships
+          are covered by the <Link href="/affiliate-disclosure">affiliate and sponsorship disclosure</Link>.
+        </p>
+      </SimpleSection>
+
       <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
         <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-[1.8rem]">Explore the site</h2>
         <div className="mt-5 flex flex-wrap gap-3">

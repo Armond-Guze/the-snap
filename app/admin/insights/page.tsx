@@ -113,7 +113,7 @@ export default async function InsightsPage() {
         </div>
 
         <div className="text-xs text-gray-500 space-y-2 max-w-3xl">
-          <p><strong>Notes:</strong> This dashboard uses a file-based store (development). For production, migrate to a persistent DB (Postgres / ClickHouse / Turso / Redis) and replace functions in <code>lib/analytics-store.ts</code>.</p>
+          <p><strong>Notes:</strong> This dashboard uses the durable PostgreSQL analytics store and excludes visitors who have not granted analytics consent.</p>
           <p>Index latency = first tracked view minus publish time (negative/blank means missing publish data or view before publish timestamp correction).</p>
         </div>
       </div>

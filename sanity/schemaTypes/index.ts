@@ -11,7 +11,6 @@ import { standingsType } from './standingsType'
 import { gameType } from './gameType'
 import { seoType } from './seoType'
 import fantasyFootball from './fantasyFootball'
-import { newsletterSubscriber } from './newsletterSubscriber'
 import { playerType } from './playerType'
 import { homepageSettings } from './homepageSettings'
 import { siteSettings } from './siteSettings'
@@ -25,6 +24,7 @@ import { snapCard } from './snapCard'
 import playOfWeek from './playOfWeek'
 import advancedTagType from './advancedTagType'
 import { topicHub } from './topicHub'
+import { editorialBriefType } from './editorialBriefType'
 
 
 export const schemaTypes = [
@@ -42,7 +42,6 @@ export const schemaTypes = [
   gameType,
   seoType,
   fantasyFootball,
-  newsletterSubscriber,
   playerType,
   homepageSettings,
   siteSettings,
@@ -55,4 +54,5 @@ export const schemaTypes = [
   snapCard,
   playOfWeek,
   topicHub,
+  editorialBriefType,
 ]

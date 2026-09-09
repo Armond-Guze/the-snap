@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 interface NewsletterSignupProps {
   variant?: 'default' | 'compact' | 'sidebar' | 'footer';
@@ -13,8 +14,21 @@ export default function NewsletterSignup({
   className = '' 
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const inputId = useId();
+  const consentId = `${inputId}-consent`;
+  const statusId = `${inputId}-status`;
+  const emailInputProps = {
+    id: inputId,
+    name: 'email',
+    autoComplete: 'email',
+    inputMode: 'email' as const,
+    required: true,
+    'aria-describedby': status === 'idle' ? undefined : statusId,
+    'aria-invalid': status === 'error',
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +36,11 @@ export default function NewsletterSignup({
     if (!email || !email.includes('@')) {
       setStatus('error');
       setMessage('Please enter a valid email address');
+      return;
+    }
+    if (!consent) {
+      setStatus('error');
+      setMessage('Please agree to receive the newsletter');
       return;
     }
 
@@ -35,7 +54,7 @@ export default function NewsletterSignup({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent: true }),
       });
 
       if (!response.ok) {
@@ -46,12 +65,9 @@ export default function NewsletterSignup({
       const data = await response.json();
       setStatus('success');
       const raw = (data && data.message) ? String(data.message) : '';
-      if (raw.toLowerCase().includes('already')) {
-        setMessage('Already subscribed!');
-      } else {
-        setMessage('Subscribed!');
-      }
+      setMessage(raw || 'If eligible, check your inbox to confirm your subscription.');
       setEmail('');
+      setConsent(false);
     } catch (error: unknown) {
       setStatus('error');
       if (error instanceof Error) {
@@ -67,6 +83,30 @@ export default function NewsletterSignup({
     setMessage('');
   };
 
+  const consentControl = (
+    <label htmlFor={consentId} className="flex items-start gap-2 text-left text-xs leading-5 text-gray-400">
+      <input
+        id={consentId}
+        name="consent"
+        type="checkbox"
+        value="true"
+        checked={consent}
+        onChange={(event) => {
+          setConsent(event.target.checked);
+          if (status !== 'idle') resetStatus();
+        }}
+        required
+        className="mt-1 h-4 w-4 shrink-0 accent-white"
+      />
+      <span>
+        I agree to receive The Snap newsletter by email. I can unsubscribe at any time. See the{' '}
+        <Link href="/privacy-policy" className="underline underline-offset-2 hover:text-white">
+          privacy policy
+        </Link>.
+      </span>
+    </label>
+  );
+
   // Compact variant for sidebars
   if (variant === 'compact') {
     return (
@@ -79,11 +119,14 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-green-400 text-xs font-semibold">{message}</p>
+            <p id={statusId} role="status" aria-live="polite" className="text-green-400 text-xs font-semibold">{message}</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form action="/api/newsletter" method="post" onSubmit={handleSubmit} className="space-y-3">
+            <input type="hidden" name="returnTo" value="/newsletter" />
+            <label htmlFor={inputId} className="sr-only">Email address</label>
             <input
+              {...emailInputProps}
               type="email"
               value={email}
               onChange={(e) => {
@@ -94,7 +137,9 @@ export default function NewsletterSignup({
               className="w-full px-3 py-2 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-white focus:outline-none"
               disabled={status === 'loading'}
             />
-            
+
+            {consentControl}
+
             <button
               type="submit"
               disabled={status === 'loading'}
@@ -108,7 +153,7 @@ export default function NewsletterSignup({
             </button>
             
             {status === 'error' && (
-              <p className="text-red-400 text-xs flex items-center">
+              <p id={statusId} role="alert" className="text-red-400 text-xs flex items-center">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 {message}
               </p>
@@ -138,7 +183,7 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <p className="text-green-400 mb-4 font-semibold">{message}</p>
+              <p id={statusId} role="status" aria-live="polite" className="text-green-400 mb-4 font-semibold">{message}</p>
             <button
               onClick={resetStatus}
               className="text-sm text-gray-400 hover:text-white transition-colors"
@@ -147,8 +192,11 @@ export default function NewsletterSignup({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form action="/api/newsletter" method="post" onSubmit={handleSubmit} className="space-y-4">
+            <input type="hidden" name="returnTo" value="/newsletter" />
+            <label htmlFor={inputId} className="sr-only">Email address</label>
             <input
+              {...emailInputProps}
               type="email"
               value={email}
               onChange={(e) => {
@@ -159,7 +207,9 @@ export default function NewsletterSignup({
               className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-white focus:outline-none transition-colors"
               disabled={status === 'loading'}
             />
-            
+
+            {consentControl}
+
             <button
               type="submit"
               disabled={status === 'loading'}
@@ -179,7 +229,7 @@ export default function NewsletterSignup({
             </button>
             
             {status === 'error' && (
-              <p className="text-red-400 text-sm flex items-center">
+              <p id={statusId} role="alert" className="text-red-400 text-sm flex items-center">
                 <AlertCircle className="w-4 h-4 mr-2" />
                 {message}
               </p>
@@ -208,38 +258,44 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="flex items-center text-green-400">
             <CheckCircle className="w-5 h-5 mr-2" />
-            <span className="font-semibold">{message}</span>
+            <span id={statusId} role="status" aria-live="polite" className="font-semibold">{message}</span>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row sm:justify-center gap-3 max-w-xl mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (status !== 'idle') resetStatus();
-              }}
-              placeholder="Enter your email"
-              className="flex-1 min-w-[220px] px-4 py-3 bg-gray-800/80 text-white rounded-lg focus:outline-none transition-colors"
-              disabled={status === 'loading'}
-            />
-            
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center whitespace-nowrap"
-            >
-              {status === 'loading' ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                'Subscribe'
-              )}
-            </button>
+          <form action="/api/newsletter" method="post" onSubmit={handleSubmit} className="flex max-w-xl flex-col gap-3 mx-auto">
+            <input type="hidden" name="returnTo" value="/newsletter" />
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <label htmlFor={inputId} className="sr-only">Email address</label>
+              <input
+                {...emailInputProps}
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (status !== 'idle') resetStatus();
+                }}
+                placeholder="Enter your email"
+                className="flex-1 min-w-[220px] px-4 py-3 bg-gray-800/80 text-white rounded-lg focus:outline-none transition-colors"
+                disabled={status === 'loading'}
+              />
+
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center whitespace-nowrap"
+              >
+                {status === 'loading' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  'Subscribe'
+                )}
+              </button>
+            </div>
+            {consentControl}
           </form>
         )}
         
         {status === 'error' && (
-          <p className="text-red-400 text-sm mt-2 flex items-center">
+          <p id={statusId} role="alert" className="text-red-400 text-sm mt-2 flex items-center">
             <AlertCircle className="w-4 h-4 mr-2" />
             {message}
           </p>
@@ -260,14 +316,14 @@ export default function NewsletterSignup({
           Never Miss a Snap
         </h2>
         <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-          Join thousands of NFL fans who get our exclusive analysis, breaking news, and insider insights delivered straight to their inbox every week.
+          Join NFL fans who get our original analysis, rankings, and useful weekly updates delivered straight to their inbox.
         </p>
 
         {status === 'success' ? (
           <div className="bg-green-900/30 border border-green-500/50 rounded-2xl p-8">
             <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">{message}</h3>
-              <p className="text-green-300 mb-6">You’re on the list. Check your inbox soon.</p>
+            <h3 id={statusId} role="status" aria-live="polite" className="text-2xl font-bold text-white mb-2">{message}</h3>
+              <p className="text-green-300 mb-6">Use the confirmation link in the email before you are added to the list.</p>
             <button
               onClick={resetStatus}
               className="text-green-400 hover:text-white transition-colors"
@@ -277,37 +333,43 @@ export default function NewsletterSignup({
           </div>
         ) : (
           <div className="bg-black border border-gray-800 rounded-2xl p-8">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (status !== 'idle') resetStatus();
-                }}
-                placeholder="Enter your email address"
-                className="flex-1 px-6 py-4 bg-gray-800 text-white rounded-xl border border-gray-600 focus:border-white focus:outline-none transition-colors text-lg"
-                disabled={status === 'loading'}
-              />
-              
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center text-lg"
-              >
-                {status === 'loading' ? (
-                  <>
-                    <Loader2 className="w-6 h-6 animate-spin mr-2" />
-                    Subscribing...
-                  </>
-                ) : (
-                  'Subscribe Free'
-                )}
-              </button>
+            <form action="/api/newsletter" method="post" onSubmit={handleSubmit} className="flex max-w-lg flex-col gap-4 mx-auto">
+              <input type="hidden" name="returnTo" value="/newsletter" />
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <label htmlFor={inputId} className="sr-only">Email address</label>
+                <input
+                  {...emailInputProps}
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (status !== 'idle') resetStatus();
+                  }}
+                  placeholder="Enter your email address"
+                  className="flex-1 px-6 py-4 bg-gray-800 text-white rounded-xl border border-gray-600 focus:border-white focus:outline-none transition-colors text-lg"
+                  disabled={status === 'loading'}
+                />
+
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center text-lg"
+                >
+                  {status === 'loading' ? (
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                      Subscribing...
+                    </>
+                  ) : (
+                    'Subscribe Free'
+                  )}
+                </button>
+              </div>
+              {consentControl}
             </form>
             
             {status === 'error' && (
-              <p className="text-red-400 mt-4 flex items-center justify-center">
+              <p id={statusId} role="alert" className="text-red-400 mt-4 flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 mr-2" />
                 {message}
               </p>

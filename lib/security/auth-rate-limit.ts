@@ -1,7 +1,11 @@
 import "server-only";
 
+import { Prisma } from "@prisma/client";
+
 import { db } from "@/lib/db";
 import { emitMonitoringAlert } from "@/lib/monitoring/alerts";
+
+const MAX_TRANSACTION_ATTEMPTS = 3;
 
 export interface AuthRateLimitPolicy {
   scope: string;
@@ -37,6 +41,13 @@ function getWindowEnd(windowStart: Date, windowSeconds: number): Date {
 function getSecondsUntil(target: Date, now: Date): number {
   const delta = Math.ceil((target.getTime() - now.getTime()) / 1000);
   return delta > 0 ? delta : 0;
+}
+
+function isRetryableTransactionError(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error.code === "P2002" || error.code === "P2034")
+  );
 }
 
 export function getRateLimitIdentifier(headers: Headers, userId?: string): string {
@@ -88,158 +99,148 @@ export async function checkAuthRateLimit(input: AuthRateLimitInput): Promise<Aut
         newlyBlocked: boolean;
       }
     | null = null;
+  let transactionError: unknown;
 
-  try {
-    state = await db.$transaction(async (tx) => {
-      const existing = await tx.authRateLimitState.findUnique({
-        where: {
-          scope_identifier: {
+  for (let attempt = 0; attempt < MAX_TRANSACTION_ATTEMPTS; attempt += 1) {
+    try {
+      state = await db.$transaction(
+        async (tx) => {
+          const key = {
             scope: input.scope,
             identifier: input.identifier,
-          },
+          };
+          const existing = await tx.authRateLimitState.findUnique({
+            where: { scope_identifier: key },
+          });
+
+          if (!existing) {
+            await tx.authRateLimitState.create({
+              data: {
+                ...key,
+                windowStart,
+                windowEndsAt: windowEnd,
+                requestCount: 1,
+              },
+            });
+
+            return {
+              allowed: true,
+              blocked: false,
+              currentCount: 1,
+              resetAt: windowEnd,
+              retryAfterSeconds: 0,
+              newlyBlocked: false,
+            };
+          }
+
+          if (existing.blockedUntil && existing.blockedUntil > now) {
+            return {
+              allowed: false,
+              blocked: true,
+              currentCount: existing.requestCount,
+              resetAt: existing.blockedUntil,
+              retryAfterSeconds: getSecondsUntil(existing.blockedUntil, now),
+              newlyBlocked: false,
+            };
+          }
+
+          const sameWindow = existing.windowStart.getTime() === windowStart.getTime();
+
+          if (!sameWindow) {
+            await tx.authRateLimitState.update({
+              where: { scope_identifier: key },
+              data: {
+                windowStart,
+                windowEndsAt: windowEnd,
+                requestCount: 1,
+                blockedUntil: null,
+              },
+            });
+
+            return {
+              allowed: true,
+              blocked: false,
+              currentCount: 1,
+              resetAt: windowEnd,
+              retryAfterSeconds: 0,
+              newlyBlocked: false,
+            };
+          }
+
+          const nextCount = existing.requestCount + 1;
+
+          if (nextCount > input.limit) {
+            await tx.authRateLimitState.update({
+              where: { scope_identifier: key },
+              data: {
+                requestCount: { increment: 1 },
+                blockedUntil: blockEnd,
+              },
+            });
+
+            return {
+              allowed: false,
+              blocked: true,
+              currentCount: nextCount,
+              resetAt: blockEnd,
+              retryAfterSeconds: getSecondsUntil(blockEnd, now),
+              newlyBlocked: true,
+            };
+          }
+
+          await tx.authRateLimitState.update({
+            where: { scope_identifier: key },
+            data: { requestCount: { increment: 1 } },
+          });
+
+          return {
+            allowed: true,
+            blocked: false,
+            currentCount: nextCount,
+            resetAt: existing.windowEndsAt,
+            retryAfterSeconds: 0,
+            newlyBlocked: false,
+          };
         },
-      });
-
-      if (!existing) {
-        await tx.authRateLimitState.create({
-          data: {
-            scope: input.scope,
-            identifier: input.identifier,
-            windowStart,
-            windowEndsAt: windowEnd,
-            requestCount: 1,
-          },
-        });
-
-        return {
-          allowed: true,
-          blocked: false,
-          currentCount: 1,
-          resetAt: windowEnd,
-          retryAfterSeconds: 0,
-          newlyBlocked: false,
-        };
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      );
+      transactionError = undefined;
+      break;
+    } catch (error) {
+      transactionError = error;
+      if (attempt < MAX_TRANSACTION_ATTEMPTS - 1 && isRetryableTransactionError(error)) {
+        continue;
       }
+      break;
+    }
+  }
 
-      if (existing.blockedUntil && existing.blockedUntil > now) {
-        return {
-          allowed: false,
-          blocked: true,
-          currentCount: existing.requestCount,
-          resetAt: existing.blockedUntil,
-          retryAfterSeconds: getSecondsUntil(existing.blockedUntil, now),
-          newlyBlocked: false,
-        };
-      }
-
-      const sameWindow = existing.windowStart.getTime() === windowStart.getTime();
-
-      if (!sameWindow) {
-        await tx.authRateLimitState.update({
-          where: {
-            scope_identifier: {
-              scope: input.scope,
-              identifier: input.identifier,
-            },
-          },
-          data: {
-            windowStart,
-            windowEndsAt: windowEnd,
-            requestCount: 1,
-            blockedUntil: null,
-          },
-        });
-
-        return {
-          allowed: true,
-          blocked: false,
-          currentCount: 1,
-          resetAt: windowEnd,
-          retryAfterSeconds: 0,
-          newlyBlocked: false,
-        };
-      }
-
-      const nextCount = existing.requestCount + 1;
-
-      if (nextCount > input.limit) {
-        await tx.authRateLimitState.update({
-          where: {
-            scope_identifier: {
-              scope: input.scope,
-              identifier: input.identifier,
-            },
-          },
-          data: {
-            requestCount: nextCount,
-            blockedUntil: blockEnd,
-          },
-        });
-
-        return {
-          allowed: false,
-          blocked: true,
-          currentCount: nextCount,
-          resetAt: blockEnd,
-          retryAfterSeconds: getSecondsUntil(blockEnd, now),
-          newlyBlocked: true,
-        };
-      }
-
-      await tx.authRateLimitState.update({
-        where: {
-          scope_identifier: {
-            scope: input.scope,
-            identifier: input.identifier,
-          },
-        },
-        data: {
-          requestCount: nextCount,
-        },
-      });
-
-      return {
-        allowed: true,
-        blocked: false,
-        currentCount: nextCount,
-        resetAt: existing.windowEndsAt,
-        retryAfterSeconds: 0,
-        newlyBlocked: false,
-      };
-    });
-  } catch (error) {
+  if (!state) {
+    const retryAfterSeconds = Math.max(input.blockSeconds, 1);
+    const unavailableUntil = new Date(now.getTime() + retryAfterSeconds * 1000);
     await emitMonitoringAlert({
       source: "auth-rate-limit",
       code: "AUTH_RATE_LIMIT_CHECK_FAILED",
       severity: "error",
-      message: "Rate limit check failed; allowing request",
+      message: "Rate limit check failed; blocking request",
       context: {
         scope: input.scope,
         identifier: input.identifier,
-        error: error instanceof Error ? error.message : String(error),
+        error:
+          transactionError instanceof Error
+            ? transactionError.message
+            : String(transactionError ?? "unknown transaction failure"),
       },
     });
 
     return {
-      allowed: true,
-      blocked: false,
+      allowed: false,
+      blocked: true,
       limit: input.limit,
-      remaining: input.limit,
-      currentCount: 0,
-      resetAt: windowEnd.toISOString(),
-      retryAfterSeconds: 0,
-    };
-  }
-
-  if (!state) {
-    return {
-      allowed: true,
-      blocked: false,
-      limit: input.limit,
-      remaining: input.limit,
-      currentCount: 0,
-      resetAt: windowEnd.toISOString(),
-      retryAfterSeconds: 0,
+      remaining: 0,
+      currentCount: input.limit,
+      resetAt: unavailableUntil.toISOString(),
+      retryAfterSeconds,
     };
   }
 

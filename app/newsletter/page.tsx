@@ -30,13 +30,31 @@ const benefits = [
   },
 ];
 
-export default function NewsletterPage() {
+export default async function NewsletterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ newsletter?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const status = Array.isArray(params.newsletter) ? params.newsletter[0] : params.newsletter;
+
   return (
     <SimplePageShell
       eyebrow="Newsletter"
       title="Get The Snap in your inbox."
       intro="A simple weekly email with rankings, analysis, and site updates. No blue gradients, no fake urgency, no extra noise."
     >
+      {status === 'success' && (
+        <p role="status" className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 px-5 py-4 text-emerald-50">
+          Check your inbox and use the confirmation link to finish subscribing.
+        </p>
+      )}
+      {status === 'error' && (
+        <p role="alert" className="rounded-2xl border border-red-300/25 bg-red-300/10 px-5 py-4 text-red-50">
+          We could not complete that signup. Please check the address and try again.
+        </p>
+      )}
+
       <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
         <NewsletterSignup variant="sidebar" />
       </div>

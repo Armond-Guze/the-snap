@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import React from 'react';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const clamp = (value: string, max: number) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 

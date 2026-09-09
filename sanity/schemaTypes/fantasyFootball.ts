@@ -1,4 +1,10 @@
 import { defineField, defineType } from 'sanity'
+import {
+  extractStrictYouTubeId,
+  normalizeInstagramPostUrl,
+  normalizeTikTokVideoUrl,
+  normalizeXPostUrl,
+} from '../../lib/embed-urls'
 
 export default defineType({
   name: 'fantasyFootball',
@@ -101,19 +107,7 @@ export default defineType({
       description: 'Paste either the 11‑char ID or a full YouTube link (watch/shorts/youtu.be). We\'ll extract the ID automatically.',
       validation: (Rule) => Rule.custom((val) => {
         if (!val) return true;
-        const raw = String(val).trim();
-        if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return true;
-        try {
-          const url = new URL(raw);
-          const v = url.searchParams.get('v');
-          if (v && /^[a-zA-Z0-9_-]{11}$/.test(v)) return true;
-          if (/\/(shorts|embed|live)\/[a-zA-Z0-9_-]{11}/.test(url.pathname)) return true;
-          if (url.hostname.toLowerCase().endsWith('youtu.be')) {
-            const id = url.pathname.split('/').filter(Boolean)[0];
-            if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) return true;
-          }
-        } catch {}
-        return 'Enter a valid YouTube ID or URL';
+        return extractStrictYouTubeId(String(val)) ? true : 'Enter a valid HTTPS YouTube ID or URL';
       }),
       fieldset: 'socialMedia',
     }),
@@ -133,7 +127,7 @@ export default defineType({
       description: 'Full tweet URL (https://twitter.com/<user>/status/<id>)',
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        return /^https:\/\/(twitter\.com|x\.com)\/\w+\/status\/\d+/.test(url) || 'Must be a valid Twitter/X status URL';
+        return normalizeXPostUrl(url) ? true : 'Must be a valid HTTPS Twitter/X status URL';
       }),
       fieldset: 'socialMedia',
     }),
@@ -152,7 +146,7 @@ export default defineType({
       description: 'Public Instagram post or reel URL',
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        return /^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/[A-Za-z0-9_-]+\/?/.test(url) || 'Must be a valid Instagram post/reel URL';
+        return normalizeInstagramPostUrl(url) ? true : 'Must be a valid HTTPS Instagram post/reel URL';
       }),
       fieldset: 'socialMedia',
     }),
@@ -171,7 +165,7 @@ export default defineType({
       description: 'TikTok video URL (https://www.tiktok.com/@user/video/<id>)',
       validation: Rule => Rule.uri({ scheme: ['https'] }).custom(url => {
         if (!url) return true;
-        return /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/[0-9]+\/?/.test(url) || 'Must be a valid TikTok video URL';
+        return normalizeTikTokVideoUrl(url) ? true : 'Must be a valid HTTPS TikTok video URL';
       }),
       fieldset: 'socialMedia',
     }),

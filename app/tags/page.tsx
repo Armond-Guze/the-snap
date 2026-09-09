@@ -1,180 +1,85 @@
-'use client';
-
-import { useState, useEffect } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { client } from '@/sanity/lib/client';
+import { SITE_URL } from '@/lib/site-config';
+import { sanityFetchDynamic } from '@/sanity/lib/fetch';
 import { tagsQuery } from '@/sanity/lib/queries';
-import { Tag } from '@/types';
+import type { Tag } from '@/types';
+import { createWebsitePageMetadata } from '@/lib/seo';
 
-export default function TagsPage() {
-  const [tags, setTags] = useState<(Tag & { articleCount: number })[]>([]);
-  const [loading, setLoading] = useState(true);
+type TagWithCount = Tag & { articleCount: number };
 
-  useEffect(() => {
-    async function fetchTags() {
-      try {
-        const data = await client.fetch(tagsQuery);
-        setTags(data);
-      } catch (error) {
-        console.error('Error fetching tags:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+export const revalidate = 3600;
 
-    fetchTags();
-  }, []);
+export const metadata: Metadata = createWebsitePageMetadata({
+  title: 'NFL Topics and Tags | The Snap',
+  description: 'Browse The Snap NFL reporting, analysis, rankings, and fantasy coverage by canonical topic.',
+  canonicalUrl: `${SITE_URL}/tags`,
+});
 
-  const getTagSize = (articleCount: number) => {
-    if (articleCount >= 20) return 'text-2xl p-4';
-    if (articleCount >= 10) return 'text-xl p-3';
-    if (articleCount >= 5) return 'text-lg p-3';
-    return 'text-base p-2';
-  };
+function tagClass(count: number, featured = false) {
+  if (featured) return 'border-emerald-300/40 bg-emerald-300/10 text-emerald-50 hover:bg-emerald-300/15';
+  if (count >= 5) return 'border-sky-300/30 bg-sky-300/10 text-sky-50 hover:bg-sky-300/15';
+  return 'border-white/10 bg-white/[0.04] text-white/75 hover:border-white/25 hover:bg-white/[0.08]';
+}
 
-  const groupedTags = {
-    trending: tags.filter(tag => tag.trending),
-    popular: tags.filter(tag => !tag.trending && tag.articleCount >= 5),
-    other: tags.filter(tag => !tag.trending && tag.articleCount < 5)
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-8">
-            <div className="h-12 bg-gray-800 rounded w-1/3"></div>
-            <div className="h-4 bg-gray-800 rounded w-2/3"></div>
-            <div className="flex flex-wrap gap-3">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="h-8 w-20 bg-gray-800 rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+export default async function TagsPage() {
+  const tags = await sanityFetchDynamic<TagWithCount[]>(tagsQuery, {}, 3600, []);
+  const populatedTags = tags.filter((tag) => tag.slug?.current && tag.articleCount > 0);
+  const featured = populatedTags.slice(0, 12);
+  const remaining = populatedTags.slice(12);
 
   return (
-    <div className="min-h-screen bg-black text-white py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Browse by Tags
-          </h1>
-          <div className="w-24 h-1 bg-white mb-6"></div>
-          <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
-            Explore NFL content by topic. Larger tags indicate more articles available.
-          </p>
-        </div>
-
-        {/* Breadcrumbs */}
-        <nav className="mb-8">
-          <ol className="flex items-center space-x-2 text-sm">
-            <li>
-              <Link href="/" className="text-gray-400 hover:text-white transition-colors">
-                Home
-              </Link>
-            </li>
-            <li className="text-gray-600">/</li>
-            <li>
-              <Link href="/headlines" className="text-gray-400 hover:text-white transition-colors">
-                Headlines
-              </Link>
-            </li>
-            <li className="text-gray-600">/</li>
-            <li className="text-white">Tags</li>
-          </ol>
+    <main className="min-h-screen bg-black px-6 py-14 text-white">
+      <div className="mx-auto max-w-6xl">
+        <nav aria-label="Breadcrumb" className="text-sm text-white/50">
+          <Link href="/" className="hover:text-white">Home</Link> <span aria-hidden="true">/</span> Topics
         </nav>
+        <header className="mt-8 max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Topic directory</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Browse NFL coverage by topic</h1>
+          <p className="mt-4 text-lg leading-8 text-white/65">
+            These canonical topic pages collect related reporting and analysis under one stable URL.
+          </p>
+        </header>
 
-        <div className="space-y-12">
-          {/* Trending Tags */}
-          {groupedTags.trending.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                🔥 Trending Tags
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {groupedTags.trending.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className={`inline-block rounded-lg bg-gradient-to-r from-yellow-600 to-red-600 hover:from-yellow-500 hover:to-red-500 text-white font-medium transition-all duration-300 transform hover:scale-105 ${getTagSize(
-                      tag.articleCount
-                    )}`}
-                    title={tag.description || `View articles tagged with ${tag.title}`}
-                  >
-                    #{tag.title}
-                    <span className="ml-2 text-sm opacity-90">
-                      ({tag.articleCount})
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+        {featured.length > 0 && (
+          <section className="mt-12" aria-labelledby="most-covered-topics">
+            <h2 id="most-covered-topics" className="text-2xl font-bold">Most-covered topics</h2>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {featured.map((tag) => (
+                <Link
+                  key={tag._id}
+                  href={`/tags/${encodeURIComponent(tag.slug.current)}`}
+                  className={`rounded-xl border px-4 py-3 font-semibold transition ${tagClass(tag.articleCount, true)}`}
+                >
+                  #{tag.title} <span className="ml-1 text-xs opacity-65">{tag.articleCount}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-          {/* Popular Tags */}
-          {groupedTags.popular.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6">Popular Tags</h2>
-              <div className="flex flex-wrap gap-3">
-                {groupedTags.popular.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className={`inline-block rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-medium transition-colors ${getTagSize(
-                      tag.articleCount
-                    )}`}
-                    title={tag.description || `View articles tagged with ${tag.title}`}
-                  >
-                    #{tag.title}
-                    <span className="ml-2 text-sm opacity-75">
-                      ({tag.articleCount})
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+        {remaining.length > 0 && (
+          <section className="mt-12" aria-labelledby="all-topics">
+            <h2 id="all-topics" className="text-2xl font-bold">All topics</h2>
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              {remaining.map((tag) => (
+                <Link
+                  key={tag._id}
+                  href={`/tags/${encodeURIComponent(tag.slug.current)}`}
+                  className={`rounded-full border px-3 py-2 text-sm font-semibold transition ${tagClass(tag.articleCount)}`}
+                >
+                  #{tag.title} <span className="ml-1 text-xs opacity-60">{tag.articleCount}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-          {/* Other Tags */}
-          {groupedTags.other.length > 0 && (
-            <section>
-              <h2 className="text-2xl font-bold text-white mb-6">All Tags</h2>
-              <div className="flex flex-wrap gap-2">
-                {groupedTags.other.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    href={`/headlines?tag=${encodeURIComponent(tag.title)}`}
-                    className="inline-block px-3 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white text-sm transition-colors"
-                    title={tag.description || `View articles tagged with ${tag.title}`}
-                  >
-                    #{tag.title}
-                    {tag.articleCount > 0 && (
-                      <span className="ml-1 text-xs opacity-75">
-                        ({tag.articleCount})
-                      </span>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-16 text-center">
-          <Link
-            href="/headlines"
-            className="inline-block px-8 py-3 bg-white text-black rounded-lg hover:bg-gray-200 transition-colors font-medium"
-          >
-            Browse All Headlines
-          </Link>
-        </div>
+        {populatedTags.length === 0 && (
+          <p className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-white/65">No populated topic pages are available yet.</p>
+        )}
       </div>
-    </div>
+    </main>
   );
 }

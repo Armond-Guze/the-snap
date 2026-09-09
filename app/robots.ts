@@ -5,9 +5,10 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
+      // Social/search crawlers must be able to fetch dynamically generated OG images.
+      allow: ['/', '/api/og'],
       disallow: ['/admin/', '/studio/', '/api/'],
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: [`${SITE_URL}/sitemap.xml`, `${SITE_URL}/news-sitemap.xml`],
   }
 }

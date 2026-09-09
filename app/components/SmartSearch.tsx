@@ -44,10 +44,17 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
 
   // Load recent searches from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('recentSearches');
-    if (saved) {
-      setRecentSearches(JSON.parse(saved));
-    }
+    queueMicrotask(() => {
+      try {
+        const saved = localStorage.getItem('recentSearches');
+        const parsed: unknown = saved ? JSON.parse(saved) : [];
+        if (Array.isArray(parsed)) {
+          setRecentSearches(parsed.filter((entry): entry is string => typeof entry === 'string').slice(0, 8));
+        }
+      } catch {
+        setRecentSearches([]);
+      }
+    });
   }, []);
 
   // Close search on outside click or escape key
