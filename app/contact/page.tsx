@@ -16,12 +16,12 @@ export default function ContactPage() {
       intro="For support, site questions, business inquiries, or feedback, use the form below. Keep it direct and we’ll do the same."
     >
       {state.succeeded ? (
-        <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-8 text-center sm:p-10">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/10">
-            <span className="text-xl font-semibold text-white">✓</span>
+        <div className="rounded-[28px] border border-neutral-200 bg-neutral-50 p-8 text-center sm:p-10">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50">
+            <span className="text-xl font-semibold text-neutral-900">✓</span>
           </div>
-          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-white">Message sent</h2>
-          <p className="mt-3 text-white/68">Thanks. We’ll get back to you as soon as possible.</p>
+          <h2 className="mt-5 text-2xl font-semibold tracking-tight text-neutral-900">Message sent</h2>
+          <p className="mt-3 text-neutral-600">Thanks. We’ll get back to you as soon as possible.</p>
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
@@ -31,7 +31,7 @@ export default function ContactPage() {
             <SimpleCard title="Best for" body="Support, corrections, partnerships, and product feedback." />
           </div>
 
-          <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+          <div className="rounded-[28px] border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
             <form action={FORMSPREE_ACTION} method="POST" onSubmit={handleSubmit} className="space-y-5">
               <div className="hidden" aria-hidden="true">
                 <label htmlFor="contact-company">Company</label>
@@ -39,7 +39,7 @@ export default function ContactPage() {
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="first-name" className="mb-2 block text-sm font-medium text-white/80">
+                  <label htmlFor="first-name" className="mb-2 block text-sm font-medium text-neutral-600">
                     First Name
                   </label>
                   <input
@@ -47,7 +47,7 @@ export default function ContactPage() {
                     name="firstName"
                     id="first-name"
                     autoComplete="given-name"
-                    className="block w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-white/25"
+                    className="block w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-neutral-900 outline-none transition focus:border-neutral-200"
                     placeholder="First name"
                   />
                   <ValidationError
@@ -59,7 +59,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="last-name" className="mb-2 block text-sm font-medium text-white/80">
+                  <label htmlFor="last-name" className="mb-2 block text-sm font-medium text-neutral-600">
                     Last Name
                   </label>
                   <input
@@ -67,7 +67,7 @@ export default function ContactPage() {
                     name="lastName"
                     id="last-name"
                     autoComplete="family-name"
-                    className="block w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-white/25"
+                    className="block w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-neutral-900 outline-none transition focus:border-neutral-200"
                     placeholder="Last name"
                   />
                   <ValidationError
@@ -80,7 +80,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-medium text-white/80">
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-neutral-600">
                   Email Address
                 </label>
                 <input
@@ -89,7 +89,7 @@ export default function ContactPage() {
                   id="email"
                   autoComplete="email"
                   required
-                  className="block w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-white/25"
+                  className="block w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-neutral-900 outline-none transition focus:border-neutral-200"
                   placeholder="you@example.com"
                 />
                 <ValidationError
@@ -101,7 +101,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="message" className="mb-2 block text-sm font-medium text-white/80">
+                <label htmlFor="message" className="mb-2 block text-sm font-medium text-neutral-600">
                   Message
                 </label>
                 <textarea
@@ -109,7 +109,7 @@ export default function ContactPage() {
                   id="message"
                   rows={6}
                   required
-                  className="block w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition focus:border-white/25"
+                  className="block w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-neutral-900 outline-none transition focus:border-neutral-200"
                   placeholder="Tell us what you need."
                 />
                 <ValidationError
@@ -123,7 +123,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={state.submitting}
-                className="inline-flex min-w-[170px] items-center justify-center rounded-full border border-white/12 bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-w-[170px] items-center justify-center rounded-full border border-neutral-200 bg-neutral-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {state.submitting ? "Sending..." : "Send Message"}
               </button>

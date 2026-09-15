@@ -55,7 +55,7 @@ export default function EditorialStandardsPage() {
         </p>
       </SimpleSection>
 
-      <p className="text-sm text-white/40">Last updated: August 9, 2026</p>
+      <p className="text-sm text-neutral-600">Last updated: August 9, 2026</p>
     </SimplePageShell>
   );
 }

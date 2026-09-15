@@ -45,17 +45,17 @@ export default async function NewsletterPage({
       intro="A simple weekly email with rankings, analysis, and site updates. No blue gradients, no fake urgency, no extra noise."
     >
       {status === 'success' && (
-        <p role="status" className="rounded-2xl border border-emerald-300/25 bg-emerald-300/10 px-5 py-4 text-emerald-50">
+        <p role="status" className="rounded-2xl border border-emerald-300/25 bg-emerald-50 px-5 py-4 text-emerald-900">
           Check your inbox and use the confirmation link to finish subscribing.
         </p>
       )}
       {status === 'error' && (
-        <p role="alert" className="rounded-2xl border border-red-300/25 bg-red-300/10 px-5 py-4 text-red-50">
+        <p role="alert" className="rounded-2xl border border-red-300/25 bg-red-50 px-5 py-4 text-red-900">
           We could not complete that signup. Please check the address and try again.
         </p>
       )}
 
-      <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+      <div className="rounded-[28px] border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
         <NewsletterSignup variant="sidebar" />
       </div>
 
@@ -72,7 +72,7 @@ export default async function NewsletterPage({
         <div className="pt-1">
           <a
             href="/rss.xml"
-            className="inline-flex rounded-full border border-white/12 bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90"
+            className="inline-flex rounded-full border border-neutral-200 bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700"
           >
             Open RSS Feed
           </a>
@@ -82,15 +82,15 @@ export default async function NewsletterPage({
       <SimpleSection title="FAQ">
         <div className="space-y-5">
           <div>
-            <h3 className="text-lg font-semibold text-white">How often will emails go out?</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">How often will emails go out?</h3>
             <p className="mt-2">Usually weekly, with occasional sends when there is a major update worth sending.</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Can I unsubscribe?</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">Can I unsubscribe?</h3>
             <p className="mt-2">Yes. Every email should have an unsubscribe option.</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Is it free?</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">Is it free?</h3>
             <p className="mt-2">Yes. The newsletter is free.</p>
           </div>
         </div>

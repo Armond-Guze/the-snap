@@ -92,24 +92,24 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
   if (!author) notFound();
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-6 py-14 text-white">
+    <main className="snap-info-page min-h-screen px-6 py-14">
       <div className="mx-auto max-w-4xl">
-        <Link href="/authors" className="text-sm font-semibold text-emerald-300 hover:text-emerald-200">← All authors</Link>
+        <Link href="/authors" className="text-sm font-semibold text-neutral-700 hover:text-neutral-900">← All authors</Link>
         <header className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center">
           {author.imageUrl ? (
             <Image src={author.imageUrl} alt={author.imageAlt || author.name} width={128} height={128} className="h-32 w-32 rounded-full object-cover" priority />
           ) : (
-            <span aria-hidden="true" className="grid h-32 w-32 place-items-center rounded-full bg-emerald-300/10 text-4xl font-black text-emerald-200">
+            <span aria-hidden="true" className="grid h-32 w-32 place-items-center rounded-full bg-neutral-100 text-4xl font-black text-neutral-900">
               {author.name.slice(0, 1)}
             </span>
           )}
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">Author</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-neutral-700">Author</p>
             <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{author.name}</h1>
           </div>
         </header>
 
-        <section className="prose prose-invert mt-10 max-w-none rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+        <section className="prose prose-neutral mt-10 max-w-none rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
           {Array.isArray(author.bio) && author.bio.length > 0 ? (
             <PortableText value={author.bio} components={portableTextComponents} />
           ) : (
@@ -122,17 +122,17 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
 
         <section className="mt-12" aria-labelledby="recent-coverage">
           <h2 id="recent-coverage" className="text-2xl font-bold">Recent coverage</h2>
-          <div className="mt-5 divide-y divide-white/10 border-y border-white/10">
+          <div className="mt-5 divide-y divide-neutral-200 border-y border-neutral-200">
             {articles.map((article) => (
               <article key={article._id} className="py-5">
-                <Link href={`/articles/${article.slug}`} className="text-xl font-bold hover:text-emerald-300">
+                <Link href={`/articles/${article.slug}`} className="text-xl font-bold hover:text-neutral-700">
                   {article.homepageTitle || article.title}
                 </Link>
-                {article.summary && <p className="mt-2 line-clamp-2 text-white/65">{article.summary}</p>}
-                {article.date && <time dateTime={article.date} className="mt-2 block text-xs uppercase tracking-wide text-white/45">{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>}
+                {article.summary && <p className="mt-2 line-clamp-2 text-neutral-600">{article.summary}</p>}
+                {article.date && <time dateTime={article.date} className="mt-2 block text-xs uppercase tracking-wide text-neutral-600">{new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>}
               </article>
             ))}
-            {articles.length === 0 && <p className="py-5 text-white/60">No recent articles are currently assigned to this profile.</p>}
+            {articles.length === 0 && <p className="py-5 text-neutral-600">No recent articles are currently assigned to this profile.</p>}
           </div>
         </section>
       </div>

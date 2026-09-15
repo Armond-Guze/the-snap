@@ -256,7 +256,7 @@ export default function ProfileMenu() {
         aria-haspopup="true"
         aria-expanded={open}
         aria-controls="profile-menu-panel"
-        className="relative flex h-9 w-9 cursor-pointer items-center justify-center text-white hover:text-white/90 focus:outline-none md:h-10 md:w-10"
+        className="relative flex h-9 w-9 cursor-pointer items-center justify-center text-neutral-900 hover:text-neutral-600 focus:outline-none md:h-10 md:w-10"
       >
         {effectiveLogo ? (
           <div className="relative h-8 w-8 overflow-hidden rounded-full md:h-9 md:w-9">
@@ -270,7 +270,7 @@ export default function ProfileMenu() {
           </div>
         ) : (
           <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full md:h-9 md:w-9">
-            <FaRegCircleUser className="h-5 w-5 text-white/80 md:h-6 md:w-6" aria-hidden="true" />
+            <FaRegCircleUser className="h-5 w-5 text-neutral-600 md:h-6 md:w-6" aria-hidden="true" />
             <span className="sr-only">Profile</span>
           </div>
         )}
@@ -279,7 +279,7 @@ export default function ProfileMenu() {
       {open && (
         <div
           id="profile-menu-panel"
-          className="animate-fade-in absolute right-0 z-50 mt-3 w-[360px] max-w-[90vw] rounded-2xl border border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur-xl"
+          className="animate-fade-in absolute right-0 z-50 mt-3 w-[360px] max-w-[90vw] rounded-2xl border border-neutral-200 bg-white p-4 shadow-2xl backdrop-blur-xl"
           role="dialog"
           aria-label="Profile menu"
           aria-modal="false"
@@ -287,7 +287,7 @@ export default function ProfileMenu() {
           <div className="mb-3">
             <SignedOut>
               <div className="space-y-3">
-                <div className="text-xs text-white/70">
+                <div className="text-xs text-neutral-600">
                   Sign in to save your favorite team and personalize your experience.
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -310,10 +310,10 @@ export default function ProfileMenu() {
             </SignedOut>
 
             <SignedIn>
-              <div className="flex items-center justify-between text-xs text-white/60">
+              <div className="flex items-center justify-between text-xs text-neutral-600">
                 <span className="truncate">{user?.primaryEmailAddress?.emailAddress}</span>
                 <SignOutButton>
-                  <button className="rounded-md bg-white/5 px-2 py-1 text-[11px] text-white/80 hover:bg-white/10">
+                  <button className="rounded-md bg-neutral-100 px-2 py-1 text-[11px] text-neutral-600 hover:bg-neutral-100">
                     Sign out
                   </button>
                 </SignOutButton>
@@ -321,17 +321,17 @@ export default function ProfileMenu() {
             </SignedIn>
           </div>
 
-          <p className="mb-2 text-xs uppercase tracking-wide text-white/40">Favorite Team</p>
+          <p className="mb-2 text-xs uppercase tracking-wide text-neutral-600">Favorite Team</p>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-white/80">
+              <span className="text-sm font-medium text-neutral-600">
                 {effectiveFavorite || "None Selected"}
               </span>
               <button
                 type="button"
                 disabled={isLoadingProfile || isSavingProfile}
-                className="rounded-md bg-white/5 px-2 py-1 text-xs text-white/80 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md bg-neutral-100 px-2 py-1 text-xs text-neutral-600 hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => setShowPicker((state) => !state)}
               >
                 {showPicker
@@ -343,7 +343,7 @@ export default function ProfileMenu() {
             </div>
 
             {isSignedIn && isLoadingProfile && (
-              <p className="text-[11px] text-white/55">Syncing your account profile...</p>
+              <p className="text-[11px] text-neutral-600">Syncing your account profile...</p>
             )}
 
             {errorMessage && (
@@ -378,7 +378,7 @@ export default function ProfileMenu() {
                         setShowPicker(false);
                         setTimeout(() => setOpen(false), 150);
                       }}
-                      className={`team-color-${code} relative flex aspect-square items-center justify-center rounded-md bg-[color:var(--team-color)] text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${textClass} ${
+                      className={`team-color-${code} relative flex aspect-square items-center justify-center rounded-md bg-[color:var(--team-color)] text-[11px] font-semibold tracking-wide transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-800/50 ${textClass} ${
                         active
                           ? "scale-105 ring-2 ring-white/70 shadow-lg shadow-black/40"
                           : "opacity-90 hover:brightness-110 hover:opacity-100"

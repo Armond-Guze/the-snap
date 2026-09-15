@@ -7,15 +7,19 @@ import Footer from './Footer';
 import BackToTop from './BackToTop';
 import PageTransition from './PageTransition';
 import BottomTabBar from './BottomTabBar';
+import './information-pages.css';
+
+const informationRoutes = ['/about', '/terms', '/privacy-policy', '/contact', '/editorial-standards', '/corrections-policy', '/affiliate-disclosure', '/newsletter', '/authors'];
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStudioRoute = pathname.startsWith('/studio');
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
   const hideGlobalChrome = isStudioRoute || isAuthRoute;
+  const isInformationPage = informationRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`));
 
   return (
-    <>
+    <div className={isInformationPage ? 'snap-information-layout' : undefined}>
       {!hideGlobalChrome && (
         <a
           href="#main-content"
@@ -32,6 +36,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {!hideGlobalChrome && <BottomTabBar />}
       {!hideGlobalChrome && <Footer />}
       {!hideGlobalChrome && <BackToTop />}
-    </>
+    </div>
   );
 }

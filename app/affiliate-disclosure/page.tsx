@@ -36,10 +36,10 @@ export default function AffiliateDisclosurePage() {
       </SimpleSection>
       <SimpleSection title="Questions">
         <p>
-          Questions about a commercial relationship can be sent to <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-white hover:text-white/75">thegamesnap@yahoo.com</a>.
+          Questions about a commercial relationship can be sent to <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-neutral-900 hover:text-neutral-600">thegamesnap@yahoo.com</a>.
         </p>
       </SimpleSection>
-      <p className="text-sm text-white/40">Last updated: August 9, 2026</p>
+      <p className="text-sm text-neutral-600">Last updated: August 9, 2026</p>
     </SimplePageShell>
   );
 }

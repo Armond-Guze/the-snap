@@ -95,7 +95,7 @@ export default function PrivacyPolicy() {
           Depending on where you live, you may request access, correction, deletion, portability, restriction, or an
           appeal, and may opt out of certain targeted advertising, sale, or sharing as those terms are defined by law.
           We do not discriminate for exercising applicable privacy rights. To make a request, email{" "}
-          <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-white transition hover:text-white/75">
+          <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-neutral-900 transition hover:text-neutral-600">
             thegamesnap@yahoo.com
           </a>
           .
@@ -109,7 +109,7 @@ export default function PrivacyPolicy() {
         </p>
       </SimpleSection>
 
-      <p className="text-sm text-white/40">
+      <p className="text-sm text-neutral-600">
         Last updated:{" "}
         August 9, 2026
       </p>

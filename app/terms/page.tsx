@@ -69,14 +69,14 @@ export default function TermsOfUse() {
       <SimpleSection title="Contact">
         <p>
           Questions about these terms can be sent to{" "}
-          <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-white transition hover:text-white/75">
+          <a href="mailto:thegamesnap@yahoo.com" className="font-semibold text-neutral-900 transition hover:text-neutral-600">
             thegamesnap@yahoo.com
           </a>
           .
         </p>
       </SimpleSection>
 
-      <p className="text-sm text-white/40">Last updated: August 9, 2026 · © 2026 The Snap</p>
+      <p className="text-sm text-neutral-600">Last updated: August 9, 2026 · © 2026 The Snap</p>
     </SimplePageShell>
   );
 }

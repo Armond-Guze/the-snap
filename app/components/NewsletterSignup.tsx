@@ -84,7 +84,7 @@ export default function NewsletterSignup({
   };
 
   const consentControl = (
-    <label htmlFor={consentId} className="flex items-start gap-2 text-left text-xs leading-5 text-gray-400">
+    <label htmlFor={consentId} className="flex items-start gap-2 text-left text-xs leading-5 text-gray-500">
       <input
         id={consentId}
         name="consent"
@@ -167,15 +167,15 @@ export default function NewsletterSignup({
   // Sidebar variant
   if (variant === 'sidebar') {
     return (
-      <div className={`bg-black border border-gray-800 rounded-2xl p-6 ${className}`}>
+      <div className={`bg-white border border-neutral-200 rounded-2xl p-6 ${className}`}>
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-black" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">
+          <h3 className="text-xl font-bold text-neutral-900 mb-2">
             Stay in the Loop
           </h3>
-          <p className="text-gray-400 text-sm">
+          <p className="text-neutral-600 text-sm">
             Get the latest NFL insights, breaking news, and exclusive analysis delivered weekly to your inbox.
           </p>
         </div>
@@ -183,10 +183,10 @@ export default function NewsletterSignup({
         {status === 'success' ? (
           <div className="text-center">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <p id={statusId} role="status" aria-live="polite" className="text-green-400 mb-4 font-semibold">{message}</p>
+              <p id={statusId} role="status" aria-live="polite" className="text-green-800 mb-4 font-semibold">{message}</p>
             <button
               onClick={resetStatus}
-              className="text-sm text-gray-400 hover:text-white transition-colors"
+              className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
             >
               Subscribe another email →
             </button>
@@ -204,7 +204,7 @@ export default function NewsletterSignup({
                 if (status !== 'idle') resetStatus();
               }}
               placeholder="Enter your email address"
-              className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-white focus:outline-none transition-colors"
+              className="w-full px-4 py-3 bg-neutral-50 text-neutral-900 rounded-lg border border-neutral-200 focus:border-neutral-800 focus:outline-none transition-colors"
               disabled={status === 'loading'}
             />
 
@@ -213,7 +213,7 @@ export default function NewsletterSignup({
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full px-4 py-3 bg-gradient-to-r from-white to-gray-100 hover:from-gray-100 hover:to-gray-200 text-black font-medium rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center border border-gray-300"
+              className="w-full px-4 py-3 bg-gradient-to-r from-neutral-900 to-neutral-900 hover:from-neutral-700 hover:to-neutral-700 text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center border border-gray-300"
             >
               {status === 'loading' ? (
                 <>
@@ -229,7 +229,7 @@ export default function NewsletterSignup({
             </button>
             
             {status === 'error' && (
-              <p id={statusId} role="alert" className="text-red-400 text-sm flex items-center">
+              <p id={statusId} role="alert" className="text-red-700 text-sm flex items-center">
                 <AlertCircle className="w-4 h-4 mr-2" />
                 {message}
               </p>

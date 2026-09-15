@@ -18,7 +18,7 @@ export default function CorrectionsPolicyPage() {
     >
       <SimpleSection title="Report a possible error">
         <p>
-          Email <a href="mailto:thegamesnap@yahoo.com?subject=Correction%20request" className="font-semibold text-white hover:text-white/75">thegamesnap@yahoo.com</a> with
+          Email <a href="mailto:thegamesnap@yahoo.com?subject=Correction%20request" className="font-semibold text-neutral-900 hover:text-neutral-600">thegamesnap@yahoo.com</a> with
           the page URL, the statement you believe is wrong, and a reliable supporting source when available.
         </p>
       </SimpleSection>
@@ -39,7 +39,7 @@ export default function CorrectionsPolicyPage() {
         </p>
       </SimpleSection>
 
-      <p className="text-sm text-white/40">Last updated: August 9, 2026</p>
+      <p className="text-sm text-neutral-600">Last updated: August 9, 2026</p>
     </SimplePageShell>
   );
 }

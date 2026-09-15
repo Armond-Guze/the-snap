@@ -187,22 +187,22 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
         {/* Search Icon Button */}
         <button
           onClick={openSearch}
-          className={`p-2 rounded-lg hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-white ${className}`}
+          className={`p-2 rounded-lg hover:bg-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-800 ${className}`}
           aria-label="Open search"
           title="Search articles"
         >
-          <Search className="h-5 w-5 text-gray-300 hover:text-white" />
+          <Search className="h-5 w-5 text-neutral-700 hover:text-neutral-900" />
         </button>
 
         {/* Search Modal Overlay */}
         {isOpen && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-start justify-center pt-16">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-16">
             <div 
               ref={searchRef}
-              className="bg-black border border-gray-600 rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden"
+              className="bg-white border border-neutral-300 rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden"
             >
               {/* Search Header */}
-              <div className="p-4 border-b border-gray-600">
+              <div className="p-4 border-b border-neutral-300">
                 <div className="relative">
                   <input
                     ref={inputRef}
@@ -210,15 +210,15 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                     placeholder="Search articles..."
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full px-4 py-3 pl-12 pr-12 bg-gray-900 text-white placeholder-gray-400 rounded-lg border border-gray-600 focus:border-white focus:outline-none focus:ring-2 focus:ring-white transition-colors text-lg"
+                    className="w-full px-4 py-3 pl-12 pr-12 bg-white text-neutral-900 placeholder-gray-400 rounded-lg border border-neutral-300 focus:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-800 transition-colors text-lg"
                   />
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-500" />
                   <button
                     onClick={handleClose}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-700 rounded transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-neutral-200 rounded transition-colors"
                     aria-label="Close search"
                   >
-                    <X className="h-5 w-5 text-gray-400" />
+                    <X className="h-5 w-5 text-neutral-500" />
                   </button>
                 </div>
               </div>
@@ -227,8 +227,8 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
               <div className="max-h-96 overflow-y-auto">
                 {/* Loading State */}
                 {isLoading && (
-                  <div className="p-8 text-center text-gray-400">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+                  <div className="p-8 text-center text-neutral-500">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-800 mx-auto"></div>
                     <p className="mt-3 text-sm">Searching...</p>
                   </div>
                 )}
@@ -238,7 +238,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                   <div className="p-4">
                     {recentSearches.length > 0 && (
                       <>
-                        <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                        <h3 className="text-sm font-semibold text-neutral-700 mb-3 flex items-center">
                           <Clock className="h-4 w-4 mr-2" />
                           Recent Searches
                         </h3>
@@ -247,7 +247,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                             <button
                               key={index}
                               onClick={() => handleSearch(term)}
-                              className="block w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                              className="block w-full text-left px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
                               aria-label={`Search for ${term}`}
                             >
                               {term}
@@ -257,7 +257,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                       </>
                     )}
                     
-                    <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center">
+                    <h3 className="text-sm font-semibold text-neutral-700 mb-3 flex items-center">
                       <TrendingUp className="h-4 w-4 mr-2" />
                       Popular Searches
                     </h3>
@@ -266,7 +266,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                         <button
                           key={term}
                           onClick={() => handleSearch(term)}
-                          className="block w-full text-left px-3 py-2 text-gray-300 hover:bg-gray-800 rounded transition-colors"
+                          className="block w-full text-left px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
                           aria-label={`Search for ${term}`}
                         >
                           {term}
@@ -281,7 +281,7 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                   <div className="p-2">
                     {results.length > 0 ? (
                       <>
-                        <div className="px-3 py-2 text-xs text-gray-400 border-b border-gray-600 flex items-center justify-between">
+                        <div className="px-3 py-2 text-xs text-neutral-500 border-b border-neutral-300 flex items-center justify-between">
                           <span>{results.length} result{results.length !== 1 ? 's' : ''} found</span>
                         </div>
                         <div className="py-2">
@@ -289,10 +289,10 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                             <button
                               key={result._id}
                               onClick={() => handleResultClick(result)}
-                              className="w-full flex items-start gap-3 p-3 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors text-left"
+                              className="w-full flex items-start gap-3 p-3 hover:bg-neutral-100 active:bg-neutral-200 rounded-lg transition-colors text-left"
                             >
                               {/* Thumbnail */}
-                              <div className="flex-shrink-0 w-12 h-12 bg-gray-700 rounded overflow-hidden">
+                              <div className="flex-shrink-0 w-12 h-12 bg-neutral-200 rounded overflow-hidden">
                                 {result.coverImage?.asset?.url ? (
                                   <Image
                                     src={result.coverImage.asset.url}
@@ -303,18 +303,18 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                                   />
                                 ) : (
                                   <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                                    <Search className="h-5 w-5 text-gray-400" />
+                                    <Search className="h-5 w-5 text-neutral-500" />
                                   </div>
                                 )}
                               </div>
 
                               {/* Content */}
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-white line-clamp-2 mb-1">
+                                <h4 className="text-sm font-medium text-neutral-900 line-clamp-2 mb-1">
                                   {result.title}
                                 </h4>
                                 {result.summary && (
-                                  <p className="text-xs text-gray-400 line-clamp-2 mb-1">
+                                  <p className="text-xs text-neutral-500 line-clamp-2 mb-1">
                                     {result.summary}
                                   </p>
                                 )}
@@ -332,13 +332,13 @@ export default function SmartSearch({ className = '', variant = 'header' }: Smar
                         </div>
                       </>
                     ) : (
-                      <div className="p-8 text-center text-gray-400">
+                      <div className="p-8 text-center text-neutral-500">
                         <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
                         <p className="text-lg mb-1">No articles found for &ldquo;{query}&rdquo;</p>
                         <p className="text-sm mb-4">Try searching for something else</p>
                         <button
                           onClick={handleSubmitSearch}
-                          className="px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                          className="px-4 py-2 bg-neutral-100 text-neutral-900 border border-neutral-300 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
                         >
                           Search all articles
                         </button>

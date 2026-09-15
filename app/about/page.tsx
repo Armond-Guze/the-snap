@@ -82,18 +82,18 @@ export default function AboutPage() {
         </p>
       </SimpleSection>
 
-      <section className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-[1.8rem]">Explore the site</h2>
+      <section className="rounded-[28px] border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-[1.8rem]">Explore the site</h2>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
             href="/headlines"
-            className="rounded-full border border-white/12 bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90"
+            className="rounded-full border border-neutral-200 bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700"
           >
             Read Headlines
           </Link>
           <Link
             href="/articles/power-rankings"
-            className="rounded-full border border-white/12 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="rounded-full border border-neutral-200 bg-neutral-50 px-5 py-2.5 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
           >
             View Power Rankings
           </Link>

@@ -1,0 +1,56 @@
+/* Armoze navigation spacing, hover treatment, and mobile sheet timing. */
+.snap-header { position: sticky; top: 0; z-index: 60; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; min-height: 96px; padding: env(safe-area-inset-top) clamp(24px, 4vw, 64px) 0; background: #fff; color: #181818; color-scheme: light; font-family: SnapFooterInter, Arial, sans-serif; box-shadow: 0 1px 0 #00000012; }
+.snap-brand { display: block; width: 130px; }
+.snap-brand img { display: block; width: 100%; height: auto; }
+.snap-desktop-nav { display: flex; align-items: center; gap: 4px; }
+.snap-desktop-nav > a, .snap-nav-more > summary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #181818; font-size: 15px; font-weight: 500; letter-spacing: -.3px; cursor: pointer; list-style: none; transition: background-color 280ms ease, color 280ms ease; }
+.snap-nav-more > summary::-webkit-details-marker { display: none; }
+.snap-desktop-nav > a:is(:hover,:focus-visible), .snap-nav-more > summary:is(:hover,:focus-visible), .snap-nav-more[open] > summary { background: #181818; color: #fff; }
+.snap-nav-label { display: inline-block; transform-origin: center; transition: transform 150ms cubic-bezier(.22,.72,.22,1), opacity 150ms ease; }
+.snap-desktop-nav a:active .snap-nav-label, .snap-navigation-sheet-links a:active .snap-nav-label { transform: translateY(1px) scale(.96); opacity: .72; }
+.snap-header-actions { display: flex; align-items: center; justify-self: end; gap: 20px; }
+.snap-menu-toggle { display: none; }
+.snap-nav-dropdown { position: absolute; right: 24px; left: 24px; top: calc(100% + 8px); max-height: min(70vh,620px); overflow-y: auto; padding: 28px; border: 1px solid #e8e8e8; border-radius: 20px; background: #fff; color: #181818; box-shadow: 0 18px 40px #00000012; }
+.snap-nav-dropdown p { margin: 24px 0 14px; font-size: 12px; color: #666; }
+.snap-nav-quick-links { display: flex; gap: 24px; font-size: 15px; font-weight: 500; }
+.snap-nav-teams { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px 24px; font-size: 13px; }
+.snap-nav-dropdown a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.snap-header a:focus-visible, .snap-header button:focus-visible, .snap-header summary:focus-visible, .snap-navigation-sheet a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+/* Keep the existing search and profile controls readable on the white header. */
+.snap-header-actions > div > button, .snap-header-profile > div > button { color: #181818; }
+.snap-header-actions > div > button:hover, .snap-header-profile > div > button:hover { background: #f3f3f3; }
+.snap-menu-backdrop { position: fixed; inset: 0; z-index: 1000; background: #0000008c; }
+.snap-menu-backdrop[data-state='open'] { animation: snap-scrim-in 550ms ease; }
+.snap-menu-backdrop[data-state='closed'] { animation: snap-scrim-out 550ms ease; }
+.snap-navigation-sheet { position: fixed; z-index: 1001; inset: max(20px, env(safe-area-inset-top)) 8px 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-radius: 24px 24px 0 0; background: #fff; color: #181818; color-scheme: light; font-family: SnapFooterInter, Arial, sans-serif; box-shadow: 0 -11px 0 #ffffff3d; outline: none; }
+.snap-navigation-sheet[data-state='open'] { animation: snap-sheet-in 700ms cubic-bezier(.22,.72,.22,1); }
+.snap-navigation-sheet[data-state='closed'] { animation: snap-sheet-out 700ms cubic-bezier(.22,.72,.22,1); }
+.snap-navigation-sheet-handle { flex: 0 0 54px; width: 100%; display: flex; justify-content: center; align-items: flex-start; padding: 10px 0 0; border: 0; border-radius: 24px 24px 0 0; background: transparent; cursor: pointer; touch-action: none; }
+.snap-navigation-sheet-handle span { width: 48px; height: 4px; border-radius: 10px; background: #e4e4e4; }
+.snap-navigation-sheet-handle:focus-visible { outline: 2px solid #181818; outline-offset: -5px; }
+.snap-navigation-sheet-links { display: flex; flex-direction: column; padding: 7px 20px 28px; overflow-y: auto; overscroll-behavior: contain; }
+.snap-navigation-sheet-links a { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; min-height: 45px; color: #181818; font-size: 24px; font-weight: 700; letter-spacing: -1px; line-height: 1.3; }
+.snap-navigation-sheet-links svg { color: #aaa; }
+.snap-navigation-sheet-links a:hover { color: #666; }
+.snap-navigation-sheet-footer { flex-shrink: 0; margin-top: auto; }
+.snap-navigation-sheet-locale { display: grid; grid-template-columns: 1.5fr 1fr; align-items: center; min-height: 46px; padding: 10px 20px; border-top: 1px solid #eee; font-size: 13px; }
+.snap-navigation-sheet-locale a + a { padding-left: 20px; border-left: 1px solid #eee; }
+.snap-navigation-sheet-account-row { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 20px max(15px, env(safe-area-inset-bottom)); background: #f8f8f8; }
+.snap-navigation-sheet-login { display: inline-flex; align-items: center; gap: 10px; min-height: 38px; padding: 8px 20px; border-radius: 999px; background: #181818; color: #fff; font-size: 14px; font-weight: 500; }
+.snap-navigation-sheet-socials { display: flex; align-items: center; gap: 12px; }
+.snap-navigation-sheet-socials a { display: grid; place-items: center; width: 30px; height: 40px; }
+.snap-navigation-sheet-socials svg { width: 20px; height: 20px; }
+@keyframes snap-sheet-in { from { transform: translateY(calc(100% + 32px)); } to { transform: translateY(0); } }
+@keyframes snap-sheet-out { from { transform: translateY(0); } to { transform: translateY(calc(100% + 32px)); } }
+@keyframes snap-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes snap-scrim-out { from { opacity: 1; } to { opacity: 0; } }
+@media (max-width: 1000px) {
+ .snap-header { min-height: 88px; grid-template-columns: 1fr auto 1fr; gap: 10px; padding-inline: 14px; }
+ .snap-desktop-nav, .snap-header-profile { display: none; }
+ .snap-menu-toggle { display: grid; place-items: center; width: 44px; height: 44px; background: transparent; border: 0; cursor: pointer; }
+ .snap-brand { width: 118px; }
+ .snap-header-actions { grid-column: 3; grid-row: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .snap-header *, .snap-navigation-sheet *, .snap-navigation-sheet, .snap-menu-backdrop { animation-duration: .01ms !important; transition: none !important; }
+}
