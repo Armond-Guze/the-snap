@@ -7,7 +7,6 @@ import AnalyticsGate from "./components/AnalyticsGate";
 import CookieConsent from "./components/CookieConsent";
 import AdSenseLoader from "./components/AdSenseLoader";
 import {
-  DEFAULT_OG_IMAGE_PATH,
   DEFAULT_OG_IMAGE_URL,
   SITE_BRAND,
   SITE_NAME,
@@ -97,15 +96,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '32x32' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '192x192' },
-      { url: DEFAULT_OG_IMAGE_PATH, type: 'image/png', sizes: '512x512' }
+      { url: '/favicon.ico?v=2', sizes: '16x16 32x32 48x48' },
+      { url: '/snap-icon-32-v2.png', type: 'image/png', sizes: '32x32' },
+      { url: '/snap-icon-192-v2.png', type: 'image/png', sizes: '192x192' },
+      { url: '/snap-icon-512-v2.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.svg?v=2', type: 'image/svg+xml', sizes: 'any' }
     ],
     apple: [
-      { url: DEFAULT_OG_IMAGE_PATH, sizes: '180x180', type: 'image/png' }
+      { url: '/snap-icon-180-v2.png', sizes: '180x180', type: 'image/png' }
     ],
-    shortcut: ['/favicon.svg']
+    shortcut: ['/favicon.ico?v=2']
   },
   robots: {
     index: true,
@@ -142,9 +142,6 @@ export default function RootLayout({
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  {/* Explicit favicon links (square SVG for crisp scaling) */}
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="alternate icon" href="/favicon.svg" />
   {/* RSS feed autodiscovery */}
   <link rel="alternate" type="application/rss+xml" title="The Snap NFL Headlines" href="/rss.xml" />
   <StructuredData id="sd-website" data={websiteData} />

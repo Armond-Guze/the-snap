@@ -1,8 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FaEnvelope, FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
 import { openConsentPreferences } from "./consent";
+import FooterReveal from "./FooterReveal";
+import FooterBenefits from "./FooterBenefits";
+import NewsletterSignup from "./NewsletterSignup";
+import "./footer.css";
 
 const mainLinks = [
   { label: "Contact & Support", href: "/contact" },
@@ -44,75 +49,63 @@ const socials = [
   },
 ];
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
 
+const coverageLinks = [
+  { label: "Latest Headlines", href: "/headlines" },
+  { label: "Power Rankings", href: "/power-rankings" },
+  { label: "Fantasy Football", href: "/fantasy" },
+  { label: "NFL Teams", href: "/teams" },
+  { label: "Schedule", href: "/schedule" },
+  { label: "Standings", href: "/standings" },
+];
+const groups = [{title: "NFL Coverage", links: coverageLinks}, {title: "Information", links: mainLinks}];
+
+export default function Footer() {
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-white/10 bg-[#0b0b0d] text-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 hidden h-10 md:block">
-        <div className="absolute left-0 top-0 h-px w-[16%] bg-white/15" />
-        <div className="absolute left-[16%] top-0 h-px w-12 origin-left rotate-[28deg] bg-white/15" />
-        <div className="absolute left-[19.5%] top-0 h-px w-[80.5%] bg-white/15" />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-5 pb-7 pt-9 sm:px-8 md:pb-9 md:pt-11">
-        <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start lg:gap-10">
-          <div className="space-y-3">
-            <p className="text-[1.28rem] font-black uppercase tracking-[0.18em] text-white">
-              The Snap
-            </p>
-
-            <div className="flex flex-wrap items-center gap-2.5 text-white">
-              {socials.map(({ label, href, icon: Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target={href.startsWith("http") ? "_blank" : undefined}
-                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  aria-label={label}
-                  className="transition-colors hover:text-white/75"
-                >
-                  <Icon className="h-[17px] w-[17px]" />
-                </a>
+    <footer className="snap-site-footer">
+      <FooterBenefits />
+      <FooterReveal>
+        <div className="snap-footer-main">
+          <div className="snap-footer-brand">
+            <Link href="/" className="snap-footer-logo" aria-label="The Game Snap home">
+              <Image src="/favicon.svg?v=2" alt="" width={48} height={48} />
+            </Link>
+          </div>
+          <nav className="snap-footer-link-columns" aria-label="Footer navigation">
+            {groups.map(group => <section className="snap-footer-link-column" key={group.title}>
+              <h2>{group.title}</h2>
+              {group.links.map(link => <Link href={link.href} key={link.href}>{link.label}</Link>)}
+            </section>)}
+            <a className="snap-footer-contact-email" href="mailto:TheGameSnap@yahoo.com">TheGameSnap@yahoo.com</a>
+          </nav>
+          <section className="snap-footer-newsletter" aria-label="Newsletter signup">
+            <h2>Stay in the game with The Snap newsletter</h2>
+            <NewsletterSignup variant="footer" />
+            <div className="snap-footer-social-icons" aria-label="Follow The Game Snap">
+              {socials.filter(s => s.label !== "Email").map(({label,href,icon: Icon}) => (
+                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={22} /></a>
               ))}
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] lg:gap-x-5">
-              {mainLinks.map(({ label, href }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="font-medium text-white/90 transition-colors hover:text-white"
-                >
-                  {label}
-                </Link>
-              ))}
-              <button
-                type="button"
-                onClick={openConsentPreferences}
-                className="font-medium text-white/90 transition-colors hover:text-white"
-              >
-                Cookie preferences
-              </button>
-            </div>
-
-            <div className="border-t border-white/10 pt-4 text-[11px] text-white/70">
-              <p className="leading-5">
-                Owned and operated by The Snap. Copyright {currentYear} The Snap. All rights reserved.
-              </p>
-              <p className="mt-2.5 max-w-4xl leading-5 text-white/60">
-                The Snap provides NFL news, rankings, analysis, and opinion content for informational and entertainment purposes.
-                Betting coverage should not be treated as financial or legal advice. Always verify league, sportsbook, and local
-                compliance rules before acting on any information published on this site.
-              </p>
-            </div>
-          </div>
+          </section>
+          <nav className="snap-footer-mobile-accordions" aria-label="Footer mobile navigation">
+            {groups.map(group => <details className="snap-footer-mobile-accordion" key={group.title}>
+              <summary>{group.title}</summary>
+              <div className="snap-footer-mobile-accordion-links">
+                {group.links.map(link => <Link href={link.href} key={link.href}>{link.label}</Link>)}
+              </div>
+            </details>)}
+            <a className="snap-footer-contact-email" href="mailto:TheGameSnap@yahoo.com">TheGameSnap@yahoo.com</a>
+          </nav>
         </div>
-      </div>
+        <div className="snap-footer-bottom">
+          <p className="snap-footer-bottom-copy">© {new Date().getFullYear()} The Game Snap. All rights reserved.</p>
+          <div className="snap-footer-utility-links">
+            <Link href="/rss.xml">RSS Feed</Link>
+            <button type="button" onClick={openConsentPreferences}>Cookie preferences</button>
+          </div>
+          <p className="snap-footer-disclaimer">NFL news, rankings, analysis, and opinion. Betting coverage is for information and entertainment; verify applicable rules before acting.</p>
+        </div>
+      </FooterReveal>
     </footer>
   );
-};
-
-export default Footer;
+}

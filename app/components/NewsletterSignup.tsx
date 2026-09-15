@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface NewsletterSignupProps {
@@ -244,62 +244,26 @@ export default function NewsletterSignup({
     );
   }
 
-  // Footer variant
+  // Reuse the same consent and subscription handling in the Armoze-style footer.
   if (variant === 'footer') {
     return (
-      <div className={`text-center ${className}`}>
-        <h3 className="text-xl md:text-2xl font-extrabold text-white mb-4 uppercase tracking-widest">
-          Never miss a snap
-        </h3>
-        <p className="text-gray-400 mb-6">
-          Get weekly NFL insights and breaking news delivered to your inbox.
-        </p>
-
-        {status === 'success' ? (
-          <div className="flex items-center text-green-400">
-            <CheckCircle className="w-5 h-5 mr-2" />
-            <span id={statusId} role="status" aria-live="polite" className="font-semibold">{message}</span>
+      <div className={`snap-footer-signup ${className}`}>
+        <form action="/api/newsletter" method="post" onSubmit={handleSubmit}>
+          <input type="hidden" name="returnTo" value="/newsletter" />
+          <label htmlFor={inputId} className="sr-only">Email address</label>
+          <div className="snap-newsletter-form-row">
+            <input {...emailInputProps} type="email" value={email}
+              onChange={(event) => { setEmail(event.target.value); if (status !== 'idle') resetStatus(); }}
+              placeholder="Email address" disabled={status === 'loading'} />
+            <button type="submit" disabled={status === 'loading'} aria-label={status === 'loading' ? 'Subscribing' : 'Subscribe to The Snap newsletter'}>
+              {status === 'loading' ? <Loader2 size={20} className="animate-spin" /> : <ArrowRight size={20} strokeWidth={1.8} />}
+            </button>
           </div>
-        ) : (
-          <form action="/api/newsletter" method="post" onSubmit={handleSubmit} className="flex max-w-xl flex-col gap-3 mx-auto">
-            <input type="hidden" name="returnTo" value="/newsletter" />
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <label htmlFor={inputId} className="sr-only">Email address</label>
-              <input
-                {...emailInputProps}
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (status !== 'idle') resetStatus();
-                }}
-                placeholder="Enter your email"
-                className="flex-1 min-w-[220px] px-4 py-3 bg-gray-800/80 text-white rounded-lg focus:outline-none transition-colors"
-                disabled={status === 'loading'}
-              />
-
-              <button
-                type="submit"
-                disabled={status === 'loading'}
-                className="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center whitespace-nowrap"
-              >
-                {status === 'loading' ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  'Subscribe'
-                )}
-              </button>
-            </div>
-            {consentControl}
-          </form>
-        )}
-        
-        {status === 'error' && (
-          <p id={statusId} role="alert" className="text-red-400 text-sm mt-2 flex items-center">
-            <AlertCircle className="w-4 h-4 mr-2" />
-            {message}
-          </p>
-        )}
+          <div className="snap-newsletter-consent">{consentControl}</div>
+          {status !== 'idle' && <p id={statusId} role={status === 'error' ? 'alert' : 'status'} aria-live="polite" className={`snap-newsletter-message ${status}`}>
+            {status === 'loading' ? 'Submitting your signup…' : message}
+          </p>}
+        </form>
       </div>
     );
   }
