@@ -18,43 +18,21 @@ import {
 // Centralized config (build-time evaluated)
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION; // e.g. abcDEF123...
 
-const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  colorScheme: LIGHT_THEME_ENABLED ? "dark light" : "dark",
+  colorScheme: "light",
 };
 
+// Keep the requested light appearance stable across saved preferences and OS themes.
 const themeInitScript = `
 (() => {
-  try {
-    const root = document.documentElement;
-    ${LIGHT_THEME_ENABLED
-      ? `
-    const storageKey = "theme-preference";
-    const saved = localStorage.getItem(storageKey);
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = saved === "light" || saved === "dark" ? saved : (systemDark ? "dark" : "light");
-    root.dataset.theme = theme;
-    root.style.colorScheme = theme;
-    root.classList.toggle("dark", theme === "dark");
-    `
-      : `
-    const storageKey = "theme-preference";
-    root.dataset.theme = "dark";
-    root.style.colorScheme = "dark";
-    root.classList.add("dark");
-    try {
-      localStorage.setItem(storageKey, "dark");
-    } catch {
-      // Ignore storage failures.
-    }
-    `}
-  } catch {
-    // Keep server-rendered defaults if storage/media access fails.
-  }
+  const root = document.documentElement;
+  root.dataset.theme = "light";
+  root.style.colorScheme = "light";
+  root.classList.remove("dark");
 })();
 `;
 
@@ -96,16 +74,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico?v=2', sizes: '16x16 32x32 48x48' },
-      { url: '/snap-icon-32-v2.png', type: 'image/png', sizes: '32x32' },
-      { url: '/snap-icon-192-v2.png', type: 'image/png', sizes: '192x192' },
-      { url: '/snap-icon-512-v2.png', type: 'image/png', sizes: '512x512' },
-      { url: '/favicon.svg?v=2', type: 'image/svg+xml', sizes: 'any' }
+      { url: '/favicon.ico?v=3', sizes: '16x16 32x32 48x48' },
+      { url: '/snap-icon-32-v3.png', type: 'image/png', sizes: '32x32' },
+      { url: '/snap-icon-192-v3.png', type: 'image/png', sizes: '192x192' },
+      { url: '/snap-icon-512-v3.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.svg?v=3', type: 'image/svg+xml', sizes: 'any' }
     ],
     apple: [
-      { url: '/snap-icon-180-v2.png', sizes: '180x180', type: 'image/png' }
+      { url: '/snap-icon-180-v3.png', sizes: '180x180', type: 'image/png' }
     ],
-    shortcut: ['/favicon.ico?v=2']
+    shortcut: ['/favicon.ico?v=3']
   },
   robots: {
     index: true,
@@ -138,7 +116,7 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" data-theme="light" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

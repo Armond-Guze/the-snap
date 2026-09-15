@@ -19,7 +19,7 @@
   right: 0;
   width: 40px;
   height: 100%;
-  background: linear-gradient(to left, rgba(0,0,0,0.9), rgba(0,0,0,0));
+  background: linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0));
 }
 
 /* Highlight the partially visible trailing card with a soft shadow gradient */
@@ -34,9 +34,9 @@
   width: 55px; /* wide enough to cover revealed sliver */
   height: 100%;
   pointer-events: none;
-  background: linear-gradient(to left, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(to left, rgba(255,255,255,0.95) 10%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0) 100%);
   /* subtle inner glow edge */
-  box-shadow: inset -4px 0 8px -4px rgba(0,0,0,0.8);
+  box-shadow: inset -4px 0 8px -4px rgba(255,255,255,0.8);
 }
 
 /* Removed global gameCardShadow & withLeft effects so only .partialEdge shows gradient on the trailing partial card */

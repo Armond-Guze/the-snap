@@ -51,9 +51,9 @@ const TEAM_COLOR_CLASSES: Record<string, string> = {
 };
 
 const getTeamColorClass = (color?: string | null) => {
-  if (!color) return 'text-white';
+  if (!color) return 'text-neutral-900';
   const normalized = color.toUpperCase();
-  return TEAM_COLOR_CLASSES[normalized] ?? 'text-white';
+  return TEAM_COLOR_CLASSES[normalized] ?? 'text-neutral-900';
 };
 
 const PLAYOFF_LABELS: Record<string, string> = {
@@ -116,7 +116,7 @@ function getMovementIndicator(change: number): MovementIndicator {
   } else if (change < 0) {
     return { symbol: "▼", color: "text-red-500" };
   }
-  return { symbol: "–", color: "text-gray-400" };
+  return { symbol: "–", color: "text-neutral-500" };
 }
 
 function resolveTeamDisplayName(entry: PowerRankingEntry): string {
@@ -323,15 +323,15 @@ export default async function RankingsWeekPage({ params }: PageProps) {
     <StructuredData id={`sd-rankings-article-${season}-${canonicalWeek}`} data={articleSchema} />
     <StructuredData id={`sd-rankings-list-${season}-${canonicalWeek}`} data={itemListSchema} />
     <StructuredData id={`sd-rankings-breadcrumb-${season}-${canonicalWeek}`} data={breadcrumbSchema} />
-    <main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
+    <main className="bg-white text-neutral-900 min-h-screen">
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         <article className="lg:col-span-2 flex flex-col">
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
           </div>
           <header className="mb-10">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-white mb-3 md:mb-4 text-left">{displayTitle}</h1>
-            <div className="text-[13px] sm:text-sm text-gray-400 mb-6 flex items-center gap-3 text-left flex-wrap">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-neutral-900 mb-3 md:mb-4 text-left">{displayTitle}</h1>
+            <div className="text-[13px] sm:text-sm text-neutral-500 mb-6 flex items-center gap-3 text-left flex-wrap">
               {displayAuthor?.image?.asset?.url && (
                 <div className="relative w-8 h-8 rounded-full overflow-hidden">
                   <Image
@@ -343,7 +343,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                   />
                 </div>
               )}
-              <span className="font-medium text-white/90">
+              <span className="font-medium text-neutral-800">
                 {displayAuthor?.name || 'The Snap'}
               </span>
               {published && (
@@ -352,7 +352,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                   <span className="text-gray-500 hidden sm:inline">•</span>
                 </>
               )}
-              <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white">Power Rankings</span>
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold text-neutral-900">Power Rankings</span>
             </div>
           </header>
 
@@ -369,7 +369,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                 />
               </div>
               {displaySummary && (
-                <p className="mt-4 text-lg text-gray-300 leading-relaxed max-w-3xl">
+                <p className="mt-4 text-lg text-neutral-700 leading-relaxed max-w-3xl">
                   {displaySummary}
                 </p>
               )}
@@ -379,12 +379,12 @@ export default async function RankingsWeekPage({ params }: PageProps) {
           {(biggestRiser || biggestFaller) && (
             <div className="mb-8 flex flex-wrap gap-3">
               {biggestRiser && (
-                <span className="inline-flex items-center rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-300">
+                <span className="inline-flex items-center rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-emerald-800">
                   Biggest Riser: {biggestRiser}
                 </span>
               )}
               {biggestFaller && (
-                <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-300">
+                <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-700">
                   Biggest Faller: {biggestFaller}
                 </span>
               )}
@@ -392,7 +392,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
           )}
 
           {Array.isArray(displayIntro) && displayIntro.length > 0 && (
-            <section className="mb-10 prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+            <section className="mb-10 prose prose-neutral text-neutral-900 text-lg leading-relaxed max-w-4xl text-left">
               <PortableText value={displayIntro} components={portableTextComponents} />
             </section>
           )}
@@ -422,13 +422,13 @@ export default async function RankingsWeekPage({ params }: PageProps) {
 
                 return (
                   <article key={key} className="group">
-                    <div className="relative bg-[hsl(0_0%_3.9%)] p-3">
+                    <div className="relative bg-white p-3">
                       <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${gradientClassForTeam(teamName)}`} />
 
                       <div className="flex items-center gap-4">
-                        <div className="flex flex-col items-center min-w-[60px] bg-[hsl(0_0%_3.9%)] rounded-lg p-2">
-                          <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Rank</span>
-                          <span className="text-2xl font-black text-white">{rank}</span>
+                        <div className="flex flex-col items-center min-w-[60px] bg-white rounded-lg p-2">
+                          <span className="text-xs text-neutral-500 uppercase tracking-wider font-semibold">Rank</span>
+                          <span className="text-2xl font-black text-neutral-900">{rank}</span>
                         </div>
 
                         {teamLogo?.asset?.url && (
@@ -451,7 +451,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                               {(() => {
                                 const abbr = teamCode || teamCodeFromName(teamName);
                                 const rec = shortRecord(abbr ? records.get(abbr) : undefined);
-                                return rec ? (<span className="text-xs text-white/60 mt-0.5">{rec}</span>) : null;
+                                return rec ? (<span className="text-xs text-neutral-600 mt-0.5">{rec}</span>) : null;
                               })()}
                             </div>
 
@@ -464,7 +464,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                                   {Math.abs(change)}
                                 </span>
                               ) : (
-                                <span className="text-xs text-gray-400">—</span>
+                                <span className="text-xs text-neutral-500">—</span>
                               )}
                             </div>
                           </div>
@@ -472,14 +472,14 @@ export default async function RankingsWeekPage({ params }: PageProps) {
                       </div>
                     </div>
 
-                    <div className="mt-3 bg-[hsl(0_0%_3.9%)] p-6">
+                    <div className="mt-3 bg-white p-6">
                       {Array.isArray(team.analysis) && team.analysis.length > 0 && (
-                        <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+                        <div className="prose prose-neutral text-neutral-900 text-lg leading-relaxed max-w-4xl text-left">
                           <PortableText value={team.analysis} components={portableTextComponents} />
                         </div>
                       )}
 	                      {(!Array.isArray(team.analysis) || team.analysis.length === 0) && (team.summary || team.note) && (
-	                        <p className="text-lg text-gray-300 leading-relaxed max-w-4xl text-left">{team.summary || team.note}</p>
+	                        <p className="text-lg text-neutral-700 leading-relaxed max-w-4xl text-left">{team.summary || team.note}</p>
 	                      )}
 	                    </div>
 	                  </article>
@@ -488,7 +488,7 @@ export default async function RankingsWeekPage({ params }: PageProps) {
 	          </div>
 
           {Array.isArray(displayConclusion) && displayConclusion.length > 0 && (
-            <section className="mt-12 prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+            <section className="mt-12 prose prose-neutral text-neutral-900 text-lg leading-relaxed max-w-4xl text-left">
               <PortableText value={displayConclusion} components={portableTextComponents} />
             </section>
           )}

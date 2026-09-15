@@ -167,17 +167,17 @@ export default async function PowerRankingsArticlePage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
+    <main className="min-h-screen bg-white text-neutral-900">
       {itemListSchema && <StructuredData id="sd-current-nfl-power-rankings" data={itemListSchema} />}
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
         <Breadcrumb items={[{ label: 'Articles', href: '/articles' }, { label: 'Power Rankings' }]} className="mb-6" />
 
-        <header className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-zinc-950 to-black">
+        <header className="overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-50">
           <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="p-7 sm:p-10 lg:p-12">
-              <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-sky-300">The Snap Rankings Hub</p>
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-blue-700">The Snap Rankings Hub</p>
               <h1 className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">NFL Power Rankings</h1>
-              <p className="mt-5 max-w-3xl text-base leading-7 text-zinc-300 sm:text-lg">
+              <p className="mt-5 max-w-3xl text-base leading-7 text-neutral-700 sm:text-lg">
                 A durable, week-to-week ranking of all 32 NFL teams. The board balances quarterback play,
                 roster strength, coaching, injuries, recent performance, and how sustainable each team&apos;s results look.
               </p>
@@ -190,7 +190,7 @@ export default async function PowerRankingsArticlePage() {
                     Read the full {latestLabel} analysis
                   </Link>
                 )}
-                {updatedLabel && <span className="text-sm text-zinc-400">Last editorial update: {updatedLabel}</span>}
+                {updatedLabel && <span className="text-sm text-neutral-500">Last editorial update: {updatedLabel}</span>}
               </div>
             </div>
             {coverImage?.asset?.url && (
@@ -210,7 +210,7 @@ export default async function PowerRankingsArticlePage() {
         </header>
 
         {Array.isArray(intro) && intro.length > 0 && (
-          <section className="prose prose-invert mt-10 max-w-4xl text-lg leading-relaxed">
+          <section className="prose prose-neutral mt-10 max-w-4xl text-lg leading-relaxed">
             <PortableText value={intro} components={portableTextComponents} />
           </section>
         )}
@@ -223,7 +223,7 @@ export default async function PowerRankingsArticlePage() {
                 Latest NFL rankings: 1-32
               </h2>
             </div>
-            {latestPath && <Link href={latestPath} className="text-sm font-semibold text-sky-300 hover:text-sky-200">Full team-by-team analysis →</Link>}
+            {latestPath && <Link href={latestPath} className="text-sm font-semibold text-blue-700 hover:text-blue-700">Full team-by-team analysis →</Link>}
           </div>
 
           {rankings.length > 0 ? (
@@ -233,7 +233,7 @@ export default async function PowerRankingsArticlePage() {
                 const logo = entry.teamLogo || entry.team?.teamLogo;
                 const teamPath = entry.team?.slug?.current ? `/teams/${entry.team.slug.current}` : null;
                 return (
-                  <li key={`${entry.rank}-${teamName}`} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                  <li key={`${entry.rank}-${teamName}`} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                     <div className="flex items-center gap-4">
                       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-xl font-black text-black">
                         {entry.rank}
@@ -249,10 +249,10 @@ export default async function PowerRankingsArticlePage() {
                       )}
                       <div className="min-w-0 flex-1">
                         <h3 className="text-lg font-bold">
-                          {teamPath ? <Link href={teamPath} className="hover:text-sky-300">{teamName}</Link> : teamName}
+                          {teamPath ? <Link href={teamPath} className="hover:text-blue-700">{teamName}</Link> : teamName}
                         </h3>
                         {(entry.summary || entry.note) && (
-                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-zinc-400">{entry.summary || entry.note}</p>
+                          <p className="mt-1 line-clamp-2 text-sm leading-5 text-neutral-500">{entry.summary || entry.note}</p>
                         )}
                       </div>
                     </div>
@@ -261,22 +261,22 @@ export default async function PowerRankingsArticlePage() {
               })}
             </ol>
           ) : (
-            <div className="rounded-2xl border border-dashed border-white/15 p-8 text-zinc-400">
+            <div className="rounded-2xl border border-dashed border-neutral-200 p-8 text-neutral-500">
               The next 1-32 board is being prepared. Published weekly snapshots remain available below.
             </div>
           )}
         </section>
 
         {methodology && (
-          <section className="mt-14 rounded-3xl border border-white/10 bg-zinc-950 p-7 sm:p-9" aria-labelledby="methodology-heading">
+          <section className="mt-14 rounded-3xl border border-neutral-200 bg-neutral-100 p-7 sm:p-9" aria-labelledby="methodology-heading">
             <h2 id="methodology-heading" className="text-2xl font-black">How The Snap ranks NFL teams</h2>
-            <p className="mt-4 max-w-4xl text-base leading-7 text-zinc-300">{methodology}</p>
+            <p className="mt-4 max-w-4xl text-base leading-7 text-neutral-700">{methodology}</p>
           </section>
         )}
 
         <section className="mt-14" aria-labelledby="archive-heading">
           <h2 id="archive-heading" className="text-3xl font-black">Power rankings archive</h2>
-          <p className="mt-3 max-w-3xl text-zinc-400">
+          <p className="mt-3 max-w-3xl text-neutral-500">
             Every published snapshot stays available so readers can see how the league changed across the season.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -284,10 +284,10 @@ export default async function PowerRankingsArticlePage() {
               const path = getSnapshotPath(item);
               if (!path) return null;
               return (
-                <Link key={path} href={path} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-white/25 hover:bg-white/[0.07]">
+                <Link key={path} href={path} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5 transition hover:border-neutral-200 hover:bg-neutral-50">
                   <span className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Snapshot</span>
                   <span className="mt-2 block text-lg font-bold">{item.title || getSnapshotLabel(item)}</span>
-                  <span className="mt-2 block text-sm text-zinc-400">
+                  <span className="mt-2 block text-sm text-neutral-500">
                     {formatDate(item.dateModified || item.publishedAt || item.date) || 'View rankings'}
                   </span>
                 </Link>

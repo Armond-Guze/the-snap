@@ -1,360 +1,90 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, X, TrendingUp, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { client } from '@/sanity/lib/client';
+import { ArrowUpRight, Loader2, Search, X } from 'lucide-react';
+import './search.css';
 
 interface SearchResult {
-  _id: string;
-  title: string;
-  slug: { current: string };
-  summary?: string;
-  coverImage?: {
-    asset?: {
-      url: string;
-    };
-  };
-  category?: {
-    title: string;
-    slug?: { current: string };
-  };
-  author?: {
-    name: string;
-  };
-  date: string;
-  _type: string;
+  _id: string; _type: string; title: string; homepageTitle?: string; slug: string;
+  image?: string; category?: string; format?: string; seasonYear?: number;
+  weekNumber?: number; playoffRound?: string; rankingType?: string;
 }
 
-interface SmartSearchProps {
-  className?: string;
-  variant?: 'header' | 'modal' | 'inline';
-}
-
-export default function SmartSearch({ className = '', variant = 'header' }: SmartSearchProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
-
-  // Load recent searches from localStorage
-  useEffect(() => {
-    queueMicrotask(() => {
-      try {
-        const saved = localStorage.getItem('recentSearches');
-        const parsed: unknown = saved ? JSON.parse(saved) : [];
-        if (Array.isArray(parsed)) {
-          setRecentSearches(parsed.filter((entry): entry is string => typeof entry === 'string').slice(0, 8));
-        }
-      } catch {
-        setRecentSearches([]);
-      }
-    });
-  }, []);
-
-  // Close search on outside click or escape key
-  useEffect(() => {
-    const previousOverflowY = document.body.style.overflowY;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false);
-        setQuery('');
-        setResults([]);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleEscKey);
-      // Lock vertical scroll for the modal while preserving global horizontal overflow rules.
-      document.body.style.overflowY = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscKey);
-      document.body.style.overflowY = previousOverflowY;
-    };
-  }, [isOpen]);
-
-  // Auto-focus input when opened
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  // Search function with debouncing
-  useEffect(() => {
-    const searchArticles = async () => {
-      if (query.length < 2) {
-        setResults([]);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const searchQuery = `
-          *[_type == "headline" && published == true && (
-            title match "*${query}*" ||
-            summary match "*${query}*" ||
-            category->title match "*${query}*" ||
-            author->name match "*${query}*"
-          )] | order(_createdAt desc)[0...8] {
-            _id,
-            title,
-            slug,
-            summary,
-            coverImage {
-              asset->{ url }
-            },
-            category-> {
-              title,
-              slug
-            },
-            author-> {
-              name
-            },
-            date,
-            _type
-          }
-        `;
-
-        const searchResults = await client.fetch<SearchResult[]>(searchQuery);
-        setResults(searchResults);
-      } catch (error) {
-        console.error('Search error:', error);
-        setResults([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(searchArticles, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [query]);
-
-  // Mobile-first design - keyboard navigation removed
-  const handleSearch = (searchTerm: string) => {
-    setQuery(searchTerm);
-    if (searchTerm && !recentSearches.includes(searchTerm)) {
-      const newRecent = [searchTerm, ...recentSearches.slice(0, 4)];
-      setRecentSearches(newRecent);
-      localStorage.setItem('recentSearches', JSON.stringify(newRecent));
-    }
-  };
-
-  const handleClose = useCallback(() => {
-    setIsOpen(false);
-    setQuery('');
-    setResults([]);
-  }, []);
-
-  const handleSubmitSearch = useCallback(() => {
-    if (query.trim()) {
-      // Navigate to headlines page with search query
-      router.push(`/headlines?search=${encodeURIComponent(query.trim())}`);
-      handleClose();
-    }
-  }, [query, router, handleClose]);
-
-  const handleResultClick = useCallback((result?: SearchResult) => {
-    if (result) {
-      router.push(`/articles/${result.slug.current}`);
-    }
-    handleClose();
-  }, [router, handleClose]);
-
-  const openSearch = () => {
-    setIsOpen(true);
-  };
-
-  if (variant === 'header') {
-    return (
-      <>
-        {/* Search Icon Button */}
-        <button
-          onClick={openSearch}
-          className={`p-2 rounded-lg hover:bg-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-800 ${className}`}
-          aria-label="Open search"
-          title="Search articles"
-        >
-          <Search className="h-5 w-5 text-neutral-700 hover:text-neutral-900" />
-        </button>
-
-        {/* Search Modal Overlay */}
-        {isOpen && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-16">
-            <div 
-              ref={searchRef}
-              className="bg-white border border-neutral-300 rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden"
-            >
-              {/* Search Header */}
-              <div className="p-4 border-b border-neutral-300">
-                <div className="relative">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    placeholder="Search articles..."
-                    value={query}
-                    onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full px-4 py-3 pl-12 pr-12 bg-white text-neutral-900 placeholder-gray-400 rounded-lg border border-neutral-300 focus:border-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-800 transition-colors text-lg"
-                  />
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-500" />
-                  <button
-                    onClick={handleClose}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-neutral-200 rounded transition-colors"
-                    aria-label="Close search"
-                  >
-                    <X className="h-5 w-5 text-neutral-500" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Search Results Content */}
-              <div className="max-h-96 overflow-y-auto">
-                {/* Loading State */}
-                {isLoading && (
-                  <div className="p-8 text-center text-neutral-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-800 mx-auto"></div>
-                    <p className="mt-3 text-sm">Searching...</p>
-                  </div>
-                )}
-
-                {/* No Query State - Show Recent Searches */}
-                {!query && !isLoading && (
-                  <div className="p-4">
-                    {recentSearches.length > 0 && (
-                      <>
-                        <h3 className="text-sm font-semibold text-neutral-700 mb-3 flex items-center">
-                          <Clock className="h-4 w-4 mr-2" />
-                          Recent Searches
-                        </h3>
-                        <div className="space-y-1 mb-6">
-                          {recentSearches.map((term, index) => (
-                            <button
-                              key={index}
-                              onClick={() => handleSearch(term)}
-                              className="block w-full text-left px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
-                              aria-label={`Search for ${term}`}
-                            >
-                              {term}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                    
-                    <h3 className="text-sm font-semibold text-neutral-700 mb-3 flex items-center">
-                      <TrendingUp className="h-4 w-4 mr-2" />
-                      Popular Searches
-                    </h3>
-                    <div className="space-y-1">
-                      {['NFL Draft', 'Power Rankings', 'Playoffs', 'Trade News'].map((term) => (
-                        <button
-                          key={term}
-                          onClick={() => handleSearch(term)}
-                          className="block w-full text-left px-3 py-2 text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
-                          aria-label={`Search for ${term}`}
-                        >
-                          {term}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Search Results */}
-                {query && !isLoading && (
-                  <div className="p-2">
-                    {results.length > 0 ? (
-                      <>
-                        <div className="px-3 py-2 text-xs text-neutral-500 border-b border-neutral-300 flex items-center justify-between">
-                          <span>{results.length} result{results.length !== 1 ? 's' : ''} found</span>
-                        </div>
-                        <div className="py-2">
-                          {results.map((result) => (
-                            <button
-                              key={result._id}
-                              onClick={() => handleResultClick(result)}
-                              className="w-full flex items-start gap-3 p-3 hover:bg-neutral-100 active:bg-neutral-200 rounded-lg transition-colors text-left"
-                            >
-                              {/* Thumbnail */}
-                              <div className="flex-shrink-0 w-12 h-12 bg-neutral-200 rounded overflow-hidden">
-                                {result.coverImage?.asset?.url ? (
-                                  <Image
-                                    src={result.coverImage.asset.url}
-                                    alt={result.title}
-                                    width={48}
-                                    height={48}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full bg-gray-600 flex items-center justify-center">
-                                    <Search className="h-5 w-5 text-neutral-500" />
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Content */}
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-neutral-900 line-clamp-2 mb-1">
-                                  {result.title}
-                                </h4>
-                                {result.summary && (
-                                  <p className="text-xs text-neutral-500 line-clamp-2 mb-1">
-                                    {result.summary}
-                                  </p>
-                                )}
-                                <div className="flex items-center text-xs text-gray-500">
-                                  {result.category?.title && (
-                                    <span className="mr-2">{result.category.title}</span>
-                                  )}
-                                  {result.author?.name && (
-                                    <span>by {result.author.name}</span>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="p-8 text-center text-neutral-500">
-                        <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p className="text-lg mb-1">No articles found for &ldquo;{query}&rdquo;</p>
-                        <p className="text-sm mb-4">Try searching for something else</p>
-                        <button
-                          onClick={handleSubmitSearch}
-                          className="px-4 py-2 bg-neutral-100 text-neutral-900 border border-neutral-300 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
-                        >
-                          Search all articles
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Search Footer - Removed for mobile-first design */}
-            </div>
-          </div>
-        )}
-      </>
-    );
+function resultHref(result: SearchResult) {
+  if (result.format === 'powerRankings') {
+    const round = result.playoffRound?.toLowerCase() || (typeof result.weekNumber === 'number' ? `week-${result.weekNumber}` : null);
+    return result.rankingType === 'snapshot' && result.seasonYear && round
+      ? `/articles/power-rankings/${result.seasonYear}/${round}` : '/articles/power-rankings';
   }
+  return `${result._type === 'fantasyFootball' ? '/fantasy' : '/articles'}/${encodeURIComponent(result.slug)}`;
+}
 
-  return null;
+export default function SmartSearch({ className = '', variant = 'header' }: {
+  className?: string; variant?: 'header' | 'modal' | 'inline';
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [response, setResponse] = useState<{ query: string; results: SearchResult[]; error?: string } | null>(null);
+  const term = query.trim();
+  const loading = term.length >= 2 && response?.query !== term;
+
+  useEffect(() => {
+    if (!open || term.length < 2) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`, { signal: controller.signal });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Search is temporarily unavailable.');
+        if (!controller.signal.aborted) setResponse({ query: term, results: data.results });
+      } catch (error) {
+        if (!controller.signal.aborted) setResponse({ query: term, results: [], error: error instanceof Error ? error.message : 'Search is temporarily unavailable.' });
+      }
+    }, 300);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [open, term]);
+
+  const onOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) { setQuery(''); setResponse(null); }
+  };
+
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Trigger className={`snap-search-trigger ${variant === 'header' ? '' : 'snap-search-trigger-wide'} ${className}`} aria-label="Open search">
+        <Search size={19} strokeWidth={1.6} /><span>Search The Snap</span>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className="snap-search-backdrop" />
+        <Dialog.Content className="snap-search-panel" aria-describedby="snap-search-description">
+          <Dialog.Title className="sr-only">Search The Snap</Dialog.Title>
+          <Dialog.Description id="snap-search-description" className="sr-only">Search NFL news, rankings, and fantasy coverage. Enter at least two characters.</Dialog.Description>
+          <div className="snap-search-input-row">
+            <Search size={22} strokeWidth={1.6} aria-hidden="true" />
+            <label htmlFor="snap-search-input" className="sr-only">Search articles</label>
+            <input id="snap-search-input" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search teams, players, and stories" maxLength={120} autoComplete="off" aria-controls="snap-search-results" />
+            <Dialog.Close aria-label="Close search"><X size={21} strokeWidth={1.6} /></Dialog.Close>
+          </div>
+          <div className="snap-search-body" id="snap-search-results" aria-busy={loading}>
+            {term.length < 2 ? <>
+              <p className="snap-search-kicker">Explore The Snap</p>
+              <div className="snap-search-suggestions">{['NFL Draft', 'Power Rankings', 'Fantasy', 'Chiefs', 'Quarterbacks'].map(label => <button key={label} onClick={() => setQuery(label)}>{label}<ArrowUpRight size={17} /></button>)}</div>
+              <p className="snap-search-hint">Search headlines, analysis, rankings, and fantasy coverage.</p>
+            </> : loading ? <p className="snap-search-status" role="status"><Loader2 size={20} className="animate-spin" />Searching…</p>
+              : response?.error ? <p className="snap-search-status" role="alert">{response.error}</p>
+              : response?.results.length ? <>
+                <p className="snap-search-kicker" role="status">{response.results.length} results</p>
+                <ul className="snap-search-results">{response.results.map(result => <li key={result._id}><Dialog.Close asChild><Link href={resultHref(result)}>
+                  {result.image ? <Image src={result.image} alt="" width={96} height={72} /> : <span className="snap-search-placeholder"><Search size={22} /></span>}
+                  <span><small>{result.category || result.format || 'The Snap'}</small><strong>{result.homepageTitle || result.title}</strong></span><ArrowUpRight size={18} aria-hidden="true" />
+                </Link></Dialog.Close></li>)}</ul>
+              </> : <p className="snap-search-status" role="status">No stories found for “{term}”. Try a team, player, or topic.</p>}
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
 }

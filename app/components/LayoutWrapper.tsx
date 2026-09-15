@@ -8,6 +8,7 @@ import BackToTop from './BackToTop';
 import PageTransition from './PageTransition';
 import BottomTabBar from './BottomTabBar';
 import './information-pages.css';
+import './editorial-theme.css';
 
 const informationRoutes = ['/about', '/terms', '/privacy-policy', '/contact', '/editorial-standards', '/corrections-policy', '/affiliate-disclosure', '/newsletter', '/authors'];
 
@@ -17,9 +18,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
   const hideGlobalChrome = isStudioRoute || isAuthRoute;
   const isInformationPage = informationRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`));
+  const isEditorialPage = pathname === '/' || ['/articles', '/headlines', '/fantasy'].some(route => pathname === route || pathname.startsWith(`${route}/`));
 
   return (
-    <div className={isInformationPage ? 'snap-information-layout' : undefined}>
+    <div className={isInformationPage || isEditorialPage ? 'snap-information-layout' : undefined}>
       {!hideGlobalChrome && (
         <a
           href="#main-content"
@@ -31,7 +33,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       {!hideGlobalChrome && <Navbar />}
   {/* {!hideGlobalChrome && <NavbarAd />}  Ads disabled temporarily */}
       <PageTransition>
-        <div id="main-content" tabIndex={-1}>{children}</div>
+        <div id="main-content" className={isEditorialPage ? 'snap-editorial-theme' : undefined} tabIndex={-1}>{children}</div>
       </PageTransition>
       {!hideGlobalChrome && <BottomTabBar />}
       {!hideGlobalChrome && <Footer />}

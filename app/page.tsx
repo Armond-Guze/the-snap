@@ -85,34 +85,34 @@ export default async function Home() {
       </div>
       <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-14" style={deferredSectionStyle}>
     <div className="mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
-      <div className="rounded-2xl bg-white/[0.03] p-4 sm:p-5">
+      <div className="rounded-2xl bg-neutral-50 p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Headlines Archive</p>
-            <p className="text-sm text-white/70">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">Headlines Archive</p>
+            <p className="text-sm text-neutral-600">
               {totalPages > 1 ? `Browse ${totalPages} pages of headline history` : "You are viewing the latest page"}
             </p>
           </div>
-          <Link href="/headlines" className="text-xs text-white/60 hover:text-white transition-colors">
+          <Link href="/headlines" className="text-xs text-neutral-600 hover:text-neutral-900 transition-colors">
             View all
           </Link>
         </div>
         {totalPages > 1 && (
           <nav aria-label="Homepage headlines pagination" className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="rounded-lg bg-white/10 px-2.5 py-1.5 text-white/70">Page</span>
+            <span className="rounded-lg bg-neutral-50 px-2.5 py-1.5 text-neutral-600">Page</span>
             {pages.map((page, idx) => {
               const prev = pages[idx - 1];
               const showGap = idx > 0 && prev && page - prev > 1;
               return (
                 <div key={`archive-page-${page}`} className="contents">
-                  {showGap && <span className="px-1 text-white/30">...</span>}
+                  {showGap && <span className="px-1 text-neutral-500">...</span>}
                   <Link
                     href={archiveHref(page)}
                     aria-current={page === 1 ? "page" : undefined}
                     className={
                       page === 1
                         ? "rounded-lg bg-white px-3 py-1.5 font-semibold text-black"
-                        : "rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+                        : "rounded-lg bg-neutral-50 px-3 py-1.5 text-neutral-800 transition-colors hover:bg-neutral-50"
                     }
                   >
                     {page}
@@ -122,13 +122,13 @@ export default async function Home() {
             })}
             <Link
               href={archiveHref(2)}
-              className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+              className="rounded-lg bg-neutral-50 px-3 py-1.5 text-neutral-800 transition-colors hover:bg-neutral-50"
             >
               Next
             </Link>
             <Link
               href={archiveHref(totalPages)}
-              className="rounded-lg bg-white/10 px-3 py-1.5 text-white/90 transition-colors hover:bg-white/20"
+              className="rounded-lg bg-neutral-50 px-3 py-1.5 text-neutral-800 transition-colors hover:bg-neutral-50"
             >
               Last
             </Link>

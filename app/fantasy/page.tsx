@@ -111,16 +111,16 @@ export default async function FantasyFootballPage() {
 
   if (!fantasyArticles?.length) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center px-6 py-24">
+      <div className="min-h-screen bg-white text-neutral-900 flex items-center justify-center px-6 py-24">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-white/10 to-black rounded-2xl flex items-center justify-center border border-white/20">
-            <svg className="w-12 h-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-white/10 to-black rounded-2xl flex items-center justify-center border border-neutral-200">
+            <svg className="w-12 h-12 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>
           <h1 className="text-3xl font-bold mb-4">Fantasy Football</h1>
             <p className="text-gray-500 mb-6">Fantasy football content will appear here once articles are published.</p>
-            <Link href="/" className="text-sm text-white/80 hover:text-white">Return Home →</Link>
+            <Link href="/" className="text-sm text-neutral-800 hover:text-neutral-900">Return Home →</Link>
         </div>
       </div>
     );
@@ -131,13 +131,13 @@ export default async function FantasyFootballPage() {
   const topStoryDate = topStory ? getPublishedDate(topStory.publishedAt) : null;
 
   return (
-    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
-      <section className="relative overflow-hidden border-b border-white/10">
+    <main className="min-h-screen bg-white text-neutral-900">
+      <section className="relative overflow-hidden border-b border-neutral-200">
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/90" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-16">
           <h1 className="text-4xl font-black leading-tight sm:text-5xl">Fantasy Latest</h1>
-          <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/85">
+          <p className="mt-3 max-w-3xl text-base leading-relaxed text-neutral-800">
             Latest fantasy football strategy, matchup breakdowns, waiver targets, and lineup decisions.
           </p>
           <Link
@@ -154,7 +154,7 @@ export default async function FantasyFootballPage() {
           <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
             <Link
               href={toFantasyUrl(topStory)}
-              className="group overflow-hidden rounded-2xl bg-white/[0.04] transition-colors hover:bg-white/[0.08]"
+              className="group overflow-hidden rounded-2xl bg-neutral-50 transition-colors hover:bg-neutral-50"
             >
               <div className="relative h-72 w-full sm:h-96">
                 {topStory.coverImage?.asset?.url ? (
@@ -170,16 +170,16 @@ export default async function FantasyFootballPage() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
-                  <div className="mb-2 flex items-center gap-2 text-[11px] text-white/70">
+                  <div className="mb-2 flex items-center gap-2 text-[11px] text-neutral-600">
                     <span className="inline-flex rounded-full bg-emerald-300 px-2 py-0.5 font-semibold uppercase tracking-wide text-black">
                       {formatFantasyType(topStory.fantasyType)}
                     </span>
                     {topStoryDate && <span>{topStoryDate}</span>}
                   </div>
-                  <h2 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+                  <h2 className="text-2xl font-bold leading-tight text-neutral-900 sm:text-3xl">
                     {topStory.homepageTitle || topStory.title}
                   </h2>
-                  {topStory.summary && <p className="mt-2 line-clamp-2 text-sm text-white/85">{topStory.summary}</p>}
+                  {topStory.summary && <p className="mt-2 line-clamp-2 text-sm text-neutral-800">{topStory.summary}</p>}
                 </div>
               </div>
             </Link>
@@ -189,7 +189,7 @@ export default async function FantasyFootballPage() {
                 <Link
                   key={item._id}
                   href={toFantasyUrl(item)}
-                  className="group flex gap-3 rounded-xl bg-white/[0.03] p-3 transition-colors hover:bg-white/[0.08]"
+                  className="group flex gap-3 rounded-xl bg-neutral-50 p-3 transition-colors hover:bg-neutral-50"
                 >
                   <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg">
                     {item.coverImage?.asset?.url ? (
@@ -205,13 +205,13 @@ export default async function FantasyFootballPage() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-white/50">
+                    <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
                       {formatFantasyType(item.fantasyType)}
                     </p>
-                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white group-hover:text-white/90">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-neutral-900 group-hover:text-neutral-800">
                       {item.homepageTitle || item.title}
                     </h3>
-                    <p className="mt-1 text-[11px] text-white/45">
+                    <p className="mt-1 text-[11px] text-neutral-500">
                       {getPublishedDate(item.publishedAt) || (item.author?.name ? `By ${item.author.name}` : "Fantasy")}
                     </p>
                   </div>
@@ -220,7 +220,7 @@ export default async function FantasyFootballPage() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl bg-white/[0.03] p-6 text-white/70">No fantasy stories yet.</div>
+          <div className="rounded-2xl bg-neutral-50 p-6 text-neutral-600">No fantasy stories yet.</div>
         )}
 
         {moreStories.length > 4 && (
@@ -229,16 +229,16 @@ export default async function FantasyFootballPage() {
               <Link
                 key={item._id}
                 href={toFantasyUrl(item)}
-                className="group rounded-xl bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.08]"
+                className="group rounded-xl bg-neutral-50 p-4 transition-colors hover:bg-neutral-50"
               >
-                <p className="mb-2 text-[10px] uppercase tracking-[0.16em] text-white/45">
+                <p className="mb-2 text-[10px] uppercase tracking-[0.16em] text-neutral-500">
                   {formatFantasyType(item.fantasyType)}
                 </p>
-                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-white group-hover:text-white/90">
+                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-neutral-900 group-hover:text-neutral-800">
                   {item.homepageTitle || item.title}
                 </h3>
-                {item.summary && <p className="mt-2 line-clamp-2 text-sm text-white/60">{item.summary}</p>}
-                <p className="mt-3 text-xs text-white/45">
+                {item.summary && <p className="mt-2 line-clamp-2 text-sm text-neutral-600">{item.summary}</p>}
+                <p className="mt-3 text-xs text-neutral-500">
                   {getPublishedDate(item.publishedAt) || (item.author?.name ? `By ${item.author.name}` : "Fantasy")}
                 </p>
               </Link>

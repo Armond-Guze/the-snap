@@ -153,14 +153,14 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
   return (
     <section className="relative overflow-hidden py-14 px-6 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent" />
-      <div className="pointer-events-none absolute -left-24 top-8 -z-10 h-64 w-64 rounded-full bg-white/[0.03] blur-3xl" />
+      <div className="pointer-events-none absolute -left-24 top-8 -z-10 h-64 w-64 rounded-full bg-neutral-50 blur-3xl" />
       <div className="relative mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem] z-10">
         <div className="mb-6 flex items-end justify-between pb-3">
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Around The League</p>
-            <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-gray-200">More Headlines</h2>
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">Around The League</p>
+            <h2 className="text-xl sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold text-neutral-700">More Headlines</h2>
           </div>
-          <span className="hidden sm:inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/70">
+          <span className="hidden sm:inline-flex rounded-full bg-neutral-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-600">
             Latest Mix
           </span>
         </div>
@@ -180,9 +180,9 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               <Link
                 key={item._id}
                 href={href}
-                className="group relative flex gap-4 sm:gap-5 rounded-2xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-3 sm:p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                className="group relative flex gap-4 sm:gap-5 rounded-2xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-3 sm:p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
               >
-                <div className="relative h-28 w-32 flex-shrink-0 overflow-hidden rounded-xl bg-gray-800/40 sm:h-32 sm:w-40 lg:w-44">
+                <div className="relative h-28 w-32 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-100 sm:h-32 sm:w-40 lg:w-44">
                   {imgUrl ? (
                     <Image
                       src={imgUrl}
@@ -199,26 +199,26 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col pt-1.5 sm:pt-2">
                   <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/75">
+                    <span className="inline-flex rounded-full bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
                       {kicker}
                     </span>
-                    {published && <span className="text-[11px] text-white/45">{published}</span>}
+                    {published && <span className="text-[11px] text-neutral-500">{published}</span>}
                   </div>
-                  <h3 className="mb-1.5 line-clamp-2 text-[17px] font-semibold leading-snug text-gray-100 group-hover:text-white sm:text-[18px]">
+                  <h3 className="mb-1.5 line-clamp-2 text-[17px] font-semibold leading-snug text-neutral-700 group-hover:text-neutral-900 sm:text-[18px]">
                     {item.homepageTitle || item.title}
                   </h3>
                   {item.summary && !hideSummaries && (
-                    <p className="mb-1.5 hidden line-clamp-2 text-sm leading-snug text-gray-400/90 md:block">{item.summary}</p>
+                    <p className="mb-1.5 hidden line-clamp-2 text-sm leading-snug text-neutral-500 md:block">{item.summary}</p>
                   )}
                   {author && (
-                    <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-gray-400 group-hover:text-gray-300">{author}</p>
+                    <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-neutral-500 group-hover:text-neutral-700">{author}</p>
                   )}
                 </div>
               </Link>
             );
           })}
           {moreHeadlines.length === 0 && (
-            <div className="rounded-xl bg-white/[0.02] p-4 text-sm text-gray-400">
+            <div className="rounded-xl bg-neutral-50 p-4 text-sm text-neutral-500">
               No additional headlines available.
             </div>
           )}

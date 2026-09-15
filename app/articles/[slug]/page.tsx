@@ -227,16 +227,16 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 	return (
 		<>
-			<main className="bg-[hsl(0_0%_3.9%)] text-white min-h-screen">
+			<main className="bg-white text-neutral-900 min-h-screen">
 			{articleSD && <StructuredData id={`sd-article-${canonicalSlug}`} data={articleSD} />}
 			<div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
 				<article className="lg:col-span-2 flex flex-col">
 					<div className="hidden sm:block">
 						<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					</div>
-					<section className="mb-6 -mx-6 rounded-none bg-zinc-900/85 px-6 py-4 sm:mx-0 sm:rounded-2xl sm:px-5 sm:py-5">
-						<h1 className="text-2xl sm:text-3xl md:text-[2.2rem] font-extrabold leading-tight text-white mb-2 md:mb-3 text-left">{article.title}</h1>
-						<div className="text-[12px] sm:text-[13px] text-gray-400 mb-4 flex items-center gap-2.5 text-left flex-wrap">
+					<section className="mb-6 -mx-6 rounded-none bg-neutral-100 px-6 py-4 sm:mx-0 sm:rounded-2xl sm:px-5 sm:py-5">
+						<h1 className="text-2xl sm:text-3xl md:text-[2.2rem] font-extrabold leading-tight text-neutral-900 mb-2 md:mb-3 text-left">{article.title}</h1>
+						<div className="text-[12px] sm:text-[13px] text-neutral-500 mb-4 flex items-center gap-2.5 text-left flex-wrap">
 							{article.author?.image?.asset?.url && (
 								<div className="relative w-8 h-8 rounded-full overflow-hidden">
 									<Image
@@ -250,11 +250,11 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							)}
 							{article.author?.name && (
 								article.author.slug?.current ? (
-									<Link href={`/authors/${article.author.slug.current}`} className="font-medium text-white/90 hover:text-emerald-300">
+									<Link href={`/authors/${article.author.slug.current}`} className="font-medium text-neutral-800 hover:text-emerald-800">
 										{article.author.name}
 									</Link>
 								) : (
-									<span className="font-medium text-white/90">{article.author.name}</span>
+									<span className="font-medium text-neutral-800">{article.author.name}</span>
 								)
 							)}
 							{publishedDate && (
@@ -272,7 +272,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							{article.category?.slug?.current && article.category?.title && (
 								<Link
 									href={`/categories/${article.category.slug.current}`}
-									className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+									className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold text-neutral-900 hover:border-neutral-200 hover:bg-neutral-50 transition-colors"
 								>
 									{article.category.title}
 								</Link>
@@ -281,7 +281,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 								<Link
 									key={hub.slug}
 									href={`/${hub.slug}`}
-									className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white hover:border-white/40 hover:bg-white/10 transition-colors"
+									className="hidden sm:inline-flex lg:hidden items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold text-neutral-900 hover:border-neutral-200 hover:bg-neutral-50 transition-colors"
 								>
 									{hub.title}
 								</Link>
@@ -303,10 +303,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 							</div>
 						)}
 						{article.summary && (
-							<p className="mt-3 text-base sm:text-lg text-gray-300 leading-relaxed max-w-3xl">{article.summary}</p>
+							<p className="mt-3 text-base sm:text-lg text-neutral-700 leading-relaxed max-w-3xl">{article.summary}</p>
 						)}
 						{article.dateModified && article.updateNote && (
-							<p className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-sm leading-relaxed text-emerald-100/90">
+							<p className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-4 py-3 text-sm leading-relaxed text-emerald-800">
 								<span className="font-semibold">Updated <time dateTime={article.dateModified}>{formatArticleDate(article.dateModified)}</time>:</span>{' '}
 								{article.updateNote}
 							</p>
@@ -317,7 +317,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 									<Link
 										key={tag.slug || tag.title}
 										href={tag.slug ? `/tags/${encodeURIComponent(tag.slug)}` : '/tags'}
-										className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-white/30 hover:bg-white/15"
+										className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-800 hover:border-neutral-200 hover:bg-neutral-50"
 									>
 										#{tag.title}
 									</Link>
@@ -326,19 +326,19 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 						)}
 					</section>
 					<section className="w-full mb-8">
-						<div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+						<div className="prose prose-neutral text-neutral-900 text-lg leading-relaxed max-w-4xl text-left">
 							{Array.isArray(article.body) && <PortableText value={article.body} components={portableTextComponents} />}
 						</div>
 					</section>
 					{categoryMatches.length > 1 && (
 						<section className="mt-10">
 							<div className="flex items-center justify-between mb-4">
-								<h2 className="text-2xl font-semibold text-white">
+								<h2 className="text-2xl font-semibold text-neutral-900">
 									More from {article.category?.title}
 								</h2>
 								<Link
 									href={`/categories/${article.category?.slug?.current}`}
-									className="text-sm font-semibold text-emerald-300 hover:text-emerald-200"
+									className="text-sm font-semibold text-emerald-800 hover:text-emerald-800"
 								>
 									View category →
 								</Link>
@@ -354,7 +354,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 										<Link
 											key={item._id}
 											href={`/articles/${item.slug.current}`}
-											className="group rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm hover:border-white/30 hover:bg-white/10 transition-colors"
+											className="group rounded-2xl border border-neutral-200 bg-neutral-50 p-4 backdrop-blur-sm hover:border-neutral-200 hover:bg-neutral-50 transition-colors"
 										>
 											{img && (
 												<div className="relative mb-4 h-36 overflow-hidden rounded-xl">
@@ -367,10 +367,10 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 													/>
 												</div>
 											)}
-											<p className="text-xs uppercase tracking-wide text-white/50 mb-2">
+											<p className="text-xs uppercase tracking-wide text-neutral-600 mb-2">
 												{formatArticleDate(item.date || item.publishedAt)}
 											</p>
-											<h3 className="text-lg font-semibold text-white leading-snug line-clamp-2">
+											<h3 className="text-lg font-semibold text-neutral-900 leading-snug line-clamp-2">
 												{item.homepageTitle || item.title}
 											</h3>
 										</Link>
@@ -382,28 +382,28 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					{trendingArticles.length > 0 && (
 						<section className="mt-12">
 							<div className="flex items-center gap-3 mb-4">
-								<div className="h-10 w-10 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center text-white">
+								<div className="h-10 w-10 rounded-2xl border border-neutral-200 bg-neutral-50 flex items-center justify-center text-neutral-900">
 									🔥
 								</div>
 								<div>
-									<p className="text-xs uppercase tracking-[0.3em] text-white/40">Latest coverage</p>
-									<h2 className="text-2xl font-semibold text-white">More from The Snap</h2>
+									<p className="text-xs uppercase tracking-[0.3em] text-neutral-500">Latest coverage</p>
+									<h2 className="text-2xl font-semibold text-neutral-900">More from The Snap</h2>
 								</div>
 							</div>
 							<ol className="space-y-3">
 								{trendingArticles.map((item, index) => (
 									<li key={item._id} className="flex items-start gap-4">
-										<span className="text-3xl font-black text-white/10 leading-none">
+										<span className="text-3xl font-black text-neutral-300 leading-none">
 											{(index + 1).toString().padStart(2, '0')}
 										</span>
-										<div className="flex-1 border-b border-white/5 pb-3">
+										<div className="flex-1 border-b border-neutral-200 pb-3">
 											<Link
 												href={`/articles/${item.slug.current}`}
-												className="text-base font-semibold text-white hover:text-emerald-300 transition-colors"
+												className="text-base font-semibold text-neutral-900 hover:text-emerald-800 transition-colors"
 											>
 												{item.homepageTitle || item.title}
 											</Link>
-											<div className="mt-1 text-xs uppercase tracking-wide text-white/40">
+											<div className="mt-1 text-xs uppercase tracking-wide text-neutral-500">
 												{item.category?.title || (item._type === 'rankings' ? `${item.rankingType?.replace('-', ' ')} rankings` : 'Article')}
 											</div>
 										</div>

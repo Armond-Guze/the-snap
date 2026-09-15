@@ -1,5 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <title>The Snap</title>
-  <rect width="64" height="64" rx="14" fill="#0788F5"/>
+  <defs><linearGradient id="blue" x1="14" y1="0" x2="50" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#20AAFF"/><stop offset="1" stop-color="#0574E8"/></linearGradient></defs>
+  <rect width="64" height="64" rx="14" fill="url(#blue)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" stroke="white" stroke-opacity=".28"/>
+  <path d="M15 4H49" stroke="white" stroke-opacity=".25" stroke-linecap="round"/>
   <path d="M48 17C44 13 39 11 32 11C21 11 14 17 14 25C14 33 20 36 29 38L33 39C37 40 39 41 39 43C39 46 36 47 32 47C27 47 23 45 20 42L12 50C17 55 24 57 32 57C44 57 51 51 51 42C51 34 45 31 36 29L31 28C27 27 25 26 25 24C25 22 28 20 32 20C36 20 39 22 42 24L48 17Z" fill="white" transform="translate(0 -2)"/>
 </svg>

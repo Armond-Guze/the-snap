@@ -169,17 +169,17 @@ export default function GameSchedule({ games }: GameScheduleProps) {
       <div
         key={game._id}
         data-game-card-inner
-        className="rounded-lg p-2 transition-colors duration-300 border border-neutral-800 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-sm bg-[#111111]/95 hover:bg-[#181818]/95"
+        className="rounded-lg p-2 transition-colors duration-300 border border-neutral-200 shadow-[0_0_0_1px_rgba(255,255,255,0.03)] backdrop-blur-sm bg-neutral-50 hover:bg-neutral-100"
       >
         {/* Date and Time Header centered to left of teams not needed here; ensure team names are centered in their rows */}
         <div className="flex items-center justify-between mb-2">
-          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>{dateString}</span>
-          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-gray-300'}`}>{time}</span>
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-neutral-700'}`}>{dateString}</span>
+          <span className={`text-xs font-medium ${isToday ? 'text-green-400' : 'text-neutral-700'}`}>{time}</span>
         </div>
 
         {importanceLabel && (
           <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full mb-2 ${importanceColor}`}>
-            <span className="text-white text-xs font-semibold">{importanceLabel}</span>
+            <span className="text-neutral-900 text-xs font-semibold">{importanceLabel}</span>
           </div>
         )}
 
@@ -191,13 +191,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               <Image src={awayLogo} alt={game.awayTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-extrabold">{game.awayTeam.split(' ').pop()?.charAt(0)}</span>
+                <span className="text-neutral-900 text-xs font-extrabold">{game.awayTeam.split(' ').pop()?.charAt(0)}</span>
               </div>
             )}
-            <span className="text-white text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
+            <span className="text-neutral-900 text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
               {game.awayTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.awayRecord || '0-0'}</span>
+            <span className="text-neutral-500 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.awayRecord || '0-0'}</span>
           </div>
 
           {/* Home Team */}
@@ -206,13 +206,13 @@ export default function GameSchedule({ games }: GameScheduleProps) {
               <Image src={homeLogo} alt={game.homeTeam} width={24} height={24} className="w-6 h-6 rounded-full flex-shrink-0" />
             ) : (
               <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-extrabold">{game.homeTeam.split(' ').pop()?.charAt(0)}</span>
+                <span className="text-neutral-900 text-xs font-extrabold">{game.homeTeam.split(' ').pop()?.charAt(0)}</span>
               </div>
             )}
-            <span className="text-white text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
+            <span className="text-neutral-900 text-[11px] sm:text-xs font-semibold tracking-tight uppercase leading-none text-center whitespace-normal">
               {game.homeTeam.split(' ').pop()}
             </span>
-            <span className="text-gray-400 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.homeRecord || '0-0'}</span>
+            <span className="text-neutral-500 text-[10px] sm:text-[11px] font-semibold tabular-nums leading-none">{game.homeRecord || '0-0'}</span>
           </div>
         </div>
       </div>
@@ -224,7 +224,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
   }
 
   return (
-    <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-[hsl(0_0%_3.9%)]">
+    <section className="relative py-4 px-4 lg:px-10 xl:px-12 2xl:px-16 3xl:px-20 bg-white">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[hsl(0_0%_3.9%)/0.3] via-[hsl(0_0%_3.9%)/0.5] to-[hsl(0_0%_3.9%)/0.8]" />
       <div className="max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px] 3xl:max-w-[1800px] mx-auto relative z-10">
         <div className="flex items-center justify-between mb-3">
@@ -268,7 +268,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {canScrollLeft && (
             <button
               onClick={scrollLeft}
-              className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-[hsl(0_0%_3.9%)] rounded-full p-3 text-white shadow-lg hover:bg-[hsl(0_0%_5%)] transition-colors duration-300"
+              className="absolute left-4 lg:left-6 xl:left-8 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 text-neutral-900 shadow-lg hover:bg-neutral-100 transition-colors duration-300"
               title="Scroll left"
               aria-label="Scroll to previous games"
             >
@@ -281,7 +281,7 @@ export default function GameSchedule({ games }: GameScheduleProps) {
           {canScrollRight && (
             <button
               onClick={scrollRight}
-              className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-[hsl(0_0%_3.9%)] rounded-full p-3 text-white shadow-lg hover:bg-[hsl(0_0%_5%)] transition-colors duration-300"
+              className="absolute right-4 lg:right-6 xl:right-8 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 text-neutral-900 shadow-lg hover:bg-neutral-100 transition-colors duration-300"
               title="Scroll right"
               aria-label="Scroll to next games"
             >

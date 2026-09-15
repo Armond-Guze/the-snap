@@ -1,0 +1,15 @@
+/* White editorial surfaces, with photographs and team artwork retaining their colors. */
+:root[data-theme='light'] { --background: #fff; --foreground: #191919; --home-gradient: #fff; }
+html[data-theme='light'] ::-webkit-scrollbar-track { background: #f6f6f6; }
+html[data-theme='light'] ::-webkit-scrollbar-thumb { background: #bbb; border-color: #f6f6f6; }
+.snap-editorial-theme { background: #fff; color: #191919; color-scheme: light; font-family: SnapFooterInter, Arial, sans-serif; }
+.snap-editorial-theme .home-section-surface { background: #fff; }
+.snap-editorial-theme .home-section-fade { display: none; }
+.snap-editorial-theme .home-shell [class*='bg-[linear-gradient'] { background: #f8f8f8; }
+.snap-editorial-theme .thumbnail-overlay-text, .snap-editorial-theme .thumbnail-overlay-text :is(h1,h2,h3,h4,p,span) { color: #fff; }
+.snap-editorial-theme .prose { --tw-prose-body: #383838; --tw-prose-headings: #191919; --tw-prose-bold: #191919; --tw-prose-links: #175bc4; --tw-prose-bullets: #777; --tw-prose-counters: #666; --tw-prose-hr: #e5e5e5; --tw-prose-th-borders: #ddd; --tw-prose-td-borders: #e8e8e8; }
+.snap-editorial-theme .prose > p { font-size: 1.0625rem; line-height: 1.85; }
+.snap-editorial-theme :is(a,button,input,select):focus-visible { outline: 2px solid #175bc4; outline-offset: 3px; }
+.snap-editorial-theme input, .snap-editorial-theme select { color-scheme: light; }
+.snap-editorial-theme .prose a { text-underline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

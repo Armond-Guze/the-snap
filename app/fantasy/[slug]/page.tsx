@@ -135,15 +135,15 @@ export default async function FantasyArticlePage(props: PageProps) {
   ];
 
   return (
-    <main className="bg-black text-white min-h-screen">
+    <main className="bg-white text-neutral-900 min-h-screen">
       <div className="px-6 md:px-12 py-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Main Article */}
         <article className="lg:col-span-2 flex flex-col">
           <div className="hidden sm:block">
             <Breadcrumb items={breadcrumbItems} className="mb-4" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-white mb-4 text-left">{article.title}</h1>
-          <div className="text-sm text-gray-400 mb-6 flex items-center gap-3 text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold leading-tight text-neutral-900 mb-4 text-left">{article.title}</h1>
+          <div className="text-sm text-neutral-500 mb-6 flex items-center gap-3 text-left">
             {article.author?.image?.asset?.url && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden">
                 <Image src={article.author.image.asset.url} alt={article.author.name || 'Author'} fill sizes={AVATAR_SIZES} className="object-cover" />
@@ -161,7 +161,7 @@ export default async function FantasyArticlePage(props: PageProps) {
             </div>
           )}
           <section className="w-full mb-8">
-            <div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
+            <div className="prose prose-neutral text-neutral-900 text-lg leading-relaxed max-w-4xl text-left">
               {blocks && <PortableText value={blocks as unknown as TypedObject[]} components={portableTextComponents} />}
             </div>
           </section>

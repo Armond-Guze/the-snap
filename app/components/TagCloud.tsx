@@ -222,12 +222,12 @@ export default function TagCloud({
   if (loading) {
     return (
       <div className={`space-y-3 ${className}`}>
-        {title && <h3 className="text-base font-semibold text-white">{title}</h3>}
+        {title && <h3 className="text-base font-semibold text-neutral-900">{title}</h3>}
         <div className="flex flex-wrap gap-2">
           {[...Array(10)].map((_, i) => (
             <div
               key={i}
-              className="h-9 rounded-xl border border-white/10 bg-white/[0.06] animate-pulse"
+              className="h-9 rounded-xl border border-neutral-200 bg-neutral-50 animate-pulse"
               style={{ width: `${64 + (i % 4) * 24}px` }}
             />
           ))}
@@ -243,7 +243,7 @@ export default function TagCloud({
   return (
     <div className={className}>
       {(showTrendingOnly || title) && (
-        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-white">
+        <h3 className="mb-3 flex items-center gap-2 text-base font-semibold text-neutral-900">
           <span className="inline-flex h-2 w-2 rounded-full bg-sky-300" />
           {title || 'Trending Topics'}
         </h3>
@@ -259,10 +259,10 @@ export default function TagCloud({
             <Link
               key={tag._id}
               href={`/tags/${encodeURIComponent(tag.slug.current)}`}
-              className={`group relative inline-flex items-center gap-2 rounded-xl border px-3 py-2 font-semibold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 ${
+              className={`group relative inline-flex items-center gap-2 rounded-xl border px-3 py-2 font-semibold tracking-tight transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 ${
                 isActive
-                  ? 'text-white'
-                  : 'text-slate-200 hover:text-white'
+                  ? 'text-neutral-900'
+                  : 'text-neutral-700 hover:text-neutral-900'
               } ${getTagSize(articleCount)}`}
               title={tag.description || `View articles tagged with ${tag.title}`}
               style={{
@@ -277,7 +277,7 @@ export default function TagCloud({
               <span className="max-w-[10rem] truncate">#{tag.title}</span>
 
               {articleCount > 0 && (
-                <span className="rounded-full bg-black/35 px-1.5 py-0.5 text-[10px] font-bold text-white/85 transition-colors group-hover:bg-white/15">
+                <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold text-neutral-800 transition-colors group-hover:bg-neutral-50">
                   {articleCount}
                 </span>
               )}
@@ -293,7 +293,7 @@ export default function TagCloud({
       </div>
 
       {!showTrendingOnly && orderedTags.length >= maxTags && (
-        <Link href="/tags" className="mt-4 inline-flex text-xs font-semibold uppercase tracking-[0.12em] text-slate-300 transition-colors hover:text-white">
+        <Link href="/tags" className="mt-4 inline-flex text-xs font-semibold uppercase tracking-[0.12em] text-neutral-700 transition-colors hover:text-neutral-900">
           View All Tags
         </Link>
       )}

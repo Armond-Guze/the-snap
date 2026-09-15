@@ -179,10 +179,10 @@ function ActiveFilterPill({ label, href }: { label: string; href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-3 py-1 text-xs font-medium text-white/85 transition-colors hover:bg-white/[0.14]"
+      className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-800 transition-colors hover:bg-neutral-50"
     >
       <span>{label}</span>
-      <span className="text-white/60">Clear</span>
+      <span className="text-neutral-600">Clear</span>
     </Link>
   );
 }
@@ -209,16 +209,16 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
   const hasFilters = Boolean(filters.category || filters.tag || filters.search);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.10),_transparent_40%),linear-gradient(180deg,_#0b0b0c_0%,_#050506_100%)] text-white">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.10),_transparent_40%),linear-gradient(180deg,_#0b0b0c_0%,_#050506_100%)] text-neutral-900">
       <div className="mx-auto max-w-[92rem] px-4 pb-14 pt-8 sm:px-6 lg:px-8">
-        <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 p-6 shadow-[0_25px_90px_-45px_rgba(56,189,248,0.5)] md:p-10">
+        <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 p-6 shadow-[0_25px_90px_-45px_rgba(56,189,248,0.5)] md:p-10">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(59,130,246,0.18),transparent_45%)]" />
           <div className="relative z-10">
             <p className="mb-3 inline-flex items-center rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-100">
               Live Feed
             </p>
-            <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">{title}</h1>
-            <p className="mt-4 max-w-3xl text-sm text-slate-200/90 sm:text-base md:text-lg">{description}</p>
+            <h1 className="text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl">{title}</h1>
+            <p className="mt-4 max-w-3xl text-sm text-neutral-700 sm:text-base md:text-lg">{description}</p>
 
             <div className="mt-6 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
               <form action="/headlines" method="GET" className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -227,7 +227,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                   name="search"
                   defaultValue={filters.search ?? ''}
                   placeholder="Search headlines, teams, tags..."
-                  className="h-11 w-full rounded-xl border border-white/15 bg-black/35 px-4 text-sm text-white outline-none transition-colors placeholder:text-white/45 focus:border-sky-300/45"
+                  className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-500 focus:border-sky-300/45"
                 />
                 {filters.category && <input type="hidden" name="category" value={filters.category} />}
                 {filters.tag && <input type="hidden" name="tag" value={filters.tag} />}
@@ -239,7 +239,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 </button>
               </form>
 
-              <div className="text-left text-xs text-white/60 md:text-right">{headlines.length} stories loaded</div>
+              <div className="text-left text-xs text-neutral-600 md:text-right">{headlines.length} stories loaded</div>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -247,8 +247,8 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 href="/headlines"
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   hasFilters
-                    ? 'border border-white/15 bg-white/[0.04] text-white/80 hover:bg-white/[0.11]'
-                    : 'border border-white/25 bg-white/15 text-white'
+                    ? 'border border-neutral-200 bg-neutral-50 text-neutral-800 hover:bg-neutral-50'
+                    : 'border border-neutral-200 bg-neutral-50 text-neutral-900'
                 }`}
               >
                 All Headlines
@@ -263,7 +263,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       active
                         ? 'border border-sky-300/45 bg-sky-300/20 text-sky-100'
-                        : 'border border-white/15 bg-white/[0.04] text-white/80 hover:bg-white/[0.11]'
+                        : 'border border-neutral-200 bg-neutral-50 text-neutral-800 hover:bg-neutral-50'
                     }`}
                   >
                     {category.title}
@@ -287,12 +287,12 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
         <div className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_330px]">
           <div>
             {headlines.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-                <h2 className="text-xl font-semibold text-white">No stories found</h2>
-                <p className="mt-2 text-sm text-white/65">Try another keyword, category, or tag filter.</p>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-8 text-center">
+                <h2 className="text-xl font-semibold text-neutral-900">No stories found</h2>
+                <p className="mt-2 text-sm text-neutral-600">Try another keyword, category, or tag filter.</p>
                 <Link
                   href="/headlines"
-                  className="mt-5 inline-flex rounded-lg border border-white/20 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12]"
+                  className="mt-5 inline-flex rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
                 >
                   Reset Filters
                 </Link>
@@ -301,9 +301,9 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
               <>
                 {leadStory && (
                   <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-                    <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/35">
+                    <article className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
                       <Link href={getHeadlineHref(leadStory)} className="group block">
-                        <div className="relative aspect-[16/9] overflow-hidden bg-zinc-900">
+                        <div className="relative aspect-[16/9] overflow-hidden bg-neutral-100">
                           {getHeadlineImage(leadStory) ? (
                             <Image
                               src={getHeadlineImage(leadStory) || ''}
@@ -318,18 +318,18 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
                           <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                            <p className="mb-3 inline-flex rounded-full border border-white/30 bg-black/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white/85">
+                            <p className="mb-3 inline-flex rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-800">
                               Top Headline
                             </p>
-                            <h2 className="text-2xl font-black leading-tight text-white transition-colors group-hover:text-sky-100 sm:text-3xl">
+                            <h2 className="text-2xl font-black leading-tight text-neutral-900 transition-colors group-hover:text-sky-100 sm:text-3xl">
                               {leadStory.homepageTitle || leadStory.title}
                             </h2>
                             {leadStory.summary && (
-                              <p className="mt-3 line-clamp-2 max-w-3xl text-sm text-slate-200/95 sm:text-base">
+                              <p className="mt-3 line-clamp-2 max-w-3xl text-sm text-neutral-700 sm:text-base">
                                 {leadStory.summary}
                               </p>
                             )}
-                            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-white/75">
+                            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-neutral-600">
                               {leadStory.author?.name && <span>By {leadStory.author.name}</span>}
                               <span>{formatDate(leadStory.publishedAt || leadStory.date)}</span>
                             </div>
@@ -344,11 +344,11 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                         return (
                           <article
                             key={story._id}
-                            className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:bg-white/[0.06]"
+                            className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 transition-colors hover:bg-neutral-50"
                           >
                             <Link href={getHeadlineHref(story)} className="group block">
                               <div className="grid grid-cols-[110px_minmax(0,1fr)] gap-3 p-3">
-                                <div className="relative h-[84px] overflow-hidden rounded-lg bg-zinc-900">
+                                <div className="relative h-[84px] overflow-hidden rounded-lg bg-neutral-100">
                                   {image ? (
                                     <Image
                                       src={image}
@@ -363,10 +363,10 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                                 </div>
 
                                 <div className="min-w-0">
-                                  <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-white transition-colors group-hover:text-sky-100">
+                                  <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-100">
                                     {story.homepageTitle || story.title}
                                   </h3>
-                                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-white/55">
+                                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-neutral-600">
                                     {story.author?.name && <span>{story.author.name}</span>}
                                     <span>{formatDate(story.publishedAt || story.date)}</span>
                                   </div>
@@ -382,8 +382,8 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
 
                 <section className="mt-8">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white sm:text-2xl">Latest Around The NFL</h2>
-                    <span className="text-xs uppercase tracking-[0.14em] text-white/55">Updated every 2 minutes</span>
+                    <h2 className="text-xl font-bold text-neutral-900 sm:text-2xl">Latest Around The NFL</h2>
+                    <span className="text-xs uppercase tracking-[0.14em] text-neutral-600">Updated every 2 minutes</span>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -394,10 +394,10 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                       return (
                         <article
                           key={story._id}
-                          className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:bg-white/[0.06]"
+                          className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 transition-colors hover:bg-neutral-50"
                         >
                           <Link href={getHeadlineHref(story)} className="group block">
-                            <div className="relative aspect-video overflow-hidden bg-zinc-900">
+                            <div className="relative aspect-video overflow-hidden bg-neutral-100">
                               {image ? (
                                 <Image
                                   src={image}
@@ -409,22 +409,22 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                               ) : (
                                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950" />
                               )}
-                              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 text-[10px] uppercase tracking-[0.14em] text-white/75">
-                                <span className="rounded-full bg-black/45 px-2 py-1">{story.category?.title || 'League'}</span>
+                              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
+                                <span className="rounded-full bg-white px-2 py-1">{story.category?.title || 'League'}</span>
                                 <span>{formatDate(story.publishedAt || story.date)}</span>
                               </div>
                             </div>
 
                             <div className="p-4">
-                              <h3 className="line-clamp-2 text-base font-semibold leading-snug text-white transition-colors group-hover:text-sky-100">
+                              <h3 className="line-clamp-2 text-base font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-100">
                                 {story.homepageTitle || story.title}
                               </h3>
 
                               {story.summary && (
-                                <p className="mt-2 line-clamp-2 text-sm text-white/70">{story.summary}</p>
+                                <p className="mt-2 line-clamp-2 text-sm text-neutral-600">{story.summary}</p>
                               )}
 
-                              <p className="mt-3 text-xs text-white/55">{story.author?.name ? `By ${story.author.name}` : 'The Snap'}</p>
+                              <p className="mt-3 text-xs text-neutral-600">{story.author?.name ? `By ${story.author.name}` : 'The Snap'}</p>
                             </div>
                           </Link>
 
@@ -434,7 +434,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                                 <Link
                                   key={`${story._id}-${tag.slug || tag.title}`}
                                   href={tag.slug ? `/tags/${encodeURIComponent(tag.slug)}` : '/tags'}
-                                  className="rounded-full border border-white/15 bg-white/[0.03] px-2 py-1 text-[11px] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white"
+                                  className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-1 text-[11px] text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                                 >
                                   #{tag.title}
                                 </Link>
@@ -450,7 +450,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                     <div className="mt-6 text-center">
                       <Link
                         href="/headlines/page/2"
-                        className="inline-flex items-center rounded-lg border border-white/20 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/[0.12]"
+                        className="inline-flex items-center rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm font-semibold text-neutral-900 transition-colors hover:bg-neutral-50"
                       >
                         Browse Older Headlines
                       </Link>
@@ -462,16 +462,16 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
           </div>
 
           <aside className="space-y-6">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
               <TagCloud maxTags={16} activeTag={filters.tag} title="Team + Topic Radar" />
             </div>
 
             <NewsletterSignup variant="sidebar" />
             <MostRead limit={6} />
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h3 className="text-base font-semibold text-white">Subscribe via RSS</h3>
-              <p className="mt-2 text-sm text-white/65">Use your reader app and track every story in real time.</p>
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <h3 className="text-base font-semibold text-neutral-900">Subscribe via RSS</h3>
+              <p className="mt-2 text-sm text-neutral-600">Use your reader app and track every story in real time.</p>
               <a
                 href="/rss.xml"
                 className="mt-4 inline-flex rounded-lg bg-white px-3 py-2 text-sm font-semibold text-black transition-colors hover:bg-slate-100"
@@ -480,14 +480,14 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
               </a>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h3 className="mb-3 text-base font-semibold text-white">Popular Categories</h3>
+            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
+              <h3 className="mb-3 text-base font-semibold text-neutral-900">Popular Categories</h3>
               <div className="space-y-1.5">
                 {(categories || []).slice(0, 8).map((category) => (
                   <Link
                     key={category._id}
                     href={`/categories/${encodeURIComponent(category.slug.current)}`}
-                    className="block rounded-md px-2 py-1.5 text-sm text-white/75 transition-colors hover:bg-white/[0.08] hover:text-white"
+                    className="block rounded-md px-2 py-1.5 text-sm text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                   >
                     {category.title}
                   </Link>

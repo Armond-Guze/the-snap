@@ -77,7 +77,7 @@ const LinkMark = ({ children, href: candidate }: { children: React.ReactNode; hr
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-400 underline transition-colors hover:text-blue-300"
+        className="text-inherit underline transition-opacity hover:opacity-75"
       >
         {children}
       </a>
@@ -86,14 +86,14 @@ const LinkMark = ({ children, href: candidate }: { children: React.ReactNode; hr
 
   if (/^(?:mailto|tel):/i.test(href)) {
     return (
-      <a href={href} className="text-blue-400 underline transition-colors hover:text-blue-300">
+      <a href={href} className="text-inherit underline transition-opacity hover:opacity-75">
         {children}
       </a>
     )
   }
 
   return (
-    <Link href={href} className="text-blue-400 underline transition-colors hover:text-blue-300">
+    <Link href={href} className="text-inherit underline transition-opacity hover:opacity-75">
       {children}
     </Link>
   )
@@ -265,7 +265,7 @@ export const portableTextComponents: PortableTextComponents = {
         >
           <a
             href={`#${id}`}
-            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-neutral-900"
             aria-label="Link to section"
           >
             #
@@ -284,7 +284,7 @@ export const portableTextComponents: PortableTextComponents = {
         >
           <a
             href={`#${id}`}
-            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-neutral-900"
             aria-label="Link to subsection"
           >
             #
@@ -303,7 +303,7 @@ export const portableTextComponents: PortableTextComponents = {
         >
           <a
             href={`#${id}`}
-            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-white"
+            className="absolute -left-6 opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-neutral-900"
             aria-label="Link to subsection"
           >
             #
@@ -313,7 +313,7 @@ export const portableTextComponents: PortableTextComponents = {
       );
     },
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 text-gray-300 bg-gray-900/50 py-4 rounded-r-lg">
+      <blockquote className="border-l-4 border-gray-300 pl-4 italic my-6 text-neutral-700 bg-neutral-100 py-4 rounded-r-lg">
         {children}
       </blockquote>
     ),
@@ -332,10 +332,10 @@ export const portableTextComponents: PortableTextComponents = {
 
   // Inline mark components
   marks: {
-    strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-    em: ({ children }) => <em className="italic text-gray-200">{children}</em>,
-    underline: ({ children }) => <u className="underline decoration-2 underline-offset-4 text-white">{children}</u>,
-    large: ({ children }) => <span className="text-2xl font-bold text-white">{children}</span>,
+    strong: ({ children }) => <strong className="font-bold text-inherit">{children}</strong>,
+    em: ({ children }) => <em className="italic text-inherit">{children}</em>,
+    underline: ({ children }) => <u className="underline decoration-2 underline-offset-4 text-inherit">{children}</u>,
+    large: ({ children }) => <span className="text-2xl font-bold text-inherit">{children}</span>,
     link: ({ children, value }) => <LinkMark href={value?.href}>{children}</LinkMark>,
     internalLink: ({ children, value }) => {
       const href = resolveInternalContentHref(value?.reference as InternalContentReference | undefined)
@@ -343,7 +343,7 @@ export const portableTextComponents: PortableTextComponents = {
       return (
         <Link
           href={href}
-          className="text-blue-400 hover:text-blue-300 underline transition-colors"
+          className="text-inherit hover:opacity-75 underline transition-opacity"
         >
           {children}
         </Link>
@@ -378,15 +378,15 @@ export const portableTextComponents: PortableTextComponents = {
       if (!columns.length || !rows.length) return null
 
       return (
-        <div className="my-8 overflow-x-auto rounded-xl border border-white/15 bg-white/[0.03]">
-          <table className="w-full min-w-[720px] border-collapse text-left text-sm text-gray-200">
-            <thead className="bg-white/10 text-xs uppercase tracking-wide text-white">
+        <div className="my-8 overflow-x-auto rounded-xl border border-neutral-200 bg-neutral-50">
+          <table className="w-full min-w-[720px] border-collapse text-left text-sm text-neutral-700">
+            <thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-900">
               <tr>
                 {columns.map((column, index) => (
                   <th
                     key={`${column || 'column'}-${index}`}
                     scope="col"
-                    className="border-b border-white/15 px-4 py-3 align-top font-semibold"
+                    className="border-b border-neutral-200 px-4 py-3 align-top font-semibold"
                   >
                     {column}
                   </th>
@@ -395,11 +395,11 @@ export const portableTextComponents: PortableTextComponents = {
             </thead>
             <tbody>
               {rows.map((row, rowIndex) => (
-                <tr key={row?._key || `row-${rowIndex}`} className="border-b border-white/10 last:border-b-0">
+                <tr key={row?._key || `row-${rowIndex}`} className="border-b border-neutral-200 last:border-b-0">
                   {columns.map((_, cellIndex) => (
                     <td
                       key={`${row?._key || rowIndex}-${cellIndex}`}
-                      className="px-4 py-3 align-top leading-relaxed first:font-semibold first:text-white"
+                      className="px-4 py-3 align-top leading-relaxed first:font-semibold first:text-neutral-900"
                     >
                       {String(row?.cells?.[cellIndex] ?? '').trim()}
                     </td>

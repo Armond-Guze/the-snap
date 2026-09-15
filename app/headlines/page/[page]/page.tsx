@@ -58,19 +58,19 @@ export default async function HeadlinesPaginatedPage({ params }: { params: Promi
   if (pageNum > totalPages) notFound();
 
   return (
-    <main className="min-h-screen bg-black text-white py-12">
+    <main className="min-h-screen bg-white text-neutral-900 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-bold mb-2">NFL Headlines – Page {pageNum}</h1>
-            <p className="text-gray-400">Archive of NFL news & analysis. Page {pageNum} of {totalPages}.</p>
+            <p className="text-neutral-500">Archive of NFL news & analysis. Page {pageNum} of {totalPages}.</p>
           </div>
-          <Link href="/headlines" className="text-sm text-gray-400 hover:text-white">Back to Latest</Link>
+          <Link href="/headlines" className="text-sm text-neutral-500 hover:text-neutral-900">Back to Latest</Link>
         </div>
-        {items.length === 0 ? <p className="text-gray-400">No articles.</p> : (
+        {items.length === 0 ? <p className="text-neutral-500">No articles.</p> : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map(h => (
-              <article key={h._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
+              <article key={h._id} className="group rounded-lg overflow-hidden bg-white border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 transition-colors">
                 <Link href={`/articles/${h.slug.current}`}>
                   {h.coverImage?.asset?.url && (
                     <div className="aspect-video relative overflow-hidden bg-[#111]">
@@ -84,8 +84,8 @@ export default async function HeadlinesPaginatedPage({ params }: { params: Promi
                     </div>
                   )}
                   <div className="p-4">
-                    <h3 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">{h.homepageTitle || h.title}</h3>
-                    {h.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{h.summary}</p>}
+                    <h3 className="font-semibold text-neutral-900 text-[15px] group-hover:text-neutral-700 transition-colors mb-2 line-clamp-2">{h.homepageTitle || h.title}</h3>
+                    {h.summary && <p className="text-neutral-500 text-sm mb-3 line-clamp-2">{h.summary}</p>}
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       {h.author?.name && <span>By {h.author.name}</span>}
                       {h.date && <span>{formatDate(h.date)}</span>}
@@ -107,18 +107,18 @@ function PaginationNav({ current, total }: { current: number; total: number }) {
   const pages = Array.from({ length: total }, (_, i) => i + 1).filter(p => (p === 1 || p === total || Math.abs(p - current) <= 2));
   return (
     <nav aria-label="Headline archive pagination" className="mt-10 flex items-center justify-center gap-2 text-sm">
-      {current > 1 && <Link href={archiveHref(current - 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Prev</Link>}
+      {current > 1 && <Link href={archiveHref(current - 1)} className="px-3 py-1 border border-neutral-200 rounded hover:bg-neutral-100">Prev</Link>}
       {pages.map(p => (
         <Link
           key={p}
           href={archiveHref(p)}
           aria-current={p === current ? 'page' : undefined}
-          className={`px-3 py-1 rounded border ${p===current?'bg-white text-black border-white':'border-white/20 text-white/70 hover:text-white hover:bg-white/10'}`}
+          className={`px-3 py-1 rounded border ${p===current?'bg-neutral-900 text-white border-neutral-900':'border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'}`}
         >
           {p}
         </Link>
       ))}
-      {current < total && <Link href={archiveHref(current + 1)} className="px-3 py-1 border border-white/20 rounded hover:bg-white/10">Next</Link>}
+      {current < total && <Link href={archiveHref(current + 1)} className="px-3 py-1 border border-neutral-200 rounded hover:bg-neutral-100">Next</Link>}
     </nav>
   );
 }

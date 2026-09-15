@@ -105,7 +105,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
       <div className="relative z-10 mx-auto max-w-[86rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
         <div className="mb-4 2xl:mb-5 3xl:mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-8">
-            <h2 className="text-lg font-bold tracking-tight text-gray-300 sm:text-xl 2xl:text-xl 3xl:text-2xl">Latest Articles</h2>
+            <h2 className="text-lg font-bold tracking-tight text-neutral-700 sm:text-xl 2xl:text-xl 3xl:text-2xl">Latest Articles</h2>
           </div>
         </div>
 
@@ -120,7 +120,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               <Link
                 key={item._id}
                 href={getArticleUrl(item)}
-                className="group overflow-hidden rounded-2xl bg-white/[0.03] shadow-[0_16px_48px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.08]"
+                className="group overflow-hidden rounded-2xl bg-neutral-50 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-50"
               >
                 <div className="relative h-48 sm:h-44 lg:h-48 2xl:h-52">
                   {img ? (
@@ -137,19 +137,19 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                      <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-800">
                         {kicker}
                       </span>
-                      {published && <span className="text-[11px] text-white/60">{published}</span>}
+                      {published && <span className="text-[11px] text-neutral-600">{published}</span>}
                     </div>
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="line-clamp-2 text-lg font-bold leading-snug text-white transition-colors group-hover:text-gray-200 2xl:text-xl">
+                  <h3 className="line-clamp-2 text-lg font-bold leading-snug text-neutral-900 transition-colors group-hover:text-neutral-700 2xl:text-xl">
                     {displayTitle}
                   </h3>
                   {(item.summary || item.excerpt) && !hideSummaries && (
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-300">
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-700">
                       {item.summary || item.excerpt}
                     </p>
                   )}

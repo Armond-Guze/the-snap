@@ -1,0 +1,45 @@
+.snap-search-trigger { display: flex; align-items: center; gap: 10px; width: 180px; min-height: 42px; padding: 0 14px; border: 1px solid #e5e5e5; border-radius: 999px; background: #f7f7f7; color: #555; cursor: pointer; font-family: SnapFooterInter, Arial, sans-serif; font-size: 12px; white-space: nowrap; transition: border-color 200ms ease, background 200ms ease; }
+.snap-search-trigger:hover { border-color: #aaa; background: #f0f0f0; }
+.snap-search-backdrop { position: fixed; inset: 0; z-index: 1100; background: #0007; backdrop-filter: blur(5px); }
+.snap-search-backdrop[data-state='open'] { animation: snap-search-fade-in 240ms ease; }
+.snap-search-backdrop[data-state='closed'] { animation: snap-search-fade-out 200ms ease; }
+.snap-search-panel { position: fixed; top: max(24px, 8vh); left: 50%; z-index: 1101; transform: translateX(-50%); width: min(720px, calc(100% - 32px)); max-height: calc(100dvh - 96px); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #e8e8e8; border-radius: 24px; background: #fff; color: #191919; color-scheme: light; font-family: SnapFooterInter, Arial, sans-serif; box-shadow: 0 24px 90px #0003; }
+.snap-search-panel[data-state='open'] { animation: snap-search-in 350ms cubic-bezier(.22,.72,.22,1); }
+.snap-search-panel[data-state='closed'] { animation: snap-search-out 200ms ease; }
+.snap-search-input-row { display: flex; gap: 14px; align-items: center; padding: 24px; border-bottom: 1px solid #e8e8e8; }
+.snap-search-input-row input { width: 100%; min-width: 0; padding: 10px 0; background: transparent; border: 0; color: #191919; outline: none; font: inherit; font-size: 17px; }
+.snap-search-input-row:focus-within { box-shadow: inset 0 -2px #191919; }
+.snap-search-input-row input::-webkit-search-cancel-button { display: none; }
+.snap-search-input-row button { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 0; border-radius: 50%; background: #f5f5f5; cursor: pointer; }
+.snap-search-body { padding: 26px; overflow-y: auto; overscroll-behavior: contain; }
+.snap-search-kicker { margin-bottom: 18px; color: #666; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.snap-search-suggestions { display: grid; }
+.snap-search-suggestions button { display: flex; align-items: center; justify-content: space-between; min-height: 46px; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.snap-search-suggestions button:hover { color: #666; }
+.snap-search-hint { margin-top: 22px; color: #666; font-size: 12px; line-height: 1.6; }
+.snap-search-status { display: flex; justify-content: center; align-items: center; gap: 12px; min-height: 130px; color: #555; font-size: 15px; line-height: 1.7; text-align: center; }
+.snap-search-results { display: grid; gap: 8px; list-style: none; }
+.snap-search-results a { display: grid; grid-template-columns: 80px minmax(0,1fr) 20px; align-items: center; gap: 16px; padding: 12px; border-radius: 12px; transition: background 180ms ease; }
+.snap-search-results a:hover { background: #f6f6f6; }
+.snap-search-results img, .snap-search-placeholder { display: grid; place-items: center; width: 80px; height: 60px; border-radius: 8px; object-fit: cover; background: #f5f5f5; }
+.snap-search-results small { display: block; color: #666; text-transform: uppercase; font-size: 10px; margin-bottom: 6px; }
+.snap-search-results strong { display: block; font-size: 15px; font-weight: 500; line-height: 1.45; }
+.snap-search-panel a:focus-visible, .snap-search-panel button:focus-visible, .snap-search-trigger:focus-visible { outline: 2px solid #191919; outline-offset: 3px; }
+.snap-header-actions { gap: 12px; }
+@keyframes snap-search-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes snap-search-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes snap-search-in { from { opacity: 0; transform: translate(-50%, -18px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes snap-search-out { from { opacity: 1; } to { opacity: 0; } }
+@media (max-width: 1100px) {
+ .snap-search-trigger:not(.snap-search-trigger-wide) { width: 44px; height: 44px; justify-content: center; padding: 0; border: 0; background: transparent; }
+ .snap-search-trigger:not(.snap-search-trigger-wide) span { display: none; }
+}
+@media (max-width: 600px) {
+ .snap-search-panel { top: max(12px,env(safe-area-inset-top)); max-height: calc(100dvh - 24px); width: calc(100% - 16px); border-radius: 20px; }
+ .snap-search-input-row { padding: 16px; gap: 10px; }
+ .snap-search-input-row input { font-size: 16px; }
+ .snap-search-body { padding: 18px; }
+ .snap-search-results a { padding: 8px 0; gap: 10px; grid-template-columns: 64px minmax(0,1fr) 16px; }
+ .snap-search-results img, .snap-search-placeholder { width: 64px; height: 54px; }
+}
+@media (prefers-reduced-motion: reduce) { .snap-search-panel, .snap-search-backdrop { animation: none !important; } }

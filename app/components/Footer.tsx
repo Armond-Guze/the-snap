@@ -68,7 +68,7 @@ export default function Footer() {
         <div className="snap-footer-main">
           <div className="snap-footer-brand">
             <Link href="/" className="snap-footer-logo" aria-label="The Game Snap home">
-              <Image src="/favicon.svg?v=2" alt="" width={48} height={48} />
+              <Image src="/favicon.svg?v=3" alt="" width={48} height={48} />
             </Link>
           </div>
           <nav className="snap-footer-link-columns" aria-label="Footer navigation">

@@ -42,7 +42,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1001px)");
+    const desktop = window.matchMedia("(min-width: 1101px)");
     const closeOnDesktop = () => { if (desktop.matches) setMobileOpen(false); };
     desktop.addEventListener("change", closeOnDesktop);
     const closeTeams = (event: MouseEvent) => {

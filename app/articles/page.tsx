@@ -145,21 +145,21 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
   const description = buildDescription(filters);
 
   return (
-    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white py-12">
+    <main className="min-h-screen bg-white text-neutral-900 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{title}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 mb-4">{title}</h1>
           <div className="w-24 h-1 bg-white mb-6" />
-          <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">{description}</p>
+          <p className="text-xl text-neutral-700 max-w-3xl leading-relaxed">{description}</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             {articles.length === 0 ? (
-              <p className="text-gray-400">No articles found.</p>
+              <p className="text-neutral-500">No articles found.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {articles.slice(0,24).map(f => (
-                  <article key={f._id} className="group rounded-lg overflow-hidden bg-[#0d0d0d] border border-[#1e1e1e] hover:bg-[#161616] hover:border-[#262626] transition-colors">
+                  <article key={f._id} className="group rounded-lg overflow-hidden bg-white border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 transition-colors">
                     {f.coverImage?.asset?.url && (
                       <Link href={getArticleHref(f)} aria-label={f.homepageTitle || f.title}>
                         <div className="aspect-video relative overflow-hidden bg-[#111]">
@@ -170,7 +170,7 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
                     <div className="p-4">
                       <div className="flex flex-wrap gap-2 mb-2">
                         {f.category?.title && f.category.slug?.current && (
-                          <Link href={`/categories/${encodeURIComponent(f.category.slug.current)}`} className="inline-block px-2 py-1 text-[11px] font-medium text-gray-300 bg-gray-800 rounded-md border border-gray-700/60 hover:text-white">{f.category.title}</Link>
+                          <Link href={`/categories/${encodeURIComponent(f.category.slug.current)}`} className="inline-block px-2 py-1 text-[11px] font-medium text-neutral-700 bg-neutral-100 rounded-md border border-neutral-200/60 hover:text-neutral-900">{f.category.title}</Link>
                         )}
                         {f._type === 'article' && f.format === 'powerRankings' && (
                           <span className="inline-block px-2 py-1 text-[11px] font-semibold text-purple-200 bg-purple-500/15 rounded-md border border-purple-400/30">
@@ -178,10 +178,10 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
                           </span>
                         )}
                       </div>
-                      <h2 className="font-semibold text-white text-[15px] group-hover:text-gray-300 transition-colors mb-2 line-clamp-2">
+                      <h2 className="font-semibold text-neutral-900 text-[15px] group-hover:text-neutral-700 transition-colors mb-2 line-clamp-2">
                         <Link href={getArticleHref(f)}>{f.homepageTitle || f.title}</Link>
                       </h2>
-                      {f.summary && <p className="text-gray-400 text-sm mb-3 line-clamp-2">{f.summary}</p>}
+                      {f.summary && <p className="text-neutral-500 text-sm mb-3 line-clamp-2">{f.summary}</p>}
                       <div className="flex items-center justify-between text-xs text-gray-500">
                         {f.author?.name && <span>By {f.author.name}</span>}
                         {f.date && <time dateTime={f.date}>{formatDate(f.date)}</time>}
@@ -189,7 +189,7 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
                       {Array.isArray(f.tags) && f.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-3">
                           {f.tags.slice(0, 3).map((tag) => tag?.title && tag.slug?.current ? (
-                            <Link key={tag.slug.current} href={`/tags/${encodeURIComponent(tag.slug.current)}`} className="text-xs px-2 py-1 bg-gray-800 text-gray-400 rounded hover:bg-gray-700 hover:text-white transition-colors">#{tag.title}</Link>
+                            <Link key={tag.slug.current} href={`/tags/${encodeURIComponent(tag.slug.current)}`} className="text-xs px-2 py-1 bg-neutral-100 text-neutral-500 rounded hover:bg-neutral-100 hover:text-neutral-900 transition-colors">#{tag.title}</Link>
                           ) : null)}
                         </div>
                       )}
@@ -200,21 +200,21 @@ export default async function ArticlesPage(props: ArticlesPageProps) {
             )}
           </div>
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
+            <div className="bg-white border border-neutral-200 rounded-lg p-6">
               <TagCloud maxTags={15} />
             </div>
             <NewsletterSignup variant="sidebar" />
             <MostRead limit={6} />
-            <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-3 text-white">Subscribe via RSS</h3>
-              <p className="text-sm text-gray-400 mb-4">Prefer feed readers? Follow our latest articles instantly.</p>
+            <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-3 text-neutral-900">Subscribe via RSS</h3>
+              <p className="text-sm text-neutral-500 mb-4">Prefer feed readers? Follow our latest articles instantly.</p>
               <a href="/rss.xml" className="inline-block text-sm px-3 py-2 rounded bg-white text-black font-medium hover:bg-gray-200 transition-colors">RSS Feed →</a>
             </div>
-            <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">Popular Categories</h3>
+            <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 text-neutral-900">Popular Categories</h3>
               <div className="space-y-2">
                 {(categories || []).slice(0,6).map(cat => (
-                  <Link key={cat._id} href={`/categories/${encodeURIComponent(cat.slug.current)}`} className="block text-gray-300 hover:text-white transition-colors">
+                  <Link key={cat._id} href={`/categories/${encodeURIComponent(cat.slug.current)}`} className="block text-neutral-700 hover:text-neutral-900 transition-colors">
                     {cat.title}
                   </Link>
                 ))}

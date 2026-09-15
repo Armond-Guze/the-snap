@@ -8,12 +8,12 @@ export default async function MostRead({ limit = 6 }: { limit?: number }) {
   const items: Item[] = await client.fetch(`*[_type == "headline" && published == true] | order(_createdAt desc)[0...${limit}] { _id,title,homepageTitle,slug,_type }`);
   if (!items.length) return null;
   return (
-    <div className="bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-6">
-      <h3 className="text-lg font-semibold mb-4 text-white">Most Recent</h3>
+    <div className="bg-white border border-neutral-200 rounded-lg p-6">
+      <h3 className="text-lg font-semibold mb-4 text-neutral-900">Most Recent</h3>
       <ul className="space-y-3 text-sm">
         {items.map(i => (
           <li key={i._id}>
-            <a href={`/articles/${i.slug.current}`} className="text-gray-300 hover:text-white transition-colors line-clamp-2">
+            <a href={`/articles/${i.slug.current}`} className="text-neutral-700 hover:text-neutral-900 transition-colors line-clamp-2">
               {i.homepageTitle || i.title}
             </a>
           </li>
