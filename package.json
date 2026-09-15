@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.12 <23"
+    "node": ">=22.16 <23"
   },
   "overrides": {
     "@vercel/python-analysis": {
@@ -16,7 +16,7 @@
     "tar": "7.5.22"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.mjs",
     "build": "prisma generate && next build",
     "build:local": "env-cmd -f .env.local next build",
     "deploy": "npm run deploy:prod",

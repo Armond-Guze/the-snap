@@ -50,12 +50,24 @@ the-snap/
 
 ### Prerequisites
 
-- Node.js 22 (`.nvmrc` pins 22.16.0; `package.json` supports `>=22.12 <23`)
+- Node.js 22 (`.nvmrc` pins 22.16.0; `package.json` supports `>=22.16 <23`)
 - npm
 - Sanity project access
 - Clerk project access (for auth-enabled flows)
 
 ### Setup
+
+Start the local preview with `npm run dev`. This command includes Node's
+`--use-system-ca` option so HTTPS requests to Sanity can use trusted certificates
+from the operating system as well as Node's bundled certificates. Certificate
+verification stays enabled. Running `next dev` directly skips this setting and
+can cause `UNABLE_TO_VERIFY_LEAF_SIGNATURE` errors on this machine, preventing
+the homepage and footer from rendering. Restart the server after changing the
+startup command.
+
+The launcher uses the Node executable that started npm. This prevents a `node`
+package in an ancestor `node_modules/.bin` directory from silently selecting an
+older runtime. It checks the supported Node version before starting Next.js.
 
 ```bash
 git clone <private-repo-url>
