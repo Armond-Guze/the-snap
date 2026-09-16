@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 // Navigates to /schedule/week/[n]. Optionally renders an "Auto Week" link.
 export default function WeekDropdown({ currentWeek, className = "", showAutoWeekLink }: Props) {
   const router = useRouter();
+  const search = useSearchParams();
 
   const weeks = useMemo(() => Array.from({ length: 18 }, (_, i) => i + 1), []);
 
@@ -21,17 +22,17 @@ export default function WeekDropdown({ currentWeek, className = "", showAutoWeek
     const w = Number(e.target.value);
     if (!Number.isFinite(w) || w < 1 || w > 18) return;
     // If we're already on /schedule/week/[n] or /schedule, push to the selected week
-    router.push(`/schedule/week/${w}`);
+    router.push(`/schedule/week/${w}${search.size ? `?${search.toString()}` : ""}`);
   }
 
   return (
     <div className={`flex items-center gap-3 mb-6 ${className}`}>
-      <label htmlFor="week-select" className="text-sm text-white/70">Week</label>
+      <label htmlFor="week-select" className="text-sm text-neutral-600">Week</label>
       <select
         id="week-select"
         value={String(currentWeek)}
         onChange={onChange}
-        className="min-w-[128px] bg-white text-black text-sm border border-white/20 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20"
+        className="min-w-[128px] bg-white text-black text-sm border border-neutral-200 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-black/20"
       >
         {weeks.map((w) => (
           <option key={w} value={w} className="text-black bg-white">{`WEEK ${w}`}</option>
@@ -41,7 +42,7 @@ export default function WeekDropdown({ currentWeek, className = "", showAutoWeek
       {showAutoWeekLink ? (
         <Link
           href="/schedule"
-          className="ml-auto text-xs text-white/50 hover:text-white/80 underline-offset-2 hover:underline"
+          className="ml-auto text-xs text-neutral-600 hover:text-neutral-600 underline-offset-2 hover:underline"
         >
           Auto Week
         </Link>

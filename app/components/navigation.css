@@ -54,3 +54,22 @@
 @media (prefers-reduced-motion: reduce) {
  .snap-header *, .snap-navigation-sheet *, .snap-navigation-sheet, .snap-menu-backdrop { animation-duration: .01ms !important; transition: none !important; }
 }
+
+.snap-brand { width: 170px; border-radius: 4px; overflow: hidden; background: #000; }
+.snap-nav-teams a { display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; }
+.snap-nav-teams a:hover { background:#f5f5f5; text-decoration:none; }
+@media(max-width:1100px){.snap-brand{width:145px}}
+
+.snap-brand { background: transparent; }
+
+/* Navy sampled from the supplied CBS Sports reference. */
+.snap-header { background:#032c57; color:#fff; box-shadow:0 1px 0 #ffffff26; }
+.snap-desktop-nav > a, .snap-nav-more > summary { color:#fff; }
+.snap-desktop-nav > a:is(:hover,:focus-visible), .snap-nav-more > summary:is(:hover,:focus-visible), .snap-nav-more[open] > summary { background:#ffffff18; color:#fff; }
+.snap-desktop-nav > a[aria-current='page'] { background:#ffffff18; }
+.snap-menu-toggle { color:#fff; }
+.snap-header .snap-header-actions > div > button, .snap-header .snap-header-profile > div > button { color:#fff; }
+.snap-header .snap-search-trigger { color:#fff; background:#ffffff0d; border-color:#ffffff40; }
+.snap-header .snap-search-trigger:hover, .snap-header .snap-header-actions > div > button:hover, .snap-header .snap-header-profile > div > button:hover { color:#fff; background:#ffffff20; }
+
+.snap-header .snap-header-profile > div > button svg { color: #fff; }

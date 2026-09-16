@@ -61,28 +61,28 @@ function DivisionTable({
   teams
 }: { division: string; teams: StandingsTeam[] }) {
   return (
-    <div className="bg-[hsl(0_0%_3.9%)] border border-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-      <div className="bg-[hsl(0_0%_3.9%)] px-4 py-2.5 border-b border-gray-800 flex items-center gap-2">
-        <h3 className="text-base font-semibold text-white tracking-wide">{division}</h3>
+    <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+      <div className="bg-white px-4 py-2.5 border-b border-neutral-200 flex items-center gap-2">
+        <h3 className="text-base font-semibold text-neutral-900 tracking-wide">{division}</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <caption className="sr-only">{division} standings</caption>
           <thead>
-            <tr className="bg-[hsl(0_0%_3.9%)/0.8]">
-              <th className="px-2.5 py-1.5 text-left text-[10px] font-bold text-gray-300 uppercase tracking-wider">Team</th>
-              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">W</th>
-              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">L</th>
-              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">T</th>
-              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Win %</th>
-              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-gray-300 uppercase tracking-wider">Strk</th>
+            <tr className="bg-white">
+              <th className="px-2.5 py-1.5 text-left text-[10px] font-bold text-neutral-600 uppercase tracking-wider">Team</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-neutral-600 uppercase tracking-wider">W</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-neutral-600 uppercase tracking-wider">L</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-neutral-600 uppercase tracking-wider">T</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-neutral-600 uppercase tracking-wider">Win %</th>
+              <th className="px-2.5 py-1.5 text-center text-[10px] font-bold text-neutral-600 uppercase tracking-wider">Strk</th>
             </tr>
           </thead>
           <tbody>
             {teams.map(team => (
               <tr
                 key={team._id}
-                className="border-b border-gray-800 hover:bg-[hsl(0_0%_5%)] transition-colors bg-[hsl(0_0%_3.9%)]"
+                className="border-b border-neutral-200 hover:bg-white transition-colors bg-white"
               >
                 <td className="px-2.5 py-2.5">
                   <div className="flex items-center gap-2">
@@ -97,24 +97,24 @@ function DivisionTable({
                     </div>
                     <Link
                       href={`/teams/${slugifyTeamName(team.teamName)}`}
-                      className="text-white font-medium text-[13px] sm:text-sm truncate max-w-[110px] md:max-w-[160px] hover:text-white/90"
+                      className="text-neutral-900 font-medium text-[13px] sm:text-sm truncate max-w-[110px] md:max-w-[160px] hover:text-neutral-600"
                     >
                       {team.teamName}
                     </Link>
                   </div>
                 </td>
-                <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.wins}</td>
-                <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.losses}</td>
-                <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{team.ties}</td>
-                <td className="px-2.5 py-2.5 text-center text-white font-medium text-sm">{(team.winPercentage * 100).toFixed(1)}%</td>
-                <td className="px-2.5 py-2.5 text-center text-white/80 font-medium text-xs">{team.streak || '—'}</td>
+                <td className="px-2.5 py-2.5 text-center text-neutral-900 font-medium text-sm">{team.wins}</td>
+                <td className="px-2.5 py-2.5 text-center text-neutral-900 font-medium text-sm">{team.losses}</td>
+                <td className="px-2.5 py-2.5 text-center text-neutral-900 font-medium text-sm">{team.ties}</td>
+                <td className="px-2.5 py-2.5 text-center text-neutral-900 font-medium text-sm">{(team.winPercentage * 100).toFixed(1)}%</td>
+                <td className="px-2.5 py-2.5 text-center text-neutral-600 font-medium text-xs">{team.streak || '—'}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {teams.length === 0 && (
-        <div className="px-5 py-8 text-center text-gray-400 text-sm">No standings data available for {division}</div>
+        <div className="px-5 py-8 text-center text-neutral-600 text-sm">No standings data available for {division}</div>
       )}
     </div>
   );
@@ -242,15 +242,15 @@ export default async function StandingsPage() {
   };
 
   return (
-    <main className="bg-[hsl(0_0%_3.9%)] min-h-screen text-white">
+    <main className="bg-white min-h-screen text-neutral-900">
       <StructuredData id={`standings-${season}`} data={standingsSchema} />
       {/* Compact Header / Tagline */}
-      <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-gray-800/60 bg-[hsl(0_0%_3.9%)/0.9] backdrop-blur-sm">
+      <header className="px-4 sm:px-6 lg:px-8 pt-8 pb-4 border-b border-neutral-200 bg-white backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-neutral-900">
             {season} NFL STANDINGS
           </h1>
-          <p className="text-sm md:text-base text-gray-400 leading-relaxed max-w-3xl">
+          <p className="text-sm md:text-base text-neutral-600 leading-relaxed max-w-3xl">
             {isFinal
               ? `Final ${season} regular-season records for every AFC and NFC division.`
               : `${season} regular-season records for every AFC and NFC division, updated as games finish.`}
@@ -267,8 +267,8 @@ export default async function StandingsPage() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-14 xl:gap-16 2xl:gap-20">
             {/* AFC */}
             <div>
-              <div className="sticky top-0 z-10 bg-[hsl(0_0%_3.9%)/0.95] py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
-                <h2 className="text-xl md:text-2xl font-bold text-white text-center tracking-wide">American Football Conference (AFC)</h2>
+              <div className="sticky top-0 z-10 bg-white py-2.5 mb-4 rounded-xl shadow-lg border-b border-neutral-200">
+                <h2 className="text-xl md:text-2xl font-bold text-neutral-900 text-center tracking-wide">American Football Conference (AFC)</h2>
               </div>
               <div className="space-y-6 md:space-y-8">
                 {afcDivisions.map(div => (
@@ -278,8 +278,8 @@ export default async function StandingsPage() {
             </div>
             {/* NFC */}
             <div>
-              <div className="sticky top-0 z-10 bg-[hsl(0_0%_3.9%)/0.95] py-2.5 mb-4 rounded-xl shadow-lg border-b border-gray-800">
-                <h2 className="text-xl md:text-2xl font-bold text-white text-center tracking-wide">National Football Conference (NFC)</h2>
+              <div className="sticky top-0 z-10 bg-white py-2.5 mb-4 rounded-xl shadow-lg border-b border-neutral-200">
+                <h2 className="text-xl md:text-2xl font-bold text-neutral-900 text-center tracking-wide">National Football Conference (NFC)</h2>
               </div>
               <div className="space-y-6 md:space-y-8">
                 {nfcDivisions.map(div => (
@@ -290,20 +290,20 @@ export default async function StandingsPage() {
           </div>
         </div>
       </section>
-      <section className="border-t border-gray-800/70 px-4 py-10 sm:px-6 lg:px-8" aria-labelledby="standings-guide">
+      <section className="border-t border-neutral-200 px-4 py-10 sm:px-6 lg:px-8" aria-labelledby="standings-guide">
         <div className="mx-auto max-w-4xl">
           <h2 id="standings-guide" className="text-2xl font-bold">How to read NFL standings</h2>
-          <p className="mt-3 text-sm leading-relaxed text-white/65">
+          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
             W, L and T show wins, losses and ties. Win percentage counts a tie as half a win, while Strk shows a team&apos;s current winning or losing streak. Teams on this page are sorted by record and winning percentage; the NFL applies additional official tiebreakers when records are equal.
           </p>
           <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold">
-            <Link href="/schedule" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+            <Link href="/schedule" className="rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-neutral-600 hover:bg-neutral-50">
               View the {scheduleSeason} NFL schedule
             </Link>
-            <Link href="/teams" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+            <Link href="/teams" className="rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-neutral-600 hover:bg-neutral-50">
               Browse all team hubs
             </Link>
-            <Link href="/articles/power-rankings" className="rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-white/85 hover:bg-white/10">
+            <Link href="/articles/power-rankings" className="rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-neutral-600 hover:bg-neutral-50">
               NFL power rankings
             </Link>
           </div>

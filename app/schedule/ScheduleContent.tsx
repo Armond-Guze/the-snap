@@ -14,7 +14,7 @@ interface GamesBucketsProps {
 export function GamesBuckets({ games, recordsMap, timezoneCode }: GamesBucketsProps) {
   if (!games.length) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6 text-sm text-white/65">
+      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600">
         The schedule is temporarily unavailable. Please try again shortly.
       </div>
     );
@@ -27,11 +27,11 @@ export function GamesBuckets({ games, recordsMap, timezoneCode }: GamesBucketsPr
         <section key={bucket.label} aria-labelledby={`schedule-${bucket.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
           <h2
             id={`schedule-${bucket.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-            className="mb-3 text-lg font-semibold tracking-wide text-white/80"
+            className="mb-3 text-lg font-semibold tracking-wide text-neutral-600"
           >
             {bucket.label}
           </h2>
-          <div className="space-y-3">
+          <div className="schedule-grid">
             {bucket.games.map((game) => (
               <GameRow
                 key={game.gameId}
@@ -47,78 +47,13 @@ export function GamesBuckets({ games, recordsMap, timezoneCode }: GamesBucketsPr
   );
 }
 
-function GameRow({
-  game,
-  recordsMap,
-  timezoneCode,
-}: {
-  game: EnrichedGame;
-  recordsMap?: Map<string, TeamRecordDoc>;
-  timezoneCode: string;
-}) {
-  const formatted = game.dateTimeTBD
-    ? { dateLabel: 'Date/time', timeLabel: 'TBD' }
-    : formatGameDateParts(game.dateUTC, { timezoneCode, includeRelative: false });
-
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4 sm:p-5">
-      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-        <div className="w-28 shrink-0 leading-tight text-white/70 sm:w-40">
-          <div className="text-[12px] font-medium">{formatted.dateLabel}</div>
-          <div className="text-[12px]">
-            {formatted.timeLabel}
-            {!game.dateTimeTBD && <span> {timezoneCode}</span>}
-            <span aria-hidden="true"> · </span>
-            <span className="sm:hidden">{shortNetworkLabel(game.network)}</span>
-            <span className="hidden sm:inline">{game.network || 'TBD'}</span>
-          </div>
-        </div>
-
-        <div className="min-w-0 flex-1 text-[16px] leading-[1.15] sm:text-[20px]">
-          <span className="flex items-center gap-2 truncate font-semibold">
-            <TeamBadge abbr={game.away} />
-            <TeamRecord record={recordsMap?.get(game.away)} />
-            <span>@</span>
-            <TeamBadge abbr={game.home} />
-            <TeamRecord record={recordsMap?.get(game.home)} />
-          </span>
-        </div>
-      </div>
-
-      <div className="ml-4 hidden min-w-[120px] text-right text-base sm:block">
-        {game.status === 'FINAL' && game.scores ? (
-          <span className="font-bold">
-            {game.scores.away}-{game.scores.home}{' '}
-            <span className="font-normal text-white/50">Final</span>
-          </span>
-        ) : game.status === 'IN_PROGRESS' ? (
-          <span className="text-amber-400">Live {game.quarter} {game.clock}</span>
-        ) : game.dateTimeTBD ? (
-          <span className="text-white/50">Flexible scheduling</span>
-        ) : (
-          <span className="text-white/50">Scheduled</span>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function TeamRecord({ record }: { record?: TeamRecordDoc }) {
-  const value = shortRecord(record);
-  return value ? <span className="hidden text-[14px] text-white/50 sm:inline">({value})</span> : null;
-}
-
-function TeamBadge({ abbr }: { abbr: string }) {
-  const meta = TEAM_META[abbr];
-  if (!meta) return <span>{abbr}</span>;
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1.5">
-      <span className="relative inline-block h-6 w-6 shrink-0 sm:h-7 sm:w-7">
-        <Image src={meta.logo} alt="" fill sizes="(min-width: 640px) 28px, 24px" className="object-contain" />
-      </span>
-      <span className="truncate" title={meta.name}>{abbr}</span>
-    </span>
-  );
+function GameRow({game,recordsMap,timezoneCode}:{game:EnrichedGame;recordsMap?:Map<string,TeamRecordDoc>;timezoneCode:string}) {
+ const formatted=game.dateTimeTBD?{dateLabel:'Date to be announced',timeLabel:'TBD'}:formatGameDateParts(game.dateUTC,{timezoneCode,includeRelative:false});
+ return <article className="schedule-match">
+  <div className="schedule-match-meta"><time dateTime={game.dateTimeTBD?undefined:game.dateUTC}>{formatted.dateLabel}</time><strong>{formatted.timeLabel}{!game.dateTimeTBD && ' '+timezoneCode}</strong><span>{shortNetworkLabel(game.network)||'Network TBD'}</span></div>
+  <div className="schedule-match-teams">{(['away','home'] as const).map(side=>{const code=game[side];const meta=TEAM_META[code];const record=shortRecord(recordsMap?.get(code));return <div className="schedule-match-team" key={side}><Link href={meta?'/teams/'+meta.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'):'/teams'}>{meta&&<Image src={meta.logo} alt="" width={40} height={40}/>}<span><strong>{meta?.name||code}</strong><small>{side==='home'?'Home':'Away'}{record?' · '+record:''}</small></span></Link>{game.scores && <b>{game.scores[side]}</b>}</div>;})}</div>
+  <div className="schedule-match-status" data-live={game.status==='IN_PROGRESS'}>{game.status==='FINAL'?'Final':game.status==='IN_PROGRESS'?'Live · '+(game.quarter||'')+' '+(game.clock||''):game.dateTimeTBD?'Time TBD':'Scheduled'}</div>
+ </article>;
 }
 
 export function ScheduleFAQ({ season }: { season: number }) {
@@ -158,12 +93,12 @@ export function ScheduleFAQ({ season }: { season: number }) {
         {faq.map((item) => (
           <div key={item.q}>
             <h3 className="mb-1 font-semibold">{item.q}</h3>
-            <p className="text-white/70">{item.a}</p>
+            <p className="text-neutral-600">{item.a}</p>
           </div>
         ))}
       </div>
-      <p className="mt-6 text-sm text-white/65">
-        Looking for one club? Browse all <Link href="/teams" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">NFL team hubs</Link>.
+      <p className="mt-6 text-sm text-neutral-600">
+        Looking for one club? Browse all <Link href="/teams" className="font-semibold text-neutral-900 underline decoration-white/30 underline-offset-4 hover:decoration-white">NFL team hubs</Link>.
       </p>
     </section>
   );

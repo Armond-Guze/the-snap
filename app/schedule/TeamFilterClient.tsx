@@ -21,14 +21,14 @@ export default function TeamFilterClient() {
 
   return (
     <div className="mb-8">
-      <div className="flex flex-wrap gap-2 max-h-40 overflow-auto border border-white/10 rounded-lg p-2 bg-white/5">
+      <div className="flex flex-wrap gap-2 max-h-40 overflow-auto border border-neutral-200 rounded-lg p-2 bg-neutral-50">
         {TEAM_ABBRS.map(abbr => {
           const isActive = abbr === active;
           return (
             <button
               key={abbr}
               onClick={() => toggle(abbr)}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-colors border ${isActive ? 'bg-white text-black border-white' : 'bg-white/10 text-white/70 border-white/10 hover:text-white hover:bg-white/15'}`}
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-colors border ${isActive ? 'bg-white text-black border-white' : 'bg-neutral-50 text-neutral-600 border-neutral-200 hover:text-neutral-900 hover:bg-neutral-50'}`}
             >
               <span className="w-4 h-4 relative inline-block">
                 <Image src={TEAM_META[abbr].logo} alt={abbr} fill sizes="16px" className="object-contain" />
@@ -38,9 +38,9 @@ export default function TeamFilterClient() {
           );
         })}
       </div>
-      <p className="text-[11px] mt-2 text-white/40 flex items-center gap-2">
+      <p className="text-[11px] mt-2 text-neutral-600 flex items-center gap-2">
         {active ? <>
-          Filtering by {active}. <button onClick={()=>toggle(active)} className="underline underline-offset-2 hover:text-white">Clear</button>
+          Filtering by {active}. <button onClick={()=>toggle(active)} className="underline underline-offset-2 hover:text-neutral-900">Clear</button>
         </> : 'Click a team to filter this week.'}
         {pending && <span className="text-amber-400 animate-pulse">Updating…</span>}
       </p>

@@ -52,7 +52,7 @@ const socials = [
 
 const coverageLinks = [
   { label: "Latest Headlines", href: "/headlines" },
-  { label: "Power Rankings", href: "/power-rankings" },
+  { label: "Power Rankings", href: "/articles/power-rankings" },
   { label: "Fantasy Football", href: "/fantasy" },
   { label: "NFL Teams", href: "/teams" },
   { label: "Schedule", href: "/schedule" },
@@ -68,7 +68,7 @@ export default function Footer() {
         <div className="snap-footer-main">
           <div className="snap-footer-brand">
             <Link href="/" className="snap-footer-logo" aria-label="The Game Snap home">
-              <Image src="/favicon.svg?v=3" alt="" width={48} height={48} />
+              <Image src="/images/snap-wordmark-blue.svg" alt="" width={170} height={40} />
             </Link>
           </div>
           <nav className="snap-footer-link-columns" aria-label="Footer navigation">

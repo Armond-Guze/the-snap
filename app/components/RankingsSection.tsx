@@ -100,7 +100,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   };
 
   return (
-    <section className="home-section-surface relative px-6 py-10 lg:px-8 2xl:px-12 3xl:px-16">
+    <section className="snap-latest-section home-section-surface relative px-6 py-10 lg:px-8 2xl:px-12 3xl:px-16">
       <div className="home-section-fade pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
       <div className="relative z-10 mx-auto max-w-[86rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
         <div className="mb-4 2xl:mb-5 3xl:mb-6">
@@ -109,7 +109,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:gap-5 3xl:gap-6">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
           {topSix.map((item) => {
             const img = getImageUrl(item);
             const displayTitle = item.homepageTitle || item.title;
@@ -120,9 +120,9 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
               <Link
                 key={item._id}
                 href={getArticleUrl(item)}
-                className="group overflow-hidden rounded-2xl bg-neutral-50 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-50"
+                className="snap-latest-card group"
               >
-                <div className="relative h-48 sm:h-44 lg:h-48 2xl:h-52">
+                <div className="snap-latest-photo">
                   {img ? (
                     <Image
                       src={img}
@@ -134,17 +134,9 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-900" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-800">
-                        {kicker}
-                      </span>
-                      {published && <span className="text-[11px] text-neutral-600">{published}</span>}
-                    </div>
-                  </div>
                 </div>
-                <div className="p-4">
+                <div className="snap-latest-copy">
+                  <div className="snap-story-meta"><span>{kicker}</span>{published && <time>{published}</time>}</div>
                   <h3 className="line-clamp-2 text-lg font-bold leading-snug text-neutral-900 transition-colors group-hover:text-neutral-700 2xl:text-xl">
                     {displayTitle}
                   </h3>
@@ -162,7 +154,7 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
         <div className="mt-6 flex justify-center">
           <Link
             href="/articles"
-            className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-5 py-2.5 text-sm font-semibold text-black transition-transform duration-200 hover:-translate-y-0.5"
           >
             More Articles
           </Link>

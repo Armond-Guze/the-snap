@@ -1,41 +1,5 @@
-# Team Logos
+# NFL team marks
 
-Drop your official team logo image files here using the naming convention TEAMCODE.(png|svg|webp).
+The 32 transparent PNGs are served locally and shared by the schedule, team hubs, standings, and navigation. Source: ESPN team logo CDN, https://a.espncdn.com/i/teamlogos/nfl/500/{code}.png (retrieved September 15, 2026). Washington uses wsh at the source and WAS locally.
 
-Expected filenames (32 NFL teams):
-ARI.png
-ATL.png
-BAL.png
-BUF.png
-CAR.png
-CHI.png
-CIN.png
-CLE.png
-DAL.png
-DEN.png
-DET.png
-GB.png
-HOU.png
-IND.png
-JAX.png
-KC.png
-LV.png
-LAC.png
-LAR.png
-MIA.png
-MIN.png
-NE.png
-NO.png
-NYG.png
-NYJ.png
-PHI.png
-PIT.png
-SF.png
-SEA.png
-TB.png
-TEN.png
-WAS.png
-
-Temporary placeholder SVGs were added for each code (monogram style). Replace each file with the real logo keeping the same filename to immediately update the site (cache may need a hard refresh). If you have transparent PNGs, prefer dimensions around 160x160 or scalable SVG.
-
-Tip: For dark mode consistency, ensure logos look good on black background; add a subtle white outline if a logo is very dark.
+Mappings: lib/schedule.ts and app/components/teamLogos.ts. The older SVG initials are unused legacy placeholders.

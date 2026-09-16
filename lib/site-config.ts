@@ -21,7 +21,7 @@ export const SITE_SOCIAL_URLS = [
   "https://www.tiktok.com/@thesnapfootball",
   "https://www.youtube.com/@thesnapfootball",
 ] as const;
-export const DEFAULT_OG_IMAGE_PATH = "/images/thesnap-logo-website.png";
+export const DEFAULT_OG_IMAGE_PATH = "/images/snap-wordmark-blue.png";
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`;
 
 export function toAbsoluteSiteUrl(path: string): string {

@@ -50,7 +50,7 @@ export default function Navbar() {
           {/* Centered Logo for mobile */}
           <Link href="/" className="inline-flex items-center space-x-2 group absolute left-1/2 transform -translate-x-1/2">
             <Image
-              src="/images/thesnap-logo-transparent.png"
+              src="/images/snap-wordmark-white.svg"
               alt="FootballNews Logo"
               width={160}
               height={160}
@@ -90,7 +90,7 @@ export default function Navbar() {
           {/* Logo - Now serves as Home link */}
           <Link href="/" className="inline-flex items-center space-x-2 group">
             <Image
-              src="/images/thesnap-logo-new copy.jpg"
+              src="/images/snap-wordmark-white.svg"
               alt="FootballNews Logo"
               width={220}
               height={220}

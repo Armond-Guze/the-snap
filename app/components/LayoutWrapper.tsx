@@ -18,7 +18,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
   const hideGlobalChrome = isStudioRoute || isAuthRoute;
   const isInformationPage = informationRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`));
-  const isEditorialPage = pathname === '/' || ['/articles', '/headlines', '/fantasy'].some(route => pathname === route || pathname.startsWith(`${route}/`));
+  const isEditorialPage = pathname === '/' || ['/articles', '/headlines', '/fantasy', '/schedule', '/teams', '/standings', '/draft'].some(route => pathname === route || pathname.startsWith(`${route}/`));
 
   return (
     <div className={isInformationPage || isEditorialPage ? 'snap-information-layout' : undefined}>

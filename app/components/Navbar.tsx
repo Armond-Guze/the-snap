@@ -22,7 +22,7 @@ const primaryLinks = [
 const moreLinks = [
   { href: "/teams", label: "NFL Teams" },
   { href: "/standings", label: "Standings" },
-  { href: "/draft", label: "Draft" },
+  { href: "/articles", label: "All Articles" },
   { href: "/about", label: "Our Story" },
 ];
 const socials = [
@@ -68,7 +68,7 @@ export default function Navbar() {
       <header className="snap-header">
         <Dialog.Trigger className="snap-menu-toggle" aria-label="Open menu"><Menu size={24} strokeWidth={1.6} /></Dialog.Trigger>
         <Link href="/" className="snap-brand" aria-label="The Game Snap home">
-          <Image src="/images/thesnap-logo-new%20copy123.png" alt="The Snap" width={1595} height={410} priority />
+          <Image src="/images/snap-wordmark-white.svg" alt="The Snap" width={1020} height={240} priority />
         </Link>
         <nav className="snap-desktop-nav" aria-label="Primary navigation">
           {primaryLinks.map(({href,label}) => <Link key={href} href={href} aria-current={isActive(href) ? "page" : undefined}><span className="snap-nav-label">{label}</span></Link>)}
@@ -77,7 +77,7 @@ export default function Navbar() {
             <div className="snap-nav-dropdown">
               <div className="snap-nav-quick-links">{moreLinks.map(link => <Link href={link.href} key={link.href} onClick={() => teamsRef.current?.removeAttribute("open")}>{link.label}</Link>)}</div>
               <p>Find your team</p>
-              <div className="snap-nav-teams">{Object.entries(TEAM_META).map(([code,team]) => <Link key={code} href={`/teams/${team.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} onClick={() => teamsRef.current?.removeAttribute("open")}>{team.name}</Link>)}</div>
+              <div className="snap-nav-teams">{Object.entries(TEAM_META).map(([code,team]) => <Link key={code} href={`/teams/${team.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} onClick={() => teamsRef.current?.removeAttribute("open")}><Image src={team.logo} alt="" width={28} height={28} />{team.name}</Link>)}</div>
             </div>
           </details>
         </nav>

@@ -430,3 +430,6 @@
 @media (prefers-reduced-motion: reduce) {
   .snap-site-footer *, .snap-site-footer *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+
+.snap-site-footer .snap-footer-logo { width: 170px; height: auto; border-radius: 4px; overflow:hidden; }
+.snap-site-footer .snap-footer-logo img { width:170px; height:40px; object-fit:contain; }

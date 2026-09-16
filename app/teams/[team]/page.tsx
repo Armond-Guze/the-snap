@@ -284,12 +284,12 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   const currentDivisionCodes = DIVISION_GROUPS.find((group) => group.title === teamStanding?.division)?.teams || [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 text-white sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-8 text-neutral-900 sm:px-6 lg:px-8">
       <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />
       <StructuredData data={breadcrumbSchema} id={`sd-team-breadcrumb-${abbr}`} />
 
       <section
-        className="relative overflow-hidden rounded-3xl border border-white/10 p-5 sm:p-7"
+        className="relative overflow-hidden rounded-3xl border border-neutral-200 p-5 sm:p-7"
         style={{
           borderColor: `${teamAccent}66`,
           boxShadow: `0 22px 60px -45px ${teamAccent}`,
@@ -301,43 +301,43 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-4">
             {meta.logo && (
-              <div className="relative h-16 w-16 rounded-2xl border border-white/20 bg-white/10 p-2 sm:h-20 sm:w-20">
+              <div className="relative h-16 w-16 rounded-2xl border border-neutral-200 bg-neutral-50 p-2 sm:h-20 sm:w-20">
                 <Image src={meta.logo} alt={`${meta.name} logo`} fill sizes="80px" className="object-contain" />
               </div>
             )}
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">Team Hub</p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl">{meta.name}</h1>
-              <p className="mt-2 text-sm text-white/75">{scheduleSeason} coverage center: schedule, {standingsSeason} standings context, and latest team stories.</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-600">Team Hub</p>
+              <h1 className="mt-1 text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl">{meta.name}</h1>
+              <p className="mt-2 text-sm text-neutral-600">{scheduleSeason} coverage center: schedule, {standingsSeason} standings context, and latest team stories.</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:min-w-[280px]">
-            <div className="rounded-xl border border-white/15 bg-black/25 p-3">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">{standingsSeason} Record</p>
-              <p className="mt-1 text-lg font-bold text-white">{formatRecord(teamStanding)}</p>
+            <div className="rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">{standingsSeason} Record</p>
+              <p className="mt-1 text-lg font-bold text-neutral-900">{formatRecord(teamStanding)}</p>
             </div>
-            <div className="rounded-xl border border-white/15 bg-black/25 p-3">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">Division</p>
-              <p className="mt-1 text-lg font-bold text-white">{divisionRank ? ordinal(divisionRank) : '—'}</p>
+            <div className="rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">Division</p>
+              <p className="mt-1 text-lg font-bold text-neutral-900">{divisionRank ? ordinal(divisionRank) : '—'}</p>
             </div>
-            <div className="rounded-xl border border-white/15 bg-black/25 p-3">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">Conference</p>
-              <p className="mt-1 text-lg font-bold text-white">{conferenceRank ? ordinal(conferenceRank) : '—'}</p>
+            <div className="rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">Conference</p>
+              <p className="mt-1 text-lg font-bold text-neutral-900">{conferenceRank ? ordinal(conferenceRank) : '—'}</p>
             </div>
-            <div className="rounded-xl border border-white/15 bg-black/25 p-3">
-              <p className="text-[10px] uppercase tracking-[0.14em] text-white/55">Division</p>
-              <p className="mt-1 truncate text-sm font-semibold text-white">{teamStanding?.division || 'N/A'}</p>
+            <div className="rounded-xl border border-neutral-200 bg-white p-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">Division</p>
+              <p className="mt-1 truncate text-sm font-semibold text-neutral-900">{teamStanding?.division || 'N/A'}</p>
             </div>
           </div>
         </div>
 
         <div className="relative z-10 mt-5 flex flex-wrap gap-2">
-          <Link href="/standings" className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">Standings</Link>
-          <Link href={`/schedule?team=${abbr}`} className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">Team Schedule</Link>
-          <Link href={`/headlines?search=${encodeURIComponent(meta.name)}`} className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">Search Headlines</Link>
-          <Link href="/teams" className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20">All Teams Hub</Link>
+          <Link href="/standings" className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-900 hover:bg-neutral-50">Standings</Link>
+          <Link href={`/schedule?team=${abbr}`} className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-900 hover:bg-neutral-50">Team Schedule</Link>
+          <Link href={`/headlines?search=${encodeURIComponent(meta.name)}`} className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-900 hover:bg-neutral-50">Search Headlines</Link>
+          <Link href="/teams" className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-900 hover:bg-neutral-50">All Teams Hub</Link>
         </div>
       </section>
 
@@ -346,13 +346,13 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
           <section>
             <div className="mb-4 flex items-end justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white">Latest {meta.name} News</h2>
-                <p className="mt-1 text-sm text-white/60">Recent stories tagged to this team across The Snap.</p>
+                <h2 className="text-2xl font-bold text-neutral-900">Latest {meta.name} News</h2>
+                <p className="mt-1 text-sm text-neutral-600">Recent stories tagged to this team across The Snap.</p>
               </div>
             </div>
 
             {dedupedNews.length === 0 ? (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-white/70">
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6 text-sm text-neutral-600">
                 No tagged team stories yet. Check back soon.
               </div>
             ) : (
@@ -365,7 +365,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                     <Link
                       key={item._id}
                       href={href}
-                      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:bg-white/[0.07]"
+                      className="group overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 transition-colors hover:bg-neutral-50"
                     >
                       <div className="relative aspect-video overflow-hidden bg-zinc-900">
                         {img ? (
@@ -381,13 +381,13 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                         )}
                       </div>
                       <div className="p-4">
-                        <p className="text-[10px] uppercase tracking-[0.14em] text-white/45">
+                        <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-600">
                           {(item.date || item.publishedAt) ? new Date(item.date || item.publishedAt || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Latest'}
                         </p>
-                        <h3 className="mt-2 line-clamp-2 text-[15px] font-semibold leading-snug text-white group-hover:text-white/90">
+                        <h3 className="mt-2 line-clamp-2 text-[15px] font-semibold leading-snug text-neutral-900 group-hover:text-neutral-600">
                           {item.homepageTitle || item.title}
                         </h3>
-                        {item.summary && <p className="mt-2 line-clamp-2 text-xs text-white/65">{item.summary}</p>}
+                        {item.summary && <p className="mt-2 line-clamp-2 text-xs text-neutral-600">{item.summary}</p>}
                       </div>
                     </Link>
                   );
@@ -398,15 +398,15 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
 
           <section>
             <div className="mb-4">
-              <h2 className="text-2xl font-bold text-white">{scheduleSeason} Schedule Snapshot</h2>
-              <p className="mt-1 text-sm text-white/60">Next up and recent results view for quick team tracking.</p>
+              <h2 className="text-2xl font-bold text-neutral-900">{scheduleSeason} Schedule Snapshot</h2>
+              <p className="mt-1 text-sm text-neutral-600">Next up and recent results view for quick team tracking.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Upcoming Games</h3>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-600">Upcoming Games</h3>
                 {upcomingGames.length === 0 ? (
-                  <p className="text-sm text-white/60">No upcoming games found.</p>
+                  <p className="text-sm text-neutral-600">No upcoming games found.</p>
                 ) : (
                   <ul className="space-y-2.5">
                     {upcomingGames.map((game) => {
@@ -414,15 +414,15 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                       const oppAbbr = isHome ? game.away : game.home;
                       const oppMeta = TEAM_META[oppAbbr];
                       return (
-                        <li key={game.gameId} className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <li key={game.gameId} className="rounded-xl border border-neutral-200 bg-white p-3">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/55">Week {game.week}</p>
-                            <p className="text-xs text-white/55">
+                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-600">Week {game.week}</p>
+                            <p className="text-xs text-neutral-600">
                               {game.dateTimeTBD ? 'Date/time TBD' : `${formatGameDateLabel(game.dateUTC)} · ${formatGameTimeLabel(game.dateUTC)} ET`}
                             </p>
                           </div>
-                          <p className="mt-1 text-sm font-semibold text-white">{isHome ? 'vs' : '@'} {oppMeta?.name || oppAbbr}</p>
-                          <div className="mt-1 text-xs text-white/55">{game.network || 'Network TBD'}{game.venue ? ` • ${game.venue}` : ''}</div>
+                          <p className="mt-1 text-sm font-semibold text-neutral-900">{isHome ? 'vs' : '@'} {oppMeta?.name || oppAbbr}</p>
+                          <div className="mt-1 text-xs text-neutral-600">{game.network || 'Network TBD'}{game.venue ? ` • ${game.venue}` : ''}</div>
                         </li>
                       );
                     })}
@@ -430,10 +430,10 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Recent Games</h3>
+              <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-600">Recent Games</h3>
                 {recentGames.length === 0 ? (
-                  <p className="text-sm text-white/60">Season has not started yet.</p>
+                  <p className="text-sm text-neutral-600">Season has not started yet.</p>
                 ) : (
                   <ul className="space-y-2.5">
                     {recentGames.map((game) => {
@@ -441,13 +441,13 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                       const oppAbbr = isHome ? game.away : game.home;
                       const oppMeta = TEAM_META[oppAbbr];
                       return (
-                        <li key={game.gameId} className="rounded-xl border border-white/10 bg-black/25 p-3">
+                        <li key={game.gameId} className="rounded-xl border border-neutral-200 bg-white p-3">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/55">Week {game.week}</p>
-                            <p className="text-xs text-white/55">{formatGameDateLabel(game.dateUTC)}</p>
+                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-600">Week {game.week}</p>
+                            <p className="text-xs text-neutral-600">{formatGameDateLabel(game.dateUTC)}</p>
                           </div>
-                          <p className="mt-1 text-sm font-semibold text-white">{isHome ? 'vs' : '@'} {oppMeta?.name || oppAbbr}</p>
-                          <div className="mt-1 text-xs text-white/55">{game.network || 'Network TBD'}{game.venue ? ` • ${game.venue}` : ''}</div>
+                          <p className="mt-1 text-sm font-semibold text-neutral-900">{isHome ? 'vs' : '@'} {oppMeta?.name || oppAbbr}</p>
+                          <div className="mt-1 text-xs text-neutral-600">{game.network || 'Network TBD'}{game.venue ? ` • ${game.venue}` : ''}</div>
                         </li>
                       );
                     })}
@@ -459,10 +459,10 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         </main>
 
         <aside className="space-y-6">
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Division Snapshot</h2>
+          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-600">Division Snapshot</h2>
             {divisionStandings.length === 0 ? (
-              <p className="text-sm text-white/60">Division standings unavailable.</p>
+              <p className="text-sm text-neutral-600">Division standings unavailable.</p>
             ) : (
               <ul className="space-y-2">
                 {divisionStandings.map((teamData, index) => {
@@ -472,17 +472,17 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                     <li
                       key={teamData.teamName}
                       className={`rounded-lg border px-3 py-2 ${
-                        isCurrent ? 'border-white/35 bg-white/10' : 'border-white/10 bg-black/25'
+                        isCurrent ? 'border-neutral-200 bg-neutral-50' : 'border-neutral-200 bg-white'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">
+                          <p className="truncate text-sm font-semibold text-neutral-900">
                             {index + 1}. {teamData.teamName}
                           </p>
-                          <p className="text-[11px] uppercase tracking-[0.1em] text-white/55">{teamCode || 'NFL'}</p>
+                          <p className="text-[11px] uppercase tracking-[0.1em] text-neutral-600">{teamCode || 'NFL'}</p>
                         </div>
-                        <p className="text-sm font-bold text-white">{formatRecord(teamData)}</p>
+                        <p className="text-sm font-bold text-neutral-900">{formatRecord(teamData)}</p>
                       </div>
                     </li>
                   );
@@ -492,8 +492,8 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
           </section>
 
           {currentDivisionCodes.length > 0 && (
-            <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-white/65">Division Team Hubs</h2>
+            <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-600">Division Team Hubs</h2>
               <div className="grid grid-cols-2 gap-2">
                 {currentDivisionCodes.map((code) => {
                   const tMeta = TEAM_META[code];
@@ -501,7 +501,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                     <Link
                       key={code}
                       href={`/teams/${slugifyTeamName(tMeta.name)}`}
-                      className="rounded-lg border border-white/10 bg-black/25 px-2 py-2 text-center text-xs font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+                      className="rounded-lg border border-neutral-200 bg-white px-2 py-2 text-center text-xs font-semibold text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                     >
                       {code}
                     </Link>
@@ -513,19 +513,19 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         </aside>
       </div>
 
-      <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+      <section className="mt-10 rounded-3xl border border-neutral-200 bg-neutral-50 p-5 sm:p-6">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">NFL Team Hub Index</h2>
-            <p className="text-sm text-white/60">Jump to any team page directly from here.</p>
+            <h2 className="text-2xl font-bold text-neutral-900">NFL Team Hub Index</h2>
+            <p className="text-sm text-neutral-600">Jump to any team page directly from here.</p>
           </div>
-          <Link href="/standings" className="text-sm font-semibold text-white/75 hover:text-white">View full standings →</Link>
+          <Link href="/standings" className="text-sm font-semibold text-neutral-600 hover:text-neutral-900">View full standings →</Link>
         </div>
 
         <div className="space-y-5">
           {DIVISION_GROUPS.map((division) => (
             <div key={division.title}>
-              <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-white/55">{division.title}</h3>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-neutral-600">{division.title}</h3>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {division.teams.map((code) => {
                   const tMeta = TEAM_META[code];
@@ -534,16 +534,16 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                     <Link
                       key={code}
                       href={`/teams/${slugifyTeamName(tMeta.name)}`}
-                      className="group rounded-xl border border-white/10 px-3 py-2 transition-colors hover:bg-white/[0.07]"
+                      className="group rounded-xl border border-neutral-200 px-3 py-2 transition-colors hover:bg-neutral-50"
                       style={{ backgroundColor: `${accent}22` }}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-md bg-black/25 p-1">
+                        <span className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-md bg-white p-1">
                           <Image src={tMeta.logo} alt={`${tMeta.name} logo`} fill sizes="28px" className="object-contain" />
                         </span>
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-white">{code}</p>
-                          <p className="truncate text-[11px] text-white/70 group-hover:text-white/90">
+                          <p className="text-xs font-bold text-neutral-900">{code}</p>
+                          <p className="truncate text-[11px] text-neutral-600 group-hover:text-neutral-600">
                             {tMeta.name.split(' ').slice(-1)[0]}
                           </p>
                         </div>

@@ -1,3 +1,4 @@
+import { getScheduleSeason } from '@/lib/season';
 // import VideoOfTheWeek from "./components/VideoOfTheWeek";
 import Headlines from "./components/Headlines";
 import RankingsSection from "./components/RankingsSection";
@@ -147,7 +148,7 @@ export default async function Home() {
 type GameScheduleCard = Parameters<typeof GameSchedule>[0]['games'][number];
 
 async function buildHomepageGames(recMap: Map<string, TeamRecordDoc>): Promise<GameScheduleCard[]> {
-  const { games } = await getScheduleWeekOrCurrent();
+  const { games } = await getScheduleWeekOrCurrent(undefined, String(await getScheduleSeason()));
   return filterUpcomingGames(games.map((g) => mapEnrichedGameToCard(g, recMap)));
 }
 

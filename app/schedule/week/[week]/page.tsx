@@ -79,18 +79,18 @@ export default async function WeekSchedulePage({ params, searchParams }: WeekPag
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-white md:pt-8">
+    <div className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-neutral-900 md:pt-8">
       {scheduleSchema && <StructuredData data={scheduleSchema} id={`sd-${season}-week-${week}`} />}
       <h1 className="mb-2 text-3xl font-bold">{season} NFL Schedule – Week {week}</h1>
-      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-white/65">
+      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-600">
         All {filteredGames.length} Week {week} matchups with kickoff times, TV networks and game status.
         {flexibleGameCount > 0 && ` ${flexibleGameCount} late-season matchup${flexibleGameCount === 1 ? ' is' : 's are'} awaiting an official date and kickoff time.`}
       </p>
       <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
       <TimezoneClient />
       <GamesBuckets games={filteredGames} recordsMap={recordsMap} timezoneCode={timezoneCode} />
-      <p className="mt-10 text-sm text-white/65">
-        <Link href="/schedule" className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">
+      <p className="mt-10 text-sm text-neutral-600">
+        <Link href="/schedule" className="font-semibold text-neutral-900 underline decoration-white/30 underline-offset-4 hover:decoration-white">
           Return to the full {season} NFL schedule
         </Link>
       </p>

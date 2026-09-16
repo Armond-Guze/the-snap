@@ -73,10 +73,10 @@ export default async function ScheduleLandingPage({ searchParams }: ScheduleLand
     : null;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-white md:pt-8">
+    <main className="mx-auto max-w-5xl px-4 pb-8 pt-3 text-neutral-900 md:pt-8">
       {scheduleSchema && <StructuredData data={scheduleSchema} id={`sd-schedule-${season}-week-${week}`} />}
       <h1 className="mb-2 text-3xl font-bold">{season} NFL Schedule</h1>
-      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-white/65">
+      <p className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-600">
         Browse every regular-season matchup by week, including kickoff times, TV networks, live game status and final scores. The schedule opens to Week {week}, the nearest upcoming or active week.
       </p>
       <WeekDropdown currentWeek={week} showAutoWeekLink={false} />
