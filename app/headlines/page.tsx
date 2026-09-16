@@ -202,19 +202,19 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
 
   const title = buildTitle(filters);
   const description = buildDescription(filters);
-  const leadStory = headlines[0];
-  const secondaryStories = headlines.slice(1, 4);
-  const gridStories = headlines.slice(4, 28);
+  const leadStory = headlines.find(story => getHeadlineImage(story)) || headlines[0];
+  const remainingStories = headlines.filter(story => story._id !== leadStory?._id);
+  const secondaryStories = remainingStories.slice(0, 3);
+  const gridStories = remainingStories.slice(3, 27);
 
   const hasFilters = Boolean(filters.category || filters.tag || filters.search);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(125,211,252,0.10),_transparent_40%),linear-gradient(180deg,_#0b0b0c_0%,_#050506_100%)] text-neutral-900">
+    <main className="snap-coverage-page min-h-screen bg-white text-neutral-900">
       <div className="mx-auto max-w-[92rem] px-4 pb-14 pt-8 sm:px-6 lg:px-8">
-        <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-900 p-6 shadow-[0_25px_90px_-45px_rgba(56,189,248,0.5)] md:p-10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(59,130,246,0.18),transparent_45%)]" />
-          <div className="relative z-10">
-            <p className="mb-3 inline-flex items-center rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-100">
+        <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-50 p-6  md:p-10">
+                    <div className="relative z-10">
+            <p className="mb-3 inline-flex items-center rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-800">
               Live Feed
             </p>
             <h1 className="text-3xl font-black tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl">{title}</h1>
@@ -226,14 +226,14 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                   type="text"
                   name="search"
                   defaultValue={filters.search ?? ''}
-                  placeholder="Search headlines, teams, tags..."
+                  aria-label="Search headlines" placeholder="Search headlines, teams, tags..."
                   className="h-11 w-full rounded-xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-500 focus:border-sky-300/45"
                 />
                 {filters.category && <input type="hidden" name="category" value={filters.category} />}
                 {filters.tag && <input type="hidden" name="tag" value={filters.tag} />}
                 <button
                   type="submit"
-                  className="h-11 rounded-xl bg-white px-5 text-sm font-semibold text-black transition-colors hover:bg-slate-100"
+                  className="h-11 rounded-xl bg-[#032c57] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#104574]"
                 >
                   Search
                 </button>
@@ -259,10 +259,10 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                 return (
                   <Link
                     key={category._id}
-                    href={`/categories/${encodeURIComponent(category.slug.current)}`}
+                    href={`/headlines?category=${encodeURIComponent(category.slug.current)}`}
                     className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                       active
-                        ? 'border border-sky-300/45 bg-sky-300/20 text-sky-100'
+                        ? 'border border-sky-300/45 bg-sky-300/20 text-sky-800'
                         : 'border border-neutral-200 bg-neutral-50 text-neutral-800 hover:bg-neutral-50'
                     }`}
                   >
@@ -303,8 +303,8 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                   <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
                     <article className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
                       <Link href={getHeadlineHref(leadStory)} className="group block">
-                        <div className="relative aspect-[16/9] overflow-hidden bg-neutral-100">
-                          {getHeadlineImage(leadStory) ? (
+                        <div className="overflow-hidden bg-white">
+                          <div className="relative aspect-[16/9] bg-neutral-100">{getHeadlineImage(leadStory) ? (
                             <Image
                               src={getHeadlineImage(leadStory) || ''}
                               alt={leadStory.homepageTitle || leadStory.title}
@@ -314,14 +314,14 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                               sizes="(min-width: 1280px) 70vw, 100vw"
                             />
                           ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950" />
+                            <div className="absolute inset-0 bg-neutral-100" />
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-                          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                          </div>
+                          <div className="p-5 sm:p-6">
                             <p className="mb-3 inline-flex rounded-full border border-neutral-200 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-neutral-800">
                               Top Headline
                             </p>
-                            <h2 className="text-2xl font-black leading-tight text-neutral-900 transition-colors group-hover:text-sky-100 sm:text-3xl">
+                            <h2 className="text-2xl font-black leading-tight text-neutral-900 transition-colors group-hover:text-sky-800 sm:text-3xl">
                               {leadStory.homepageTitle || leadStory.title}
                             </h2>
                             {leadStory.summary && (
@@ -358,12 +358,12 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                                       sizes="110px"
                                     />
                                   ) : (
-                                    <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950" />
+                                    <div className="absolute inset-0 bg-neutral-100" />
                                   )}
                                 </div>
 
                                 <div className="min-w-0">
-                                  <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-100">
+                                  <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-800">
                                     {story.homepageTitle || story.title}
                                   </h3>
                                   <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-neutral-600">
@@ -407,7 +407,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                                   sizes="(min-width: 1280px) 23vw, (min-width: 768px) 48vw, 100vw"
                                 />
                               ) : (
-                                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950" />
+                                <div className="absolute inset-0 bg-neutral-100" />
                               )}
                               <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 text-[10px] uppercase tracking-[0.14em] text-neutral-600">
                                 <span className="rounded-full bg-white px-2 py-1">{story.category?.title || 'League'}</span>
@@ -416,7 +416,7 @@ export default async function HeadlinesPage(props: HeadlinesPageProps) {
                             </div>
 
                             <div className="p-4">
-                              <h3 className="line-clamp-2 text-base font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-100">
+                              <h3 className="line-clamp-2 text-base font-semibold leading-snug text-neutral-900 transition-colors group-hover:text-sky-800">
                                 {story.homepageTitle || story.title}
                               </h3>
 

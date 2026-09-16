@@ -267,7 +267,7 @@ export default function TagCloud({
               title={tag.description || `View articles tagged with ${tag.title}`}
               style={{
                 borderColor: hexToRgba(accent, isActive ? 0.65 : 0.35),
-                background: `linear-gradient(135deg, ${hexToRgba(accent, isActive ? 0.3 : 0.16)} 0%, rgba(15, 23, 42, 0.48) 100%)`,
+                background: `linear-gradient(135deg, ${hexToRgba(accent, isActive ? 0.3 : 0.16)} 0%, rgba(255, 255, 255, 1) 100%)`,
                 boxShadow: isActive
                   ? `0 0 0 1px ${hexToRgba(accent, 0.6)}, 0 14px 30px -24px ${hexToRgba(accent, 0.95)}`
                   : `0 10px 26px -24px ${hexToRgba(accent, 0.9)}`,

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FaEnvelope, FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from "react-icons/fa6";
 import { openConsentPreferences } from "./consent";
 import FooterReveal from "./FooterReveal";
 import FooterBenefits from "./FooterBenefits";
@@ -42,11 +42,6 @@ const socials = [
     href: "https://www.youtube.com/@thesnapfootball",
     icon: FaYoutube,
   },
-  {
-    label: "Email",
-    href: "mailto:TheGameSnap@yahoo.com",
-    icon: FaEnvelope,
-  },
 ];
 
 
@@ -76,13 +71,12 @@ export default function Footer() {
               <h2>{group.title}</h2>
               {group.links.map(link => <Link href={link.href} key={link.href}>{link.label}</Link>)}
             </section>)}
-            <a className="snap-footer-contact-email" href="mailto:TheGameSnap@yahoo.com">TheGameSnap@yahoo.com</a>
           </nav>
           <section className="snap-footer-newsletter" aria-label="Newsletter signup">
             <h2>Stay in the game with The Snap newsletter</h2>
             <NewsletterSignup variant="footer" />
             <div className="snap-footer-social-icons" aria-label="Follow The Game Snap">
-              {socials.filter(s => s.label !== "Email").map(({label,href,icon: Icon}) => (
+              {socials.map(({label,href,icon: Icon}) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={22} /></a>
               ))}
             </div>
@@ -94,7 +88,6 @@ export default function Footer() {
                 {group.links.map(link => <Link href={link.href} key={link.href}>{link.label}</Link>)}
               </div>
             </details>)}
-            <a className="snap-footer-contact-email" href="mailto:TheGameSnap@yahoo.com">TheGameSnap@yahoo.com</a>
           </nav>
         </div>
         <div className="snap-footer-bottom">

@@ -58,7 +58,7 @@ export default async function TeamsHubIndexPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 text-neutral-900 sm:px-6 lg:px-8">
-      <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(56,189,248,0.18),transparent_35%)]" />
         <div className="relative z-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-600">League Navigation</p>

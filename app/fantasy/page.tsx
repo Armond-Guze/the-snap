@@ -113,7 +113,7 @@ export default async function FantasyFootballPage() {
     return (
       <div className="min-h-screen bg-white text-neutral-900 flex items-center justify-center px-6 py-24">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-white/10 to-black rounded-2xl flex items-center justify-center border border-neutral-200">
+          <div className="w-24 h-24 mx-auto mb-6 bg-neutral-100 rounded-2xl flex items-center justify-center border border-neutral-200">
             <svg className="w-12 h-12 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
@@ -127,13 +127,14 @@ export default async function FantasyFootballPage() {
   }
 
   const stories = fantasyArticles.filter((item) => !!item.slug?.current?.trim());
-  const [topStory, ...moreStories] = stories;
+  const topStory = stories.find(item => item.coverImage?.asset?.url) || stories[0];
+  const moreStories = stories.filter(item => item._id !== topStory?._id);
   const topStoryDate = topStory ? getPublishedDate(topStory.publishedAt) : null;
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900">
+    <main className="snap-coverage-page min-h-screen bg-white text-neutral-900">
       <section className="relative overflow-hidden border-b border-neutral-200">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-black/90" />
+
 
         <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-16">
           <h1 className="text-4xl font-black leading-tight sm:text-5xl">Fantasy Latest</h1>
@@ -142,7 +143,7 @@ export default async function FantasyFootballPage() {
           </p>
           <Link
             href="/fantasy/mock-draft-simulator"
-            className="mt-6 inline-flex items-center rounded-lg border border-cyan-200/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+            className="mt-6 inline-flex items-center rounded-lg border border-cyan-200/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-sky-800 transition hover:bg-cyan-300/20"
           >
             Open Mock Draft Simulator
           </Link>
@@ -156,8 +157,8 @@ export default async function FantasyFootballPage() {
               href={toFantasyUrl(topStory)}
               className="group overflow-hidden rounded-2xl bg-neutral-50 transition-colors hover:bg-neutral-50"
             >
-              <div className="relative h-72 w-full sm:h-96">
-                {topStory.coverImage?.asset?.url ? (
+              <div className="bg-white">
+                <div className="relative aspect-[16/9] bg-neutral-100">{topStory.coverImage?.asset?.url ? (
                   <Image
                     src={topStory.coverImage.asset.url}
                     alt={topStory.title}
@@ -168,8 +169,8 @@ export default async function FantasyFootballPage() {
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/0" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5">
+                </div>
+                <div className="p-5">
                   <div className="mb-2 flex items-center gap-2 text-[11px] text-neutral-600">
                     <span className="inline-flex rounded-full bg-emerald-300 px-2 py-0.5 font-semibold uppercase tracking-wide text-black">
                       {formatFantasyType(topStory.fantasyType)}

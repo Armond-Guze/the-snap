@@ -284,7 +284,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
   const currentDivisionCodes = DIVISION_GROUPS.find((group) => group.title === teamStanding?.division)?.teams || [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 text-neutral-900 sm:px-6 lg:px-8">
+    <div className="snap-coverage-page mx-auto max-w-7xl px-4 py-8 text-neutral-900 sm:px-6 lg:px-8">
       <StructuredData data={teamSchema} id={`sd-team-${abbr}`} />
       <StructuredData data={breadcrumbSchema} id={`sd-team-breadcrumb-${abbr}`} />
 
@@ -292,8 +292,8 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
         className="relative overflow-hidden rounded-3xl border border-neutral-200 p-5 sm:p-7"
         style={{
           borderColor: `${teamAccent}66`,
-          boxShadow: `0 22px 60px -45px ${teamAccent}`,
-          backgroundImage: `linear-gradient(135deg, ${teamAccent}44 0%, rgba(10,10,12,0.92) 45%, rgba(3,3,4,0.95) 100%)`,
+
+          backgroundImage: `linear-gradient(135deg, ${teamAccent}12 0%, rgba(255,255,255,1) 45%, rgba(248,250,252,1) 100%)`,
         }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_10%,rgba(255,255,255,0.16),transparent_35%)]" />
@@ -377,7 +377,7 @@ export default async function TeamHubPage({ params }: TeamPageProps) {
                             className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                           />
                         ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950" />
+                          <div className="absolute inset-0 bg-neutral-100" />
                         )}
                       </div>
                       <div className="p-4">
