@@ -100,8 +100,8 @@ export default async function RankingsSection({ hideSummaries = false }: Ranking
   };
 
   return (
-    <section className="snap-latest-section home-section-surface relative px-6 py-10 lg:px-8 2xl:px-12 3xl:px-16">
-      <div className="home-section-fade pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-black/90" />
+    <section className="snap-latest-section home-section-surface bg-white relative px-6 py-10 lg:px-8 2xl:px-12 3xl:px-16">
+
       <div className="relative z-10 mx-auto max-w-[86rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
         <div className="mb-4 2xl:mb-5 3xl:mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-8">
