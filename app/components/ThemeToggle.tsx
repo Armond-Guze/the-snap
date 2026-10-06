@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
-const STORAGE_KEY = "theme-preference";
+// v2 key: older "theme-preference" values were forced to "dark" for all visitors.
+const STORAGE_KEY = "theme-preference-v2";
 
 type Theme = "light" | "dark";
 
+// Light is the site default; visitors can switch with the toggle.
 function resolveSystemTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 function applyTheme(theme: Theme) {
@@ -38,18 +39,6 @@ export default function ThemeToggle() {
     applyTheme(initial);
     setTheme(initial);
     setMounted(true);
-
-    if (saved === "light" || saved === "dark") return;
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      const next = media.matches ? "dark" : "light";
-      applyTheme(next);
-      setTheme(next);
-    };
-
-    media.addEventListener("change", handleChange);
-    return () => media.removeEventListener("change", handleChange);
   }, []);
 
   const onToggle = () => {
