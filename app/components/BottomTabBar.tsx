@@ -1,7 +1,7 @@
 "use client";
 
 import { Capacitor } from "@capacitor/core";
-import { Bell, Home, Trophy, User } from "lucide-react";
+import { Bookmark, Newspaper, Home, Trophy, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
@@ -26,9 +26,9 @@ const TAB_ITEMS: TabItem[] = [
   },
   {
     key: "alerts",
-    label: "Alerts",
+    label: "News",
     href: "/headlines",
-    icon: Bell,
+    icon: Newspaper,
     isActive: (pathname) => pathname === "/headlines" || pathname.startsWith("/headlines/"),
   },
   {
@@ -42,6 +42,7 @@ const TAB_ITEMS: TabItem[] = [
       pathname === "/standings" ||
       pathname.startsWith("/standings/"),
   },
+  { key: "saved", label: "My Snap", href: "/my-snap", icon: Bookmark, isActive: (pathname) => pathname === "/my-snap" },
   {
     key: "account",
     label: "Account",
@@ -61,7 +62,7 @@ export default function BottomTabBar() {
   const pathname = usePathname();
   const showTabs = useSyncExternalStore(
     subscribeToPlatform,
-    () => Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios",
+    () => Capacitor.isNativePlatform(),
     () => false
   );
 
@@ -72,7 +73,7 @@ export default function BottomTabBar() {
       <div className="md:hidden h-[calc(68px+env(safe-area-inset-bottom,0px))]" aria-hidden="true" />
       <nav
         aria-label="Bottom navigation"
-        className="md:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-white/10 bg-[hsl(0_0%_3.9%)/0.96] px-2 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] backdrop-blur-xl"
+        className="md:hidden fixed inset-x-0 bottom-0 z-[70] border-t border-white/10 bg-[#032c57] px-2 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] backdrop-blur-xl"
       >
         <ul className="mx-auto flex max-w-md items-center gap-1">
           {TAB_ITEMS.map((tab) => {

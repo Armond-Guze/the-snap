@@ -20,6 +20,7 @@ const primaryLinks = [
   { href: "/schedule", label: "Schedule" },
 ];
 const moreLinks = [
+  { href: "/my-snap", label: "My Snap" },
   { href: "/teams", label: "NFL Teams" },
   { href: "/standings", label: "Standings" },
   { href: "/articles", label: "All Articles" },

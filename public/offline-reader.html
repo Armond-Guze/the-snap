@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#032c57" />
+    <title>Offline library | The Snap</title>
+    <style>
+      body {
+        margin: 0;
+        background: #fff;
+        color: #171717;
+        font:
+          17px/1.75 system-ui,
+          sans-serif;
+      }
+      header {
+        background: #032c57;
+        color: white;
+        padding: 20px;
+      }
+      header a {
+        color: white;
+        font-weight: 800;
+        text-decoration: none;
+      }
+      main {
+        max-width: 740px;
+        margin: 40px auto;
+        padding: 0 22px;
+      }
+      h1 {
+        line-height: 1.2;
+        font-size: 34px;
+      }
+      h2 {
+        line-height: 1.4;
+        font-size: 20px;
+      }
+      a,
+      button {
+        color: #032c57;
+      }
+      button {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 24px;
+        padding: 10px 18px;
+        font: inherit;
+        cursor: pointer;
+      }
+      li {
+        padding: 20px 0;
+        border-bottom: 1px solid #ddd;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      .muted {
+        color: #666;
+        font-size: 14px;
+      }
+      #body p {
+        white-space: pre-wrap;
+      }
+      nav {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+    </style>
+    <script src="/offline-reader.js" defer></script>
+  </head>
+  <body>
+    <header><a href="/">THE SNAP</a></header>
+    <main>
+      <nav>
+        <a href="/offline-reader.html">Offline library</a
+        ><a href="/my-snap">Back to My Snap (online)</a>
+      </nav>
+      <h1 id="title">Offline library</h1>
+      <p id="status" role="status" class="muted">Loading downloads…</p>
+      <div id="body"></div>
+    </main>
+  </body>
+</html>

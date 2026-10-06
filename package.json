@@ -79,7 +79,8 @@
     "svix": "1.99.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
-    "twitter-api-v2": "^1.27.0"
+    "twitter-api-v2": "^1.27.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",
@@ -89,6 +90,7 @@
     "@types/node": "^22.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "env-cmd": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",

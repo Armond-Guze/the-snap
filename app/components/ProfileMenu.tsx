@@ -72,7 +72,7 @@ export default function ProfileMenu() {
 
   const [open, setOpen] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const [localProfile, setLocalProfile] = useState<LocalProfile | null>(() => readLocalProfile());
+  const [localProfile, setLocalProfile] = useState<LocalProfile | null>(null);
   const [serverProfile, setServerProfile] = useState<UserProfileDTO | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -80,6 +80,15 @@ export default function ProfileMenu() {
 
   const menuRef = useRef<HTMLDivElement | null>(null);
   const legacyMigrationAttempted = useRef(false);
+
+  useEffect(() => {
+    const refresh = () => {
+      if (isSignedIn) void fetchCurrentUserProfile().then(setServerProfile).catch(() => {});
+      else setLocalProfile(readLocalProfile());
+    };
+    window.addEventListener('snap-profile-updated', refresh);
+    return () => window.removeEventListener('snap-profile-updated', refresh);
+  }, [isSignedIn]);
 
   const allTeams = [
     "ARI",
@@ -146,6 +155,7 @@ export default function ProfileMenu() {
     let cancelled = false;
 
     async function loadProfile() {
+      setLocalProfile(readLocalProfile());
       if (!isLoaded || !isSignedIn) {
         legacyMigrationAttempted.current = false;
         setServerProfile(null);
@@ -223,6 +233,7 @@ export default function ProfileMenu() {
 
       setLocalProfile(next);
       writeLocalProfile(next);
+      window.dispatchEvent(new Event("snap-profile-updated"));
       return;
     }
 
@@ -231,6 +242,7 @@ export default function ProfileMenu() {
     try {
       const updatedProfile = await updateCurrentUserProfile({ favoriteTeam: code ?? null });
       setServerProfile(updatedProfile);
+      window.dispatchEvent(new Event("snap-profile-updated"));
       setLocalProfile(null);
       writeLocalProfile(null);
     } catch (error) {

@@ -72,9 +72,36 @@ model User {
   preferences    UserPreference?
   follows        UserFollow[]
   subscriptions  UserSubscription[]
+  savedArticles  SavedArticle[]
+  pushDevices    PushDevice[]
 
   @@index([createdAt])
   @@index([deletedAt])
+}
+
+model SavedArticle {
+  userId String @db.Uuid
+  href String @db.VarChar(300)
+  title String @db.VarChar(500)
+  savedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([userId, href])
+  @@index([userId, savedAt])
+}
+
+model PushDevice {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  endpoint String @unique
+  p256dh String
+  auth String
+  team String @db.VarChar(3)
+  checkedAt DateTime @default(now())
+  leaseUntil DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([checkedAt])
 }
 
 model UserAuthIdentity {

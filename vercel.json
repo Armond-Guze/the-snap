@@ -3,6 +3,10 @@
   "installCommand": "npm ci",
   "crons": [
     {
+      "path": "/api/notifications/team-updates",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/seo/gsc-audit",
       "schedule": "20 13 * * *"
     },

@@ -1,3 +1,4 @@
+import { SaveStoryButton } from '@/app/components/SavedStories';
 import { PortableText } from '@portabletext/react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import Image from 'next/image';
@@ -236,6 +237,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 					</div>
 					<section className="mb-6 -mx-6 rounded-none bg-neutral-100 px-6 py-4 sm:mx-0 sm:rounded-2xl sm:px-5 sm:py-5">
 						<h1 className="text-2xl sm:text-3xl md:text-[2.2rem] font-extrabold leading-tight text-neutral-900 mb-2 md:mb-3 text-left">{article.title}</h1>
+<SaveStoryButton href={`/articles/${canonicalSlug}`} title={article.title} />
 						<div className="text-[12px] sm:text-[13px] text-neutral-500 mb-4 flex items-center gap-2.5 text-left flex-wrap">
 							{article.author?.image?.asset?.url && (
 								<div className="relative w-8 h-8 rounded-full overflow-hidden">

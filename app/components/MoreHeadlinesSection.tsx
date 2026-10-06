@@ -164,7 +164,7 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
             Latest Mix
           </span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 rounded-xl bg-[#f3f5f5] p-3 sm:p-5">
           {moreHeadlines.map((item: HeadlineItem) => {
             const author = item.author?.name;
             const imgUrl =
@@ -180,16 +180,16 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
               <Link
                 key={item._id}
                 href={href}
-                className="group relative flex gap-4 sm:gap-5 rounded-2xl bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-3 sm:p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
+                className="group relative flex overflow-hidden rounded-md bg-white shadow-[0_8px_18px_-8px_rgba(15,23,42,0.24)] transition-shadow duration-200 hover:shadow-[0_10px_22px_-8px_rgba(15,23,42,0.32)] focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 focus-visible:ring-offset-2"
               >
-                <div className="relative h-28 w-32 flex-shrink-0 overflow-hidden rounded-xl bg-neutral-100 sm:h-32 sm:w-40 lg:w-44">
+                <div className="relative min-h-32 w-28 flex-shrink-0 overflow-hidden bg-neutral-100 sm:min-h-44 sm:w-44">
                   {imgUrl ? (
                     <Image
                       src={imgUrl}
                       alt={item.title}
                       fill
                       className="object-cover object-left-top transition-transform duration-500 group-hover:scale-[1.06]"
-                      sizes="(max-width:640px) 150px, (max-width:1024px) 180px, 190px"
+                      sizes="(max-width: 639px) 112px, 176px"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-gray-500">
@@ -197,22 +197,22 @@ export default async function MoreHeadlinesSection({ hideSummaries = false }: Mo
                     </div>
                   )}
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col pt-1.5 sm:pt-2">
-                  <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-col justify-center px-3 py-3 sm:px-4 sm:py-4">
+                  <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-neutral-900 sm:text-xs">
+                      {author || "The Snap"}
+                    </span>
                     <span className="inline-flex rounded-full bg-neutral-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
                       {kicker}
                     </span>
-                    {published && <span className="text-[11px] text-neutral-500">{published}</span>}
                   </div>
-                  <h3 className="mb-1.5 line-clamp-2 text-[17px] font-semibold leading-snug text-neutral-700 group-hover:text-neutral-900 sm:text-[18px]">
+                  <h3 className="mb-1.5 line-clamp-3 text-[15px] font-bold leading-snug text-neutral-900 sm:line-clamp-2 sm:text-[18px]">
                     {item.homepageTitle || item.title}
                   </h3>
                   {item.summary && !hideSummaries && (
                     <p className="mb-1.5 hidden line-clamp-2 text-sm leading-snug text-neutral-500 md:block">{item.summary}</p>
                   )}
-                  {author && (
-                    <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-neutral-500 group-hover:text-neutral-700">{author}</p>
-                  )}
+                  {published && <p className="text-xs font-medium text-neutral-500 sm:text-sm">{published}</p>}
                 </div>
               </Link>
             );
