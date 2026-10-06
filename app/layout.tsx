@@ -40,7 +40,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
+// Light (cream) theme is the default. Set NEXT_PUBLIC_ENABLE_LIGHT_THEME=false to force dark.
+const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME !== "false";
 
 const themeInitScript = `
 (() => {
@@ -50,8 +51,7 @@ const themeInitScript = `
       ? `
     const storageKey = "theme-preference";
     const saved = localStorage.getItem(storageKey);
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const theme = saved === "light" || saved === "dark" ? saved : (systemDark ? "dark" : "light");
+    const theme = saved === "light" || saved === "dark" ? saved : "light";
     root.dataset.theme = theme;
     root.style.colorScheme = theme;
     root.classList.toggle("dark", theme === "dark");

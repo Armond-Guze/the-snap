@@ -56,7 +56,7 @@ export default async function BettingPage() {
   ).catch(() => [] as BettingArticle[])
 
   return (
-    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
+    <main className="home-gradient home-shell min-h-screen text-white">
       <div className="mx-auto max-w-4xl px-6 py-12">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Betting</p>
       <h1 className="mt-2 text-3xl font-bold sm:text-4xl">NFL betting, explained simply</h1>
