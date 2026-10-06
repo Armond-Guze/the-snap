@@ -58,6 +58,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/articles/how-to-read-nfl-betting-odds-spreads-moneylines-totals-and-more',
+        destination: '/articles/nfl-betting-odds-explained-spreads-moneylines-totals-and-more',
+        permanent: true,
+      },
+      {
         source: '/rankings',
         destination: '/articles',
         permanent: true,

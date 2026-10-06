@@ -272,6 +272,11 @@ const UNSUPPORTED_AUTOMATION_FORMAT_PATTERN =
   /\b(top 100|nos?\.\s*\d+\s*[-–]\s*\d+|power rankings?|mock draft|rankings?\s*[:\-]|team totals? tool|odds table)\b/i
 const GENERIC_SPECULATION_PATTERN =
   /\b(raises? questions?|remains to be seen|time will tell|worth monitoring|bears watching|could have implications|may have implications|could reshape|could signal)\b/i
+// The site focuses on betting and fantasy. Only stories that can change a start/sit, waiver, DFS, or betting decision
+// become drafts. Set NFL_IMPORT_ALLOW_GENERAL=1 to turn this gate off.
+const BETTING_FANTASY_RELEVANCE_PATTERN =
+  /\b(fantasy|start\/sit|sit\/start|waiver|adp|dynasty|best ball|dfs|draftkings|fanduel|betting|bets?|odds|spreads?|point spread|over\/under|moneyline|props?|parlays?|win totals?|implied totals?|line moves?|injur(?:y|ies|ed)|injured reserve|ruled out|questionable|doubtful|limited in practice|did not practice|depth chart|snap (?:share|count)s?|snaps|targets?|carries|touches|usage|workload|backfield|committee|starting (?:qb|quarterback|running back|receiver|tight end)|named (?:the )?starter|activated|placed on|strength of schedule|bye weeks?|projections?)\b/i
+const ALLOW_GENERAL_STORIES = process.env.NFL_IMPORT_ALLOW_GENERAL === '1'
 const FOOTBALL_RELEVANCE_PATTERN =
   /\b(nfl|football|quarterback|qb|running back|wide receiver|receiver|tight end|offensive line|defensive line|cornerback|safety|linebacker|coach|coordinator|roster|depth chart|training camp|minicamp|preseason|regular season|playoffs?|super bowl|draft|free agency|trade|contract|injury|fantasy|betting|odds|rankings?|analysis|seahawks?|rams?|bills?|chiefs?|cowboys?|eagles?|ravens?|bengals?|lions?|packers?|49ers?|niners?|steelers?|patriots?|jets?|giants?|dolphins?|bears?|vikings?|saints?|falcons?|buccaneers?|bucs?|chargers?|raiders?|broncos?|texans?|colts?|jaguars?|titans?|browns?|cardinals?|panthers?|commanders?)\b/i
 
@@ -963,6 +968,13 @@ function sourceSkipReason(source) {
   if (SENSITIVE_STORY_PATTERN.test(text)) return 'sensitive story requires manual reporting and review'
   if (UNSUPPORTED_AUTOMATION_FORMAT_PATTERN.test(text)) return 'ranking/table format is not safely supported by this importer'
   if (!FOOTBALL_RELEVANCE_PATTERN.test(text)) return 'not clearly football-related'
+  if (!ALLOW_GENERAL_STORIES) {
+    const headlineFields = `${text} ${(source.keywords || []).join(' ')}`
+    const bodyHits = (compact(source.bodyExcerpt).slice(0, 3000).match(new RegExp(BETTING_FANTASY_RELEVANCE_PATTERN.source, 'gi')) || []).length
+    if (!BETTING_FANTASY_RELEVANCE_PATTERN.test(headlineFields) && bodyHits < 3) {
+      return 'not relevant to betting or fantasy decisions (site focus)'
+    }
+  }
   if (!SOURCE_ONLY && compact(source.bodyExcerpt).length < MIN_SOURCE_BODY_CHARS) {
     return `source body extraction returned fewer than ${MIN_SOURCE_BODY_CHARS} characters`
   }

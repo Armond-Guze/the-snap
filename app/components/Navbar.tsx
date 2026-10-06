@@ -90,15 +90,6 @@ const MOBILE_TEAM_CODES: (keyof typeof TEAM_META)[] = ["KC", "BUF", "PHI", "DAL"
 const FANTASY_NAV_ITEM: NavItem = { key: "fantasy", label: "Fantasy", href: "/fantasy" };
 const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
 
-function shouldKeepFantasyInMainNav(now = new Date()): boolean {
-  const override = process.env.NEXT_PUBLIC_FANTASY_NAV_MODE?.trim().toLowerCase();
-  if (override === "main") return true;
-  if (override === "more") return false;
-
-  const month = now.getUTCMonth(); // 0=Jan ... 11=Dec
-  return month >= 7 || month <= 0;
-}
-
 function insertAfterKey(items: NavItem[], key: string, item: NavItem): NavItem[] {
   if (items.some((entry) => entry.key === item.key)) return items;
   const idx = items.findIndex((entry) => entry.key === key);
@@ -144,7 +135,8 @@ export default function Navbar() {
   const desktopBaseNavItems: NavItem[] = [homeNavItem, ...NAV_ITEMS];
   const mobileBaseNavItems: NavItem[] = activePathname === "/" ? NAV_ITEMS : [homeNavItem, ...NAV_ITEMS];
 
-  const showFantasyInMainNav = shouldKeepFantasyInMainNav();
+  // Fantasy and Betting are the site's focus, so they stay in the main nav year-round (see navConfig).
+  const showFantasyInMainNav = true;
   const navItems = showFantasyInMainNav
     ? insertAfterKey(desktopBaseNavItems, "headlines", FANTASY_NAV_ITEM)
     : desktopBaseNavItems;
@@ -177,6 +169,7 @@ export default function Navbar() {
     draft: <BookOpen className="h-4 w-4" />,
     "power-rankings": <TrendingUp className="h-4 w-4" />,
     fantasy: <Sparkles className="h-4 w-4" />,
+    betting: <Target className="h-4 w-4" />,
     calendar: <CalendarDays className="h-4 w-4" />,
     schedule: <CalendarDays className="h-4 w-4" />,
     tankathon: <Target className="h-4 w-4" />,
