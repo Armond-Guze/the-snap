@@ -56,7 +56,8 @@ export default async function BettingPage() {
   ).catch(() => [] as BettingArticle[])
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12 text-white">
+    <main className="min-h-screen bg-[hsl(0_0%_3.9%)] text-white">
+      <div className="mx-auto max-w-4xl px-6 py-12">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Betting</p>
       <h1 className="mt-2 text-3xl font-bold sm:text-4xl">NFL betting, explained simply</h1>
       <p className="mt-4 text-white/70">
@@ -101,6 +102,7 @@ export default async function BettingPage() {
         For adults 21+ where legal. The Snap provides education and analysis, not guaranteed outcomes. If gambling is a
         problem, call 1-800-GAMBLER.
       </p>
+      </div>
     </main>
   )
 }
