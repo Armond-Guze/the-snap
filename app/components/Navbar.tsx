@@ -88,7 +88,7 @@ const DIVISION_GROUPS: { title: string; teams: (keyof typeof TEAM_META)[] }[] = 
 
 const MOBILE_TEAM_CODES: (keyof typeof TEAM_META)[] = ["KC", "BUF", "PHI", "DAL", "SF", "DET", "BAL", "MIA"];
 const FANTASY_NAV_ITEM: NavItem = { key: "fantasy", label: "Fantasy", href: "/fantasy" };
-const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME === "true";
+const LIGHT_THEME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_LIGHT_THEME !== "false";
 
 function insertAfterKey(items: NavItem[], key: string, item: NavItem): NavItem[] {
   if (items.some((entry) => entry.key === item.key)) return items;

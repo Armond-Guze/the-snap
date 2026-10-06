@@ -6,6 +6,7 @@ const RESERVED_ROOT_SLUGS = new Set([
   'admin',
   'api',
   'articles',
+  'betting',
   'calendar',
   'categories',
   'contact',

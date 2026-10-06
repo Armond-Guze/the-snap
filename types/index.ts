@@ -113,6 +113,8 @@ export interface Headline {
   homepageTitle?: string;
   slug: SanitySlug;
   summary?: string;
+  contentDisclosure?: 'none' | 'betting' | 'affiliate' | 'bettingAffiliate';
+  lastReviewedAt?: string;
   date: string;
   publishedAt?: string;
   body?: PortableTextContent;
