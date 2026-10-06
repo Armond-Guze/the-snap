@@ -670,6 +670,32 @@ export default defineType({
       group: "quick",
     }),
     defineField({
+      name: "contentDisclosure",
+      title: "Betting / Affiliate Disclosure",
+      description:
+        "Shows a required notice on the article. Use Betting for any odds, spread, prop or sportsbook content, and Affiliate whenever the page contains affiliate or sportsbook offer links.",
+      type: "string",
+      options: {
+        list: [
+          { title: "None", value: "none" },
+          { title: "Betting (21+ / responsible gambling)", value: "betting" },
+          { title: "Affiliate links", value: "affiliate" },
+          { title: "Betting + affiliate links", value: "bettingAffiliate" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "none",
+      group: "quick",
+    }),
+    defineField({
+      name: "lastReviewedAt",
+      title: "Last Reviewed",
+      description:
+        "Set when you meaningfully re-check or refresh the page (odds rules, fantasy tiers, data tables). Shown to readers and used as the page's modified date.",
+      type: "datetime",
+      group: "quick",
+    }),
+    defineField({
       name: "published",
       title: "Published",
       type: "boolean",

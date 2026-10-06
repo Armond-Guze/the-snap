@@ -122,3 +122,16 @@ Important rules:
 - Prefer updating shared components instead of page-by-page duplication
 - Treat editorial and Sanity tasks as first-class work in this project
 - When asked to create or rewrite articles, align output to the `article` schema and the site’s current publishing flow
+
+## Betting and fantasy content standards
+
+The site focuses on betting education and fantasy football tools. For this content:
+
+- Set `contentDisclosure` (Betting / Affiliate / both) on every betting or sportsbook page; it renders the required 21+ and affiliate notices.
+- Set `lastReviewedAt` whenever a page is meaningfully refreshed.
+- Tag with `tagRefs` from the betting and fantasy seed files (`scripts/seed-advanced-tags-*.ndjson`) and with the `betting` or fantasy topic hubs. `/betting` is a reserved root route, so it must not be a `topicHub` page.
+- One canonical page per intent; consolidate and 301 duplicates instead of publishing near-copies.
+- Use Data Table blocks for odds, tiers and comparisons, with worked examples and a stated methodology.
+- Use a named author; keep content educational, avoid guaranteed-outcome language, and never publish a pick without reasoning.
+- Importer drafts are limited to betting/fantasy-relevant stories and stay unpublished and noindexed until a human adds original value.
+

@@ -314,6 +314,8 @@ export const articleDetailQuery = `
     homepageTitle,
     slug,
     summary,
+    contentDisclosure,
+    lastReviewedAt,
     coverImage {
       asset->{
         url

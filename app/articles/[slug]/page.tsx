@@ -41,6 +41,15 @@ type PortableTextBlock = TypedObject & {
 	children?: PortableTextChild[];
 };
 
+const DISCLOSURE_TEXT = {
+	betting:
+		'For adults 21+ where legal. Betting involves risk and no outcome is guaranteed. This page is educational, not a promise of results. If gambling is a problem, call 1-800-GAMBLER.',
+	affiliate:
+		'Some links on this page are affiliate links. We may earn a commission at no extra cost to you. It does not influence our analysis.',
+	bettingAffiliate:
+		'For adults 21+ where legal. Betting involves risk and no outcome is guaranteed. Some links on this page are affiliate links, and we may earn a commission at no extra cost to you; it does not influence our analysis. If gambling is a problem, call 1-800-GAMBLER.',
+} as const;
+
 const DRAFT_GRADES_CARD_SLUGS = new Set([
 	'2026-nfl-draft-grades-arvell-reese-headlines-a-loaded-first-round',
 ]);
@@ -493,6 +502,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 			],
 			datePublished: article.date || article.publishedAt || '',
 			dateModified:
+				article.lastReviewedAt ||
 				(article as unknown as { _updatedAt?: string })._updatedAt ||
 				article.date ||
 				article.publishedAt ||
@@ -629,6 +639,14 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 						)}
 					</section>
 					<section className="w-full mb-8">
+						{article.contentDisclosure && article.contentDisclosure !== 'none' && DISCLOSURE_TEXT[article.contentDisclosure] && (
+							<p className="mb-6 max-w-4xl rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70">
+								{DISCLOSURE_TEXT[article.contentDisclosure]}
+							</p>
+						)}
+						{article.lastReviewedAt && (
+							<p className="mb-4 text-xs text-white/45">Last reviewed {formatArticleDate(article.lastReviewedAt)}</p>
+						)}
 						<div className="prose prose-invert text-white text-lg leading-relaxed max-w-4xl text-left">
 							{Array.isArray(articleBody) && <PortableText value={articleBody} components={articlePortableTextComponents} />}
 						</div>
