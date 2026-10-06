@@ -25,6 +25,7 @@ import TikTokEmbed from '@/app/components/TikTokEmbed';
 import ArticleHeroCover from '@/app/components/ArticleHeroCover';
 import { SITE_URL } from '@/lib/site-config';
 import { client } from '@/sanity/lib/client';
+import NewsletterSignup from '@/app/components/NewsletterSignup';
 
 export const revalidate = 21600;
 
@@ -710,6 +711,9 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				</aside>
 			</div>
 		</main>
+		<div className="mx-auto max-w-2xl px-6 pb-10 md:px-12">
+			<NewsletterSignup variant="sidebar" source="article" />
+		</div>
 		<div className="mx-auto max-w-[84rem] px-6 pb-12 md:px-12">
 			<SocialShare url={shareUrl} title={article.title} description={article.summary || ''} variant="compact" />
 		</div>

@@ -74,8 +74,8 @@ const themeInitScript = `
 `;
 
 export const metadata: Metadata = {
-  title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
-  description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.`,
+  title: `${SITE_BRAND} (${SITE_NAME}) – Fantasy Football & NFL Betting Guides`,
+  description: `${SITE_BRAND} (${SITE_NAME}) helps you win at fantasy football and understand NFL betting, with clean, no-fluff rankings, tools and analysis.`,
   authors: [{ name: `${SITE_BRAND} Editorial Team` }],
   creator: SITE_BRAND,
   publisher: SITE_BRAND,
@@ -87,8 +87,8 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(SITE_URL),
   openGraph: {
-    title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
-    description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. Clean, no-fluff power rankings and analysis for true fans.`,
+    title: `${SITE_BRAND} (${SITE_NAME}) – Fantasy Football & NFL Betting Guides`,
+    description: `${SITE_BRAND} (${SITE_NAME}) helps you win at fantasy football and understand NFL betting, with clean, no-fluff rankings, tools and analysis.`,
     url: SITE_URL,
     siteName: SITE_BRAND,
     images: [
@@ -104,8 +104,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_BRAND} (${SITE_NAME}) – NFL News, Rankings & Analysis`,
-    description: `${SITE_BRAND} (${SITE_NAME}) brings fan-driven NFL coverage focused on quarterbacks, key matchups, and breaking stories. No fluff.`,
+    title: `${SITE_BRAND} (${SITE_NAME}) – Fantasy Football & NFL Betting Guides`,
+    description: `${SITE_BRAND} (${SITE_NAME}) helps you win at fantasy football and understand NFL betting. No fluff.`,
     creator: SITE_TWITTER,
     images: [DEFAULT_OG_IMAGE_URL],
   },

@@ -13,17 +13,17 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { client } from "@/sanity/lib/client";
 import { headlineCountQuery } from "@/sanity/lib/queries";
-import { DEFAULT_OG_IMAGE_URL, SITE_BRAND, SITE_NAME, SITE_URL } from "@/lib/site-config";
+import { DEFAULT_OG_IMAGE_URL, SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings, Standings & Analysis`,
-  description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis, breaking stories, and comprehensive NFL coverage all in one place.`,
+  title: `${SITE_NAME} – Fantasy Football, NFL Betting Guides & Analysis`,
+  description: `${SITE_NAME} helps you win at fantasy football and understand NFL betting: rankings, tiers, mock drafts, odds explained, standings and schedules.`,
   alternates: {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings & Analysis`,
-    description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules. Expert analysis and comprehensive NFL coverage.`,
+    title: `${SITE_NAME} – Fantasy Football, NFL Betting Guides & Analysis`,
+    description: `${SITE_NAME} helps you win at fantasy football and understand NFL betting: rankings, tiers, mock drafts, odds explained, standings and schedules.`,
     url: SITE_URL,
     images: [
       {
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_BRAND} (${SITE_NAME}) - NFL News, Power Rankings & Analysis`,
-    description: `${SITE_BRAND} (${SITE_NAME}) brings the latest NFL news, power rankings, standings, and game schedules.`,
+    title: `${SITE_NAME} – Fantasy Football, NFL Betting Guides & Analysis`,
+    description: `${SITE_NAME} helps you win at fantasy football and understand NFL betting.`,
     images: [DEFAULT_OG_IMAGE_URL],
   },
 }
@@ -67,15 +67,29 @@ export default async function Home() {
 
   return (
     <main className="home-gradient home-shell min-h-screen">
-      <h1 className="sr-only">The Snap NFL News, Rankings, and Analysis</h1>
+      <h1 className="sr-only">The Snap: Fantasy Football, NFL Betting Guides and Analysis</h1>
       <GameSchedule games={games} />
       <Headlines hideSummaries />
       <GoogleAds />
       <div style={deferredSectionStyle}>
-        <RankingsSection hideSummaries />
-      </div>
-      <div style={deferredSectionStyle}>
         <FantasySection hideSummaries />
+      </div>
+      <section className="px-6 lg:px-8 2xl:px-12 3xl:px-16 pb-10">
+        <div className="mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
+          <Link
+            href="/betting"
+            className="block rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:bg-white/[0.08] sm:p-6"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">Betting guides</p>
+            <p className="mt-1 text-lg font-semibold text-white">New to NFL betting? Start with the basics.</p>
+            <p className="mt-1 text-sm text-white/65">
+              Spreads, moneylines, totals and implied probability explained in plain English.
+            </p>
+          </Link>
+        </div>
+      </section>
+      <div style={deferredSectionStyle}>
+        <RankingsSection hideSummaries />
       </div>
       <div style={deferredSectionStyle}>
         <MoreHeadlinesSection hideSummaries />

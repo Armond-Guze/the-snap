@@ -9,8 +9,9 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { key: 'headlines', label: 'Headlines', href: '/headlines' },
-  { key: 'draft', label: 'Draft', href: '/draft' },
+  { key: 'fantasy', label: 'Fantasy', href: '/fantasy' },
+  { key: 'betting', label: 'Betting', href: '/betting' },
+  { key: 'headlines', label: 'News', href: '/headlines' },
   { key: 'standings', label: 'NFL Standings', href: '/standings' },
   { key: 'schedule', label: 'Schedule', href: '/schedule' }
 ];

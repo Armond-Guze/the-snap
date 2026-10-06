@@ -8,11 +8,13 @@ import { capturePosthogEvent, capturePosthogException } from '@/lib/posthog-brow
 interface NewsletterSignupProps {
   variant?: 'default' | 'compact' | 'sidebar' | 'footer';
   className?: string;
+  source?: string;
 }
 
 export default function NewsletterSignup({ 
   variant = 'default', 
-  className = '' 
+  className = '',
+  source = 'site'
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -37,7 +39,7 @@ export default function NewsletterSignup({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source }),
       });
 
       if (!response.ok) {

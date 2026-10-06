@@ -14,12 +14,42 @@ const writeClient = token
     })
   : null
 
+// Optional email-service sync (Beehiiv). Sanity stays the backup record of subscribers.
+const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY
+const BEEHIIV_PUBLICATION_ID = process.env.BEEHIIV_PUBLICATION_ID
+
+async function syncToBeehiiv(email: string, source: string) {
+  if (!BEEHIIV_API_KEY || !BEEHIIV_PUBLICATION_ID) return
+  try {
+    const res = await fetch(
+      `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUBLICATION_ID}/subscriptions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${BEEHIIV_API_KEY}`,
+        },
+        body: JSON.stringify({
+          email,
+          reactivate_existing: false,
+          send_welcome_email: true,
+          utm_source: source,
+        }),
+      }
+    )
+    if (!res.ok) console.error('Beehiiv sync failed', res.status, await res.text().catch(() => ''))
+  } catch (e) {
+    console.error('Beehiiv sync error', e)
+  }
+}
+
 // Ephemeral (non-persistent) fallback storage for when no token set
 const volatileCache = new Set<string>()
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json()
+    const { email, source: rawSource } = await req.json()
+    const source = typeof rawSource === 'string' && /^[a-z0-9_-]{1,40}$/i.test(rawSource) ? rawSource : 'site'
     if (!email || typeof email !== 'string') {
       return NextResponse.json({ error: 'Email required' }, { status: 400 })
     }
@@ -34,14 +64,16 @@ export async function POST(req: NextRequest) {
         { email: normalized }
       )
       if (existing?._id) {
+        await syncToBeehiiv(normalized, source)
         return NextResponse.json({ success: true, message: 'Already subscribed' })
       }
       await writeClient.create({
         _type: 'newsletterSubscriber',
         email: normalized,
-        source: 'site',
+        source,
         createdAt: new Date().toISOString(),
       })
+      await syncToBeehiiv(normalized, source)
       return NextResponse.json({ success: true, message: 'Subscribed successfully' })
     }
 
