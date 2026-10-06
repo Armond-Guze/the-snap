@@ -1,0 +1,239 @@
+{
+  "_createdAt": "2026-06-29T02:14:27Z",
+  "_id": "auto-nfl-top-100-players-of-2026-nos-100-91-e713fe5c13",
+  "_rev": "FAM7sl14R2NFN68aBeyKrY",
+  "_type": "article",
+  "_updatedAt": "2026-06-29T02:19:06Z",
+  "author": {
+    "_ref": "12743c4a-c7e2-4d18-ba79-4b629d78140e",
+    "_type": "reference"
+  },
+  "body": [
+    {
+      "_key": "88d806e50e1e",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "9a25f3fa2ef8",
+          "_type": "span",
+          "marks": [],
+          "text": "The NFL Top 100 countdown — the player-voted list that measures league peer respect — continued with Nos. 100 through 91. This segment of the reveal, shared on social media, produced a few notable storylines: a first-time entry and a familiar face climbing back into the rankings."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "167f1c0c2351",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "39aab5064853",
+          "_type": "span",
+          "marks": [],
+          "text": "Headline moments"
+        }
+      ],
+      "markDefs": [],
+      "style": "h2"
+    },
+    {
+      "_key": "75d04bf0513c",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "2aca94cd5d21",
+          "_type": "span",
+          "marks": [],
+          "text": "Azeez Al‑Shaair earned his first Top 100 appearance, marking a milestone in his career and signaling recognition from fellow players. Conversely, Montez Sweat returned to the list after an absence, a reminder that pass-rushing talent consistently draws peer votes."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "40717bd21249",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "9505957dc173",
+          "_type": "span",
+          "marks": [],
+          "text": "Standouts in Nos. 100–91"
+        }
+      ],
+      "markDefs": [],
+      "style": "h2"
+    },
+    {
+      "_key": "430f0699a9c1",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "1c53b13afdb9",
+          "_type": "span",
+          "marks": [],
+          "text": "This grouping mixes seasoned veterans and younger talents. Names that fell in this tranche include Cameron Jordan, Quenton Nelson, Bryce Young, Ernest Jones, Travis Etienne, Demario Davis, Creed Humphrey and Carson Schwesinger — players whose presence reflects a range of reputations across positions."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "a1146b16fdc9",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "b559751c06ac",
+          "_type": "span",
+          "marks": [],
+          "text": "The list's middle-to-lower tier often highlights players who matter in the clubhouse and on game day even if they aren't household names in every market. Peer voting can reward consistency, leadership and impact that doesn’t always show up in mainstream stat lines."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "27b7ee6344f5",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "c491cdfa9362",
+          "_type": "span",
+          "marks": [],
+          "text": "As the reveal continues, watch for movement among returning stars and new entrants. Each segment reshapes the broader narrative about who players around the league view as elite, and Nos. 100–91 reinforced that view is diverse and sometimes surprising."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "6fd1405d6cdb",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "4e36e0140250",
+          "_type": "span",
+          "marks": [],
+          "text": "Expect future installments to further blend established stars with breakout names; the Top 100 remains one of the clearest windows into how current NFL players evaluate one another heading into the season."
+        }
+      ],
+      "markDefs": [],
+      "style": "normal"
+    },
+    {
+      "_key": "51e8f7c73037",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "b71ddba947cf",
+          "_type": "span",
+          "marks": [],
+          "text": "Source"
+        }
+      ],
+      "markDefs": [],
+      "style": "h2"
+    },
+    {
+      "_key": "a83b37030278",
+      "_type": "block",
+      "children": [
+        {
+          "_key": "50b59eec45a2",
+          "_type": "span",
+          "marks": [],
+          "text": "Source: "
+        },
+        {
+          "_key": "47b31423177c",
+          "_type": "span",
+          "marks": [
+            "27dd357982dc"
+          ],
+          "text": "NFL.com (Grant Gordon)"
+        }
+      ],
+      "markDefs": [
+        {
+          "_key": "27dd357982dc",
+          "_type": "link",
+          "href": "https://www.nfl.com/news/top-100-players-of-2026-nos-100-91"
+        }
+      ],
+      "style": "normal"
+    }
+  ],
+  "category": {
+    "_ref": "75f561a4-e46f-498e-9df7-b1213797af81",
+    "_type": "reference"
+  },
+  "coverImage": {
+    "_type": "image",
+    "asset": {
+      "_ref": "image-76c6cf0cdd070be527d07e79c559c3e6fc87632b-1280x720-jpg",
+      "_type": "reference"
+    }
+  },
+  "date": "2026-06-29T02:14:27.080Z",
+  "format": "ranking",
+  "homepageTitle": "Top 100 Players 2026: Nos. 100–91",
+  "players": [
+    {
+      "_key": "caec541c580d",
+      "_ref": "player-azeez-al-shaair",
+      "_type": "reference"
+    },
+    {
+      "_key": "d777bffa7325",
+      "_ref": "player-bryce-young",
+      "_type": "reference"
+    }
+  ],
+  "published": true,
+  "seo": {
+    "_type": "seo",
+    "autoGenerate": true,
+    "noIndex": false
+  },
+  "slug": {
+    "_type": "slug",
+    "current": "nfl-top-100-of-2026-nos-100-91-azeez-al-shaair-debuts-as-montez-sweat-returns"
+  },
+  "summary": "The player-voted NFL Top 100 countdown continues. The latest batch (Nos. 100–91) features Azeez Al‑Shaair's first entry and the return of Montez Sweat alongside veterans and emerging stars.",
+  "tagRefs": [
+    {
+      "_key": "fbf24e183a8b",
+      "_ref": "uuNx9zJ84p1kNNuG6PSaJs",
+      "_type": "reference"
+    },
+    {
+      "_key": "c46caf6c12f0",
+      "_ref": "advancedTag-nfl-top-100",
+      "_type": "reference"
+    },
+    {
+      "_key": "7f3b836cf092",
+      "_ref": "advancedTag-player-rankings",
+      "_type": "reference"
+    }
+  ],
+  "teams": [
+    {
+      "_key": "6982d4e8c390",
+      "_ref": "00f44d40-4c71-450e-bbaa-40916770e3d8",
+      "_type": "reference"
+    },
+    {
+      "_key": "9470f303f287",
+      "_ref": "5bf69b39-f39e-4aae-a6bf-02c5152d1397",
+      "_type": "reference"
+    },
+    {
+      "_key": "b726d1276aff",
+      "_ref": "a8e3ba46-865f-4cd9-b020-1d391486186c",
+      "_type": "reference"
+    }
+  ],
+  "title": "NFL Top 100 of 2026, Nos. 100–91: Azeez Al‑Shaair debuts as Montez Sweat returns"
+}
