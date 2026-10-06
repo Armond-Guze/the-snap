@@ -49,7 +49,8 @@ const themeInitScript = `
     const root = document.documentElement;
     ${LIGHT_THEME_ENABLED
       ? `
-    const storageKey = "theme-preference";
+    // v2 key: the old "theme-preference" held a forced "dark" for every visitor, so it is ignored.
+    const storageKey = "theme-preference-v2";
     const saved = localStorage.getItem(storageKey);
     const theme = saved === "light" || saved === "dark" ? saved : "light";
     root.dataset.theme = theme;
