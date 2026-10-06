@@ -5,6 +5,14 @@ import { NextResponse } from 'next/server';
 const CANONICAL_HOST = 'thegamesnap.com';
 const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
+// Comma-separated Clerk user IDs allowed into /admin. Signed-in is not enough because sign-up is open.
+const ADMIN_USER_IDS = new Set(
+  (process.env.ADMIN_USER_IDS || '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter(Boolean)
+);
+
 export default clerkMiddleware(async (auth, req) => {
   const { nextUrl } = req;
   const url = nextUrl.clone();
@@ -25,7 +33,13 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (isAdminRoute(req)) {
-    await auth.protect();
+    const { userId } = await auth.protect();
+    const allowed = ADMIN_USER_IDS.size > 0
+      ? ADMIN_USER_IDS.has(userId)
+      : process.env.NODE_ENV !== 'production';
+    if (!allowed) {
+      return new NextResponse('Not found', { status: 404 });
+    }
   }
 
   return NextResponse.next();
@@ -34,7 +48,7 @@ export default clerkMiddleware(async (auth, req) => {
 // Apply to all paths except assets
 export const config = {
   matcher: [
-    '/((?!_next|api/|.*\.(?:css|js|json|png|jpg|jpeg|gif|svg|ico|webp|txt|xml)).*)',
+    '/((?!_next|api/|.*\\.(?:css|js|json|png|jpg|jpeg|gif|svg|ico|webp|txt|xml)$).*)',
     '/api/me/(.*)',
   ],
 };

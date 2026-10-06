@@ -4,7 +4,7 @@ import { SITE_URL } from '@/lib/site-config'
 import { TEAM_ABBRS, TEAM_META } from '@/lib/schedule'
 
 const baseUrl = SITE_URL
-export const revalidate = 86400
+export const revalidate = 1800
 
 // Use a stable timestamp for static routes so the sitemap XML doesn't churn daily.
 // You can override by setting SITEMAP_STATIC_LASTMOD env var (ISO date string).
@@ -12,6 +12,9 @@ export const revalidate = 86400
 const STATIC_LAST_MOD = process.env.SITEMAP_STATIC_LASTMOD
   ? new Date(process.env.SITEMAP_STATIC_LASTMOD)
   : new Date('2025-01-01T00:00:00.000Z')
+
+// Category slugs that 301 elsewhere in next.config.ts; never list redirecting URLs in the sitemap.
+const REDIRECTED_CATEGORY_SLUGS = new Set(['bengals', 'giants-qb', 'dolphins']);
 
 // Ensure we never emit invalid sitemap URLs (spaces, punctuation)
 const safeSlug = (slug?: string | null) => {
@@ -161,7 +164,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categories
       .map(c => {
         const slug = safeSlug(c.slug?.current);
-        if (!slug) return null;
+        if (!slug || REDIRECTED_CATEGORY_SLUGS.has(slug)) return null;
         return {
           url: `${baseUrl}/categories/${slug}`,
           lastModified: c._updatedAt ? new Date(c._updatedAt) : STATIC_LAST_MOD,
@@ -212,7 +215,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const teamHubEntries: MetadataRoute.Sitemap = TEAM_ABBRS.map((abbr) => ({
     url: `${baseUrl}/teams/${teamSlug(TEAM_META[abbr].name)}`,
-    lastModified: STATIC_LAST_MOD,
+    lastModified: teamsLastMod || STATIC_LAST_MOD,
     changeFrequency: 'daily' as const,
     priority: 0.72,
   }));
@@ -273,6 +276,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/calendar`,
+      lastModified: STATIC_LAST_MOD,
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tankathon`,
+      lastModified: standingsLastMod || STATIC_LAST_MOD,
+      changeFrequency: 'daily',
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: STATIC_LAST_MOD,
       changeFrequency: 'monthly',
@@ -308,7 +323,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Pre-render schedule week pages (1-18)
     ...Array.from({ length: 18 }, (_, i) => ({
       url: `${baseUrl}/schedule/week/${i + 1}`,
-      lastModified: STATIC_LAST_MOD,
+      lastModified: scheduleLastMod || STATIC_LAST_MOD,
       changeFrequency: 'weekly' as const,
       priority: 0.55,
     })),
