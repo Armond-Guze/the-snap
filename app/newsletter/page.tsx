@@ -8,7 +8,7 @@ import { SimpleCard, SimplePageShell, SimpleSection } from "../components/Simple
 const benefits = [
   {
     title: "Weekly signal",
-    body: "A cleaner read on what actually matters across the league instead of another noisy recap.",
+    body: "One clear takeaway per week on what actually moved across the league, not another noisy recap.",
   },
   {
     title: "Rankings drops",
@@ -16,7 +16,7 @@ const benefits = [
   },
   {
     title: "Useful updates",
-    body: "Fantasy, betting, and content product updates when there is something worth opening.",
+    body: "Fantasy tiers, betting-odds explainers, and new tools when there is something worth opening.",
   },
 ];
 
