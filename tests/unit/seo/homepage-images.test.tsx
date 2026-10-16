@@ -30,7 +30,7 @@ describe('homepage image loading', () => {
     sanityFetch.mockReset();
   });
 
-  it('gives the responsive copies of the lead story one eager high-priority request', async () => {
+  it('gives the lead story image one eager high-priority request', async () => {
     sanityFetch.mockResolvedValue([
       {
         _id: 'lead',
@@ -44,10 +44,10 @@ describe('homepage image loading', () => {
     const tree = await Headlines({ hideSummaries: true });
     const html = renderToStaticMarkup(tree as ReactElement);
 
-    expect(html.match(/<img/g)).toHaveLength(2);
-    expect(html.match(/loading="eager"/g)).toHaveLength(2);
-    expect(html.match(/fetchPriority="high"/g)?.length).toBeGreaterThanOrEqual(2);
-    expect(html.match(new RegExp(`sizes="${leadImageSizes.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'))).toHaveLength(2);
+    expect(html.match(/<img/g)).toHaveLength(1);
+    expect(html.match(/loading="eager"/g)).toHaveLength(1);
+    expect(html.match(/fetchPriority="high"/g)?.length).toBeGreaterThanOrEqual(1);
+    expect(html.match(new RegExp(`sizes="${leadImageSizes.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'))).toHaveLength(1);
   });
 
   it('keeps below-fold article cards lazy and reports their mobile rendered width', async () => {
