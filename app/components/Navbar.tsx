@@ -17,6 +17,7 @@ const primaryLinks = [
   { href: "/headlines", label: "Headlines" },
   { href: "/articles/power-rankings", label: "Power Rankings" },
   { href: "/fantasy", label: "Fantasy" },
+  { href: "/betting", label: "Betting" },
   { href: "/schedule", label: "Schedule" },
 ];
 const moreLinks = [

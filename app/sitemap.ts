@@ -17,6 +17,9 @@ const toValidDate = (value?: string | null): Date | undefined => {
   return Number.isNaN(date.getTime()) ? undefined : date
 }
 
+// Category slugs that 301 elsewhere in next.config.ts; never list redirecting URLs in the sitemap.
+const REDIRECTED_CATEGORY_SLUGS = new Set(['bengals', 'giants-qb', 'dolphins']);
+
 // Ensure we never emit invalid sitemap URLs (spaces, punctuation)
 const safeSlug = (slug?: string | null) => {
   if (!slug) return null;
@@ -120,7 +123,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categories
       .map(c => {
         const slug = safeSlug(c.slug?.current);
-        if (!slug) return null;
+        if (!slug || REDIRECTED_CATEGORY_SLUGS.has(slug)) return null;
         return {
           url: `${baseUrl}/categories/${slug}`,
           lastModified: toValidDate(c.lastModified),
@@ -234,6 +237,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/fantasy`,
       changeFrequency: 'daily',
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/betting`,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/calendar`,
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tankathon`,
+      changeFrequency: 'daily',
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/fantasy/mock-draft-simulator`,
