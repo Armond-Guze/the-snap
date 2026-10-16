@@ -81,6 +81,20 @@ export default async function Home() {
       <div style={deferredSectionStyle}>
         <FantasySection hideSummaries />
       </div>
+      <section className="bg-white px-4 pb-10 lg:px-8 2xl:px-12 3xl:px-16">
+        <div className="mx-auto max-w-[84rem] 2xl:max-w-[94rem] 3xl:max-w-[106rem]">
+          <Link
+            href="/betting"
+            className="block rounded-2xl border border-neutral-200 bg-neutral-50 p-5 transition hover:bg-neutral-100 sm:p-6"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">Betting guides</p>
+            <p className="mt-1 text-lg font-semibold text-neutral-900">New to NFL betting? Start with the basics.</p>
+            <p className="mt-1 text-sm text-neutral-600">
+              Spreads, moneylines, totals and implied probability explained in plain English.
+            </p>
+          </Link>
+        </div>
+      </section>
       <div style={deferredSectionStyle}>
         <MoreHeadlinesSection hideSummaries />
       </div>
