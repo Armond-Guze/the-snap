@@ -32,12 +32,12 @@ const IMPLIED_TOTALS = 'how-to-use-vegas-implied-team-totals-a-2026-fantasy-and-
 const STRENGTH_OF_SCHEDULE = '2026-nfl-strength-of-schedule-easiest-hardest-win-totals'
 
 const TAG_SLUGS = [
-  'fantasy-football',
-  'start-sit',
-  'nfl-odds',
-  'line-movement',
-  'betting-education',
   'injury-report',
+  'fantasy-football',
+  'fantasy-strategy',
+  'nfl-betting',
+  'betting-odds',
+  'line-movement', // optional: only attached if you imported the new tag
 ]
 
 // ---- block helpers -------------------------------------------------------------------------
@@ -243,19 +243,19 @@ const existing = await client.fetch(
 )
 if (existing > 0) throw new Error('An article with this slug or id already exists. Nothing was changed.')
 
-const [author, category, tags, hub, linkTargets] = await Promise.all([
+const [author, category, tags, hubs, linkTargets] = await Promise.all([
   client.fetch(`*[_type == "author"] | order(_createdAt asc)[0]{_id, name}`),
   client.fetch(
     `*[_type == "category" && (slug.current in ["fantasy","fantasy-football","betting"] || title match "*antasy*")][0]{_id, title}`,
   ),
   client.fetch(`*[_type == "advancedTag" && slug.current in $slugs]{_id, title, "slug": slug.current}`, {slugs: TAG_SLUGS}),
-  client.fetch(`*[_type == "topicHub" && slug.current == "betting"][0]{_id, title}`),
+  client.fetch(`*[_type == "topicHub" && slug.current in ["nfl-betting","fantasy-football"]]{_id, title, "slug": slug.current}`),
   client.fetch(`*[_type == "article" && slug.current in $slugs]{_id, title, "slug": slug.current}`, {
     slugs: [ODDS_GUIDE, IMPLIED_TOTALS, STRENGTH_OF_SCHEDULE],
   }),
 ])
 
-const linkPlan = [...linkTargets.map((a) => ref(a._id, `plan-${a.slug.slice(0, 24)}`)), ...(hub ? [ref(hub._id, 'plan-betting-hub')] : [])]
+const linkPlan = [...linkTargets.map((a) => ref(a._id, `plan-${a.slug.slice(0, 24)}`)), ...hubs.filter((h) => h.slug === 'nfl-betting').map((h) => ref(h._id, 'plan-betting-hub'))]
 
 const doc = {
   _id: DRAFT_ID,
@@ -270,7 +270,7 @@ const doc = {
   published: false,
   ...(author ? {author: ref(author._id)} : {}),
   ...(category ? {category: ref(category._id)} : {}),
-  ...(hub ? {topicHubs: [ref(hub._id, 'hub-betting')]} : {}),
+  ...(hubs.length ? {topicHubs: hubs.map((h) => ref(h._id, `hub-${h.slug}`))} : {}),
   tagRefs: tags.slice(0, 6).map((t) => ref(t._id, `tag-${t.slug}`)),
   editorialBrief: {
     _type: 'editorialBrief',
@@ -302,7 +302,7 @@ const doc = {
 console.log('\nResolved references:')
 console.log(`  author:    ${author ? author.name : 'NOT FOUND (set it in Studio)'}`)
 console.log(`  category:  ${category ? category.title : 'NOT FOUND (pick one in Studio)'}`)
-console.log(`  topic hub: ${hub ? hub.title : 'NOT FOUND (create the "betting" hub, then add it)'}`)
+console.log(`  topic hubs: ${hubs.map((h) => h.title).join(', ') || 'NONE FOUND'}`)
 console.log(`  tags:      ${tags.map((t) => t.title).join(', ') || 'NONE FOUND (import the tag seed first)'}`)
 const missingTags = TAG_SLUGS.filter((s) => !tags.some((t) => t.slug === s))
 if (missingTags.length) console.log(`  missing tag slugs: ${missingTags.join(', ')}`)
