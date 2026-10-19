@@ -40,7 +40,7 @@ Leave the overlap-check, human-review, fact-check and image-rights confirmations
   "Added an odds-to-probability table, worked vig and parlay examples, implied team totals, and responsible-gambling resources."
 - `seo` focus keyword: nfl betting odds explained
 
-## Body (real H2/H3 blocks; links via the Sanity URL mark; tables as Data Table blocks)
+## Body (real H2/H3 blocks; links via the Sanity URL mark; tables: see the note below)
 
 **Intro (normal paragraphs).** Two or three sentences: this guide explains how NFL odds work, what each number
 means, and how to turn a price into a probability. It's education, not picks. Add a plain note that betting is for adults 21+
@@ -68,7 +68,9 @@ combined points is the over.
 - Negative odds: implied probability = odds / (odds + 100), using the absolute value of the odds.
 - Positive odds: implied probability = 100 / (odds + 100).
 
-**Data Table: odds to implied probability**
+**Odds-to-probability table.** Note: as of now the Studio body editor has no Data Table block (only the website can render
+one), so a table can't be edited in Studio. Until that block is restored, enter these rows as bullet lines, such as
+"-110: stake $110 to win $100, implied probability 52.4%". Ask for the block to be restored if you want a real table.
 
 | American odds | What it means | Implied probability |
 | --- | --- | --- |
@@ -135,7 +137,7 @@ time, so both win about 27.4% of the time. Parlays raise the payout, and the spo
 ## Final checks before publishing
 
 - No duplicate paragraphs, stray Markdown markers, or heading lines stored as normal paragraphs.
-- The odds table is a real Data Table block, with H2 and H3 blocks for the headings.
+- Headings are real H2 and H3 blocks, and the odds rows are bullet lines (or a Data Table block once Studio supports it).
 - Re-verify the math if you change any example.
 - Set `dateModified` and `updateNote`.
 - Leave `published` as it is until a person has done the review and fact-check confirmations in Studio.
