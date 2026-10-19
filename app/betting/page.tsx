@@ -41,7 +41,7 @@ const bettingQuery = `*[
     title match "*betting*" || title match "*odds*" || title match "*spread*" ||
     title match "*parlay*" || title match "*moneyline*" || title match "*over/under*" ||
     title match "*prop*" || title match "*win total*" || title match "*implied*" ||
-    "betting" in topicHubs[]->slug.current
+    "nfl-betting" in topicHubs[]->slug.current
   )
 ] | order(coalesce(publishedAt, date, _createdAt) desc)[0...24]{
   _id, title, homepageTitle, slug, summary, date, publishedAt

@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ revalidated: false, message: 'Missing document payload.' }, { status: 400 });
     }
 
-    const paths = new Set<string>(['/', '/headlines', '/articles', '/sitemap.xml', '/rss.xml']);
+    const paths = new Set<string>(['/', '/headlines', '/articles', '/betting', '/sitemap.xml', '/rss.xml']);
     const type = doc._type || '';
     const format = doc.format || '';
 
