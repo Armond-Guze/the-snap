@@ -16,7 +16,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const isStudioRoute = pathname.startsWith('/studio');
   const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
-  const hideGlobalChrome = isStudioRoute || isAuthRoute;
+  const isWriterRoute = pathname === '/write' || pathname.startsWith('/write/');
+  const hideGlobalChrome = isStudioRoute || isAuthRoute || isWriterRoute;
   const isInformationPage = informationRoutes.some(route => pathname === route || pathname.startsWith(`${route}/`));
   const isEditorialPage = pathname === '/' || ['/my-snap', '/articles', '/headlines', '/fantasy', '/schedule', '/teams', '/standings', '/draft'].some(route => pathname === route || pathname.startsWith(`${route}/`));
 

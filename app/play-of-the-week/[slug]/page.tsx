@@ -7,7 +7,7 @@ import { playOfWeekDetailQuery } from '@/sanity/lib/queries'
 import { portableTextComponents } from '@/lib/portabletext-components'
 import type { PlayOfWeek } from '@/types'
 
-export const revalidate = 120
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ slug: string }>

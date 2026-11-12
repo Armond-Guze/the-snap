@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 }
 
 // Keep the homepage reasonably fresh during the season; adjust higher in offseason
-export const revalidate = 60;
+export const revalidate = 300;
 const HEADLINES_PAGE_SIZE = 24;
 const HEADLINE_ARCHIVE_COUNT_QUERY = `
   count(*[

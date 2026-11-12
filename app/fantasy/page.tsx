@@ -104,7 +104,7 @@ export default async function FantasyFootballPage() {
       priority
     }`,
     {},
-    { next: { revalidate: 300 } },
+    { next: { revalidate: 3600 } },
     []
   );
   const fantasyArticles = dedupeFantasyArticles(fantasyArticlesRaw);

@@ -10,7 +10,7 @@ import MostRead from '../components/MostRead';
 import { SITE_URL } from '@/lib/site-config';
 import type { Metadata } from 'next';
 
-export const revalidate = 120;
+export const revalidate = 3600;
 
 interface ArticlesPageProps {
   searchParams: Promise<{

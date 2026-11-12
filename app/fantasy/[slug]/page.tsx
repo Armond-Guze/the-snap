@@ -42,7 +42,7 @@ interface FantasyDetail {
 
 interface PageProps { params: Promise<{ slug: string }> }
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata(props: PageProps) {
   const params = await props.params;
@@ -53,7 +53,7 @@ export async function generateMetadata(props: PageProps) {
       _id, title, summary, coverImage{asset->{url}}, youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
     }`,
     { slug },
-    300,
+    3600,
     null as unknown as FantasyDetail
   );
   if (!article) return {};
@@ -106,17 +106,17 @@ export default async function FantasyArticlePage(props: PageProps) {
       publishedAt, date,
       category->{title, slug},
   youtubeVideoId, videoTitle, twitterUrl, twitterTitle, instagramUrl, instagramTitle, tiktokUrl, tiktokTitle
-    }`, { slug }, 300, null as unknown as FantasyDetail),
+    }`, { slug }, 3600, null as unknown as FantasyDetail),
     sanityFetchDynamic<HeadlineListItem[]>(`*[_type in ["headline", "rankings"] && published == true] | order(_createdAt desc)[0...24]{
       _id, _type, title, homepageTitle, slug, date, summary, author->{name}, coverImage{asset->{url}}, rankingType
-    }`, {}, 300, [])
+    }`, {}, 3600, [])
   ]);
 
   if (!article) {
     const migratedArticle = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
       `*[_type == "article" && format == "fantasy" && published == true && slug.current == $slug][0]{slug}`,
       { slug },
-      300,
+      3600,
       null
     );
     const destination = migratedArticle?.slug?.current?.trim();

@@ -128,7 +128,7 @@ export default async function StandingsPage() {
     = await noCdnClient.fetch(
       `*[_type=="teamRecord" && season == $season]{ _id, teamAbbr, wins, losses, ties, streak, "updatedAt": _updatedAt }`,
       { season },
-      { next: { tags: ['standings'], revalidate: 120 } }
+      { next: { tags: ['standings'], revalidate: 3600 } }
     );
 
   const nameToAbbr: Record<string, string> = Object.entries(TEAM_META).reduce((acc, [abbr, meta]) => {

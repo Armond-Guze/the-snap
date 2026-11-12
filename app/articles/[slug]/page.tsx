@@ -25,7 +25,7 @@ import InstagramEmbed from '@/app/components/InstagramEmbed';
 import TikTokEmbed from '@/app/components/TikTokEmbed';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
 	const params = await props.params;
@@ -34,7 +34,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
 	const trimmedSlug = decodeURIComponent(params.slug).trim();
 
 	// Prefer full article query, fall back to headline-only for legacy docs
-	const article = await sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline)
+	const article = await sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 3600, null as unknown as Headline)
 		.catch(() => null);
 
 	if (!article) return {};
@@ -75,7 +75,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 
 	// Fetch article (any format) and a small feed for sidebar/related
 	const [article, otherArticles] = await Promise.all([
-		sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 300, null as unknown as Headline),
+		sanityFetchDynamic<Headline>(articleDetailQuery, { slug: trimmedSlug }, 3600, null as unknown as Headline),
 		sanityFetchDynamic<HeadlineListItem[]>(
 			`*[_type == "article" && published == true] | order(coalesce(date, publishedAt, _createdAt) desc)[0...24]{
 				_id,
@@ -100,7 +100,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 				"tags": tagRefs[]->{ _id, title, slug }
 			}`,
 			{},
-			300,
+			3600,
 			[]
 		),
 	]);
@@ -109,7 +109,7 @@ export default async function ArticlePage(props: HeadlinePageProps) {
 		const aliasDoc = await sanityFetchDynamic<{ slug?: { current?: string } } | null>(
 			`*[_type == "article" && published == true && $slug in slugHistory][0]{ slug }`,
 			{ slug: trimmedSlug },
-			300,
+			3600,
 			null
 		);
 		const targetSlug = aliasDoc?.slug?.current?.trim();

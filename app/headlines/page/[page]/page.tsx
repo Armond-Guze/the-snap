@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 import { notFound, permanentRedirect } from 'next/navigation';
 
-export const revalidate = 120;
+export const revalidate = 3600;
 
 function parseArchivePage(value: string): number | null {
   if (!/^[1-9]\d*$/.test(value)) return null;

@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 type SnapshotTarget = {
   seasonYear: number;

@@ -33,7 +33,7 @@ function logFetch(context: LogContext) {
       error: error.message,
       duration,
     });
-  } else {
+  } else if (process.env.NODE_ENV === 'development') {
     console.log('🟢 Sanity fetch success:', {
       query: query.substring(0, 50) + (query.length > 50 ? '...' : ''),
       params,
@@ -102,7 +102,7 @@ export async function sanityFetch<T>(
 export async function sanityFetchDynamic<T>(
   query: string,
   params: Record<string, unknown> = {},
-  revalidateSeconds: number = 60,
+  revalidateSeconds: number = 3600,
   fallback: T = [] as T
 ): Promise<T> {
   return sanityFetch(query, params, {

@@ -9,7 +9,7 @@ import MostRead from '../components/MostRead';
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 120;
+export const revalidate = 3600;
 
 interface HeadlinesPageProps {
   searchParams: Promise<{

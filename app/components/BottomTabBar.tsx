@@ -6,7 +6,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
-const subscribeToPlatform = () => () => {};
+const subscribeToPlatform = (onChange: () => void) => {
+  const standalone = window.matchMedia("(display-mode: standalone)");
+  standalone.addEventListener("change", onChange);
+  return () => standalone.removeEventListener("change", onChange);
+};
+
+const isAppMode = () =>
+  Capacitor.isNativePlatform() ||
+  window.matchMedia("(display-mode: standalone)").matches ||
+  (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
 
 type TabItem = {
   key: string;
@@ -62,7 +71,7 @@ export default function BottomTabBar() {
   const pathname = usePathname();
   const showTabs = useSyncExternalStore(
     subscribeToPlatform,
-    () => Capacitor.isNativePlatform(),
+    isAppMode,
     () => false
   );
 

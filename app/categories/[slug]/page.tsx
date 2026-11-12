@@ -10,7 +10,7 @@ import { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site-config';
 import StructuredData from '@/app/components/StructuredData';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

@@ -42,7 +42,7 @@ export default async function Headlines({ hideSummaries = false }: HeadlinesProp
  _id,_type,format,title,homepageTitle,slug,summary,
  "coverImage": {"asset":{"url":coalesce(coverImage.asset->url,featuredImage.asset->url,image.asset->url)}},
  author->{name},date,publishedAt
- }`, {}, {next:{revalidate:180}}, []);
+ }`, {}, {next:{revalidate:300}}, []);
  if(!headlines.length)return null;
  const featured=headlines.slice(0,9);
  const main=featured.find(item=>item.coverImage?.asset?.url)||featured[0];

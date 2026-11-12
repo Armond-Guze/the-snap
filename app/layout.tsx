@@ -81,7 +81,7 @@ export const metadata: Metadata = {
       { url: '/favicon.svg?v=3', type: 'image/svg+xml', sizes: 'any' }
     ],
     apple: [
-      { url: '/snap-icon-180-v3.png', sizes: '180x180', type: 'image/png' }
+      { url: '/snap-icon-180-black-v5.png', sizes: '180x180', type: 'image/png' }
     ],
     shortcut: ['/favicon.ico?v=3']
   },

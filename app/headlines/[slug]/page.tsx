@@ -24,7 +24,7 @@ import TikTokEmbed from '@/app/components/TikTokEmbed';
 import MostRead from '@/app/components/MostRead';
 import { SITE_URL } from '@/lib/site-config';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata(props: HeadlinePageProps): Promise<Metadata> {
   const params = await props.params;
@@ -35,7 +35,7 @@ export async function generateMetadata(props: HeadlinePageProps): Promise<Metada
   const headline = await sanityFetchDynamic<Headline>(
     headlineDetailQuery,
     { slug: trimmedSlug },
-    300,
+    3600,
     null as unknown as Headline
   );
 
@@ -54,7 +54,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
     sanityFetchDynamic<Headline>(
       headlineDetailQuery,
       { slug: trimmedSlug },
-      300,
+      3600,
       null as unknown as Headline
     ),
     sanityFetchDynamic<HeadlineListItem[]>(
@@ -81,7 +81,7 @@ export default async function HeadlinePage(props: HeadlinePageProps) {
         "tags": tagRefs[]->{ _id, title, slug }
       }`,
       {},
-      300,
+      3600,
       []
     ),
   ]);

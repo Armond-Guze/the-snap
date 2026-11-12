@@ -36,7 +36,7 @@ type TopicArticle = {
 
 type TopicPageProps = { params: Promise<{ slug: string }> };
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const topicQuery = `*[_type == "advancedTag" && slug.current == $slug][0]{
   _id,
@@ -104,7 +104,7 @@ export default async function TopicPage({ params }: TopicPageProps) {
         category->{title,"slug":slug.current}
       }`,
     { tagId: topic._id },
-    300,
+    3600,
     []
   );
 
